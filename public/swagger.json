@@ -1,0 +1,313 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "ApoIA API",
+    "version": "1.0"
+  },
+  "tags": [
+    {
+      "name": "auth"
+    },
+    {
+      "name": "ai"
+    },
+    {
+      "name": "batch"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "BearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWE"
+      }
+    }
+  },
+  "paths": {
+    "/api/batch/{name}/html": {
+      "get": {
+        "description": "Obtem um relatório em HTML para um lote de processos",
+        "tags": [
+          "batch"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "name",
+            "required": true,
+            "description": "Nome do lote"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Relatório em HTML"
+          }
+        }
+      }
+    },
+    "/api/batch/{name}/{number}": {
+      "post": {
+        "description": "Seleciona a combinação de peças e produtos para um processo e gera os resumos e o conteúdo de cada produto",
+        "tags": [
+          "batch"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "name",
+            "required": true
+          },
+          {
+            "in": "path",
+            "name": "number",
+            "required": true
+          },
+          {
+            "in": "header",
+            "name": "model-and-api-key",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Modelo e chave de API separados por ':', codificados em base64"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK, processo analisado e resultado armazenado no banco de dados"
+          }
+        }
+      }
+    },
+    "/api/process/{number}/analysis": {
+      "get": {
+        "description": "Analisa um processo judicial, produzindo resumo das principais peças e gerando o conteúdo dos produtos pertinentes",
+        "tags": [
+          "ai"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "number",
+            "required": true,
+            "description": "Número do processo (apenas números)"
+          },
+          {
+            "in": "header",
+            "name": "model-and-api-key",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Modelo e chave de API separados por ':', codificados em base64"
+          },
+          {
+            "in": "query",
+            "name": "format",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "json",
+                "markdown",
+                "html",
+                "pdf"
+              ]
+            },
+            "description": "Formato do resultado (json, markdown, html, pdf)"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Análise do processo no formato solicitado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "description": "OK se a análise foi realizada com sucesso"
+                    },
+                    "products": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "descr": {
+                            "type": "string",
+                            "description": "Descrição do produto"
+                          },
+                          "prompt": {
+                            "type": "string",
+                            "description": "Prompt para geração do produto"
+                          },
+                          "generated": {
+                            "type": "string",
+                            "description": "Conteúdo gerado"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/process/{number}/piece/{piece}/summary": {
+      "get": {
+        "description": "Resume uma peça processual",
+        "tags": [
+          "ai"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "number",
+            "required": true,
+            "description": "Número do processo (apenas números)"
+          },
+          {
+            "in": "path",
+            "name": "piece",
+            "required": true,
+            "description": "Identificador da peça processual (apenas números)"
+          },
+          {
+            "in": "header",
+            "name": "model-and-api-key",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Modelo e chave de API separados por ':', codificados em base64"
+          },
+          {
+            "in": "query",
+            "name": "format",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "json",
+                "markdown",
+                "html",
+                "pdf"
+              ]
+            },
+            "description": "Formato do resultado (json, markdown, html, pdf)"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Análise do processo no formato solicitado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "description": "OK se a análise foi realizada com sucesso"
+                    },
+                    "product": {
+                      "type": "object",
+                      "properties": {
+                        "descr": {
+                          "type": "string",
+                          "description": "Descrição do produto"
+                        },
+                        "prompt": {
+                          "type": "string",
+                          "description": "Prompt para geração do produto"
+                        },
+                        "generated": {
+                          "type": "string",
+                          "description": "Conteúdo gerado"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/signin": {
+      "post": {
+        "description": "Autentica o usuário",
+        "tags": [
+          "auth"
+        ],
+        "accepts": [
+          "application/json"
+        ],
+        "requestBody": {
+          "description": "Optional description in *Markdown*",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "system": {
+                    "type": "string",
+                    "description": "Sistema a ser acessado, por exemplo, \"TRF2\" ou \"JFRJ\""
+                  },
+                  "email": {
+                    "type": "string",
+                    "description": "Email ou outro identificador do usuário no MNI"
+                  },
+                  "password": {
+                    "type": "string",
+                    "description": "Senha do usuário no MNI"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "token": {
+                      "type": "string",
+                      "description": "Token de autenticação para ser usado na API"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
