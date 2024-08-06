@@ -2,6 +2,8 @@ import { streamContent } from '../../../lib/generate'
 import { NextResponse } from 'next/server'
 import Fetcher from '../../../lib/fetcher'
 
+export const maxDuration = 60
+
 export async function POST(request: Request) {
     try {
         // const body = JSON.parse(JSON.stringify(request.body))
