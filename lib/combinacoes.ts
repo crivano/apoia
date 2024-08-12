@@ -11,6 +11,7 @@ export enum T {
     RECURSO_INOMINADO = 'RECURSO INOMINADO',
     CONTRARRAZOES = 'CONTRARRAZÕES',
     RELATORIO = 'RELATÓRIO',
+    EXTRATO_DE_ATA = 'EXTRATO DE ATA',
     VOTO = 'VOTO',
     ACORDAO = 'ACÓRDÃO',
 }
@@ -60,7 +61,7 @@ export interface TCombinacaoValida {
 }
 
 export const TCombinacoesValidas: TCombinacaoValida[] = [
-    { tipos: [T.RELATORIO, T.VOTO], produtos: [P.RESUMOS, PC(P.ACORDAO, T.VOTO)] },
+    { tipos: [T.EXTRATO_DE_ATA, T.RELATORIO, T.VOTO], produtos: [P.RESUMOS, PC(P.ACORDAO, [T.EXTRATO_DE_ATA, T.VOTO])] },
     // { tipos: [T.RELATORIO, T.VOTO], produtos: [P.RESUMOS, PC(P.REVISAO, T.VOTO), PC(P.REFINAMENTO, T.VOTO), PC(P.ACORDAO, T.VOTO)] },
     { tipos: [T.SENTENCA, T.APELACAO, T.CONTRARRAZOES], produtos: [P.RESUMOS, P.RESUMO] },
     { tipos: [T.SENTENCA, T.RECURSO_INOMINADO], produtos: [P.RESUMOS, P.RESUMO] },

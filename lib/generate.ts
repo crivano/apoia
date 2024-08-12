@@ -55,7 +55,7 @@ export async function saveToCache(sha256: string, model: string, prompt: string,
     return inserted.id
 }
 
-export async function generateContent(prompt: string, data: any, date: Date): Promise<IAGenerated> {
+export async function generateContent(prompt: string, data: any): Promise<IAGenerated> {
     // const user = await getCurrentUser()
     // if (!user) return Response.json({ errormsg: 'Unauthorized' }, { status: 401 })
 

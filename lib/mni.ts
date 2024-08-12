@@ -3,7 +3,7 @@
 import * as soap from 'soap'
 import { pdfToText } from './pdf'
 import { html2md } from './html2md'
-import { T, CombinacoesValidas } from './combinacoes'
+import { T, CombinacoesValidas, CombinacaoValida } from './combinacoes'
 import { parseYYYYMMDDHHMMSS, formatBrazilianDateTime, addBlockQuote } from './utils'
 import { systems } from './env'
 import { assertCurrentUser, getCurrentUser } from './user'
@@ -44,6 +44,7 @@ export const autenticar = async (system: string, username: string, password: str
 
 export type PecaType = {
     id: string
+    numeroDoEvento: string,
     descr: string
     tipoDoConteudo: string
     sigilo: string,
@@ -56,6 +57,7 @@ const selecionarPecas = (pecas: PecaType[], descricoes: string[]) => {
     // Seleciona as peças de acordo com o tipo de peça, pegando sempre a última peça de cada tipo
     let pecasSelecionadas: PecaType[] = []
     let idxDescricao = descricoes.length - 1
+
     for (const peca of pecasRelevantes.reverse()) {
         if (peca.descr === descricoes[idxDescricao]) {
             pecasSelecionadas = [peca, ...pecasSelecionadas]
@@ -79,7 +81,17 @@ const iniciarObtencaoDeConteudo = (numeroDoProcesso: string, pecas: PecaType[], 
     return pecasComConteudo
 }
 
-export const obterDadosDoProcesso = async (numeroDoProcesso: string, pUser: Promise<any>, idDaPeca?: string) => {
+export type DadosDoProcessoType = {
+    pecas: PecaType[]
+    combinacao?: CombinacaoValida
+    ajuizamento?: Date
+    codigoDaClasse?: number
+    numeroDoProcesso?: string
+    nomeOrgaoJulgador?: string
+    errorMsg?: string
+}
+
+export const obterDadosDoProcesso = async (numeroDoProcesso: string, pUser: Promise<any>, idDaPeca?: string): Promise<DadosDoProcessoType> => {
     let pecas: PecaType[] = []
     let errorMsg = undefined
     try {
@@ -90,20 +102,22 @@ export const obterDadosDoProcesso = async (numeroDoProcesso: string, pUser: Prom
         const respQuery = await consultarProcesso(numeroDoProcesso, username, password)
         if (!respQuery[0].sucesso)
             throw new Error(`${respQuery[0].mensagem}`)
+        const dadosBasicos = respQuery[0].processo.dadosBasicos
         if (verificarNivelDeSigilo())
-            assertNivelDeSigilo(respQuery[0].processo.dadosBasicos.sigilo)
-        const dataAjuizamento = respQuery[0].processo.dadosBasicos.attributes.dataAjuizamento
-        // console.log('dadosBasicos', respQuery[0].processo.dadosBasicos)
+            assertNivelDeSigilo(dadosBasicos.sigilo)
+        const dataAjuizamento = dadosBasicos.attributes.dataAjuizamento
+        // console.log('dadosBasicos', dadosBasicos)
+        const nomeOrgaoJulgador = dadosBasicos.orgaoJulgador.attributes.nomeOrgao
         const ajuizamento = parseYYYYMMDDHHMMSS(dataAjuizamento)
         // ajuizamentoDate.setTime(ajuizamentoDate.getTime() - ajuizamentoDate.getTimezoneOffset() * 60 * 1000)
-        const ajuizamentoBRT = formatBrazilianDateTime(ajuizamento)
-        // console.log('dadosBasicos', respQuery[0].processo.dadosBasicos)
-        const codigoDaClasse = parseInt(respQuery[0].processo.dadosBasicos.attributes.classeProcessual)
+        const codigoDaClasse = parseInt(dadosBasicos.attributes.classeProcessual)
         const documentos = respQuery[0].processo.documento
+        // console.log('documentos', JSON.stringify(documentos, null, 2))
         for (const doc of documentos) {
             // if (!Object.values(T).includes(doc.attributes.descricao)) continue
             pecas.unshift({
                 id: doc.attributes.idDocumento,
+                numeroDoEvento: doc.attributes.movimento,
                 descr: doc.attributes.descricao,
                 tipoDoConteudo: doc.attributes.mimetype,
                 sigilo: doc.attributes.nivelSigilo,
@@ -111,12 +125,18 @@ export const obterDadosDoProcesso = async (numeroDoProcesso: string, pUser: Prom
             })
         }
 
+        pecas.sort((a, b) => {
+            let i = a.numeroDoEvento.localeCompare(b.numeroDoEvento)
+            if (i !== 0) return i
+            return a.descr.localeCompare(b.descr)
+        })
+
         if (idDaPeca) {
             pecas = pecas.filter(p => p.id === idDaPeca)
             if (pecas.length === 0)
                 throw new Error(`Peça ${idDaPeca} não encontrada`)
             const pecasComConteudo = iniciarObtencaoDeConteudo(numeroDoProcesso, pecas, username, password)
-            return { pecas: pecasComConteudo, ajuizamento, codigoDaClasse, numeroDoProcesso }
+            return { pecas: pecasComConteudo, ajuizamento, codigoDaClasse, numeroDoProcesso, nomeOrgaoJulgador }
         }
 
         for (const comb of CombinacoesValidas) {
@@ -127,10 +147,10 @@ export const obterDadosDoProcesso = async (numeroDoProcesso: string, pUser: Prom
                         assertNivelDeSigilo(peca.sigilo, `${peca.descr} (${peca.id})`)
 
                 const pecasComConteudo = iniciarObtencaoDeConteudo(numeroDoProcesso, pecasSelecionadas, username, password)
-                return { pecas: pecasComConteudo, combinacao: comb, ajuizamento, codigoDaClasse, numeroDoProcesso }
+                return { pecas: pecasComConteudo, combinacao: comb, ajuizamento, codigoDaClasse, numeroDoProcesso, nomeOrgaoJulgador }
             }
         }
-        return { pecas: [] as PecaType[], ajuizamento, codigoDaClasse, numeroDoProcesso }
+        return { pecas: [] as PecaType[], ajuizamento, codigoDaClasse, numeroDoProcesso, nomeOrgaoJulgador }
     } catch (error) {
         if (error?.message === 'NEXT_REDIRECT') throw error
         errorMsg = error.message

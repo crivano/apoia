@@ -45,6 +45,9 @@ export default function RootLayout({
                             <NavItem>
                                 <NavigationLink href="/revision" text="Revisão de Texto" />
                             </NavItem>
+                            <NavItem>
+                                <NavigationLink href="/headnote" text="Ementa" />
+                            </NavItem>
                         </div>
                         <UserMenu />
                     </Container>

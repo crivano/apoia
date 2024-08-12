@@ -101,8 +101,6 @@ export default function AiContent(params: { infoDeProduto: InfoDeProduto, textos
         return Object.keys(enumVariable) as Array<T>;
     }
 
-    console.log('VisualizationEnum',)
-
     return <>
         {current || errormsg
             ? <div className={`alert alert-${color} ai-content`}>

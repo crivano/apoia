@@ -1,5 +1,5 @@
 import prompts, { PromptData } from '@/prompts/_prompts'
-import { obterDadosDoProcesso, PecaType } from '@/lib/mni'
+import { DadosDoProcessoType, obterDadosDoProcesso, PecaType } from '@/lib/mni'
 import { assertCurrentUser } from '@/lib/user'
 import { T, P, ProdutosValidos, Plugin, ProdutoCompleto, CombinacaoValida, InfoDeProduto, ProdutoValido } from '@/lib/combinacoes'
 import { slugify } from '@/lib/utils'
@@ -42,7 +42,7 @@ export async function summarize(dossierNumber: string, pieceNumber: string): Pro
 
     // Obter peças
     const pDadosDoProcesso = obterDadosDoProcesso(dossierNumber, pUser, pieceNumber)
-    const dadosDoProcesso = await pDadosDoProcesso
+    const dadosDoProcesso: DadosDoProcessoType = await pDadosDoProcesso
     if (dadosDoProcesso.errorMsg) throw new Error(dadosDoProcesso.errorMsg)
 
     // Obter conteúdo das peças
@@ -62,7 +62,7 @@ export async function summarize(dossierNumber: string, pieceNumber: string): Pro
     }
 
     // Retrieve from cache or generate
-    req.result = generateContent(req.infoDeProduto.prompt, req.data, dadosDoProcesso.ajuizamento as Date)
+    req.result = generateContent(req.infoDeProduto.prompt, req.data)
     const result = await req.result as IAGenerated
     req.generated = result.generation
     req.id = result.id
@@ -139,7 +139,7 @@ export async function analyze(batchName: string | undefined, dossierNumber: stri
 
         // Retrieve from cache or generate
         for (const req of requests) {
-            req.result = generateContent(req.infoDeProduto.prompt, req.data, dadosDoProcesso.ajuizamento)
+            req.result = generateContent(req.infoDeProduto.prompt, req.data)
         }
 
         for (const req of requests) {
@@ -158,7 +158,7 @@ export async function analyze(batchName: string | undefined, dossierNumber: stri
     }
 }
 
-export async function getPiecesWithContent(dadosDoProcesso: { pecas: PecaType[]; combinacao: CombinacaoValida; ajuizamento: Date; codigoDaClasse: number; errorMsg?: undefined } | { pecas: PecaType[]; ajuizamento: Date; codigoDaClasse: number; combinacao?: undefined; errorMsg?: undefined } | { pecas: PecaType[]; errorMsg: undefined; combinacao?: undefined; ajuizamento?: undefined; codigoDaClasse?: undefined }, dossierNumber: string): Promise<PecaComConteudoType[]> {
+export async function getPiecesWithContent(dadosDoProcesso: DadosDoProcessoType, dossierNumber: string): Promise<PecaComConteudoType[]> {
     let pecasComConteudo: PecaComConteudoType[] = []
     for (const peca of dadosDoProcesso.pecas) {
         if (peca.conteudo === undefined) {
