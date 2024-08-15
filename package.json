@@ -39,6 +39,8 @@
         "next": "^14.2.3",
         "next-auth": "^4.24.7",
         "next-swagger-doc": "^0.4.0",
+        "nunjucks": "^3.2.4",
+        "partial-json": "^0.1.7",
         "pdfjs-dist": "^3.11.174",
         "pdfmake": "^0.2.10",
         "react": "^18.3.1",

@@ -1,0 +1,44 @@
+description: "Ementa e Acórdão"
+
+providers:
+  - openai:gpt-4o-mini
+
+prompts:
+  - file://../test-prompt.js
+
+defaultTest:
+  options:
+    transform: output = output.replace(/.*<result>(.+)<\/result>.*/s, "$1").trim()
+
+tests:
+  - vars:
+      textos: file://test-var-textos.txt
+    assert:
+      - type: llm-rubric
+        value: deve haver um dispositivo com o mesmo sentido que o texto a seguir "Afastamento da possibilidade de sobrestamento do feito até o julgamento dos recursos especiais interpostos nos processos nº 5024472-10.2020.4.02.5101, nº 002330-74.2020.4.02.0000 e nº 5008373-05.2021.4.02.0000, pois (i) (i) a determinação de suspensão proferida naqueles autos faz referência apenas aos processos em trâmite perante a Vice-Presidência; (ii) não bastasse isso, o título executivo que norteia a execução de origem é outro, formado na Ação Coletiva nº 0012043-14.2011.4.02.5101 (muito embora as razões de decidir do STJ no futuro julgado paradigmático possam ser igualmente aplicáveis ao presente caso)."
+        provider: openai:gpt-4o-mini
+
+      - type: llm-rubric
+        value: deve haver um dispositivo com o mesmo sentido que o texto a seguir "A Turma não deixou de afirmar conhecer a jurisprudência do STJ no sentido de que o SINDSPREV/RJ detém legitimidade ativa para representar apenas os servidores da categoria da Previdência Social. O entendimento adotado, contudo, baseado em julgados do próprio STJ, foi o de que não é possível obstar a execução individual de sentença coletiva por servidores das áreas da Saúde e do Trabalho, em respeito à coisa julgada formada na ação coletiva de origem."
+        provider: openai:gpt-4o-mini
+
+      - type: llm-rubric
+        value: deve haver um dispositivo com o mesmo sentido que o texto a seguir "Não há que se falar em omissão quanto ao entendimento firmado pelo STF no julgamento do Tema nº 499 da Repercussão Geral, aplicável apenas na definição da eficácia subjetiva de título judicial formado em ação coletiva ordinária ajuizada por associação, e não por sindicato."
+        provider: openai:gpt-4o-mini
+
+      - type: llm-rubric
+        value: deve haver um dispositivo com o mesmo sentido que o texto a seguir "A alegação de contradição em relação ao art. 926 do CPC/15 não pode ser acolhida. Nos termos da jurisprudência do STJ, “a contradição sanável por meio dos embargos de declaração é aquela interna ao julgado embargado - por exemplo, a incompatibilidade entre a fundamentação e o dispositivo da própria decisão”. Em outras palavras, o parâmetro da contrariedade não pode ser externo, como outro acórdão, ato normativo ou prova” (AgInt nos EDcl no AREsp 835.562/SP, Rel. Ministro Sérgio Kukina, Primeira Turma, julgado em 15/08/2017, DJe 28/08/2017). Assim, não caracteriza contradição a adoção de orientação diversa das demais Turmas deste Tribunal."
+        provider: openai:gpt-4o-mini
+
+      - type: llm-rubric
+        value: deve haver um dispositivo com o mesmo sentido que o texto a seguir "Regimento Interno deste TRF da 2ª Região prevê que a remessa dos autos para pronunciamento da Seção Especializada nos casos de divergência jurisprudencial é uma faculdade das Turmas Especializadas, e não uma obrigação, não havendo, portanto, que se falar que o acórdão embargado conteria vício pela não adoção de tal procedimento."
+        provider: openai:gpt-4o-mini
+
+      - type: llm-rubric
+        value: o campo "conclusao" deve ser preenchido com um texto com o mesmo sentido do texto a seguir "Embargos de declaração a que se dá parcial provimento."
+        provider: openai:gpt-4o-mini
+
+      - type: llm-rubric
+        value: o campo "acordao" deve ser preenchido com um texto com o mesmo sentido do texto a seguir "Vistos e relatados estes autos em que são partes as acima indicadas, a Egrégia 7a. Turma Especializada do Tribunal Regional Federal da 2ª Região decidiu, por unanimidade, dar parcial provimento aos embargos de declaração, apenas para prestar os esclarecimentos acima, sem atribuir ao recurso efeitos infringentes, nos termos do voto da Relatora."
+        provider: openai:gpt-4o-mini
+

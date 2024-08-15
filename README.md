@@ -110,3 +110,19 @@ npm run dev
 ```
 
 A ApoIA funciona perfeitamente no Vercel, caso deseje fazer deploy na nuvem.
+
+## Testando os Prompts
+
+A ApoIA utiliza o framework PromptFoo para realizar testes em seus prompts.
+
+Para executar o teste de um prompt específico, vá para o diretório onde se encontra o arquivo prompt.txt e execute o comando:
+
+```bash
+npx promptfoo@latest eval --env-file ../../.env.local --no-table --repeat 1 -c test.yaml
+```
+
+Para abrir a visualização dos resultados no browser, digite:
+
+```bash
+npx promptfoo@latest view
+```

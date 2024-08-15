@@ -8,7 +8,7 @@ import analise from "./analise"
 import analise_tr from "./analise-tr"
 import resumo from "./resumo"
 import triagem from "./triagem"
-import acordao from "./acordao"
+import acordao from "./acordao/prompt"
 import revisao from "./revisao"
 import refinamento from "./refinamento"
 

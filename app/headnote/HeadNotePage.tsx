@@ -23,20 +23,6 @@ export default function Revison() {
         setHidden(true)
     }
 
-    const preprocessText = (text) => {
-        return `EXTRATO DE ATA:
-<extrato_de_ata>
-ÓRGÃO JULGADOR: ${orgaoJulgador}
-TIPO DE DECISÁO: UNÂMINE
-</extrato_de_ata>
-
-VOTO:
-<voto>
-${text}
-</voto>
-`
-    }
-
     return (
         <div className="mb-3">
             <h2 className="mt-3">Parâmetros</h2>
@@ -64,7 +50,7 @@ ${text}
                 <h2 className="mt-3">Ementa e Acórdão</h2>
                 <AiContent
                     infoDeProduto={{ produto: P.ACORDAO, dados: [], titulo: 'Ementa e Acórdão', prompt: 'acordao', plugins: [] }}
-                    textos={[{ descr: 'Texto', slug: 'texto', texto: markdown }]} />
+                    textos={[{descr: 'EXTRATO DE ATA', slug: 'extrato-de-ata', texto: `ÓRGÃO JULGADOR: ${orgaoJulgador}\nTIPO DE DECISÁO: UNÂMINE`}, { descr: 'Voto', slug: 'voto', texto: markdown }]} />
             </>}
         </div>
     )
