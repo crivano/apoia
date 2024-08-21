@@ -1,6 +1,7 @@
+import { PromptType } from './_prompts'
 import { system, systemMessage } from './_system'
 
-export default (data) => {
+export default (data): PromptType => {
     const prompt = `
 Você foi designado para refinar um texto a ser inserido em ação judicial.
 Por favor, leia com atenção o texto a seguir demarcado por crases triplas:
@@ -19,5 +20,5 @@ Certifique-se de:
 - Não inclua crases triplas para informar que se trata de Markdown na resposta
 - Responda apenas com o testo refinado e mais nada
 `
-return [systemMessage(false), { role: 'user', content: prompt }]
+    return { message: [systemMessage(false), { role: 'user', content: prompt }] }
 }

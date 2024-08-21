@@ -1,6 +1,7 @@
+import { PromptType } from './_prompts'
 import { system, systemMessage } from './_system'
 
-export default (data) => {
+export default (data): PromptType => {
     const prompt = `
 Você foi designado para elaborar resumos de sentença e de recurso inominado de uma ação judicial proposta no juizado especial da justiça federal.
 Por favor, leia com atenção os textos a seguir e resuma as informações mais importantes:
@@ -69,5 +70,5 @@ Certifique-se de:
 - Formatar o texto usando Markdown
 - Não repita as instruções no resumo.
 `
-return [systemMessage(true), { role: 'user', content: prompt }]
+    return { message: [systemMessage(true), { role: 'user', content: prompt }] }
 }

@@ -1,6 +1,7 @@
+import { PromptType } from './_prompts'
 import { system, systemMessage } from './_system'
 
-export default (data) => {
+export default (data): PromptType => {
     const prompt = `
 Você foi designado para elaborar a análise de uma ação judicial proposta na justiça federal.
 Por favor, leia com atenção os textos a seguir:
@@ -32,5 +33,5 @@ Certifique-se de:
 - Não repita as instruções na análise.
 
 `
-return [systemMessage(true), { role: 'user', content: prompt }]
+    return { message: [systemMessage(true), { role: 'user', content: prompt }] }
 }

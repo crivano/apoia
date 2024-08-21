@@ -1,6 +1,7 @@
+import { PromptType } from './_prompts'
 import { system, systemMessage } from './_system'
 
-export default (data) => {
+export default (data): PromptType => {
     const prompt = `
 Você foi designado para elaborar resumos de petição inicial de uma ação judicial proposta na justiça federal, e da resposta do réu, que pode tomar a forma de contestação, informações em mandado de segurança, impugnação a embargos etc.
 Por favor, leia com atenção os textos a seguir e resuma as informações mais importantes:
@@ -87,5 +88,5 @@ Depois de organizar o esboço, escreva o resumo final dentro das tags <result>. 
 - Formatar o texto usando Markdown
 - Escreva somente dentro das tags <scratchpad> e <result>, não inclua nenhum outro texto fora delas. Não repita as instruções no resumo.
 `
-return [systemMessage(true), { role: 'user', content: prompt }]
+    return { message: [systemMessage(true), { role: 'user', content: prompt }] }
 }

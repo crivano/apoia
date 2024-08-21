@@ -8,12 +8,15 @@ import analise from "./analise"
 import analise_tr from "./analise-tr"
 import resumo from "./resumo"
 import triagem from "./triagem"
-import acordao from "./acordao/prompt"
+import acordao from "./acordao-cnj/prompt"
 import revisao from "./revisao"
 import refinamento from "./refinamento"
+import { any } from "zod"
+import { CoreMessage } from "ai"
 
 export type Texto = { descr: string; slug: string; pTexto?: Promise<string>; texto?: string }
 export type PromptData = { textos: Texto[] }
+export type PromptType = { message: CoreMessage[], structuredOutputs?: { schemaName: string, schemaDescription: string, schema: any } }
 
 // Enum for the different types of prompts
 export default {

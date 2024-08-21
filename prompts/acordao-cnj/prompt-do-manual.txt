@@ -1,0 +1,241 @@
+As ementas devem ser divididas nos seguintes itens: 
+- Cabeçalho (ou Indexação);
+- Caso em exame;
+- Questão em discussão;
+- Razões de decidir;
+- Dispositivo
+- Tese (quando for o caso);
+- Legislação relevante citada;
+- Jurisprudência relevante citada.
+
+
+# Cabeçalho
+
+Conteúdo: o cabeçalho deverá conter as seguintes informações sequenciais, preferencialmente com um máximo de quatro linhas:
+- o ramo do Direito (ex: Direito constitucional e administrativo);
+- a classe processual (ex: ação direta de inconstitucionalidade, mandado de segurança);
+- uma frase ou algumas palavras que indiquem qual é o assunto principal;
+- a conclusão da decisão ou do voto (ex: medida cautelar deferida, procedência do pedido).
+
+Formatação: O cabeçalho (ou indexação) da ementa deve ser escrito diferenciando letras maiúsculas e minúsculas. No caso do ramo do direito e da classe processual, apenas a inicial da primeira palavra deve ser redigida em letra maiúscula (ex: "Direito constitucional e direito administrativo"; "Mandado de segurança").
+
+Limitação de tamanho: a indexação da ementa deve ter, preferencialmente, até três linhas. Se a questão for muito complexa, pode-se chegar a quatro linhas. 
+
+Exemplo: Direito administrativo e previdenciário. Embargos de declaração em agravo interno em recurso extraordinário. Recurso protelatório. Embargos rejeitados.
+
+
+# Caso em exame
+
+Conteúdo: deve conter qual é a ação, o recurso ou o incidente que é objeto da decisão ou voto, com a sumária descrição do caso.
+
+O item deve apresentar o caso de forma direta, sem a expressão "trata-se de" (ex: 1. Mandado de segurança contra ato do Tribunal de Contas da União que negou registro à aposentadoria de servidor público, em razão de cômputo de tempo de serviço ficto).
+
+Exemplo: Embargos de declaração opostos em face de acórdão que negou provimento a agravo interno, mantendo a decisão que havia concedido a liminar para permitir a participação do embargado no concurso para analista do TRF da Segunda Região.
+
+
+# Questão em discussão
+
+Conteúdo: breve relato da(s) questão(ões) em discussão, com a descrição objetiva de fundamentos jurídicos e, se houver, de fatos que caracterizam a controvérsia. 
+
+O texto deve enunciar as questões de maneira objetiva, seguindo o seguinte padrão: "A questão em discussão consiste em (...)". / "Há duas questões em discussão: (i) saber se (...); e (ii) saber se (...)".
+
+Deve-se incluir todas as questões, com os seus respectivos fatos e fundamentos.
+
+Exemplo: A questão em discussão consiste em saber se há obscuridade, contradição ou omissão que justifique (i) o afastamento de multa prevista no § 4º do art. 1.021 do CPC e (ii) a redução de honorários fixados por ocasião do julgamento do agravo interno.
+
+
+# Razões de decidir
+
+Conteúdo: deve expor o resultado e resumir todos fundamentos da decisão (cada resultado em um item).
+
+Exemplo:
+- Os embargos não apontam qualquer erro, obscuridade, contradição ou omissão no acórdão embargado, o que afasta a presença dos pressupostos de embargabilidade do art. 1.022 do CPC.
+- A jurisprudência do STF afirma que é protelatório o agravo interno que se limita a reproduzir aquilo que já constava dos autos e foi devidamente examinado pela decisão agravada.
+
+
+# Dispositivo
+
+Conteúdo: Conclusão da decisão/julgamento (provimento do recurso, desprovimento do recurso) e enunciação da tese, quando for o caso.
+
+Formatação: Quando houver tese de julgamento, inserir o subtítulo em itálico, seguida de dois pontos ("Tese de julgamento:"). Se a tese possuir mais de um item, ordenar os itens por numerais cardinais.
+
+Exemplo: Embargos de declaração rejeitados.
+
+
+# Tese
+
+Conteúdo: Enunciação da tese, quando for o caso. A tese pode ser composta de um ou mais itens.
+
+
+# Dispositivos relevantes citados
+
+Conteúdo: remissão à legislação citada no texto que for relevante para a solução do caso.
+- Dispositivo: A citação deve conter o diploma normativo abreviado (ex: CF/1988, CPC, CC, CP, CPP, Lei nº  9.099/1995), seguido do dispositivo (ex: art. 1º, I, § 1º).
+
+Formatação:
+- Nas enumerações de dispositivos, usar vírgula para separá-los. Ex.: arts. 5º, III, e 6º, I.
+- Utilizar a abreviatura de número (nº) quando se referir a Lei, Decreto etc.
+- O ano deve conter 4 dígitos, tanto nas datas quanto nos atos normativos. Ex.: Lei nº 9.430/1996; Lei Complementar nº 70/1991.
+
+Exemplo: 
+- CPC, arts. 1.021, § 4º, e 1.022
+
+# Jurisprudência relevante citada
+
+Conteúdo: remissão à jurisprudência citada no texto que for relevante para a solução do caso.
+
+A citação deve conter as seguintes informações:
+- nome da corte ou tribunal abreviado (ex: STF, STJ, TJSP, TRF1, TRT4);
+- classe processual, incluindo recurso ou incidente em julgamento (ex: AgR no RE);
+- número do processo;
+- nome do relator, precedido da palavra relator(a) abreviado, se houver ("Rel.");
+- unidade do tribunal (câmara, plenário, turma ou outra);
+- data do julgamento ou da publicação.
+
+Exemplo:
+- STF, AgR no ARE 822.641, Rel. Min. Edson Fachin, 1ª Turma, j. 23.10.2015
+
+# ORIENTAÇÕES GERAIS DE REDAÇÃO DAS EMENTAS
+
+Use frases curtas. Evite o uso exagerado de vírgula, de aposto e de frases intercaladas. Evite colocar mais de uma ideia em uma mesma frase.
+
+Procure escrever as orações na ordem direta (sujeito – verbo – complemento {objeto direto e/ou indireto} – adjuntos adverbiais). 
+
+Não inclua citações doutrinárias ou referências bibliográficas.
+
+Evite adjetivos, advérbios, metáforas, hipérboles, superlativos, palavras em outros idiomas e sinônimos (ex: use "Constituição" ou "Constituição Federal", e não "Carta Magna" ou "Lei Maior"; use "mandado de segurança", e não "mandamus"). 
+
+Ao utilizar siglas ou abreviações, observe a padronização abaixo: 
+- Constituição Federal de 1988: CF/1988
+- Ato das Disposições Constitucionais Transitórias: ADCT
+- Código de Processo Civil de 2015: CPC ou CPC/2015
+- Código de Processo Civil de 1973: CPC/1973
+- Código Civil de 2002: CC ou CC/2002
+- Código Civil de 1916: CC/1916
+- Código de Defesa do Consumidor: CDC
+- Código de Trânsito Brasileiro: CTB
+- Código Penal Militar: CPM
+- Código de Processo Penal Militar: CPPM
+- Código Penal: CP
+- Código de Processo Penal: CPP
+- Código Tributário Nacional: CTN
+- Código Eleitoral: CE
+- Consolidação das Leis do Trabalho: CLT
+- Código Comercial: CCom
+
+Abrevie os termos abaixo da seguinte forma:
+- Artigo: art.
+- Emenda Constitucional: EC
+- Inciso: inc.
+- Lei: L.
+- Lei Complementar: LC
+- Parágrafo: §
+- Parágrafo único: p.u.
+
+# Exemplos
+
+{
+    "cabecalho": "Direito constitucional. Ação direta de inconstitucionalidade por omissão. Licença-paternidade. Pedido parcialmente procedente.",
+    "casoEmExame": [
+        "Ação direta de inconstitucionalidade por omissão relacionada à ausência de regulamentação do direito fundamental à licençapaternidade, previsto no art. 7º, XIX, da CF/1988."
+    ],
+    "questaoEmDiscussao": "Há duas questões em discussão: (i) saber se há ou não lacuna normativa ilegítima, diante da previsão do art. 10, § 1º, do ADCT, que garante o prazo de cinco dias de licença-paternidade “até que a lei venha a disciplinar o disposto no art. 7º, XIX, da Constituição”; e (ii) caso declarada a mora legislativa, qual a consequência do reconhecimento da omissão.",
+    "razoesDeDecidir": [
+        "O art. 10, § 1º, do ADCT contém uma regra transitória, prevista há mais de três décadas, que é insuficiente para suprir a omissão na regulamentação do direito constitucional à licença-paternidade.",
+        "O prazo de cinco dias, previsto no ADCT, não reflete a evolução dos papéis desempenhados por homens e mulheres na família e na sociedade. Da mesma forma, esse prazo não se adequa à compreensão atual do direito à igualdade, em especial, à igualdade de gênero (CF/1988, art. 5º, I), nem observa os deveres constitucionais de proteção familiar e à infância (CF/1988, arts. 6º, 203, 226, 227 e 229), que exigem o atendimento do melhor interesse da criança e o exercício de paternidade responsável."
+    ],
+    "dispositivo": "Pedido parcialmente procedente. Reconhecimento da existência de omissão inconstitucional e fixação do prazo de 18 meses para que seja sanada. Não havendo atuação do Congresso Nacional, o STF disporá a respeito.",
+    "tese": [
+        "Existe omissão inconstitucional relativamente à edição da lei regulamentadora da licença paternidade, prevista no art. 7º, XIX, da Constituição.",
+        "Fica estabelecido o prazo de 18 meses para o Congresso Nacional sanar a omissão apontada, contados da publicação da ata de julgamento.",
+        "Não sobrevindo a lei regulamentadora no prazo acima estabelecido, caberá a este Tribunal fixar o período da licença paternidade"
+    ],
+    "dispositivosRelevantesCitados": [
+        "CF/1988, arts. 1º, III, 5º, I, 6º, 7º, XIX, 203 e 227", 
+        "ADCT, art. 10, § 1º."
+    ],
+    "jurisprudenciaRelevanteCitada": [
+        "STF, ADI 3.682, Rel. Min. Gilmar Mendes, Plenário, j. 09.05.2007",
+        "STF, ADO 26, Rel. Min. Celso de Mello, Plenário, j. 13.06.2019",
+        "STF, MI 4.733, Rel. Min. Edson Fachin, Plenário, j. 13.06.2019"
+    ],
+}
+
+{
+    "cabecalho": "Direito constitucional e civil. Recurso extraordinário com agravo. Repercussão geral. Separação obrigatória de bens nos casamentos e uniões estáveis com pessoa maior de setenta anos. Interpretação conforme a Constituição.",
+    "casoEmExame": [
+        "_O recurso_. Recurso extraordinário com agravo e repercussão geral reconhecida, contra decisão que considerou constitucional o art. 1.641, II, do Código Civil e estendeu sua aplicação às uniões estáveis. O dispositivo prevê a obrigatoriedade do regime de separação de bens no casamento de pessoa maior de 70 (setenta) anos.",
+        "_O fato relevante_. Companheira em união estável postula participação na sucessão de seu falecido companheiro em igualdade de condições com os herdeiros necessários.",
+        "_As decisões anteriores_. O juiz de primeiro grau julgou inconstitucional o dispositivo do Código Civil e reconheceu o direito da companheira. O TJSP reformou a decisão, considerando que a norma que impõe a separação obrigatória de bens é válida."
+    ],
+    "questaoEmDiscussao": "Há duas questões em discussão: (i) a constitucionalidade do dispositivo que impõe o regime da separação de bens aos casamentos com pessoa maior de setenta anos; e (ii) a aplicação dessa regra às uniões estáveis.",
+    "razoesDeDecidir": [
+        "O dispositivo questionado, se interpretado como norma cogente, viola os princípios da dignidade da pessoa humana e da igualdade.", 
+        "O princípio da dignidade humana é violado em duas dimensões: (i) da autonomia individual, pois impede que pessoas capazes façam suas escolhas existenciais livremente; e (ii) do valor intrínseco, por tratar idosos como instrumentos para a satisfação do interesse patrimonial dos herdeiros.",
+        "Já o princípio da igualdade é violado por utilizar a idade como elemento de desequiparação entre as pessoas, o que é vedado pelo art. 3º, IV, da Constituição, salvo se demonstrado que se trata de medida razoável para realizar um fim legítimo. Não é isso o que ocorre, pois as pessoas idosas, enquanto conservarem sua capacidade mental, têm o direito de fazer escolhas acerca da sua vida e da disposição de seus bens.",
+        "É possível, todavia, dar interpretação conforme a Constituição ao art. 1.641, II, do Código Civil, atribuindo-lhe o sentido de norma dispositiva. Ou seja: trata-se de regime legal facultativo e não cogente, que deve prevalecer à falta de convenção das partes em sentido diverso, mas que pode ser afastado por vontade dos nubentes, cônjuges ou companheiros.",
+        "A possibilidade de escolha do regime de bens deve ser estendida às uniões estáveis. O STF tem jurisprudência no sentido de que não é legítimo desequiparar, para fins sucessórios, os cônjuges e os companheiros.",
+        "A presente decisão tem efeitos prospectivos, não afetando as situações jurídicas já definitivamente constituídas. É possível, todavia, a mudança consensual de regime, nos casos em que validamente admitida (ex: art. 1.639, § 2º, do Código Civil).",
+        "No caso concreto, como não houve manifestação do falecido no sentido de derrogação do art. 1.641, II, do Código Civil, a norma é aplicável."
+    ],
+    "dispositivo": "Recurso extraordinário desprovido.",
+    "tese": [
+        "Nos casamentos e uniões estáveis envolvendo pessoa maior de 70 anos, o regime de separação de bens previsto no art. 1.641, II, do Código Civil pode ser afastado por expressa manifestação de vontade das partes, mediante escritura pública."
+    ],
+    "dispositivosRelevantesCitados": [
+        "CF/1988, art. 1º, III e IV", 
+        "CC, arts. 1.641, II, e 1.639, § 2º"
+    ],
+    "jurisprudenciaRelevanteCitada": [
+        "STF, RE 878.694, Rel. Min. Luís Roberto Barroso, Plenário, j. 17.06.2017"
+    ],
+}
+
+{
+    "cabecalho": "Direito administrativo. Recurso especial. Acesso a informações públicas por órgão de imprensa. Restrições indevidas. Recurso provido.",
+    "casoEmExame": [
+        "_O recurso_. Recurso especial contra acórdão do TJSP que denegou pedido em mandado de segurança para assegurar a veículo de imprensa o acesso a dados de óbitos associados a ocorrências policiais.",
+        "_O fato relevante_. O pedido de acesso à informação foi acolhido pela Ouvidoria Geral do Estado. Apesar disso, a autoridade policial não forneceu os dados. Após, o próprio Estado publicou parte dos dados solicitados na internet.",
+        "_As decisões anteriores_. s. O juiz de primeiro grau concedeu a ordem de segurança. O TJSP reformou a sentença, em razão de: (i) ausência de interesse de agir, uma vez que parte das informações já havia sido publicada em portal de transparência; e (ii) embora fossem públicas e não ofendessem direitos individuais, as informações não poderiam ser divulgadas pela mídia, diante de risco à segurança e à privacidade das famílias dos falecidos."
+    ],
+    "questaoEmDiscussao": "A questão em discussão consiste em saber se o acesso a dados de óbitos relacionados a boletins de ocorrência policial pode ser negado à imprensa, com fundamento na veiculação de parte da informação em portal de transparência, assim como por se considerar irrazoável o uso que se pretende dar à informação de natureza pública.",
+    "razoesDeDecidir": [
+        "A existência de portal de transparência não afasta o direito de acesso à informação, constituindo apenas um meio de fornecer o acesso ao solicitante (art. 11, §§ 3º e 6º, da Lei nº 12.527/2011). Inexistência de fundamento para a rejeição do pedido de informação.", 
+        "Não cabe à Administração ou ao Judiciário avaliar as razões ou os usos que se pretende dar a informações públicas. Impedir a imprensa de apurar eventual interesse de divulgação de dados públicos caracteriza censura prévia. A imposição de restrições especiais ao exercício de atividade jornalística, não aplicáveis à população em geral, é vedada pela Constituição Federal (STF, ADPF 130).",
+        "O acesso à informação não pode ser recusado com base em receio genérico de danos decorrentes de eventual divulgação. Os danos, caso efetivados, se resolvem pela responsabilização civil, administrativa e penal."
+    ],
+    "dispositivo": "Recurso provido para reformar o acórdão, concedendo a segurança.",
+    "tese": [
+        "É vedado impor a órgãos de imprensa restrições não aplicáveis às pessoas em geral para acesso a informações públicas."
+    ],
+    "dispositivosRelevantesCitados": [
+        " Lei nº 12.257/2011, arts. 10, 11 e 31"
+    ],
+    "jurisprudenciaRelevanteCitada": [
+        " STF, ADPF 130, Rel. Min. Ayres Britto, Plenário, j. 30.04.2009"
+    ],
+}
+
+
+# Modelo da Resposta
+
+A resposta deve ser formatada em JSON, conforme o modelo abaixo:
+
+{
+    "cabecalho": "Incluir o Cabeçalho",
+    "casoEmExame": ["Incluir o Caso em exame"],
+    "questaoEmDiscussao": "Incluir a Questão em discussão",
+    "razoesDeDecidir": ["Incluir as Razões de decidir"],
+    "dispositivo": "Incluir o Dispositivo",
+    "tese": ["Incluir a Tese, se houver"],
+    "dispositivosRelevantesCitados": ["Incluir os Dispositivos relevantes citados"],
+    "jurisprudenciaRelevanteCitada": ["Incluir a Jurisprudência relevante citada"]
+}
+
+
+# Tarefa principal
+
+Leia cuidadosamente os textos abaixo e produza a ementa conforme o modelo acima.
+Sua resposta deve ser um JSON válido e deve começar direto com o caracter '{'. Não prefixe a resposta com crases triplas.
+
+{{textos}}

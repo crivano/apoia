@@ -1,0 +1,33 @@
+Ementa
+
+EMBARGOS DE DECLARAÇÃO. ALEGADA NECESSIDADE DE SOBRESTAMENTO DO FEITO. DESCABIMENTO. NÃO OCORRÊNCIA DE OMISSÃO, CONTRADIÇÃO OU OBSCURIDADE. INEXISTÊNCIA DE EFEITOS INFRINGENTES.
+
+I. CASO EM EXAME
+1.1. Trata-se de embargos de declaração opostos contra acórdão que reconheceu a legitimidade ativa de sindicato para executar título judicial em favor de servidores de diferentes áreas, em ação coletiva.
+1.2. A embargante sustenta a necessidade de sobrestamento do feito e a existência de omissão e contradição no acórdão embargado, argumentando que a decisão não observou precedentes do STJ e do STF, além de divergência jurisprudencial entre Turmas do TRF da 2ª Região.
+
+II. QUESTÕES EM DISCUSSÃO
+2.1. Verificação da necessidade de sobrestamento do processo em virtude de decisões em processos representativos de controvérsia.
+2.2. Análise sobre a existência de omissão, contradição ou obscuridade no acórdão embargado, especialmente quanto à legitimidade ativa do sindicato e à observância de precedentes do STJ e STF.
+2.3. Possibilidade de afetação da questão à Seção Especializada em razão de divergência jurisprudencial.
+
+III. RAZÕES DE DECIDIR
+3.1. Não há que se falar em sobrestamento do processo, pois a determinação de suspensão em processos representativos da controvérsia restringe-se aos tramitando perante a Vice-Presidência e não abrange o caso concreto, cujo título executivo é distinto.
+3.2. No mérito, não se verificam omissão ou contradição no acórdão embargado. O acórdão explicitamente considerou a jurisprudência do STJ quanto à legitimidade do sindicato, baseando-se no respeito à coisa julgada para permitir a execução por servidores de outras áreas.
+3.3. O Tema nº 499 do STF, relacionado à eficácia subjetiva da coisa julgada em ações coletivas ajuizadas por associações civis, não é aplicável ao presente caso, que trata de legitimidade de sindicatos, regida pelo Tema nº 823.
+3.4. A contradição que autoriza embargos de declaração é a interna ao próprio julgado, e não em relação a decisões de outros órgãos ou Turmas. A divergência entre Turmas não caracteriza contradição sanável por embargos de declaração.
+3.5. A remessa para apreciação da Seção Especializada, em caso de divergência jurisprudencial, é facultativa, não havendo obrigatoriedade em tal procedimento.
+
+IV. DISPOSITIVO E TESE
+4.1. Embargos de declaração parcialmente providos, apenas para esclarecimentos, sem efeitos infringentes.
+4.2. Tese: A contradição que autoriza embargos de declaração é a que se verifica internamente ao julgado embargado; a suspensão de processos com base em decisões representativas da controvérsia restringe-se àqueles em trâmite perante a Vice-Presidência.
+
+Dispositivos relevantes citados
+
+Código de Processo Civil de 2015 (CPC/2015), arts. 1.022, II; 926
+Regimento Interno do TRF da 2ª Região
+Jurisprudência relevante citada
+
+STF, Tema nº 823, Tribunal Pleno, RE 883.642, Rel. Ministro Presidente, j. 18/06/2015.
+STJ, AgInt no RMS 54509/RJ, Rel. Min. Herman Benjamin, Segunda Turma, DJe 14/11/2018.
+STJ, AgInt nos EDcl no AREsp 835.562/SP, Rel. Min. Sérgio Kukina, Primeira Turma, DJe 28/08/2017.

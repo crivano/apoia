@@ -1,6 +1,7 @@
+import { PromptType } from './_prompts'
 import { system, systemMessage } from './_system'
 
-export default (data) => {
+export default (data): PromptType => {
     const prompt = `
 Você foi designado para elaborar um resumo da sentença de uma ação judicial proposta na justiça federal.
 Por favor, leia com atenção a sentença a seguir e resuma as informações mais importantes:
@@ -24,5 +25,5 @@ Depois de organizar o esboço, escreva o resumo final dentro das tags <result>. 
 
 Escreva somente dentro das tags <scratchpad> e <result>, não inclua nenhum outro texto fora delas. Não repita as instruções no resumo. Não dê um título ao resumo. Escreva em texto corrido, mas pode usar bullet points, se e quando achar necessário.
 `
-    return [systemMessage(true), { role: 'user', content: prompt }]
+    return { message: [systemMessage(true), { role: 'user', content: prompt }] }
 }

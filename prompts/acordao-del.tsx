@@ -1,6 +1,7 @@
+import { PromptType } from './_prompts'
 import { system, systemMessage } from './_system'
 
-export default (data) => {
+export default (data): PromptType => {
     const prompt = `
 Você foi designado para elaborar uma ementa e um acórdão em ação judicial proposta na justiça federal.
 Por favor, leia com atenção os textos a seguir:
@@ -54,5 +55,5 @@ Vistos e relatados estes autos em que são partes as acima indicadas, a Egrégia
 Escreva somente dentro das tags <scratchpad> e <result>, não inclua nenhum outro texto fora delas. Não repita as instruções no resumo.
 
 `
-return [systemMessage(true), { role: 'user', content: prompt }]
+    return { message: [systemMessage(true), { role: 'user', content: prompt }] }
 }

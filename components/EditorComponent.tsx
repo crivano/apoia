@@ -7,7 +7,9 @@ import {
     markdownShortcutPlugin,
     toolbarPlugin,
     BoldItalicUnderlineToggles,
-    BlockTypeSelect
+    BlockTypeSelect,
+    DiffSourceToggleWrapper,
+    diffSourcePlugin
 } from "@mdxeditor/editor"
 import { FC } from "react"
 
@@ -24,6 +26,7 @@ interface EditorProps {
 const Editor: FC<EditorProps> = ({ markdown, editorRef, onChange }) => {
     return (
         <MDXEditor
+            className="mdx-editor"
             onChange={(e) => onChange(e)}
             ref={editorRef}
             markdown={markdown}
@@ -34,15 +37,22 @@ const Editor: FC<EditorProps> = ({ markdown, editorRef, onChange }) => {
                 quotePlugin(),
                 thematicBreakPlugin(),
                 markdownShortcutPlugin(),
+                diffSourcePlugin({
+                    diffMarkdown: 'An older version',
+                    viewMode: 'diff',
+                    readOnlyDiff: true
+                }),
                 toolbarPlugin({
                     toolbarContents: () => (
-                      <>
-                        {' '}
-                        <BlockTypeSelect />
-                        <BoldItalicUnderlineToggles />
-                      </>
+                        <>
+                            {' '}
+                            <DiffSourceToggleWrapper options={['rich-text', "source"]}>
+                                <BlockTypeSelect />
+                                <BoldItalicUnderlineToggles />
+                            </DiffSourceToggleWrapper>
+                        </>
                     )
-                  }),
+                }),
             ]}
         />
     );

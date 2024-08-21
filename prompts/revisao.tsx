@@ -1,6 +1,7 @@
+import { PromptType } from './_prompts'
 import { system, systemMessage } from './_system'
 
-export default (data) => {
+export default (data): PromptType => {
     const prompt = `
 Você foi designado para revisar um texto a ser inserido em ação judicial.
 
@@ -28,5 +29,5 @@ Modelo de resposta:
     - **Trecho original:** [trecho original do texto, se houver]
     - **Trecho corrigido:** [trecho corrigido do texto, se houver]
 `
-return [systemMessage(false), { role: 'user', content: prompt }]
+    return { message: [systemMessage(false), { role: 'user', content: prompt }] }
 }

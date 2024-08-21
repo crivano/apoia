@@ -9,17 +9,20 @@ export function format(s: string): string {
     const json = parse(s, ALL)
     if (!json) return ''
 
-    const result = nunjucks.renderString(`# EMENTA
+    const result = nunjucks.renderString(`**Ementa:** {{cabecalho}}
 
-{{ementa}}
-{% for dispositivo in dispositivos %}
-{{loop.index}}. {{ dispositivo }}
-{% endfor %}
-{% if conclusao %}{{dispositivos.length + 1}}. {{conclusao}}{% endif %}
+{% if casoEmExame %}1. {{casoEmExame}}{% endif %}
+{% if decisoes %}{% for d in decisoes %}
+{{loop.index + 1}}. {{ d.decisaoEFundamentos }}
+{% endfor %}{% endif %}
+{% if dispositivo %}{{decisoes | length + 2}}. **{{dispositivo}}**{% endif %}
+{% if dispositivosRelevantesCitados %}
+---
 
-# ACÓRDÃO
-
-{{acordao}}`, json)
+_Dispositivos relevantes citados_: {% for d in dispositivosRelevantesCitados %}{{ "" if loop.first else ("; e " if loop.last else "; ") }}{{ d }}{{"." if loop.last else ""}}{% endfor %}{% endif %}
+{% if jurisprudenciaRelevanteCitada %}
+_Jurisprudência relevante citada_: {% for d in jurisprudenciaRelevanteCitada %}{{ "" if loop.first else ("; e " if loop.last else "; ") }}{{ d }}{{"." if loop.last else ""}}{% endfor %}
+{% endif %}`, json)
 
     return result
 }

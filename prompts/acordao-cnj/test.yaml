@@ -1,7 +1,8 @@
 description: "Ementa e Acórdão"
 
 providers:
-  - openai:gpt-4o-mini
+  - openai:gpt-4o
+  # - anthropic:messages:claude-3-5-sonnet-20240620
 
 prompts:
   - file://../test-prompt.js
@@ -12,33 +13,104 @@ defaultTest:
 
 tests:
   - vars:
-      textos: file://test-var-textos.txt
+      textos: file://test-01-var-textos.txt
     assert:
       - type: llm-rubric
-        value: deve haver um dispositivo com o mesmo sentido que o texto a seguir "Afastamento da possibilidade de sobrestamento do feito até o julgamento dos recursos especiais interpostos nos processos nº 5024472-10.2020.4.02.5101, nº 002330-74.2020.4.02.0000 e nº 5008373-05.2021.4.02.0000, pois (i) (i) a determinação de suspensão proferida naqueles autos faz referência apenas aos processos em trâmite perante a Vice-Presidência; (ii) não bastasse isso, o título executivo que norteia a execução de origem é outro, formado na Ação Coletiva nº 0012043-14.2011.4.02.5101 (muito embora as razões de decidir do STJ no futuro julgado paradigmático possam ser igualmente aplicáveis ao presente caso)."
-        provider: openai:gpt-4o-mini
+        value: deve haver um topico de "casoEmExame" com o mesmo sentido que o texto a seguir "Embargos de declaração opostos em face de acórdão que negou provimento a agravo de instrumento."
+        provider: openai:gpt-4o
 
       - type: llm-rubric
-        value: deve haver um dispositivo com o mesmo sentido que o texto a seguir "A Turma não deixou de afirmar conhecer a jurisprudência do STJ no sentido de que o SINDSPREV/RJ detém legitimidade ativa para representar apenas os servidores da categoria da Previdência Social. O entendimento adotado, contudo, baseado em julgados do próprio STJ, foi o de que não é possível obstar a execução individual de sentença coletiva por servidores das áreas da Saúde e do Trabalho, em respeito à coisa julgada formada na ação coletiva de origem."
-        provider: openai:gpt-4o-mini
+        value: deve haver um topico de "fundamentos" com o mesmo sentido que o texto a seguir "Afastamento da possibilidade de sobrestamento do feito até o julgamento dos recursos especiais interpostos nos processos nº 5024472-10.2020.4.02.5101, nº 002330-74.2020.4.02.0000 e nº 5008373-05.2021.4.02.0000, pois (i) (i) a determinação de suspensão proferida naqueles autos faz referência apenas aos processos em trâmite perante a Vice-Presidência; (ii) não bastasse isso, o título executivo que norteia a execução de origem é outro, formado na Ação Coletiva nº 0012043-14.2011.4.02.5101 (muito embora as razões de decidir do STJ no futuro julgado paradigmático possam ser igualmente aplicáveis ao presente caso)."
+        provider: openai:gpt-4o
 
       - type: llm-rubric
-        value: deve haver um dispositivo com o mesmo sentido que o texto a seguir "Não há que se falar em omissão quanto ao entendimento firmado pelo STF no julgamento do Tema nº 499 da Repercussão Geral, aplicável apenas na definição da eficácia subjetiva de título judicial formado em ação coletiva ordinária ajuizada por associação, e não por sindicato."
-        provider: openai:gpt-4o-mini
+        value: deve haver um topico de "fundamentos" com o mesmo sentido que o texto a seguir "A Turma não deixou de afirmar conhecer a jurisprudência do STJ no sentido de que o SINDSPREV/RJ detém legitimidade ativa para representar apenas os servidores da categoria da Previdência Social. O entendimento adotado, contudo, baseado em julgados do próprio STJ, foi o de que não é possível obstar a execução individual de sentença coletiva por servidores das áreas da Saúde e do Trabalho, em respeito à coisa julgada formada na ação coletiva de origem."
+        provider: openai:gpt-4o
 
       - type: llm-rubric
-        value: deve haver um dispositivo com o mesmo sentido que o texto a seguir "A alegação de contradição em relação ao art. 926 do CPC/15 não pode ser acolhida. Nos termos da jurisprudência do STJ, “a contradição sanável por meio dos embargos de declaração é aquela interna ao julgado embargado - por exemplo, a incompatibilidade entre a fundamentação e o dispositivo da própria decisão”. Em outras palavras, o parâmetro da contrariedade não pode ser externo, como outro acórdão, ato normativo ou prova” (AgInt nos EDcl no AREsp 835.562/SP, Rel. Ministro Sérgio Kukina, Primeira Turma, julgado em 15/08/2017, DJe 28/08/2017). Assim, não caracteriza contradição a adoção de orientação diversa das demais Turmas deste Tribunal."
-        provider: openai:gpt-4o-mini
+        value: deve haver um topico de "fundamentos" com o mesmo sentido que o texto a seguir "Na data de sua morte, Robson já estava na Penitenciária de Catanduvas há mais de 4 (quatro) anos, período muito superior ao inicialmente determinado pela lei. Não bastasse isso, teve frustrada a sua expectativa de retorno para casa, visto que, no dia da transferência, houve um problema com a aeronave e a viagem foi cancelada, tendo o suicídio ocorrido no dia seguinte. É perfeitamente plausível supor que tal frustração contribuiu para o agravamento do quadro de deterioração da sua saúde mental. O fato de não haver objetos cortantes na cela do preso não é suficiente para afastar a responsabilidade do Estado, ao entendimento de que o ente estatal teria tomado as providências possíveis para evitar o suicídio. Há diversos relatos de presos que se suicidaram com lençóis, camisas e cadarços, não se tratando de caso inédito."
+        provider: openai:gpt-4o
 
       - type: llm-rubric
-        value: deve haver um dispositivo com o mesmo sentido que o texto a seguir "Regimento Interno deste TRF da 2ª Região prevê que a remessa dos autos para pronunciamento da Seção Especializada nos casos de divergência jurisprudencial é uma faculdade das Turmas Especializadas, e não uma obrigação, não havendo, portanto, que se falar que o acórdão embargado conteria vício pela não adoção de tal procedimento."
-        provider: openai:gpt-4o-mini
+        value: deve haver um topico de "fundamentos" com o mesmo sentido que o texto a seguir "A alegação de contradição em relação ao art. 926 do CPC/15 não pode ser acolhida. Nos termos da jurisprudência do STJ, “a contradição sanável por meio dos embargos de declaração é aquela interna ao julgado embargado - por exemplo, a incompatibilidade entre a fundamentação e o dispositivo da própria decisão”. Em outras palavras, o parâmetro da contrariedade não pode ser externo, como outro acórdão, ato normativo ou prova” (AgInt nos EDcl no AREsp 835.562/SP, Rel. Ministro Sérgio Kukina, Primeira Turma, julgado em 15/08/2017, DJe 28/08/2017). Assim, não caracteriza contradição a adoção de orientação diversa das demais Turmas deste Tribunal."
+        provider: openai:gpt-4o
 
       - type: llm-rubric
-        value: o campo "conclusao" deve ser preenchido com um texto com o mesmo sentido do texto a seguir "Embargos de declaração a que se dá parcial provimento."
-        provider: openai:gpt-4o-mini
+        value: deve haver um topico de "fundamentos" com o mesmo sentido que o texto a seguir "Embora o pedido deva ser certo, nos termos do art. 322 do CPC/15, no caso, deve ser aplicado o disposto no §2º do mesmo dispositivo legal, segundo o qual “a interpretação do pedido considerará o conjunto da postulação e observará o princípio da boa-fé”, devendo, assim, ser apreciado o pedido de pensionamento mensal, feito ao longo da inicial e reproduzido na apelação."
+        provider: openai:gpt-4o
 
       - type: llm-rubric
-        value: o campo "acordao" deve ser preenchido com um texto com o mesmo sentido do texto a seguir "Vistos e relatados estes autos em que são partes as acima indicadas, a Egrégia 7a. Turma Especializada do Tribunal Regional Federal da 2ª Região decidiu, por unanimidade, dar parcial provimento aos embargos de declaração, apenas para prestar os esclarecimentos acima, sem atribuir ao recurso efeitos infringentes, nos termos do voto da Relatora."
-        provider: openai:gpt-4o-mini
+        value: o campo "dispositivo" deve ser preenchido com um texto com o mesmo sentido do texto a seguir "Embargos de declaração a que se dá parcial provimento."
+        provider: openai:gpt-4o
+
+      - type: llm-rubric
+        value: deve haver um topico de "dispositivosRelevantesCitados" com o mesmo sentido que o texto a seguir "CPC/2015, arts. 1.022, II, e 926"
+        provider: openai:gpt-4o
+        
+      - type: llm-rubric
+        value: deve haver um topico de "dispositivosRelevantesCitados" com o mesmo sentido que o texto a seguir "CPC/2015, arts. 1.022, II, e 926"
+        provider: openai:gpt-4o
+        
+      - type: llm-rubric
+        value: deve haver um topico de "jurisprudenciaRelevanteCitada" com o mesmo sentido que o texto a seguir "STJ, AgInt nos EDcl no AREsp 835.562/SP, Rel. Min. Sérgio Kukina, 1ª Turma, j. 15.08.2017"
+        provider: openai:gpt-4o
+        
+      - type: llm-rubric
+        value: deve haver um topico de "jurisprudenciaRelevanteCitada" com o mesmo sentido que o texto a seguir "STF, RE 883.642, Rel. Min. Presidente, Tribunal Pleno, j. 18.06.2015"
+        provider: openai:gpt-4o
+
+      # - type: llm-rubric
+      #   value: o campo "acordao" deve ser preenchido com um texto com o mesmo sentido do texto a seguir "Vistos e relatados estes autos em que são partes as acima indicadas, a Egrégia 7a. Turma Especializada do Tribunal Regional Federal da 2ª Região decidiu, por unanimidade, dar parcial provimento aos embargos de declaração, apenas para prestar os esclarecimentos acima, sem atribuir ao recurso efeitos infringentes, nos termos do voto da Relatora."
+      #   provider: openai:gpt-4o
+
+  - vars:
+      textos: file://test-02-var-textos.txt
+    assert:
+      - type: llm-rubric
+        value: deve haver um topico de "casoEmExame" com o mesmo sentido que o texto a seguir "Embargos de declaração opostos em face de acórdão que negou provimento a agravo de instrumento."
+        provider: openai:gpt-4o
+
+      - type: llm-rubric
+        value: deve haver um topico de "razoesDeDecidir" com o mesmo sentido que o texto a seguir "Nos casos em que a Administração Penitenciária tome conhecimento do estado de saúde mental abalado do detento, deve providenciar acompanhamento psiquiátrico ou psicológico e dispensar maior atenção ao indivíduo, a fim de zelar por sua integridade física e moral, sob pena de responder civilmente em caso de suicídio (STJ, AgInt no REsp 1.819.813/RO, 2ª Turma, Rel. Min. Francisco Falcão, j. em 21/11/2019)."
+        provider: openai:gpt-4o
+
+      - type: llm-rubric
+        value: deve haver um topico de "razoesDeDecidir" com o mesmo sentido que o texto a seguir "No caso, a mãe de Robson relatou que seu filho vinha enfrentando um quadro depressivo em razão do longo tempo submetido ao cumprimento de pena em prisão federal situada em local distante da residência de seus familiares, o que lhe impunha um isolamento extremo. Por sua vez, o senhor Ruy Wagner Astrath, chefe do plantão no turno em que o óbito ocorreu, informou à Polícia Civil que, antes do suicídio, Robson estava cumprindo pena há 2 (dois) meses em local separado e isolado dos demais detentos, por solicitação dele próprio, que afirmou “não estar bem”, o que revela o conhecimento da Administração sobre a deterioração do estado mental do indivíduo posto sob sua tutela."
+        provider: openai:gpt-4o
+
+      - type: llm-rubric
+        value: deve haver um topico de "razoesDeDecidir" com o mesmo sentido que o texto a seguir "Não há que se falar em omissão quanto ao entendimento firmado pelo STF no julgamento do Tema nº 499 da Repercussão Geral, aplicável apenas na definição da eficácia subjetiva de título judicial formado em ação coletiva ordinária ajuizada por associação, e não por sindicato."
+        provider: openai:gpt-4o
+
+      - type: llm-rubric
+        value: deve haver um topico de "razoesDeDecidir" com o mesmo sentido que o texto a seguir "A alegação de contradição em relação ao art. 926 do CPC/15 não pode ser acolhida. Nos termos da jurisprudência do STJ, “a contradição sanável por meio dos embargos de declaração é aquela interna ao julgado embargado - por exemplo, a incompatibilidade entre a fundamentação e o dispositivo da própria decisão”. Em outras palavras, o parâmetro da contrariedade não pode ser externo, como outro acórdão, ato normativo ou prova” (AgInt nos EDcl no AREsp 835.562/SP, Rel. Ministro Sérgio Kukina, Primeira Turma, julgado em 15/08/2017, DJe 28/08/2017). Assim, não caracteriza contradição a adoção de orientação diversa das demais Turmas deste Tribunal."
+        provider: openai:gpt-4o
+
+      - type: llm-rubric
+        value: deve haver um topico de "razoesDeDecidir" com o mesmo sentido que o texto a seguir "Regimento Interno deste TRF da 2ª Região prevê que a remessa dos autos para pronunciamento da Seção Especializada nos casos de divergência jurisprudencial é uma faculdade das Turmas Especializadas, e não uma obrigação, não havendo, portanto, que se falar que o acórdão embargado conteria vício pela não adoção de tal procedimento."
+        provider: openai:gpt-4o
+
+      - type: llm-rubric
+        value: o campo "dispositivo" deve ser preenchido com um texto com o mesmo sentido do texto a seguir "Embargos de declaração a que se dá parcial provimento."
+        provider: openai:gpt-4o
+
+      - type: llm-rubric
+        value: deve haver um topico de "dispositivosRelevantesCitados" com o mesmo sentido que o texto a seguir "CPC/2015, arts. 1.022, II, e 926"
+        provider: openai:gpt-4o
+        
+      - type: llm-rubric
+        value: deve haver um topico de "dispositivosRelevantesCitados" com o mesmo sentido que o texto a seguir "CPC/2015, arts. 1.022, II, e 926"
+        provider: openai:gpt-4o
+        
+      - type: llm-rubric
+        value: deve haver um topico de "jurisprudenciaRelevanteCitada" com o mesmo sentido que o texto a seguir "STJ, AgInt nos EDcl no AREsp 835.562/SP, Rel. Min. Sérgio Kukina, 1ª Turma, j. 15.08.2017"
+        provider: openai:gpt-4o
+        
+      - type: llm-rubric
+        value: deve haver um topico de "jurisprudenciaRelevanteCitada" com o mesmo sentido que o texto a seguir "STF, RE 883.642, Rel. Min. Presidente, Tribunal Pleno, j. 18.06.2015"
+        provider: openai:gpt-4o
+
+      # - type: llm-rubric
+      #   value: o campo "acordao" deve ser preenchido com um texto com o mesmo sentido do texto a seguir "Vistos e relatados estes autos em que são partes as acima indicadas, a Egrégia 7a. Turma Especializada do Tribunal Regional Federal da 2ª Região decidiu, por unanimidade, dar parcial provimento aos embargos de declaração, apenas para prestar os esclarecimentos acima, sem atribuir ao recurso efeitos infringentes, nos termos do voto da Relatora."
+      #   provider: openai:gpt-4o
 

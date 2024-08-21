@@ -1,9 +1,9 @@
 'use server'
 
-import prompts, { PromptData } from '../prompts/_prompts'
+import prompts, { PromptData, PromptType } from '../prompts/_prompts'
 import { createOpenAI } from '@ai-sdk/openai'
 import { createAnthropic } from '@ai-sdk/anthropic'
-import { generateText, GenerateTextResult, CoreTool, streamText, StreamTextResult, LanguageModel } from 'ai'
+import { generateText, GenerateTextResult, CoreTool, streamText, StreamTextResult, LanguageModel, streamObject } from 'ai'
 import { getModelAndApiKeyCookieValue } from '../app/model/cookie'
 import { retrieveIAGeneration, insertIAGeneration, IAGenerated, assertIAUserId, evaluateIAGeneration } from './mysql'
 import { SHA256 } from 'crypto-js'
@@ -22,7 +22,7 @@ function getModel() {
     return { model, modelRef: openai(model) }
 }
 
-export async function buildMessages(prompt: string, data: any) {
+export async function buildMessages(prompt: string, data: any): Promise<PromptType> {
     if (data?.textos) {
         for (const texto of data.textos) {
             if (!texto.pTexto) continue
@@ -35,8 +35,7 @@ export async function buildMessages(prompt: string, data: any) {
         prompt = 'resumo_peca'
         buildPrompt = prompts[prompt]
     }
-    const messages = buildPrompt(data)
-    return messages
+    return (await buildPrompt(data))
 }
 
 function calcSha256(messages: any): string {
@@ -60,7 +59,9 @@ export async function generateContent(prompt: string, data: any): Promise<IAGene
     // if (!user) return Response.json({ errormsg: 'Unauthorized' }, { status: 401 })
 
     const { model, modelRef } = getModel()
-    const messages = await buildMessages(prompt, data)
+    const buildPrompt = await buildMessages(prompt, data)
+    const messages = buildPrompt.message
+    const structuredOutputs = buildPrompt.structuredOutputs
     const sha256 = calcSha256(messages)
 
     // write response to a file for debugging
@@ -100,7 +101,9 @@ export async function streamContent(prompt: string, data: any, date: Date):
     // if (!user) return Response.json({ errormsg: 'Unauthorized' }, { status: 401 })
 
     const { model, modelRef } = getModel()
-    const messages = await buildMessages(prompt, data)
+    const buildPrompt = await buildMessages(prompt, data)
+    const messages = buildPrompt.message
+    const structuredOutputs = buildPrompt.structuredOutputs
     const sha256 = calcSha256(messages)
 
     // try to retrieve cached generations
@@ -110,8 +113,9 @@ export async function streamContent(prompt: string, data: any, date: Date):
     }
 
     // Start generating texts
-    console.log('streaming', prompt)
+    // console.log('streaming', prompt, messages)
 
+    // if (!structuredOutputs) {
     const pResult = streamText({
         model: modelRef as LanguageModel,
         messages,
@@ -122,12 +126,38 @@ export async function streamContent(prompt: string, data: any, date: Date):
             // write response to a file for debugging
             if (process.env.NODE_ENV === 'development') {
                 const fs = require('fs')
-                fs.writeFileSync(`/tmp/${prompt}.txt`, `${messages[0].content}\n\n${messages[1].content}\n\n---\n\n${text}`)
+                const currentDate = new Date().toISOString().replace(/[-:]/g, '').replace('T', '-').split('.')[0]
+                fs.writeFileSync(`/tmp/${currentDate}-${prompt}.txt`, `${messages[0].content}\n\n${messages[1].content}\n\n---\n\n${text}`)
             }
         }
     })
-
     return pResult
+    // } else {
+    //     console.log('streaming object')
+    //     const pResult = streamObject({
+    //         model: modelRef as LanguageModel,
+    //         messages,
+    //         maxRetries: 1,
+    //         // temperature: 1.5,
+    //         onFinish: async ({ object }) => {
+    //             await saveToCache(sha256, model, prompt, JSON.stringify(object))
+    //             // write response to a file for debugging
+    //             if (process.env.NODE_ENV === 'development') {
+    //                 const fs = require('fs')
+    //                 const currentDate = new Date().toISOString().replace(/[-:]/g, '').replace('T', '-').split('.')[0]
+    //                 fs.writeFileSync(`/tmp/${currentDate}-${prompt}.txt`, `${messages[0].content}\n\n${messages[1].content}\n\n---\n\n${object}`)
+    //             }
+    //         },
+    //         ...structuredOutputs
+    //     })
+    //     const result = await pResult
+    //     console.log('streaming object result', result)
+    //     const object = await result.object
+    //     const json = JSON.stringify(object)
+    //     console.log('streaming object json', json)
+    //     return json
+    // }
+
 }
 
 export async function streamValue(prompt: string, data: any, date: Date):

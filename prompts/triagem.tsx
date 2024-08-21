@@ -1,6 +1,7 @@
+import { PromptType } from './_prompts'
 import { system } from './_system'
 
-export default (data) => {
+export default (data): PromptType => {
     const prompt = `
 Você foi designado para organizar uma triagem de processos judiciais.
 Leia atentamente o JSON abaixo. Ele contém uma lista de códigos de assunto, descrições e quantidade de processos:
@@ -27,11 +28,13 @@ Por favor, gere um JSON, conforme o modelo abaixo.
     },
 }
 `
-    return [
-        {
-            role: 'system', content: `
+    return {
+        message: [
+            {
+                role: 'system', content: `
             Escreva de modo CONCISO, mas completo e abrangente, sem redundância
             Seja econômico, usando apenas expressões necessárias para a clareza
             Escreve na resposta somente o JSON e nada mais. Começe com o símbolo "{"` },
-        { role: 'user', content: prompt }]
+            { role: 'user', content: prompt }]
+    }
 }

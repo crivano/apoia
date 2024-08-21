@@ -1,47 +1,51 @@
-Você foi designado para elaborar uma ementa e um acórdão em ação judicial proposta na justiça federal.
-Por favor, leia com atenção os textos a seguir:
+# ORIENTAÇÕES GERAIS DE REDAÇÃO DAS EMENTAS
 
-{{textos}}
+## Como citar dispositivos
 
-Ementas são, em regra, constituídas por 3 partes essenciais: o cabeçalho, o dispositivo e a conclusão. 
-Idealmente, todos os temas expostos no cabeçalho constarão do dispositivo.
+Conteúdo: remissão à toda a legislação citada no texto que for relevante para a solução do caso.
+- Dispositivo: A citação deve conter o diploma normativo abreviado (ex: CF/1988, CPC, CC, CP, CPP, Lei nº  9.099/1995), seguido do dispositivo (ex: art. 1º, I, § 1º).
 
-# Cabeçalho
-- Composto por palavras-chaves escritas em caixa alta e separadas por pontos finais.
-- Deve ser composto por palavras e expressões que reflitam o conteúdo da decisão, mas não por sentenças completas.
-- Seguir a ordem do geral para o particular, isto é, do descritor para o subdescritor.
-- Iniciar o cabeçalho com a área do Direito objeto do acórdão.
-- Evitar incluir no cabeçalho detalhes específicos do caso julgado, como o nome das partes e o resultado do julgamento.
+Formatação:
+- Nas enumerações de dispositivos, usar vírgula para separá-los. Ex.: arts. 5º, III, e 6º, I.
+- Utilizar a abreviatura de número (nº) quando se referir a Lei, Decreto etc.
+- O ano deve conter 4 dígitos, tanto nas datas quanto nos atos normativos. Ex.: Lei nº 9.430/1996; Lei Complementar nº 70/1991.
 
-# Dispositivo
-- Composto por enunciado(s) que reflete(m) a(s) tese(s) jurídica(s) contida(s) na decisão
-- Deve ser composto por enunciados completos
-- É preferível que as frases sejam curtas e concisas, razão pela qual não se recomenda a reprodução integral de trechos do acórdão, de dispositivos legais, de transcrição integral de precedentes, ou da literatura especializada.
-- Existindo jurisprudência consolidada dos tribunais superiores sobre o tema, recomenda-se mencionar apenas que a decisão está de acordo com o entendimento do STF/STJ e apontar os principais precedentes. 
-- Caso a decisão contenha mais de um ponto controvertido, a ementa deve conter o número correspondente de dispositivos.
-- O dispositivo da ementa deve constituir um resumo da questão fundamental do acórdão, refletindo: (i) os fatos relevantes que consubstanciam a questão jurídica posta; (ii) o entendimento do tribunal; e (iii) as premissas teóricas, isto é, os fundamentos da decisão.
-- É importante que seu conteúdo possa ser apreendido sem a necessidade de referência ao cabeçalho, aos demais dispositivos da ementa, ou ao inteiro teor do acórdão. Por esse motivo, deve-se evitar o uso de expressões como "conforme exposto acima", "a referida lei", "a lei citada anteriormente", sendo preferível indicar novamente a norma mencionada.
-- Deve-se evitar referências específicas ao trâmite do processo ou às suas partes. Exceção deve ser feita às decisões que envolvam circunstâncias muito específicas e não reproduzíveis, caso em que será inevitável a referência às suas particularidades.
-- Evitar: adjetios e advérbios, metáforas, hipérboles e superlativos, sinônicos, palavras em outros idiomas.
-- Indicar a legislação utilizada e a jurisprudência citada, se hover.
+Exemplo: 
+- CPC, arts. 1.021, § 4º, e 1.022
 
-# Conclusão
-- Indique o nome do instrumento e diga se foi provido, parcialmente provido ou não provido
-- Não faça referência a decisão agravada
 
-Já o acórdão é um parágrafo de texto conforme descrito abaixo:
+## Como citar jurisprudência
 
-# Acórdão
-- Inclua apenas decisão final do tribunal
-- Não explique detalhes do caso, visto que isso já foi feito na ementa
-- Não inclua encaminhamentos futuros
+Conteúdo: remissão a toda a jurisprudência citada no texto que for relevante para a solução do caso.
 
-# Caso haja referência a algum dos termos abaixo, dê preferência às abreviações e denominações comuns, conforme indicado após os dois pontos:
-- Constituição da República Federativa do Brasil de 1988: CRFB/1988
+A citação deve conter as seguintes informações:
+- nome da corte ou tribunal abreviado (ex: STF, STJ, TJSP, TRF1, TRT4);
+- classe processual, incluindo recurso ou incidente em julgamento (ex: AgR no RE);
+- número do processo;
+- nome do relator, precedido da palavra relator(a) abreviado, se houver ("Rel.");
+- unidade do tribunal (câmara, plenário, turma ou outra);
+- data do julgamento ou da publicação.
+
+Exemplo:
+- STF, AgR no ARE 822.641, Rel. Min. Edson Fachin, 1ª Turma, j. 23.10.2015
+
+
+## Estilo literário
+
+Use frases curtas. Evite o uso exagerado de vírgula, de aposto e de frases intercaladas. Evite colocar mais de uma ideia em uma mesma frase.
+
+Procure escrever as orações na ordem direta (sujeito – verbo – complemento {objeto direto e/ou indireto} – adjuntos adverbiais). 
+
+Não inclua citações doutrinárias ou referências bibliográficas.
+
+Evite adjetivos, advérbios, metáforas, hipérboles, superlativos, palavras em outros idiomas e sinônimos (ex: use "Constituição" ou "Constituição Federal", e não "Carta Magna" ou "Lei Maior"; use "mandado de segurança", e não "mandamus"). 
+
+Ao utilizar siglas ou abreviações, observe a padronização abaixo: 
+- Constituição Federal de 1988: CF/1988
 - Ato das Disposições Constitucionais Transitórias: ADCT
-- Código de Processo Civil de 2015: CPC/2015
+- Código de Processo Civil de 2015: CPC ou CPC/2015
 - Código de Processo Civil de 1973: CPC/1973
-- Código Civil de 2002: CC/2002
+- Código Civil de 2002: CC ou CC/2002
 - Código Civil de 1916: CC/1916
 - Código de Defesa do Consumidor: CDC
 - Código de Trânsito Brasileiro: CTB
@@ -52,214 +56,135 @@ Já o acórdão é um parágrafo de texto conforme descrito abaixo:
 - Código Tributário Nacional: CTN
 - Código Eleitoral: CE
 - Consolidação das Leis do Trabalho: CLT
-- Código Comercial: Ccom
-- Lei nº 13.303/2016: Estatuto das Estatais
-- Lei nº 13.146/2015: Estatuto da Pessoa com Deficiência
-- Lei nº 13.089/2015: Estatuto da Metrópole
-- Lei nº 13.022/2014: Estatuto Geral das Guardas Municipais
-- Lei nº 12.852/2013: Estatuto da Juventude
-- Lei nº 12.288/2010: Estatuto da Igualdade Racial
-- Lei Complementar nº 123/2006: Estatuto da Microempresa e da EPP
-- Lei nº 10.826/2003: Estatuto do Desarmamento
-- Lei nº 10.741/2003: Estatuto do Idoso
-- Lei 10.671/2003: Estatuto do Torcedor
-- Lei nº 10.257/2001: Estatuto das Cidades
-- Lei nº 8.906/1994: Estatuto da OAB
-- Lei nº 8.112/1990: Estatuto dos Servidores Públicos da União
-- Lei nº 8.069/1990: ECA
-- Lei nº 6.880/1980: Estatuto dos Militares
-- Lei nº 6.001/1973: Estatuto do Índio
-- Lei nº 4.504/1954: Estatuto da Terra
-- Lei nº 14.133/2021: Nova Lei de Licitações
-- Lei nº 14.026/2020: Novo Marco Legal do Saneamento
-- Lei nº 13.848/2019: Lei Geral das Agências Reguladoras
-- Lei nº 13.709/2018: Lei Geral de Proteção de Dados, LGPD
-- Lei nº 13.445/2017: Lei de Migração
-- Lei nº 13.300/2016: Lei do Mandado de Injunção
-- Lei nº 13.140/2015: Lei da Mediação
-- Lei nº 12.965/2014: Marco Civil da Internet, MCI
-- Lei nº 12.846/2013: Lei Anticorrupção, LAC
-- Lei nº 12.737/2012: Lei Carolina Dieckmann
-- Lei nº 12.711/2012: Lei de Cotas
-- Lei nº 12.527/2011: Lei de Acesso à Informação
-- Lei nº 12.462/2011: Lei do RDC
-- Lei nº 12.153/2009: Lei dos Juizados Especiais Fazendários
-- Lei nº 12.016/2009: Lei do Mandado de Segurança, LMS
-- Lei nº 11.788/2008: Lei do Estágio
-- Lei nº 11.445/2007: Marco Legal do Saneamento
-- Lei nº 11.343/2006: Lei de Drogas
-- Lei nº 11.340/2006: Lei Maria da Penha, LMP
-- Lei nº 11.284/2006: Lei de Gestão de Florestas Públicas, LGFP
-- Lei nº 11.107/2005: Lei dos Consórcios Públicos
-- Lei nº 11.101/2005: Lei de Falências de 2005, LF
-- Lei nº 11.079/2004: Lei de PPPs
-- Lei nº 10.520/2002: Lei do Pregão
-- Lei nº 9.985/2000: Lei do Sistema Nacional de Unidades de Conservação da Natureza, LSNUC
-- Lei nº 9.784/1999: Lei de Processo Administrativo Federal
-- Lei nº 9.394/1996: Lei de Diretrizes e Bases da Educação Nacional
-- Lei nº 9.307/1996: Lei de Arbitragem
-- Lei nº 8.987/1995: Lei de Concessões
-- Lei nº 9.279/1996: Lei da Propriedade Industrial, LPI
-- Lei nº 9.099/1995: Lei dos Juizados Especiais
-- Lei nº 8.742/1993: Lei Orgânica da Assistência Social, LOAS
-- Lei nº 8.666/1993: Lei de Licitações
-- Lei nº 8.625/1993: Lei Orgânica do Ministério Público, LONMP
-- Lei nº 8.429/1992: Lei da Improbidade Administrativa, LIA
-- Lei nº 8.245/1991: Lei de Locações
-- Lei nº 8.213/1991: LBP
-- Lei nº 8.212/1991: Lei Orgânica da Seguridade Social
-- Lei nº 8.072/1990: Lei de Crimes Hediondos
-- Lei nº 8.036/1990: Lei do FGTS
-- Lei nº 8.009/1990: Lei do Bem de Família
-- Lei nº 7.357/1985: Lei do Cheque
-- Lei nº 7.347/1985: Lei da Ação Civil Pública, LACP
-- Lei nº 7.210/1984: Lei de Execução Penal, LEP
-- Lei nº 6.938/1981: Lei da Política Nacional do Meio Ambiente
-- Lei nº 6.830/1980: Lei de Execução Fiscal, LEF
-- Lei Complementar nº 35/1979: Lei Orgânica da Magistratura, LOMAN
-- Lei nº 6.385/1976: Lei da CVM
-- Lei nº 6.404/1976: Lei das Sociedades por Ações, LSA
-- Lei nº 6.015/1973: Lei de Registros Públicos, LRP
-- Lei nº 4.717/1965: Lei da Ação Popular, LACP
-- Decreto-Lei nº 200/67: DL 200/1967
-- Decreto-Lei nº 4.657/1942: Lei de Introdução às Normas do Direito Brasileiro, LINDB
-- Decreto-Lei nº 3.365/1941: DL 3.365/1941, Lei de Desapropriação
-- Decreto-Lei nº 58/1937: DL 3.365/1941
-- Decreto-Lei nº 25/1937: DL 25/1937
+- Código Comercial: CCom
+
+Abrevie os termos abaixo da seguinte forma:
 - Artigo: art.
 - Emenda Constitucional: EC
 - Inciso: inc.
 - Lei: L.
 - Lei Complementar: LC
-- Lei de Diretrizes Orçamentárias: LDO
-- Lei Orçamentária Anual: LOA
 - Parágrafo: §
-- Parágrafo Único: p.u.
-- Plano Plurianual: PPA
-- Projeto de Lei: PL
-- Projeto de Lei Complementar: PLC
-- Advocacia-Geral da União: AGU
-- Banco Central do Brasil: Bacen
-- Conselho Administrativo de Recursos Fiscais: CARF
-- Comissão de Valores Mobiliários: CVM
-- Conselho Nacional de Justiça: CNJ
-- Conselho Nacional do Ministério Público: CNMP
-- Defensoria Pública: DP
-- Defensoria Pública da União: DPU
-- Fundação Nacional do Índio: Funai
-- Instituto Brasileiro do Meio Ambiente e dos Recursos Naturais Renováveis: Ibama
-- Instituto Chico Mendes de Conservação da Biodiversidade: ICMBio
-- Instituto Nacional da Seguridade Social: INSS
-- Juizado Especial Cível: JEC
-- Juizado Especial Criminal: JECRIM
-- Juizado Especial Federal: JEF
-- Ministério Público: MP
-- Ministério Público Federal: MPF
-- Procuradoria-Geral da Fazenda Nacional: PGFN
-- Procuradoria-Geral da República: PGR
-- Procuradoria-Geral do Estado: PGE
-- Procuradoria-Geral do Município: PGM
-- Procuradoria-Geral Federal: PGF
-- Serviço Florestal Brasileiro: SFB
-- Superior Tribunal de Justiça: STJ
-- Supremo Tribunal Federal: STF
-- Superior Tribunal Militar: STM
-- Tribunal de Contas do Estado: TCE
-- Tribunal de Contas do Município: TCM
-- Tribunal de Contas da União: TCU
-- Tribunal de Justiça: TJ
-- Tribunal Regional do Trabalho: TRT
-- Tribunal Regional Eleitoral: TRE
-- Tribunal Regional Federal: TRF
-- Tribunal Superior do Trabalho: TST
-- Tribunal Superior Eleitoral: TSE
-- Ação Civil Pública: ACP
-- Ação Civil Pública por Improbidade Administrativa: AIA
-- Ação Popular: AP
-- Mandado de Segurança: MS
-- Agravo de Instrumento: AI
-- Agravo de Petição: AP
-- Agravo Regimental: AgRg
-- Recurso Especial: REsp
-- Recurso Extraordinário: RE
-- Recurso Ordinário: RO
-- Suspensão de Segurança: SS
-- Súmula Vinculante: SV
-- Processo Administrativo: PA
-- Processo Administrativo de Responsabilização da Lei nº 12.846/2013: PAR
-- Processo Administrativo Disciplinar: PAD
-- Contribuição Social sobre o Lucro Líquido: CSLL
-- Fundo de Garantia do Tempo de Serviço: FGTS
-- Imposto de Exportação: IE
-- Imposto de Importação: II
-- Imposto de Renda Pessoa Jurídica: IRPJ
-- Imposto de Renda Pessoa Física: IRPF
-- Imposto de transmissão causa mortis e doação: ITCMD
-- Imposto predial e territorial urbano: IPTU
-- Imposto sobre a propriedade de veículos automotores: IPVA
-- Imposto sobre a propriedade territorial rural: ITR
-- Imposto sobre Circulação de Mercadorias e Serviços: ICMS
-- Imposto sobre Grandes Fortunas: IGF
-- Imposto sobre Operações Financeiras: IOF
-- Imposto sobre Produtos Industrializados: IPI
-- Imposto sobre Serviços de Qualquer Natureza: ISS
-- Imposto Sobre Transmissão de Bens Imóveis: ITBI
-- Imposto sobre Valor Agregado: IVA
+- Parágrafo único: p.u.
 
-Depois de organizar o esboço, escreva o resultado final dentro das tags <result>. Certifique-se de:
-- Não incluir a data nem o número do processo nem o nome do subscritor
-- Usar uma linguagem jurídica formal
-- Formatar o resultado usando JSON conforme o modelo abaixo delimitado <modelo> e </modelo>, mas não incluir <modelo> e </modelo> no resultado
+
+# A Criação de Ementas
+
+As ementas devem ser divididas nos seguintes itens: 
+- Cabeçalho;
+- Caso em exame;
+- Decisões;
+- Dispositivo.
+
+
+## Cabeçalho
+
+Conteúdo: o cabeçalho deverá conter as seguintes informações sequenciais, preferencialmente com um máximo de quatro linhas:
+- o ramo do Direito (ex: DIREITO CONSTITUCIONAL E ADMINISTRATIVO);
+- a classe processual (ex: AÇÃO DIRETA DE INCONSTITUCIONALIDADE, MANDADO DE SEGURANÇA);
+- uma frase ou algumas palavras que indiquem qual é o assunto principal;
+- a conclusão da decisão ou do voto (ex: MEDIDA CAUTELAR DEFERIDA, PROCEDÊNCIA DO PEDIDO).
+
+Formatação: O cabeçalho (ou indexação) da ementa deve ser escrito todo em letras maiúsculas. Cada expressão deve terminar com um ponto final.
+
+Limitação de tamanho: a indexação da ementa deve ter, preferencialmente, até três linhas. Se a questão for muito complexa, pode-se chegar a quatro linhas. 
+
+Exemplo: DIREITO ADMINISTRATIVO E PREVIDENCIÁRIO. EMBARGOS DE DECLARAÇÃO EM AGRAVO INTERNO EM RECURSO EXTRAORDINÁRIO. RECURSO PROTELATÓRIO. EMBARGOS REJEITADOS.
+
+
+## Caso em exame
+
+Conteúdo: deve conter qual é a ação, o recurso ou o incidente que é objeto da decisão ou voto, com a sumária descrição do caso.
+
+O item deve apresentar o caso de forma direta, sem a expressão "trata-se de" (ex: 1. Mandado de segurança contra ato do Tribunal de Contas da União que negou registro à aposentadoria de servidor público, em razão de cômputo de tempo de serviço ficto).
+
+Exemplo: Embargos de declaração opostos em face de acórdão que negou provimento a agravo interno, mantendo a decisão que havia concedido a liminar para permitir a participação do embargado no concurso para analista do TRF da Segunda Região.
+
+
+## Decisões
+
+Conteúdo: uma lista de alegações com fundamentos, decisão e citações de normas e jurisprudência. As informações serão dispostas nos campos abaixo
+
+### Campo alegacao
+- Vá lendo o voto e, crie um item na lista para cada alegação. Quando uma alegação for dividida em vários subtópicos, inclua um item para cada um dos subtópicos.
+
+### Campo fundamentos (array de strings)
+- Para cada alegação, inclua uma lista com cada um dos fundamentos jurídicos que foram apresentados para sustentar a decisão. 
+- Atenção: se for citada norma ou jurisprudência no fundamento jurídico, inclua isso no texto, mesmo que a norma ou jurisprudência já tenha sido citada anteriormente, ou vá ser citada mais a frente.
+
+### Campo decisao
+- Informe a decisão praticada.
+
+### Campo decisaoEFundamentos
+- Por fim, escreva um texto descrevendo a decisão e incluindo cada um dos fundamentos que a motivaram, inclua citação de normas e jurisprudência, se houver.
+- Para não ficar repetitivo, em alguns caso começe citando a decisão e em outros comece pelos fundamentos.
+
+
+## Dispositivo
+
+Conteúdo: Conclusão da decisão/julgamento (provimento do recurso, desprovimento do recurso).
+
+Exemplo: Embargos de declaração rejeitados.
+
+
+## Dispositivos relevantes citados
+
+Conteúdo: remissão à toda a legislação citada no texto que for relevante para a solução do caso.
+- Dispositivo: A citação deve conter o diploma normativo abreviado (ex: CF/1988, CPC, CC, CP, CPP, Lei nº  9.099/1995), seguido do dispositivo (ex: art. 1º, I, § 1º).
+
+Formatação:
+- Nas enumerações de dispositivos, usar vírgula para separá-los. Ex.: arts. 5º, III, e 6º, I.
+- Utilizar a abreviatura de número (nº) quando se referir a Lei, Decreto etc.
+- O ano deve conter 4 dígitos, tanto nas datas quanto nos atos normativos. Ex.: Lei nº 9.430/1996; Lei Complementar nº 70/1991.
+
+Exemplo: 
+- CPC, arts. 1.021, § 4º, e 1.022
+
+## Jurisprudência relevante citada
+
+Conteúdo: remissão a toda a jurisprudência citada no texto que for relevante para a solução do caso.
+
+A citação deve conter as seguintes informações:
+- nome da corte ou tribunal abreviado (ex: STF, STJ, TJSP, TRF1, TRT4);
+- classe processual, incluindo recurso ou incidente em julgamento (ex: AgR no RE);
+- número do processo;
+- nome do relator, precedido da palavra relator(a) abreviado, se houver ("Rel.");
+- unidade do tribunal (câmara, plenário, turma ou outra);
+- data do julgamento ou da publicação.
+
+Exemplo:
+- STF, AgR no ARE 822.641, Rel. Min. Edson Fachin, 1ª Turma, j. 23.10.2015
+
+
+
+# Modelo da Resposta
+
+A resposta deve ser formatada em JSON, conforme o modelo abaixo, demarcado por <modelo> e </modelo>:
 
 <modelo>
 {
-    "ementa": "Inclua o Cabeçalho, conforme descrito acima",
-    "dispositivos": ["Inclua cada um dos Dispositivos, conforme descrito acima"],
-    "conclusao": "Inclua a conclusão, conforme descrito acima",
-    "acordao": "Inclua o Acórdão, conforme descrito acima"
+    "cabecalho": "Incluir o Cabeçalho",
+    "casoEmExame": "Incluir o Caso em exame",
+    "decisoes": [
+        {
+            "alegacao": "campo alegacao"
+            "fundamentos": ["campo fundamentos"],
+            "decisao": "campo decisao",
+            "decisaoEFundamentos": "campo decisaoEFundamentos"
+        }
+    ],
+    "dispositivo": "Incluir o Dispositivo",
+    "dispositivosRelevantesCitados": ["Incluir os Dispositivos relevantes citados"],
+    "jurisprudenciaRelevanteCitada": ["Incluir a Jurisprudência relevante citada"]
 }
 </modelo>
 
-Três exemplos de ementa e acórdão podem ser vistos abaixo, mas lembre-se de que o conteúdo deve ser adaptado ao caso em questão:
 
-<exemplo>
-{
-    "ementa": "PROCESSUAL CIVIL. CONSTITUCIONAL. INCRA. FUNDAÇÃO CULTURAL PALMARES. AÇÃO CIVIL PÚBLICA. DEFESA DE INTERESSES DE COLETIVIDADE COM STATUS DE REMANESCENTE DE COMUNIDADE DE QUILOMBO. LEGITIMIDADE AD CAUSAM PASSIVA. INTERESSE DE AGIR NA MODALIDADE ADEQUAÇÃO DA VIA ELEITA.",
-    "dispositivos": [
-        "Tanto o INCRA quanto a FCP - Fundação Cultural Palmares têm legitimidade ad causam ativa para o ajuizamento de ação civil pública para a defesa de interesses de coletividade com status de remanescente de comunidade de quilombo, conforme o art. 5º, caput, IV, da Lei nº 7.347/1985.",
-        "Há interesse de agir na modalidade adequação da via eleita, enquanto escolhida a ação civil pública para veicular pretensões em um espectro cumulativo de caráter predominantemente real, e também (dentre outros) econômico, cultural, ambiental e moral, conforme o art. 1º, caput, IV, da Lei nº 7.347/1985."
-    ],
-    "conclusao": "Apelações parcialmente providas. Agravo interno declarado prejudicado.",
-    "acordao": "Vistos e relatados estes autos, em que são partes as acima indicadas, a Egrégia 7ª Turma Especializada do Tribunal Regional Federal da 2ª Região decidiu, por unanimidade, dar parcial provimento às apelações, invalidando in totum a sentença, e declarar prejudicado o agravo interno, nos termos do voto da Relatora."
-}
-</exemplo>
+# Tarefa principal
 
-<exemplo>
-{
-    "ementa": "PROCESSUAL CIVIL. EXECUÇÃO FISCAL. EXTINÇÃO. RESSARCIMENTO PRÉVIO DAS CUSTAS. DESCABIMENTO.",
-    "dispositivos": [
-        "Nos termos do art. 924, II, CPC/15, extingue-se a execução quando a obrigação nela exigida for satisfeita junto ao exequente. A eventual responsabilidade do executado pelo pagamento das custas é estabelecida justamente na sentença de extinção, não havendo, assim, que se exigir o ressarcimento prévio dos valores desembolsados para que o feito seja extinto.",
-        "As custas apenas são acrescidas ao valor do débito executado em hipóteses específicas como o cumprimento de sentença (art. 523 do CPC/15), a remissão da execução antes da expropriação dos bens penhorados (art. 826 do CPC/15), a penhora (arts. 831 e 868 do CPC/15) ou o parcelamento do débito (art. 916 do CPC/15)."
-    ],
-    "conclusao": "Apelação a que se nega provimento.",
-    "acordao": "Vistos e relatados estes autos, em que são partes as acima indicadas, decide a 7ª Turma Especializada do Tribunal Regional Federal da 2ª Região, por unanimidade, negar provimento à apelação, nos termos do voto da Relatora."
-}
-</exemplo>
+Leia cuidadosamente os textos abaixo e produza a ementa conforme o modelo acima.
+Não prefixe a resposta com crases triplas.
+Sua resposta deve ser um JSON válido.
+O primeiro caracter da resposta deve ser '{'. 
 
-<exemplo>
-{
-    "ementa": "ADMINISTRATIVO. CIVIL. APELAÇÃO. AÇÃO DE RITO ORDINÁRIO. ECT. ROUBO DE CARGA. RESPONSABILIZAÇÃO DA TRANSPORTADORA. PREVISÃO CONTRATUAL. INDENIZAÇÃO AOS CONSUMIDORES SUFICIENTEMENTE COMPROVADA. CORREÇÃO MONETÁRIA INCIDENTE A PARTIR DA DATA DO PAGAMENTO DE CADA INDENIZAÇÃO PELA ECT.",
-    "dispositivos": [
-        "A questão discutida nesses autos diz respeito à responsabilidade de transportadora que presta serviços à ECT pelo roubo da carga postal, bem como ao valor indenizável e à respectiva correção monetária.",
-        "Conquanto o Superior Tribunal de Justiça tenha pacificado o entendimento de que, “se não for demonstrado que a transportadora não adotou as cautelas que razoavelmente dela se poderia esperar, o roubo de carga constitui motivo de força maior a isentar a sua responsabilidade” (EREsp n. 1.577.162/SP, relator Ministro Moura Ribeiro, Segunda Seção, julgado em 10/8/2022, DJe de 4/10/2022), no caso, a situação é distinta, pois há cláusula contratual que prevê expressamente a responsabilidade da Autora/ Apelante na hipótese de roubo ou furto de carga.",
-        "Ainda que a parte do item “c” da cláusula 9.5. do Contrato nº 27/2017 que se refere à ação ou omissão da transportadora possa induzir a alguma confusão, a parte final, segundo a qual a responsabilidade se mantém inclusive nas hipóteses de caso fortuito ou força maior, não deixa dúvida de que se trata de responsabilidade integral, que decorre do próprio contrato com o qual a Autora/Apelante transportadora se comprometeu, como admite o art. 393 do Código Civil.",
-        "No mesmo sentido, entre inúmeros outros, os seguintes julgados desta e de outras Turmas Especializadas em Direito Administrativo deste Tribunal Regional Federal: (AC nº 5029481-50.2020.4.02.5101, 7ª Turma Especializada, Des. Federal Sergio Schwaitzer, por unanimidade, j. em 22/06/2022; AC nº 5092745-75.2019.4.02.5101, 7ª Turma Especializada, Des Federal Luiz Paulo da Silva Araújo Filho, por unanimidade, j. 17/11/2021; 5ª Turma Especializada, Des Federal Ricardo Perlingeiro, por unanimidade, j. 05/10/2022; AC nº 5092710-18.2019.4.02.5101, 8ª Turma Especializada, Desembargador Federal Ferreira Neves, por unanimidade, j. 20/09/2022).",
-        "Também não merece prosperar a pretensão da Apelante de que o ressarcimento não se dê de acordo com os valores efetivamente pagos pela ECT aos clientes. O simples fato de a Cartilha denominada “Programa de Prevenção a Fraudes no Pagamento de Indenizações” mencionar “a real possibilidade de haver fraudes no pagamento das indenizações”, não é apto, por si só, a elidir a presunção de legalidade e veracidade de que se revestem os atos da ECT na qualidade de integrante da administração indireta (AC nº 5100371-48.2019.4.02.5101, 6ª Turma Especializada, relator Des. Fed Poul Erik Dyrlund, j. 19.4.2021, e AC nº 5007028-61.2020.4.02.5101, 6ª Turma Especializada, relator Des. Fed. Guilherme Calmon, j. 3.5.2021).",
-        "Por outro lado, assiste razão à Apelante no que se refere ao termo inicial da correção monetária, que deve ser a data de cada reembolso pela ECT, em linha com o entendimento consolidado no Enunciado 43 da Súmula de Jurisprudência do STJ (incide correção monetária sobre dívida por ato ilícito a partir da data do efetivo prejuízo”).",
-    ],
-    "conclusao": "Apelação a que se dá parcial provimento.",
-    "acordao": "Vistos, relatados e discutidos estes autos, em que são partes as acima indicadas, decide a 7ª Turma Especializada do Tribunal Regional Federal da 2ª Região, por unanimidade, dar parcial provimento à apelação, nos termos do voto da Relatora."
-}
-</exemplo>
-
-Escreva somente dentro das tags <scratchpad> e <result>, não inclua nenhum outro texto fora delas. Não repita as instruções no resultado.
+{{textos}}

@@ -316,6 +316,11 @@ div.ai-content {
     font-weight: bold !important;
 }
 
+.mdx-editor {
+    max-height: 20em;
+    overflow-y: auto;
+}
+
 .blinking-cursor {
     color: rgb(33, 37, 41);
     animation: blink 1s linear 0s infinite;

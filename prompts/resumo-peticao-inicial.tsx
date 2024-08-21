@@ -1,6 +1,7 @@
+import { PromptType } from './_prompts'
 import { system, systemMessage } from './_system'
 
-export default (data) => {
+export default (data): PromptType => {
     const prompt = `
 Você foi designado para elaborar um resumo da petição inicial de uma ação judicial proposta na justiça federal.
 Por favor, leia com atenção a petição inicial a seguir e resuma as informações mais importantes:
@@ -25,5 +26,5 @@ Escreva somente dentro das tags <scratchpad> e <result>, não inclua nenhum outr
 
 OBSERVAÇÃO: Você não está autorizada a criar nada; suas respostas devem ser baseadas apenas no texto fornecido.
 `
-return [systemMessage(true), { role: 'user', content: prompt }]
+    return { message: [systemMessage(true), { role: 'user', content: prompt }] }
 }

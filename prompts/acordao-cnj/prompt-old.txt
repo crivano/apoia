@@ -1,26 +1,19 @@
-import { PromptType } from './_prompts'
-import { system, systemMessage } from './_system'
-
-export default (data): PromptType => {
-    const prompt = `
 Você foi designado para elaborar uma ementa e um acórdão em ação judicial proposta na justiça federal.
 Por favor, leia com atenção os textos a seguir:
 
-${data.textos.reduce((acc, txt) => acc + `${txt.descr}:\n<${txt.slug}>\n${txt.texto}\n</${txt.slug}>\n\n`, '')}
-
-Antes de escrever a ementa e o acórdão, organize seus pensamentos em um <scratchpad>, anotando os pontos chave que você precisa incluir.
+{{textos}}
 
 Ementas são, em regra, constituídas por 3 partes essenciais: o cabeçalho, o dispositivo e a conclusão. 
 Idealmente, todos os temas expostos no cabeçalho constarão do dispositivo.
 
-Cabeçalho
+# Cabeçalho
 - Composto por palavras-chaves escritas em caixa alta e separadas por pontos finais.
 - Deve ser composto por palavras e expressões que reflitam o conteúdo da decisão, mas não por sentenças completas.
 - Seguir a ordem do geral para o particular, isto é, do descritor para o subdescritor.
 - Iniciar o cabeçalho com a área do Direito objeto do acórdão.
 - Evitar incluir no cabeçalho detalhes específicos do caso julgado, como o nome das partes e o resultado do julgamento.
 
-Dispositivo
+# Dispositivo
 - Composto por enunciado(s) que reflete(m) a(s) tese(s) jurídica(s) contida(s) na decisão
 - Deve ser composto por enunciados completos
 - É preferível que as frases sejam curtas e concisas, razão pela qual não se recomenda a reprodução integral de trechos do acórdão, de dispositivos legais, de transcrição integral de precedentes, ou da literatura especializada.
@@ -32,11 +25,18 @@ Dispositivo
 - Evitar: adjetios e advérbios, metáforas, hipérboles e superlativos, sinônicos, palavras em outros idiomas.
 - Indicar a legislação utilizada e a jurisprudência citada, se hover.
 
-Conclusão
+# Conclusão
 - Indique o nome do instrumento e diga se foi provido, parcialmente provido ou não provido
 - Não faça referência a decisão agravada
 
-Caso haja referência a algum dos termos abaixo, dê preferência às abreviações e denominações comuns, conforme indicado após os dois pontos:
+Já o acórdão é um parágrafo de texto conforme descrito abaixo:
+
+# Acórdão
+- Inclua apenas decisão final do tribunal
+- Não explique detalhes do caso, visto que isso já foi feito na ementa
+- Não inclua encaminhamentos futuros
+
+# Caso haja referência a algum dos termos abaixo, dê preferência às abreviações e denominações comuns, conforme indicado após os dois pontos:
 - Constituição da República Federativa do Brasil de 1988: CRFB/1988
 - Ato das Disposições Constitucionais Transitórias: ADCT
 - Código de Processo Civil de 2015: CPC/2015
@@ -207,29 +207,59 @@ Caso haja referência a algum dos termos abaixo, dê preferência às abreviaç�
 - Imposto sobre Valor Agregado: IVA
 
 Depois de organizar o esboço, escreva o resultado final dentro das tags <result>. Certifique-se de:
-- Criar um resumo da sentença sob o título de EMENTA
-- Escrever, também, uma lista de tópicos numerados resumindo os principais pontos do relatório e do voto.
-- Escrever a decisão final do tribunal sob o título de ACÓRDÃO
-- Algumas siglas muito comuns não precisar ser explicadas, por exemplo, "INSS", "STF" ou "STJ"
 - Não incluir a data nem o número do processo nem o nome do subscritor
 - Usar uma linguagem jurídica formal
-- Formatar o texto usando Markdown conforme o modelo abaixo
+- Formatar o resultado usando JSON conforme o modelo abaixo delimitado <modelo> e </modelo>, mas não incluir <modelo> e </modelo> no resultado
 
----
-# EMENTA
-
-[Cabeçalho]
-
-1. [Dispositivo(s)]
-
-- [Conclusão]
-
-# ACÓRDÃO
-
-[Inclua apenas decisão final do tribunal, sem explicar detalhes do caso, visto que isso já foi feito na ementa, nem encaminhamentos futuros]
----
-
-Escreva somente dentro das tags <scratchpad> e <result>, não inclua nenhum outro texto fora delas. Não repita as instruções no resumo.
-`
-    return { message: [systemMessage(true), { role: 'user', content: prompt }] }
+<modelo>
+{
+    "ementa": "Inclua o Cabeçalho, conforme descrito acima",
+    "dispositivos": ["Inclua cada um dos Dispositivos, conforme descrito acima"],
+    "conclusao": "Inclua a conclusão, conforme descrito acima",
+    "acordao": "Inclua o Acórdão, conforme descrito acima"
 }
+</modelo>
+
+Três exemplos de ementa e acórdão podem ser vistos abaixo, mas lembre-se de que o conteúdo deve ser adaptado ao caso em questão:
+
+<exemplo>
+{
+    "ementa": "PROCESSUAL CIVIL. CONSTITUCIONAL. INCRA. FUNDAÇÃO CULTURAL PALMARES. AÇÃO CIVIL PÚBLICA. DEFESA DE INTERESSES DE COLETIVIDADE COM STATUS DE REMANESCENTE DE COMUNIDADE DE QUILOMBO. LEGITIMIDADE AD CAUSAM PASSIVA. INTERESSE DE AGIR NA MODALIDADE ADEQUAÇÃO DA VIA ELEITA.",
+    "dispositivos": [
+        "Tanto o INCRA quanto a FCP - Fundação Cultural Palmares têm legitimidade ad causam ativa para o ajuizamento de ação civil pública para a defesa de interesses de coletividade com status de remanescente de comunidade de quilombo, conforme o art. 5º, caput, IV, da Lei nº 7.347/1985.",
+        "Há interesse de agir na modalidade adequação da via eleita, enquanto escolhida a ação civil pública para veicular pretensões em um espectro cumulativo de caráter predominantemente real, e também (dentre outros) econômico, cultural, ambiental e moral, conforme o art. 1º, caput, IV, da Lei nº 7.347/1985."
+    ],
+    "conclusao": "Apelações parcialmente providas. Agravo interno declarado prejudicado.",
+    "acordao": "Vistos e relatados estes autos, em que são partes as acima indicadas, a Egrégia 7ª Turma Especializada do Tribunal Regional Federal da 2ª Região decidiu, por unanimidade, dar parcial provimento às apelações, invalidando in totum a sentença, e declarar prejudicado o agravo interno, nos termos do voto da Relatora."
+}
+</exemplo>
+
+<exemplo>
+{
+    "ementa": "PROCESSUAL CIVIL. EXECUÇÃO FISCAL. EXTINÇÃO. RESSARCIMENTO PRÉVIO DAS CUSTAS. DESCABIMENTO.",
+    "dispositivos": [
+        "Nos termos do art. 924, II, CPC/15, extingue-se a execução quando a obrigação nela exigida for satisfeita junto ao exequente. A eventual responsabilidade do executado pelo pagamento das custas é estabelecida justamente na sentença de extinção, não havendo, assim, que se exigir o ressarcimento prévio dos valores desembolsados para que o feito seja extinto.",
+        "As custas apenas são acrescidas ao valor do débito executado em hipóteses específicas como o cumprimento de sentença (art. 523 do CPC/15), a remissão da execução antes da expropriação dos bens penhorados (art. 826 do CPC/15), a penhora (arts. 831 e 868 do CPC/15) ou o parcelamento do débito (art. 916 do CPC/15)."
+    ],
+    "conclusao": "Apelação a que se nega provimento.",
+    "acordao": "Vistos e relatados estes autos, em que são partes as acima indicadas, decide a 7ª Turma Especializada do Tribunal Regional Federal da 2ª Região, por unanimidade, negar provimento à apelação, nos termos do voto da Relatora."
+}
+</exemplo>
+
+<exemplo>
+{
+    "ementa": "ADMINISTRATIVO. CIVIL. APELAÇÃO. AÇÃO DE RITO ORDINÁRIO. ECT. ROUBO DE CARGA. RESPONSABILIZAÇÃO DA TRANSPORTADORA. PREVISÃO CONTRATUAL. INDENIZAÇÃO AOS CONSUMIDORES SUFICIENTEMENTE COMPROVADA. CORREÇÃO MONETÁRIA INCIDENTE A PARTIR DA DATA DO PAGAMENTO DE CADA INDENIZAÇÃO PELA ECT.",
+    "dispositivos": [
+        "A questão discutida nesses autos diz respeito à responsabilidade de transportadora que presta serviços à ECT pelo roubo da carga postal, bem como ao valor indenizável e à respectiva correção monetária.",
+        "Conquanto o Superior Tribunal de Justiça tenha pacificado o entendimento de que, “se não for demonstrado que a transportadora não adotou as cautelas que razoavelmente dela se poderia esperar, o roubo de carga constitui motivo de força maior a isentar a sua responsabilidade” (EREsp n. 1.577.162/SP, relator Ministro Moura Ribeiro, Segunda Seção, julgado em 10/8/2022, DJe de 4/10/2022), no caso, a situação é distinta, pois há cláusula contratual que prevê expressamente a responsabilidade da Autora/ Apelante na hipótese de roubo ou furto de carga.",
+        "Ainda que a parte do item “c” da cláusula 9.5. do Contrato nº 27/2017 que se refere à ação ou omissão da transportadora possa induzir a alguma confusão, a parte final, segundo a qual a responsabilidade se mantém inclusive nas hipóteses de caso fortuito ou força maior, não deixa dúvida de que se trata de responsabilidade integral, que decorre do próprio contrato com o qual a Autora/Apelante transportadora se comprometeu, como admite o art. 393 do Código Civil.",
+        "No mesmo sentido, entre inúmeros outros, os seguintes julgados desta e de outras Turmas Especializadas em Direito Administrativo deste Tribunal Regional Federal: (AC nº 5029481-50.2020.4.02.5101, 7ª Turma Especializada, Des. Federal Sergio Schwaitzer, por unanimidade, j. em 22/06/2022; AC nº 5092745-75.2019.4.02.5101, 7ª Turma Especializada, Des Federal Luiz Paulo da Silva Araújo Filho, por unanimidade, j. 17/11/2021; 5ª Turma Especializada, Des Federal Ricardo Perlingeiro, por unanimidade, j. 05/10/2022; AC nº 5092710-18.2019.4.02.5101, 8ª Turma Especializada, Desembargador Federal Ferreira Neves, por unanimidade, j. 20/09/2022).",
+        "Também não merece prosperar a pretensão da Apelante de que o ressarcimento não se dê de acordo com os valores efetivamente pagos pela ECT aos clientes. O simples fato de a Cartilha denominada “Programa de Prevenção a Fraudes no Pagamento de Indenizações” mencionar “a real possibilidade de haver fraudes no pagamento das indenizações”, não é apto, por si só, a elidir a presunção de legalidade e veracidade de que se revestem os atos da ECT na qualidade de integrante da administração indireta (AC nº 5100371-48.2019.4.02.5101, 6ª Turma Especializada, relator Des. Fed Poul Erik Dyrlund, j. 19.4.2021, e AC nº 5007028-61.2020.4.02.5101, 6ª Turma Especializada, relator Des. Fed. Guilherme Calmon, j. 3.5.2021).",
+        "Por outro lado, assiste razão à Apelante no que se refere ao termo inicial da correção monetária, que deve ser a data de cada reembolso pela ECT, em linha com o entendimento consolidado no Enunciado 43 da Súmula de Jurisprudência do STJ (incide correção monetária sobre dívida por ato ilícito a partir da data do efetivo prejuízo”).",
+    ],
+    "conclusao": "Apelação a que se dá parcial provimento.",
+    "acordao": "Vistos, relatados e discutidos estes autos, em que são partes as acima indicadas, decide a 7ª Turma Especializada do Tribunal Regional Federal da 2ª Região, por unanimidade, dar parcial provimento à apelação, nos termos do voto da Relatora."
+}
+</exemplo>
+
+Escreva somente dentro das tags <scratchpad> e <result>, não inclua nenhum outro texto fora delas. Não repita as instruções no resultado.
