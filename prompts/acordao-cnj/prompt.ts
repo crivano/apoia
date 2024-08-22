@@ -1,12 +1,12 @@
 import fs from 'fs'
 import nunjucks from 'nunjucks'
-import { PromptType } from '../_prompts'
+import { PromptData, PromptType } from '../_prompts'
 import { z } from 'zod'
 import { parse, ALL } from 'partial-json'
 import promptText from './prompt.txt'
 import systemText from './system-prompt.txt'
 
-export default async (data): Promise<PromptType> => {
+export default (data: PromptData): PromptType => {
     const prompt: string = promptText.replace('{{textos}}', `${data.textos.reduce((acc, txt) => acc + `${txt.descr}:\n<${txt.slug}>\n${txt.texto}\n</${txt.slug}>\n\n`, '')}`)
     const system: string = systemText
 

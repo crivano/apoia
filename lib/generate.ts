@@ -1,6 +1,5 @@
 'use server'
 
-import prompts, { PromptData, PromptType } from '../prompts/_prompts'
 import { createOpenAI } from '@ai-sdk/openai'
 import { createAnthropic } from '@ai-sdk/anthropic'
 import { generateText, GenerateTextResult, CoreTool, streamText, StreamTextResult, LanguageModel, streamObject, generateObject, StreamObjectResult } from 'ai'
@@ -11,6 +10,7 @@ import { canonicalize } from 'json-canonicalize'
 import { createStreamableValue, StreamableValue } from 'ai/rsc'
 import { assertCurrentUser } from './user'
 import build from 'next/dist/build'
+import { buildMessages } from './build-messages'
 
 function getModel(params?: { structuredOutputs: boolean }): { model: string, modelRef: LanguageModel } {
     const { model, apiKey, automatic } = getModelAndApiKeyCookieValue()
@@ -22,21 +22,7 @@ function getModel(params?: { structuredOutputs: boolean }): { model: string, mod
     return { model, modelRef: openai(model, params) }
 }
 
-export async function buildMessages(prompt: string, data: any): Promise<PromptType> {
-    if (data?.textos) {
-        for (const texto of data.textos) {
-            if (!texto.pTexto) continue
-            texto.texto = await texto.pTexto
-        }
-    }
-    const promptUnderscore = prompt.replace(/-/g, '_')
-    let buildPrompt = prompts[promptUnderscore]
-    if (!buildPrompt && prompt.startsWith('resumo-')) {
-        prompt = 'resumo_peca'
-        buildPrompt = prompts[prompt]
-    }
-    return (await buildPrompt(data))
-}
+
 
 function calcSha256(messages: any): string {
     return SHA256(canonicalize(messages)).toString()

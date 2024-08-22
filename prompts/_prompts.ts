@@ -17,7 +17,7 @@ import { CoreMessage } from "ai"
 export type Texto = { descr: string; slug: string; pTexto?: Promise<string>; texto?: string }
 export type PromptData = { textos: Texto[] }
 export type PromptType = {
-    message: CoreMessage[], params: {
+    message: CoreMessage[], params?: {
         structuredOutputs?: { schemaName: string, schemaDescription: string, schema: any },
         format?: (s: string) => string
     }

@@ -4,8 +4,7 @@ import { P } from './combinacoes'
 import { Texto } from '@/prompts/_prompts'
 import { diff, diffAndCollapse as diffAndCompact } from './mddiff'
 import { info } from 'console'
-// import { markdownDiff } from 'markdown-diff'
-import { format  } from '@/prompts/acordao-cnj/format'
+import { getFormatter } from './build-messages'
 
 const converter = new showdown.Converter()
 
@@ -45,14 +44,10 @@ export const filterText = (text) => {
 export const preprocess = (text: string, infoDeProduto: InfoDeProduto, textos: Texto[], complete: boolean, visualization?: VisualizationEnum) => {
     text = filterText(text)
 
-    // console.log(text)
-
-    if (infoDeProduto?.produto === P.ACORDAO) text = format(text)
-
-    // console.log('infoDeProduto', infoDeProduto.produto, P.REFINAMENTO, infoDeProduto.produto === P.REFINAMENTO, complete)
+    const format = getFormatter(infoDeProduto.prompt)
+    if (format) text = format(text)
 
     if (infoDeProduto.produto === P.REFINAMENTO && complete) {
-        // console.log('visualization', visualization, VisualizationEnum.DIFF, visualization === VisualizationEnum.DIFF)
 
         let texto = textos[0].texto
 
