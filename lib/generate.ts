@@ -12,7 +12,7 @@ import { createStreamableValue, StreamableValue } from 'ai/rsc'
 import { assertCurrentUser } from './user'
 import build from 'next/dist/build'
 
-function getModel(params?) {
+function getModel(params?: { structuredOutputs: boolean }): { model: string, modelRef: LanguageModel } {
     const { model, apiKey, automatic } = getModelAndApiKeyCookieValue()
     if (model.startsWith('claude-')) {
         const anthropic = createAnthropic({ apiKey: apiKey })
@@ -61,7 +61,7 @@ export async function generateContent(prompt: string, data: any): Promise<IAGene
     const { model, modelRef } = getModel()
     const buildPrompt = await buildMessages(prompt, data)
     const messages = buildPrompt.message
-    const structuredOutputs = buildPrompt.structuredOutputs
+    const structuredOutputs = buildPrompt.params?.structuredOutputs
     const sha256 = calcSha256(messages)
 
     // write response to a file for debugging
@@ -101,10 +101,10 @@ export async function streamContent(prompt: string, data: any, date: Date):
     // const user = await getCurrentUser()
     // if (!user) return Response.json({ errormsg: 'Unauthorized' }, { status: 401 })
 
-    const { model, modelRef } = getModel({ structuredOutputs: true })
     const buildPrompt = await buildMessages(prompt, data)
+    const { model, modelRef } = getModel({ structuredOutputs: !!buildPrompt.params?.structuredOutputs })
     const messages = buildPrompt.message
-    const structuredOutputs = buildPrompt.structuredOutputs
+    const structuredOutputs = buildPrompt.params?.structuredOutputs
     const sha256 = calcSha256(messages)
 
     // try to retrieve cached generations
@@ -134,28 +134,21 @@ export async function streamContent(prompt: string, data: any, date: Date):
         })
         return pResult
     } else {
-        // const model = process.env.MODEL as string
-        // const apiKey = process.env.OPENAI_API_KEY as string
-        // const openai = createOpenAI({
-        //     apiKey: apiKey,
-        // })
-        console.log('streaming object')
         const pResult = streamObject({
             model: modelRef as LanguageModel,
             messages,
             maxRetries: 1,
             // // temperature: 1.5,
-            // onFinish: async ({ object }) => {
-            //     console.log('streaming object finished', object)
-            //     await saveToCache(sha256, model, prompt, JSON.stringify(object))
-            //     // write response to a file for debugging
-            //     if (process.env.NODE_ENV === 'development') {
-            //         const fs = require('fs')
-            //         const currentDate = new Date().toISOString().replace(/[-:]/g, '').replace('T', '-').split('.')[0]
-            //         fs.writeFileSync(`/tmp/${currentDate}-${prompt}.txt`, `${messages[0].content}\n\n${messages[1].content}\n\n---\n\n${object}`)
-            //     }
-            // },
-            schemaName: `schema: ${prompt}`,
+            onFinish: async ({ object }) => {
+                await saveToCache(sha256, model, prompt, JSON.stringify(object))
+                // write response to a file for debugging
+                if (process.env.NODE_ENV === 'development') {
+                    const fs = require('fs')
+                    const currentDate = new Date().toISOString().replace(/[-:]/g, '').replace('T', '-').split('.')[0]
+                    fs.writeFileSync(`/tmp/${currentDate}-${prompt}.txt`, `${messages[0].content}\n\n${messages[1].content}\n\n---\n\n${object}`)
+                }
+            },
+            schemaName: `schema${prompt}`,
             schemaDescription: `A schema for the prompt ${prompt}`,
             schema: structuredOutputs.schema,
         })

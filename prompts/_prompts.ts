@@ -16,7 +16,12 @@ import { CoreMessage } from "ai"
 
 export type Texto = { descr: string; slug: string; pTexto?: Promise<string>; texto?: string }
 export type PromptData = { textos: Texto[] }
-export type PromptType = { message: CoreMessage[], structuredOutputs?: { schemaName: string, schemaDescription: string, schema: any } }
+export type PromptType = {
+    message: CoreMessage[], params: {
+        structuredOutputs?: { schemaName: string, schemaDescription: string, schema: any },
+        format?: (s: string) => string
+    }
+}
 
 // Enum for the different types of prompts
 export default {
