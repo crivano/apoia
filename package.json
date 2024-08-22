@@ -9,8 +9,8 @@
         "lint": "next lint"
     },
     "dependencies": {
-        "@ai-sdk/anthropic": "^0.0.30",
-        "@ai-sdk/openai": "^0.0.27",
+        "@ai-sdk/anthropic": "^0.0.47",
+        "@ai-sdk/openai": "^0.0.45",
         "@edge-runtime/cookies": "^4.1.1",
         "@fortawesome/fontawesome-svg-core": "^6.6.0",
         "@fortawesome/free-regular-svg-icons": "^6.6.0",
@@ -24,7 +24,7 @@
         "@types/react": "18.2.25",
         "@types/react-dom": "18.2.11",
         "@vercel/postgres": "^0.8.0",
-        "ai": "^3.1.31",
+        "ai": "^3.3.16",
         "autoprefixer": "10.4.16",
         "bootstrap": "^5.3.3",
         "cryptr": "^6.3.0",

@@ -3,7 +3,7 @@
 import prompts, { PromptData, PromptType } from '../prompts/_prompts'
 import { createOpenAI } from '@ai-sdk/openai'
 import { createAnthropic } from '@ai-sdk/anthropic'
-import { generateText, GenerateTextResult, CoreTool, streamText, StreamTextResult, LanguageModel, streamObject } from 'ai'
+import { generateText, GenerateTextResult, CoreTool, streamText, StreamTextResult, LanguageModel, streamObject, generateObject, StreamObjectResult } from 'ai'
 import { getModelAndApiKeyCookieValue } from '../app/model/cookie'
 import { retrieveIAGeneration, insertIAGeneration, IAGenerated, assertIAUserId, evaluateIAGeneration } from './mysql'
 import { SHA256 } from 'crypto-js'
@@ -12,14 +12,14 @@ import { createStreamableValue, StreamableValue } from 'ai/rsc'
 import { assertCurrentUser } from './user'
 import build from 'next/dist/build'
 
-function getModel() {
+function getModel(params?) {
     const { model, apiKey, automatic } = getModelAndApiKeyCookieValue()
     if (model.startsWith('claude-')) {
         const anthropic = createAnthropic({ apiKey: apiKey })
         return { model, modelRef: anthropic(model === 'claude-3-5-sonnet' ? 'claude-3-5-sonnet-20240620' : model) }
     }
     const openai = createOpenAI({ apiKey: apiKey })
-    return { model, modelRef: openai(model) }
+    return { model, modelRef: openai(model, params) }
 }
 
 export async function buildMessages(prompt: string, data: any): Promise<PromptType> {
@@ -96,11 +96,12 @@ export async function generateContent(prompt: string, data: any): Promise<IAGene
 }
 
 export async function streamContent(prompt: string, data: any, date: Date):
-    Promise<StreamTextResult<Record<string, CoreTool<any, any>>> | string> {
+
+    Promise<StreamTextResult<Record<string, CoreTool<any, any>>> | StreamObjectResult<Record<string, CoreTool<any, any>>> | string> {
     // const user = await getCurrentUser()
     // if (!user) return Response.json({ errormsg: 'Unauthorized' }, { status: 401 })
 
-    const { model, modelRef } = getModel()
+    const { model, modelRef } = getModel({ structuredOutputs: true })
     const buildPrompt = await buildMessages(prompt, data)
     const messages = buildPrompt.message
     const structuredOutputs = buildPrompt.structuredOutputs
@@ -115,48 +116,52 @@ export async function streamContent(prompt: string, data: any, date: Date):
     // Start generating texts
     // console.log('streaming', prompt, messages)
 
-    // if (!structuredOutputs) {
-    const pResult = streamText({
-        model: modelRef as LanguageModel,
-        messages,
-        maxRetries: 1,
-        // temperature: 1.5,
-        onFinish: async ({ text }) => {
-            await saveToCache(sha256, model, prompt, text)
-            // write response to a file for debugging
-            if (process.env.NODE_ENV === 'development') {
-                const fs = require('fs')
-                const currentDate = new Date().toISOString().replace(/[-:]/g, '').replace('T', '-').split('.')[0]
-                fs.writeFileSync(`/tmp/${currentDate}-${prompt}.txt`, `${messages[0].content}\n\n${messages[1].content}\n\n---\n\n${text}`)
+    if (!structuredOutputs) {
+        const pResult = streamText({
+            model: modelRef as LanguageModel,
+            messages,
+            maxRetries: 1,
+            // temperature: 1.5,
+            onFinish: async ({ text }) => {
+                await saveToCache(sha256, model, prompt, text)
+                // write response to a file for debugging
+                if (process.env.NODE_ENV === 'development') {
+                    const fs = require('fs')
+                    const currentDate = new Date().toISOString().replace(/[-:]/g, '').replace('T', '-').split('.')[0]
+                    fs.writeFileSync(`/tmp/${currentDate}-${prompt}.txt`, `${messages[0].content}\n\n${messages[1].content}\n\n---\n\n${text}`)
+                }
             }
-        }
-    })
-    return pResult
-    // } else {
-    //     console.log('streaming object')
-    //     const pResult = streamObject({
-    //         model: modelRef as LanguageModel,
-    //         messages,
-    //         maxRetries: 1,
-    //         // temperature: 1.5,
-    //         onFinish: async ({ object }) => {
-    //             await saveToCache(sha256, model, prompt, JSON.stringify(object))
-    //             // write response to a file for debugging
-    //             if (process.env.NODE_ENV === 'development') {
-    //                 const fs = require('fs')
-    //                 const currentDate = new Date().toISOString().replace(/[-:]/g, '').replace('T', '-').split('.')[0]
-    //                 fs.writeFileSync(`/tmp/${currentDate}-${prompt}.txt`, `${messages[0].content}\n\n${messages[1].content}\n\n---\n\n${object}`)
-    //             }
-    //         },
-    //         ...structuredOutputs
-    //     })
-    //     const result = await pResult
-    //     console.log('streaming object result', result)
-    //     const object = await result.object
-    //     const json = JSON.stringify(object)
-    //     console.log('streaming object json', json)
-    //     return json
-    // }
+        })
+        return pResult
+    } else {
+        // const model = process.env.MODEL as string
+        // const apiKey = process.env.OPENAI_API_KEY as string
+        // const openai = createOpenAI({
+        //     apiKey: apiKey,
+        // })
+        console.log('streaming object')
+        const pResult = streamObject({
+            model: modelRef as LanguageModel,
+            messages,
+            maxRetries: 1,
+            // // temperature: 1.5,
+            // onFinish: async ({ object }) => {
+            //     console.log('streaming object finished', object)
+            //     await saveToCache(sha256, model, prompt, JSON.stringify(object))
+            //     // write response to a file for debugging
+            //     if (process.env.NODE_ENV === 'development') {
+            //         const fs = require('fs')
+            //         const currentDate = new Date().toISOString().replace(/[-:]/g, '').replace('T', '-').split('.')[0]
+            //         fs.writeFileSync(`/tmp/${currentDate}-${prompt}.txt`, `${messages[0].content}\n\n${messages[1].content}\n\n---\n\n${object}`)
+            //     }
+            // },
+            schemaName: `schema: ${prompt}`,
+            schemaDescription: `A schema for the prompt ${prompt}`,
+            schema: structuredOutputs.schema,
+        })
+        // @ts-ignore-next-line
+        return pResult
+    }
 
 }
 

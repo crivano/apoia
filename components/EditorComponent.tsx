@@ -39,7 +39,7 @@ const Editor: FC<EditorProps> = ({ markdown, editorRef, onChange }) => {
                 markdownShortcutPlugin(),
                 diffSourcePlugin({
                     diffMarkdown: 'An older version',
-                    viewMode: 'diff',
+                    viewMode: 'rich-text',
                     readOnlyDiff: true
                 }),
                 toolbarPlugin({
