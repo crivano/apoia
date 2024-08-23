@@ -6,7 +6,7 @@ import { evaluate } from '../lib/generate'
 import { preprocess, Visualization, VisualizationEnum } from '@/lib/preprocess'
 import { ResumoDePecaLoading } from '@/components/loading'
 import { InfoDeProduto, P } from '@/lib/combinacoes'
-import { Texto } from '@/prompts/_prompts'
+import { TextoType } from '@/prompts/_prompts'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faThumbsDown } from '@fortawesome/free-regular-svg-icons'
 import { faRefresh } from '@fortawesome/free-solid-svg-icons'
@@ -14,7 +14,7 @@ import { Form } from 'react-bootstrap'
 
 export const dynamic = 'force-dynamic'
 
-export default function AiContent(params: { infoDeProduto: InfoDeProduto, textos: Texto[] }) {
+export default function AiContent(params: { infoDeProduto: InfoDeProduto, textos: TextoType[] }) {
     const [current, setCurrent] = useState('')
     const [complete, setComplete] = useState(false)
     const [errormsg, setErrormsg] = useState('')

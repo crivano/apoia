@@ -14,8 +14,8 @@ import refinamento from "./refinamento"
 import { any } from "zod"
 import { CoreMessage } from "ai"
 
-export type Texto = { descr: string; slug: string; pTexto?: Promise<string>; texto?: string }
-export type PromptData = { textos: Texto[] }
+export type TextoType = { descr: string; slug: string; pTexto?: Promise<string>; texto?: string }
+export type PromptData = { textos: TextoType[] }
 export type PromptType = {
     message: CoreMessage[], params?: {
         structuredOutputs?: { schemaName: string, schemaDescription: string, schema: any },

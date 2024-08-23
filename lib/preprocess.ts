@@ -1,7 +1,7 @@
 import showdown from 'showdown'
 import { InfoDeProduto } from './combinacoes'
 import { P } from './combinacoes'
-import { Texto } from '@/prompts/_prompts'
+import { TextoType } from '@/prompts/_prompts'
 import { diff, diffAndCollapse as diffAndCompact } from './mddiff'
 import { info } from 'console'
 import { getFormatter } from './build-messages'
@@ -41,7 +41,7 @@ export const filterText = (text) => {
     return s.trim()
 }
 
-export const preprocess = (text: string, infoDeProduto: InfoDeProduto, textos: Texto[], complete: boolean, visualization?: VisualizationEnum) => {
+export const preprocess = (text: string, infoDeProduto: InfoDeProduto, textos: TextoType[], complete: boolean, visualization?: VisualizationEnum) => {
     text = filterText(text)
 
     const format = getFormatter(infoDeProduto.prompt)
