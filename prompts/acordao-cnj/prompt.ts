@@ -21,6 +21,7 @@ export default (data: PromptData): PromptType => {
                 schema: z.object({
                     cabecalho: z.string(),
                     casoEmExame: z.string(),
+                    questaoEmDiscussao: z.string(),
                     decisoes: z.array(
                         z.object({
                             alegacao: z.string(),
@@ -29,6 +30,8 @@ export default (data: PromptData): PromptType => {
                             decisaoEFundamentos: z.string(),
                         })),
                     dispositivo: z.string(),
+                    dispositivosRelevantesCitados: z.array(z.string()),
+                    jurisprudenciaRelevanteCitada: z.array(z.string())
                 })
             },
             format
@@ -44,13 +47,22 @@ function format(s: string): string {
     const json = parse(s, ALL)
     if (!json) return ''
 
-    const result = nunjucks.renderString(`**Ementa:** {{cabecalho}}
+    const result = nunjucks.renderString(`_**Ementa:**_ <span style="font-variant: small-caps slashed-zero;">{{cabecalho}}</span>
 
-{% if casoEmExame %}1. {{casoEmExame}}{% endif %}
-{% if decisoes %}{% for d in decisoes %}
-{{loop.index + 1}}. {{ d.decisaoEFundamentos }}
+{% if casoEmExame %}<h4 style="font-variant: small-caps slashed-zero;">I. Caso em exame</h4>
+
+1. {{casoEmExame}}{% endif %}
+{% if questaoEmDiscussao %}<h4 style="font-variant: small-caps slashed-zero;">II. Questão em discussão</h4>
+
+2. {{questaoEmDiscussao}}{% endif %}
+{% if decisoes %}<h4 style="font-variant: small-caps slashed-zero;">III. Razões de decidir</h4>
+
+{% for d in decisoes %}
+{{loop.index + 2}}. {{ d.decisaoEFundamentos }}
 {% endfor %}{% endif %}
-{% if dispositivo %}{{decisoes | length + 2}}. **{{dispositivo}}**{% endif %}
+{% if dispositivo %}<h4 style="font-variant: small-caps slashed-zero;">IV. Dispositivo e tese</h4>
+
+{{decisoes | length + 3}}. {{dispositivo}}{% endif %}
 {% if dispositivosRelevantesCitados %}
 ---
 

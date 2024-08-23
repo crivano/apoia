@@ -55,8 +55,8 @@ export default function Test(params: { tests: TestFileType[] }) {
                     </Form.Select>
                 </div>
                 <div className="col col-auto">
-                    <Button className="" onClick={() => setHidden(false)}>Testar</Button>
-                    <Button className="" onClick={() => setRefresh(true)}>Refresh</Button>
+                    <Button className="me-3" onClick={() => setHidden(false)}>Testar</Button>
+                    <Button className="" onClick={() => setRefresh(true)}>Refazer</Button>
                 </div>
             </div>
             {!hidden && !refresh && <>

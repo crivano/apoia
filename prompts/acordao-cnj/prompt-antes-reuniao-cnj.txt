@@ -80,16 +80,16 @@ As ementas devem ser divididas nos seguintes itens:
 ## Cabeçalho
 
 Conteúdo: o cabeçalho deverá conter as seguintes informações sequenciais, preferencialmente com um máximo de quatro linhas:
-- o ramo do Direito (ex: Direito constitucional e administrativo);
-- a classe processual (ex: ação direta de inconstitucionalidade, mandado de segurança);
+- o ramo do Direito (ex: DIREITO CONSTITUCIONAL E ADMINISTRATIVO);
+- a classe processual (ex: AÇÃO DIRETA DE INCONSTITUCIONALIDADE, MANDADO DE SEGURANÇA);
 - uma frase ou algumas palavras que indiquem qual é o assunto principal;
-- a conclusão da decisão ou do voto (ex: medida cautelar deferida, procedência do pedido).
+- a conclusão da decisão ou do voto (ex: MEDIDA CAUTELAR DEFERIDA, PROCEDÊNCIA DO PEDIDO).
 
-Formatação: O cabeçalho (ou indexação) da ementa deve ser escrito diferenciando letras maiúsculas e minúsculas. No caso do ramo do direito e da classe processual, apenas a inicial da primeira palavra deve ser redigida em letra maiúscula (ex: "Direito constitucional e direito administrativo"; "Mandado de segurança").
+Formatação: O cabeçalho (ou indexação) da ementa deve ser escrito todo em letras maiúsculas. Cada expressão deve terminar com um ponto final.
 
 Limitação de tamanho: a indexação da ementa deve ter, preferencialmente, até três linhas. Se a questão for muito complexa, pode-se chegar a quatro linhas. 
 
-Exemplo: Direito administrativo e previdenciário. Embargos de declaração em agravo interno em recurso extraordinário. Recurso protelatório. Embargos rejeitados.
+Exemplo: DIREITO ADMINISTRATIVO E PREVIDENCIÁRIO. EMBARGOS DE DECLARAÇÃO EM AGRAVO INTERNO EM RECURSO EXTRAORDINÁRIO. RECURSO PROTELATÓRIO. EMBARGOS REJEITADOS.
 
 
 ## Caso em exame
@@ -99,16 +99,6 @@ Conteúdo: deve conter qual é a ação, o recurso ou o incidente que é objeto 
 O item deve apresentar o caso de forma direta, sem a expressão "trata-se de" (ex: 1. Mandado de segurança contra ato do Tribunal de Contas da União que negou registro à aposentadoria de servidor público, em razão de cômputo de tempo de serviço ficto).
 
 Exemplo: Embargos de declaração opostos em face de acórdão que negou provimento a agravo interno, mantendo a decisão que havia concedido a liminar para permitir a participação do embargado no concurso para analista do TRF da Segunda Região.
-
-## Questão em discussão
-
-Conteúdo: breve relato da(s) questão(ões) em discussão, com a descrição objetiva de fundamentos jurídicos e, se houver, de fatos que caracterizam a controvérsia. 
-
-O texto deve enunciar as questões de maneira objetiva, seguindo o seguinte padrão: "A questão em discussão consiste em (...)". / "Há duas questões em discussão: (i) saber se (...); e (ii) saber se (...)".
-
-Deve-se incluir todas as questões, com os seus respectivos fatos e fundamentos.
-
-Exemplo: A questão em discussão consiste em saber se há obscuridade, contradição ou omissão que justifique (i) o afastamento de multa prevista no § 4º do art. 1.021 do CPC e (ii) a redução de honorários fixados por ocasião do julgamento do agravo interno.
 
 
 ## Decisões
@@ -135,10 +125,6 @@ Conteúdo: uma lista de alegações com fundamentos, decisão e citações de no
 Conteúdo: Conclusão da decisão/julgamento (provimento do recurso, desprovimento do recurso).
 
 Exemplo: Embargos de declaração rejeitados.
-
-# Tese
-
-Conteúdo: Enunciação da tese, quando for o caso. A tese pode ser composta de um ou mais itens.
 
 
 ## Dispositivos relevantes citados
@@ -179,7 +165,6 @@ A resposta deve ser formatada em JSON, conforme o modelo abaixo, demarcado por <
 {
     "cabecalho": "Incluir o Cabeçalho",
     "casoEmExame": "Incluir o Caso em exame",
-    "questaoEmDiscussao": "Incluir a Questão em discussão",
     "decisoes": [
         {
             "alegacao": "campo alegacao"
@@ -189,7 +174,6 @@ A resposta deve ser formatada em JSON, conforme o modelo abaixo, demarcado por <
         }
     ],
     "dispositivo": "Incluir o Dispositivo",
-    "tese": "Incluir a Tese, se houver",
     "dispositivosRelevantesCitados": ["Incluir os Dispositivos relevantes citados"],
     "jurisprudenciaRelevanteCitada": ["Incluir a Jurisprudência relevante citada"]
 }
