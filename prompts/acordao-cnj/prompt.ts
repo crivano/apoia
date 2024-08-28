@@ -60,7 +60,7 @@ function format(s: string): string {
 {% for d in decisoes %}
 {{loop.index + 2}}. {{ d.decisaoEFundamentos }}
 {% endfor %}{% endif %}
-{% if dispositivo %}<h4 style="font-variant: small-caps slashed-zero;">IV. Dispositivo e tese</h4>
+{% if dispositivo %}<h4 style="font-variant: small-caps slashed-zero;">IV. Dispositivo</h4>
 
 {{decisoes | length + 3}}. {{dispositivo}}{% endif %}
 {% if dispositivosRelevantesCitados %}

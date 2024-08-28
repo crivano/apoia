@@ -1,8 +1,8 @@
 description: "Ementa e Acórdão"
 
 providers:
-  - openai:gpt-4o
-  # - anthropic:messages:claude-3-5-sonnet-20240620
+  - openai:gpt-4o-2024-08-06
+  - anthropic:messages:claude-3-5-sonnet-20240620
 
 prompts:
   - file://../test-prompt.js
@@ -40,7 +40,7 @@ tests:
         provider: openai:gpt-4o
 
       - type: llm-rubric
-        value: o campo "dispositivo" deve ser preenchido com um texto com o mesmo sentido do texto a seguir "Embargos de declaração a que se dá parcial provimento."
+        value: o campo "dispositivo" deve ser preenchido com um texto com o mesmo sentido do texto a seguir "Embargos de declaração parcialmente providos."
         provider: openai:gpt-4o
 
       # - type: llm-rubric

@@ -47,7 +47,7 @@ export default function Revison() {
                 <Button disabled={!markdown || !orgaoJulgador} className="mt-3" onClick={() => setHidden(false)}>Gerar Ementa</Button>
             </>}
             {!hidden && markdown && <>
-                <h2 className="mt-3">Ementa e Acórdão</h2>
+                <h2 className="mt-3">Ementa</h2>
                 <AiContent
                     infoDeProduto={{ produto: P.ACORDAO, dados: [], titulo: 'Ementa e Acórdão', prompt: 'acordao', plugins: [] }}
                     textos={[{descr: 'EXTRATO DE ATA', slug: 'extrato-de-ata', texto: `ÓRGÃO JULGADOR: ${orgaoJulgador}\nTIPO DE DECISÁO: UNÂMINE`}, { descr: 'Voto', slug: 'voto', texto: markdown }]} />
