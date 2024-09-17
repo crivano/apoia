@@ -1,10 +1,14 @@
+![alt text](https://github.com/trf2-jus-br/apoia/blob/main/public/apoia-logo-transp.png?raw=true)
+
 # ApoIA
 
-ApoIA é uma ferramenta de inteligência artificial generativa desenvolvida para auxiliar na triagem de acervos. Ela analisa documentos de processos e gera resumos das principais peças e gera um relatório sobre acervo.
+ApoIA é uma ferramenta de inteligência artificial generativa originalmente desenvolvida para auxiliar na triagem de acervos. Ela analisa documentos de processos e gera resumos das principais peças e gera um relatório sobre acervo.
 
 A ApoIA também pode ser utilizada para realizar uma Análise Processual on-line, a partir da informação do número do processo.
 
-Outro recurso disponível é a revisão de textos por inteligência artificial.
+Outros recursos disponíveis são a geração de ementas conforme Resolução 156/2024 do CNJ e a revisão de textos por inteligência artificial.
+
+Clique [aqui](https://docs.google.com/presentation/d/1XTmGNOI3O3yaBOEXa5A3ViVHlCy4kvB4e0G2qEmmgLo/edit?usp=sharing) para ver uma apresentação da ApoIA.
 
 ## Funcionalidades
 
@@ -133,9 +137,9 @@ $ npm run dev
 
 1. [Instale o Docker](https://docs.docker.com/get-started/get-docker/) na sua máquina
 
-2. Edite o arquivo `docker-compose.yaml` e ajuste o valor das configurações em `services/appserver/environment`
+2. Edite o arquivo `docker-compose.yaml` e ajuste o valor das configurações em `services/apoiaserver/environment`
 
-3. Execute a aplicação e depois aponte o navegador para `http://localhost:8081`
+3. Execute a aplicação e depois aponte o navegador para `http://localhost:8080`
 
 ```shell
 $ docker-compose up
@@ -144,7 +148,7 @@ $ docker-compose up
 4. Se desejar apenas criar o container do docker, isso pode ser realizado assim:
 
 ```shell
-$ docker build -t nextjs-docker ..
+$ docker build -t apoiaserver .
 ```
 
 Caso deseje fazer deploy na nuvem, a ApoIA funciona perfeitamente no Vercel, basta indicar o repositório do GitHub e inserir as configurações.
