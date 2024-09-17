@@ -30,21 +30,6 @@ CREATE TABLE ia_document (
     FOREIGN KEY (dossier_id) REFERENCES ia_dossier (id) ON UPDATE NO ACTION ON DELETE CASCADE
 );
 
-CREATE TABLE ia_generation (
-    id INT NOT NULL AUTO_INCREMENT,
-    model VARCHAR(64) NOT NULL,
-    prompt VARCHAR(64) NOT NULL,
-    sha256 VARCHAR(64) NOT NULL,
-    generation TEXT NOT NULL,
-    evaluation_user_id INT NULL,
-    evaluation_id INT NULL,
-    evaluation_descr VARCHAR(255) NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    PRIMARY KEY (id),
-    CONSTRAINT ia_generation_evaluation_user_id_fk FOREIGN KEY (evaluation_user_id) REFERENCES ia_user (id) ON UPDATE NO ACTION ON DELETE CASCADE
-    CONSTRAINT ia_generation_evaluation_id_fk FOREIGN KEY (evaluation_id) REFERENCES ia_evaluation (id) ON UPDATE NO ACTION ON DELETE CASCADE
-);
-
 CREATE TABLE ia_evaluation (
     id INT NOT NULL,
     descr VARCHAR(255) NOT NULL,
@@ -58,6 +43,20 @@ INSERT INTO ia_evaluation (id, descr) VALUES (4, 'Estilo Insatisfatório');
 INSERT INTO ia_evaluation (id, descr) VALUES (5, 'Incompleto');
 INSERT INTO ia_evaluation (id, descr) VALUES (6, 'Excessivamente Longo');
 
+CREATE TABLE ia_generation (
+    id INT NOT NULL AUTO_INCREMENT,
+    model VARCHAR(64) NOT NULL,
+    prompt VARCHAR(64) NOT NULL,
+    sha256 VARCHAR(64) NOT NULL,
+    generation TEXT NOT NULL,
+    evaluation_user_id INT NULL,
+    evaluation_id INT NULL,
+    evaluation_descr VARCHAR(255) NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (id),
+    CONSTRAINT ia_generation_evaluation_user_id_fk FOREIGN KEY (evaluation_user_id) REFERENCES ia_user (id) ON UPDATE NO ACTION ON DELETE CASCADE,
+    CONSTRAINT ia_generation_evaluation_id_fk FOREIGN KEY (evaluation_id) REFERENCES ia_evaluation (id) ON UPDATE NO ACTION ON DELETE CASCADE
+);
 
 CREATE TABLE ia_batch (
     id INT NOT NULL AUTO_INCREMENT,

@@ -100,16 +100,54 @@ NAVIGATE_TO_PROCESS_URL=https://balcaojush.jfrj.jus.br/balcaojus/#/processo/{num
 
 Para criar o esquema `apoia`, execute os comandos encontrados no arquivo `migration-001.sql`
 
-## Executando a ApoIA
+## Executando a ApoIA em Modo de Desenvolvimento
 
-Depois de clonar o repositório e configurar as variáveis de ambiente, basta instalar as dependências e executar a aplicação:
+1. Faça o [download](https://nodejs.org/en/download/prebuilt-installer) e instale o Node.js ou, se já tiver o Node.js instalado, [atualize o Node.js e o NPM para as últimas versões](https://horadecodar.com.br/como-atualizar-node-e-npm-para-ultima-versao/)
 
-```bash
-npm install
-npm run dev
+2. Faça o [donwload](https://code.visualstudio.com/download) e instale o VSCode
+
+3. Clone o repositório da ApoIA
+
+```shell
+$ cd seu-diretorio-de-repositórios
+$ git clone https://github.com/trf2-jus-br/apoia
 ```
 
-A ApoIA funciona perfeitamente no Vercel, caso deseje fazer deploy na nuvem.
+4. Abra o VSCode no diretório `seu-diretorio-de-repositórios/apoia` (utilize o menu `File/Open Folder`)
+
+5. Crie o arquivo de configuração conforme explicado acima
+
+6. Abra o terminal no VSCode (utilize o menu `Terminal/New Terminal`) depois instale as dependências com o comando abaixo:
+
+```shell
+$ npm install
+```
+
+7. Execute a aplicação em modo de desenvolvimento com o comando no terminal:
+
+```shell
+$ npm run dev
+```
+
+## Fazendo o Deploy em Produção com Docker ou Vercel
+
+1. [Instale o Docker](https://docs.docker.com/get-started/get-docker/) na sua máquina
+
+2. Edite o arquivo `docker-compose.yaml` e ajuste o valor das configurações em `services/appserver/environment`
+
+3. Execute a aplicação e depois aponte o navegador para `http://localhost:8081`
+
+```shell
+$ docker-compose up
+```
+
+4. Se desejar apenas criar o container do docker, isso pode ser realizado assim:
+
+```shell
+$ docker build -t nextjs-docker ..
+```
+
+Caso deseje fazer deploy na nuvem, a ApoIA funciona perfeitamente no Vercel, basta indicar o repositório do GitHub e inserir as configurações.
 
 ## Testando os Prompts
 

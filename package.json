@@ -4,7 +4,7 @@
     "private": true,
     "scripts": {
         "dev": "next dev -p 8081",
-        "build": "yarn next-swagger-doc-cli next-swagger-doc.json && next build",
+        "build": "npx next-swagger-doc-cli next-swagger-doc.json && next build",
         "start": "next start -p 8081",
         "lint": "next lint"
     },
@@ -27,6 +27,7 @@
         "ai": "^3.3.16",
         "autoprefixer": "10.4.16",
         "bootstrap": "^5.3.3",
+        "canvas": "^2.11.2",
         "cryptr": "^6.3.0",
         "diff-match-patch": "^1.0.5",
         "html-to-pdfmake": "^2.5.9",
