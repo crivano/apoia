@@ -11,6 +11,7 @@ import triagem from "./triagem"
 import acordao from "./acordao-cnj/prompt"
 import revisao from "./revisao"
 import refinamento from "./refinamento"
+import sentenca from "./sentenca/prompt"
 import { any } from "zod"
 import { CoreMessage } from "ai"
 
@@ -38,4 +39,5 @@ export default {
     acordao,
     revisao,
     refinamento,
+    sentenca
 }

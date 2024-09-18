@@ -12,13 +12,11 @@ import { TextoType } from '@/prompts/_prompts'
 const EditorComp = dynamic(() => import('../../components/EditorComponent'), { ssr: false })
 
 export default function Test(params: { tests: TestFileType[] }) {
-    console.log('oi')
     const parsedTests = params.tests.map(f => {
         const data = JSON.parse(getSubstring(f.contents, 'data'))
         const titulo = data.titulo
         const infoDeProduto = data.infoDeProduto
         const unparsedTextos = getSubstring(f.contents, 'texts')
-        // console.log('unparsedTextos', unparsedTextos)
         const textos = parseTextos(unparsedTextos)
         const result = getSubstring(f.contents, 'result')
         const file = f.file
@@ -72,7 +70,6 @@ const getSubstring = (text: string, delimiter: string) => {
     const endTag = `</${delimiter}>`
     const startIndex = text.indexOf(startTag) + startTag.length
     const endIndex = text.indexOf(endTag)
-    // console.log('getSubstring', { delimiter, substring: text.substring(startIndex, endIndex) })
     return text.substring(startIndex, endIndex)
 }
 
@@ -80,15 +77,12 @@ const parseTextos = (unparsedTextos: string): TextoType[] => {
     const textos: TextoType[] = []
     const regex = /<text title="(?<title>[^"]+)" slug="(?<slug>[^"]+)">\s*(?<contents>.+?)\s*<\/text>/gs
     let m
-    console.log('unparsedTextos', unparsedTextos)
     while ((m = regex.exec(unparsedTextos)) !== null) {
-        console.log('m', m)
         // This is necessary to avoid infinite loops with zero-width matches
         if (m.index === regex.lastIndex) {
             regex.lastIndex++;
         }
         textos.push({ descr: m.groups.title, slug: m.groups.slug, texto: m.groups.contents })
     }
-    console.log('textos', textos)
     return textos
 }
