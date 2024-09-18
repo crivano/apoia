@@ -2,33 +2,15 @@ create schema apoia;
 
 use apoia;
 
-CREATE TABLE ia_user (
-    id INT NOT NULL AUTO_INCREMENT,
-    username VARCHAR(64) NOT NULL,
-    -- email VARCHAR(64) NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    PRIMARY KEY (id),
-    UNIQUE (username)
-);
-
-CREATE TABLE ia_dossier (
-    id INT NOT NULL AUTO_INCREMENT,
-    code VARCHAR(22) NOT NULL,   
-    class_code INT NULL,
-    filing_at DATE NULL,
-    created_at TIMESTAMP NULL,
+CREATE TABLE ia_content_source (
+    id INT NOT NULL,
+    descr VARCHAR(255) NOT NULL,
     PRIMARY KEY (id)
 );
 
-CREATE TABLE ia_document (
-    id INT NOT NULL AUTO_INCREMENT,
-    dossier_id INT NOT NULL,
-    code VARCHAR(64) NOT NULL,   
-    created_at TIMESTAMP NULL,
-    content TEXT NULL,
-    PRIMARY KEY (id),
-    FOREIGN KEY (dossier_id) REFERENCES ia_dossier (id) ON UPDATE NO ACTION ON DELETE CASCADE
-);
+INSERT INTO ia_content_source (id, descr) VALUES (1, 'HTML');
+INSERT INTO ia_content_source (id, descr) VALUES (2, 'PDF');
+INSERT INTO ia_content_source (id, descr) VALUES (3, 'PDF (OCR)');
 
 CREATE TABLE ia_evaluation (
     id INT NOT NULL,
@@ -42,6 +24,44 @@ INSERT INTO ia_evaluation (id, descr) VALUES (3, 'Factualmente Incorreto');
 INSERT INTO ia_evaluation (id, descr) VALUES (4, 'Estilo Insatisfatório');
 INSERT INTO ia_evaluation (id, descr) VALUES (5, 'Incompleto');
 INSERT INTO ia_evaluation (id, descr) VALUES (6, 'Excessivamente Longo');
+
+CREATE TABLE ia_user (
+    id INT NOT NULL AUTO_INCREMENT,
+    username VARCHAR(64) NOT NULL,
+    -- email VARCHAR(64) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (id),
+    UNIQUE (username)
+);
+
+CREATE TABLE ia_system (
+    id INT NOT NULL AUTO_INCREMENT,
+    code VARCHAR(64) NOT NULL,   
+    PRIMARY KEY (id)
+);
+
+CREATE TABLE ia_dossier (
+    id INT NOT NULL AUTO_INCREMENT,
+    system_id INT NOT NULL,
+    code VARCHAR(22) NOT NULL,   
+    class_code INT NULL,
+    filing_at DATE NULL,
+    created_at TIMESTAMP NULL,
+    PRIMARY KEY (id),
+    FOREIGN KEY (system_id) REFERENCES ia_system (id) ON UPDATE NO ACTION ON DELETE CASCADE
+);
+
+CREATE TABLE ia_document (
+    id INT NOT NULL AUTO_INCREMENT,
+    dossier_id INT NOT NULL,
+    content_source_id INT NULL,
+    code VARCHAR(64) NOT NULL,   
+    created_at TIMESTAMP NULL,
+    content TEXT NULL,
+    PRIMARY KEY (id),
+    FOREIGN KEY (dossier_id) REFERENCES ia_dossier (id) ON UPDATE NO ACTION ON DELETE CASCADE,
+    FOREIGN KEY (content_source_id) REFERENCES ia_content_source (id) ON UPDATE NO ACTION ON DELETE CASCADE
+);
 
 CREATE TABLE ia_generation (
     id INT NOT NULL AUTO_INCREMENT,
