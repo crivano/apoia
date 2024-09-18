@@ -77,8 +77,59 @@ interface IAEnumItem {
     enum_item_descr_main: string | null
 }
 
+function con(target: any, propertyKey: string, descriptor: PropertyDescriptor) {
+    // keep a reference to the original function
+    const original = descriptor.value;
+
+    // Replace the original function with a wrapper
+    descriptor.value = async function (...args: any[]) {
+        if (!pool) return undefined
+        const conn = await getConnection()
+        if (args.length > 0 && args[0] === null) args[0] = conn
+        try {
+            const result = await original.apply(this, args);
+            return result
+        } catch (error) {
+            console.error(`*** Dao error on ${propertyKey}:`, error?.message)
+            throw new Error(`Dao error on ${propertyKey}: ${error?.message}`)
+        } finally {
+            await conn.release()
+        }
+    }
+}
 
 export class Dao {
+
+    @con
+    static async retrieveIAGeneration(conn: any, data: IAGeneration): Promise<IAGenerated | undefined> {
+        const { model, prompt, sha256 } = data
+        let result
+        [result] = await conn.query('SELECT * FROM ia_generation WHERE model = ? AND prompt = ? AND sha256 = ? AND evaluation_id is null', [model, prompt, sha256])
+        if (!result || result.length === 0) return undefined
+        const record: IAGenerated = result[0]
+        return record
+    }
+
+    static async retrieveIAGeneration_del(data: IAGeneration): Promise<IAGenerated | undefined> {
+        const { model, prompt, sha256 } = data
+
+        if (!pool) return undefined
+
+        const conn = await getConnection()
+        try {
+            let result
+            [result] = await conn.query('SELECT * FROM ia_generation WHERE model = ? AND prompt = ? AND sha256 = ? AND evaluation_id is null', [model, prompt, sha256])
+            if (!result || result.length === 0) return undefined
+            const record: IAGenerated = result[0]
+            return record
+        } catch (error) {
+            console.error('*** Error retrieving from ia_generation:', error?.message)
+            throw new Error(`Error retrieving from ia_generation: ${error?.message}`)
+        } finally {
+            await conn.release()
+        }
+
+    }
 
     static async retrieveByBatchIdAndEnumId(batch_id: number, enum_id: number): Promise<AIBatchIdAndEnumId[]> {
         const conn = await getConnection()
@@ -145,29 +196,6 @@ export class Dao {
         } finally {
             await conn.release()
         }
-    }
-
-
-
-    static async retrieveIAGeneration(data: IAGeneration): Promise<IAGenerated | undefined> {
-        const { model, prompt, sha256 } = data
-
-        if (!pool) return undefined
-
-        const conn = await getConnection()
-        try {
-            let result
-            [result] = await conn.query('SELECT * FROM ia_generation WHERE model = ? AND prompt = ? AND sha256 = ? AND evaluation_id is null', [model, prompt, sha256])
-            if (!result || result.length === 0) return undefined
-            const record: IAGenerated = result[0]
-            return record
-        } catch (error) {
-            console.error('*** Error retrieving from ia_generation:', error?.message)
-            throw new Error(`Error retrieving from ia_generation: ${error?.message}`)
-        } finally {
-            await conn.release()
-        }
-
     }
 
 
@@ -277,7 +305,7 @@ export class Dao {
             await conn.release()
         }
     }
-  
+
     static async assertIADocumentId(documentCode: string, dossier_id: number): Promise<number> {
         // Start a transaction
         const conn = await getConnection()
