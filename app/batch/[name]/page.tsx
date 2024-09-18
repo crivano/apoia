@@ -15,12 +15,12 @@ export default async function ShowBatchResult({ params }: { params: { name: stri
         </div>
     }
 
-    const batch_id = await Dao.assertIABatchId(params.name)
-    const enum_id = await Dao.assertIAEnumId(Plugin.TRIAGEM)
+    const batch_id = await Dao.assertIABatchId(null, params.name)
+    const enum_id = await Dao.assertIAEnumId(null, Plugin.TRIAGEM)
 
     let html = ''
 
-    const items = await Dao.retrieveByBatchIdAndEnumId(batch_id, enum_id)
+    const items = await Dao.retrieveByBatchIdAndEnumId(null, batch_id, enum_id)
 
     const enumDescrs = items.reduce((acc, i) => {
         if (!acc.includes(i.enum_item_descr))
@@ -53,7 +53,7 @@ export default async function ShowBatchResult({ params }: { params: { name: stri
 
         for (const item of ti.items) {
             html += `<div class="page"><h1>Processo ${item.dossier_code}</h1>`
-            const generations = await Dao.retrieveGenerationByBatchDossierId(item.batch_dossier_id)
+            const generations = await Dao.retrieveGenerationByBatchDossierId(null, item.batch_dossier_id)
             for (const g of generations) {
                 html += `<h2>${g.descr}</h2><div>${g.generation}</div>`
             }

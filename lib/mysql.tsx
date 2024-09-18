@@ -78,10 +78,8 @@ interface IAEnumItem {
 }
 
 function con(target: any, propertyKey: string, descriptor: PropertyDescriptor) {
-    // keep a reference to the original function
     const original = descriptor.value;
 
-    // Replace the original function with a wrapper
     descriptor.value = async function (...args: any[]) {
         if (!pool) return undefined
         const conn = await getConnection()
@@ -90,6 +88,28 @@ function con(target: any, propertyKey: string, descriptor: PropertyDescriptor) {
             const result = await original.apply(this, args);
             return result
         } catch (error) {
+            console.error(`*** Dao error on ${propertyKey}:`, error?.message)
+            throw new Error(`Dao error on ${propertyKey}: ${error?.message}`)
+        } finally {
+            await conn.release()
+        }
+    }
+}
+
+function tran(target: any, propertyKey: string, descriptor: PropertyDescriptor) {
+    const original = descriptor.value;
+
+    descriptor.value = async function (...args: any[]) {
+        if (!pool) return undefined
+        const conn = await getConnection()
+        await conn.beginTransaction()
+        if (args.length > 0 && args[0] === null) args[0] = conn
+        try {
+            const result = await original.apply(this, args);
+            await conn.commit()
+            return result
+        } catch (error) {
+            await conn.rollback()
             console.error(`*** Dao error on ${propertyKey}:`, error?.message)
             throw new Error(`Dao error on ${propertyKey}: ${error?.message}`)
         } finally {
@@ -110,32 +130,10 @@ export class Dao {
         return record
     }
 
-    static async retrieveIAGeneration_del(data: IAGeneration): Promise<IAGenerated | undefined> {
-        const { model, prompt, sha256 } = data
-
-        if (!pool) return undefined
-
-        const conn = await getConnection()
-        try {
-            let result
-            [result] = await conn.query('SELECT * FROM ia_generation WHERE model = ? AND prompt = ? AND sha256 = ? AND evaluation_id is null', [model, prompt, sha256])
-            if (!result || result.length === 0) return undefined
-            const record: IAGenerated = result[0]
-            return record
-        } catch (error) {
-            console.error('*** Error retrieving from ia_generation:', error?.message)
-            throw new Error(`Error retrieving from ia_generation: ${error?.message}`)
-        } finally {
-            await conn.release()
-        }
-
-    }
-
-    static async retrieveByBatchIdAndEnumId(batch_id: number, enum_id: number): Promise<AIBatchIdAndEnumId[]> {
-        const conn = await getConnection()
-        try {
-            let result
-            [result] = await conn.query(`
+    @con
+    static async retrieveByBatchIdAndEnumId(conn: any, batch_id: number, enum_id: number): Promise<AIBatchIdAndEnumId[]> {
+        let result
+        [result] = await conn.query(`
             SELECT d.code dossier_code, d.class_code dossier_class_code, d.filing_at dossier_filing_at, ei.id enum_item_id, ei.descr enum_item_descr, ei2.descr enum_item_descr_main, bd.id batch_dossier_id FROM ia_batch b        
             INNER JOIN ia_batch_dossier bd ON bd.batch_id = b.id
             INNER JOIN ia_dossier d ON d.id = bd.dossier_id
@@ -146,20 +144,14 @@ export class Dao {
             WHERE b.id = ? AND (e.id = 1 OR e.id is null)
             ORDER BY ei.descr, d.code
             `, [batch_id, enum_id])
-            if (!result || result.length === 0) return []
-            return result
-        } catch (error) {
-            throw new Error(`Error retrieving batch by enum: ${error?.message}`)
-        } finally {
-            await conn.release()
-        }
+        if (!result || result.length === 0) return []
+        return result
     }
 
-    static async retrieveCountByBatchIdAndEnumId(batch_id: number, enum_id: number): Promise<AICountByBatchIdAndEnumId[]> {
-        const conn = await getConnection()
-        try {
-            let result
-            [result] = await conn.query(`
+    @con
+    static async retrieveCountByBatchIdAndEnumId(conn: any, batch_id: number, enum_id: number): Promise<AICountByBatchIdAndEnumId[]> {
+        let result
+        [result] = await conn.query(`
             SELECT ei.descr enum_item_descr, ei.hidden hidden, count(distinct bd.id) count FROM ia_batch b
             INNER JOIN ia_batch_dossier bd ON bd.batch_id = b.id
             INNER JOIN ia_dossier d ON d.id = bd.dossier_id
@@ -170,360 +162,205 @@ export class Dao {
             GROUP BY ei.descr, ei.hidden
             ORDER BY count(distinct bd.id) desc
             `, [batch_id, enum_id])
-            if (!result || result.length === 0) return []
-            return result
-        } catch (error) {
-            throw new Error(`Error retrieving batch by enum: ${error?.message}`)
-        } finally {
-            await conn.release()
-        }
+        if (!result || result.length === 0) return []
+        return result
     }
 
-    static async retrieveGenerationByBatchDossierId(batch_dossier_id: number): Promise<AIBatchDossierGeneration[]> {
-        const conn = await getConnection()
-        try {
-            let result
-            [result] = await conn.query(`
+    @con
+    static async retrieveGenerationByBatchDossierId(conn: any, batch_dossier_id: number): Promise<AIBatchDossierGeneration[]> {
+        let result
+        [result] = await conn.query(`
             SELECT bdi.descr, g.generation, g.prompt, d.id document_id, d.code document_code FROM apoia.ia_batch_dossier_item bdi 
             INNER JOIN ia_generation g ON g.id = bdi.generation_id
             LEFT OUTER JOIN ia_document d ON d.id = bdi.document_id
             WHERE batch_dossier_id = ? ORDER BY seq
             `, [batch_dossier_id])
-            if (!result || result.length === 0) return []
-            return result
-        } catch (error) {
-            throw new Error(`Error retrieving generation by batch_dossier_id: ${error?.message}`)
-        } finally {
-            await conn.release()
-        }
+        if (!result || result.length === 0) return []
+        return result
     }
 
-
-    static async insertIAGeneration(data: IAGeneration): Promise<IAGenerated | undefined> {
+    @tran
+    static async insertIAGeneration(conn: any, data: IAGeneration): Promise<IAGenerated | undefined> {
         const { model, prompt, sha256, generation } = data
 
-        if (!pool) return undefined
-
-        // Start a transaction
-        const conn = await getConnection()
-        await conn.beginTransaction()
-
-        try {
-            // Insert into ia_generation
-            const query = `
+        // Insert into ia_generation
+        const query = `
           INSERT INTO ia_generation (model, prompt, sha256, generation)
           VALUES (?, ?, ?, ?)
           `
-            await conn.query(query, [model, prompt, sha256, generation])
-            conn.commit()
-            const [insertResult] = await conn.query('SELECT * FROM ia_generation WHERE id = LAST_INSERT_ID()')
-            const insertedRecord: IAGenerated = insertResult[0]
-            return insertedRecord
-        } catch (error) {
-            await conn.rollback()
-            console.error('*** Error inserting into ia_generation:', error?.message)
-            throw new Error(`Error inserting into ia_generation: ${error?.message}`)
-        } finally {
-            await conn.release()
-        }
+        await conn.query(query, [model, prompt, sha256, generation])
+        conn.commit()
+        const [insertResult] = await conn.query('SELECT * FROM ia_generation WHERE id = LAST_INSERT_ID()')
+        const insertedRecord: IAGenerated = insertResult[0]
+        return insertedRecord
     }
 
-    static async evaluateIAGeneration(user_id: number, generation_id: number, evaluation_id: number, evaluation_descr: string | null): Promise<boolean | undefined> {
-        if (!pool) return undefined
-
-        // Start a transaction
-        const conn = await getConnection()
-        await conn.beginTransaction()
-
-        try {
-            // Insert into ia_generation
-            const query = `
+    @tran
+    static async evaluateIAGeneration(conn: any, user_id: number, generation_id: number, evaluation_id: number, evaluation_descr: string | null): Promise<boolean | undefined> {
+        // Insert into ia_generation
+        const query = `
           UPDATE ia_generation SET evaluation_user_id = ?, evaluation_id = ?, evaluation_descr = ? WHERE id = ?
           `
-            await conn.query(query, [user_id, evaluation_id, evaluation_descr, generation_id])
-            conn.commit()
-            return true
-        } catch (error) {
-            await conn.rollback()
-            console.error('*** Error inserting into ia_generation:', error?.message)
-            throw new Error(`Error inserting into ia_generation: ${error?.message}`)
-        } finally {
-            await conn.release()
-        }
+        await conn.query(query, [user_id, evaluation_id, evaluation_descr, generation_id])
+        return true
     }
 
-
-
-    static async assertIABatchId(batchName: string): Promise<number> {
-        // Start a transaction
-        const conn = await getConnection()
-        await conn.beginTransaction()
-
-        try {
-            // Check or insert batch
-            let batch_id: number | null = null
-            if (batchName) {
-                let [batches] = await conn.query('SELECT id FROM ia_batch WHERE name = ?', [batchName])
-                if (batches.length > 0) {
-                    batch_id = batches[0].id
-                } else {
-                    const [batchResult] = await conn.query('INSERT INTO ia_batch (name) VALUES (?)', [batchName])
-                    batch_id = batchResult.insertId
-                }
-            }
-            conn.commit()
-            return batch_id as number
-        } catch (error) {
-            await conn.rollback()
-            throw new Error(`Error asserting batch_id: ${error?.message}`)
-        } finally {
-            await conn.release()
-        }
-    }
-
-    static async assertIADossierId(dossierCode: string, classCode: number, filingDate: Date): Promise<number> {
-        // Start a transaction
-        const conn = await getConnection()
-        await conn.beginTransaction()
-
-        try {
-            // Check or insert dossier
-            let [dossiers] = await conn.query('SELECT id FROM ia_dossier WHERE code = ?', [dossierCode])
-            let dossier_id: number
-            if (dossiers.length > 0) {
-                dossier_id = dossiers[0].id
+    @tran
+    static async assertIABatchId(conn: any, batchName: string): Promise<number> {
+        // Check or insert batch
+        let batch_id: number | null = null
+        if (batchName) {
+            let [batches] = await conn.query('SELECT id FROM ia_batch WHERE name = ?', [batchName])
+            if (batches.length > 0) {
+                batch_id = batches[0].id
             } else {
-                const [dossierResult] = await conn.query('INSERT INTO ia_dossier (code, class_code, filing_at) VALUES (?,?,?)', [dossierCode, classCode, filingDate])
-                dossier_id = dossierResult.insertId
+                const [batchResult] = await conn.query('INSERT INTO ia_batch (name) VALUES (?)', [batchName])
+                batch_id = batchResult.insertId
             }
-            conn.commit()
-            return dossier_id as number
-        } catch (error) {
-            await conn.rollback()
-            throw new Error(`Error asserting dossier_id: ${error?.message}`)
-        } finally {
-            await conn.release()
         }
+        return batch_id as number
     }
 
-    static async assertIADocumentId(documentCode: string, dossier_id: number): Promise<number> {
-        // Start a transaction
-        const conn = await getConnection()
-        await conn.beginTransaction()
-
-        try {
-            // Check or insert document
-            let document_id: number | null = null
-            if (documentCode) {
-                let [documents] = await conn.query('SELECT id FROM ia_document WHERE code = ?', [documentCode])
-                if (documents.length > 0) {
-                    document_id = documents[0].id
-                } else {
-                    const [documentResult] = await conn.query('INSERT INTO ia_document (code, dossier_id) VALUES (?, ?)', [documentCode, dossier_id])
-                    document_id = documentResult.insertId
-                }
-            }
-            conn.commit()
-            return document_id as number
-        } catch (error) {
-            await conn.rollback()
-            throw new Error(`Error asserting document_id: ${error?.message}`)
-        } finally {
-            await conn.release()
+    @tran
+    static async assertIADossierId(conn: any, dossierCode: string, classCode: number, filingDate: Date): Promise<number> {
+        // Check or insert dossier
+        let [dossiers] = await conn.query('SELECT id FROM ia_dossier WHERE code = ?', [dossierCode])
+        let dossier_id: number
+        if (dossiers.length > 0) {
+            dossier_id = dossiers[0].id
+        } else {
+            const [dossierResult] = await conn.query('INSERT INTO ia_dossier (code, class_code, filing_at) VALUES (?,?,?)', [dossierCode, classCode, filingDate])
+            dossier_id = dossierResult.insertId
         }
+        return dossier_id as number
     }
 
-    static async assertIABatchDossierId(batch_id: number, dossier_id: number): Promise<number> {
-        // Start a transaction
-        const conn = await getConnection()
-        await conn.beginTransaction()
 
-        try {
-            // Check or insert document
-            let batch_dossier_id: number | null = null
-            let [documents] = await conn.query('SELECT id FROM ia_batch_dossier WHERE batch_id = ? AND dossier_id = ?', [batch_id, dossier_id])
+    @tran
+    static async assertIADocumentId(conn: any, documentCode: string, dossier_id: number): Promise<number> {
+        // Check or insert document
+        let document_id: number | null = null
+        if (documentCode) {
+            let [documents] = await conn.query('SELECT id FROM ia_document WHERE code = ?', [documentCode])
             if (documents.length > 0) {
-                batch_dossier_id = documents[0].id
+                document_id = documents[0].id
             } else {
-                const [documentResult] = await conn.query('INSERT INTO ia_batch_dossier (batch_id, dossier_id) VALUES (?, ?)', [batch_id, dossier_id])
-                batch_dossier_id = documentResult.insertId
+                const [documentResult] = await conn.query('INSERT INTO ia_document (code, dossier_id) VALUES (?, ?)', [documentCode, dossier_id])
+                document_id = documentResult.insertId
             }
-            conn.commit()
-            return batch_dossier_id as number
-        } catch (error) {
-            await conn.rollback()
-            throw new Error(`Error asserting batch_dossier_id: ${error?.message}`)
-        } finally {
-            await conn.release()
         }
+        return document_id as number
     }
 
-    static async deleteIABatchDossierId(batch_id: number, dossier_id: number): Promise<undefined> {
-        // Start a transaction
-        const conn = await getConnection()
-        await conn.beginTransaction()
-
-        try {
-            let [documents] = await conn.query('DELETE FROM ia_batch_dossier WHERE batch_id = ? AND dossier_id = ?', [batch_id, dossier_id])
-            conn.commit()
-        } catch (error) {
-            await conn.rollback()
-            throw new Error(`Error deleting batch_dossier: ${error?.message}`)
-        } finally {
-            await conn.release()
+    @tran
+    static async assertIABatchDossierId(conn: any, batch_id: number, dossier_id: number): Promise<number> {
+        // Check or insert document
+        let batch_dossier_id: number | null = null
+        let [documents] = await conn.query('SELECT id FROM ia_batch_dossier WHERE batch_id = ? AND dossier_id = ?', [batch_id, dossier_id])
+        if (documents.length > 0) {
+            batch_dossier_id = documents[0].id
+        } else {
+            const [documentResult] = await conn.query('INSERT INTO ia_batch_dossier (batch_id, dossier_id) VALUES (?, ?)', [batch_id, dossier_id])
+            batch_dossier_id = documentResult.insertId
         }
+        return batch_dossier_id as number
     }
 
-    static async insertIABatchDossierItem(data: IABatchDossierItem): Promise<IAGenerated> {
+    @tran
+    static async deleteIABatchDossierId(conn: any, batch_id: number, dossier_id: number): Promise<undefined> {
+        let [documents] = await conn.query('DELETE FROM ia_batch_dossier WHERE batch_id = ? AND dossier_id = ?', [batch_id, dossier_id])
+    }
+
+    @tran
+    static async insertIABatchDossierItem(conn: any, data: IABatchDossierItem): Promise<IAGenerated> {
         const { batch_dossier_id, document_id, generation_id, descr, seq } = data
 
-        // Start a transaction
-        const conn = await getConnection()
-        await conn.beginTransaction()
-
-        try {
-            // Insert into ia_generation
-            const query = `
+        // Insert into ia_generation
+        const query = `
           INSERT INTO ia_batch_dossier_item (batch_dossier_id, document_id, generation_id, descr, seq)
           VALUES (?, ?, ?, ?, ?)
           `
-            await conn.query(query, [batch_dossier_id, document_id, generation_id, descr, seq])
-            conn.commit()
-            const [insertResult] = await conn.query('SELECT * FROM ia_batch_dossier_item WHERE id = LAST_INSERT_ID()')
-            const insertedRecord: IAGenerated = insertResult[0]
-            return insertedRecord
-        } catch (error) {
-            await conn.rollback()
-            throw new Error(`Error inserting into ia_batch_dossier_item: ${error?.message}`)
-        } finally {
-            await conn.release()
-        }
+        await conn.query(query, [batch_dossier_id, document_id, generation_id, descr, seq])
+        conn.commit()
+        const [insertResult] = await conn.query('SELECT * FROM ia_batch_dossier_item WHERE id = LAST_INSERT_ID()')
+        const insertedRecord: IAGenerated = insertResult[0]
+        return insertedRecord
     }
 
-    static async assertIAEnumId(descr: string): Promise<number> {
-        // Start a transaction
-        const conn = await getConnection()
-        await conn.beginTransaction()
-
-        try {
-            // Check or insert batch
-            let id: number | null = null
-            if (descr) {
-                let [batches] = await conn.query('SELECT id FROM ia_enum WHERE descr = ?', [descr])
-                if (batches.length > 0) {
-                    id = batches[0].id
-                } else {
-                    const [batchResult] = await conn.query('INSERT INTO ia_enum (descr) VALUES (?)', [descr])
-                    id = batchResult.insertId
-                }
-            }
-            conn.commit()
-            return id as number
-        } catch (error) {
-            await conn.rollback()
-            throw new Error(`Error asserting enum_id: ${error?.message}`)
-        } finally {
-            await conn.release()
-        }
-    }
-
-    static async assertIAEnumItemId(descr: string, enum_id: number): Promise<number> {
-        // Start a transaction
-        const conn = await getConnection()
-        await conn.beginTransaction()
-
-        try {
-            // Check or insert document
-            let id: number | null = null
-            if (descr) {
-                let [batches] = await conn.query('SELECT id FROM ia_enum_item WHERE descr = ? AND enum_id = ?', [descr, enum_id])
-                if (batches.length > 0) {
-                    id = batches[0].id
-                } else {
-                    const [batchResult] = await conn.query('INSERT INTO ia_enum_item (descr, enum_id) VALUES (?,?)', [descr, enum_id])
-                    id = batchResult.insertId
-                }
-            }
-            conn.commit()
-            return id as number
-        } catch (error) {
-            await conn.rollback()
-            throw new Error(`Error asserting enum_item_id: ${error?.message}`)
-        } finally {
-            await conn.release()
-        }
-    }
-
-    static async assertIABatchDossierEnumItemId(batch_dossier_id: number, enum_item_id: number): Promise<number> {
-        // Start a transaction
-        const conn = await getConnection()
-        await conn.beginTransaction()
-
-        try {
-            // Check or insert document
-            let id: number | null = null
-            let [batches] = await conn.query('SELECT id FROM ia_batch_dossier_enum_item WHERE batch_dossier_id = ? AND enum_item_id = ?', [batch_dossier_id, enum_item_id])
+    @tran
+    static async assertIAEnumId(conn: any, descr: string): Promise<number> {
+        // Check or insert batch
+        let id: number | null = null
+        if (descr) {
+            let [batches] = await conn.query('SELECT id FROM ia_enum WHERE descr = ?', [descr])
             if (batches.length > 0) {
                 id = batches[0].id
             } else {
-                const [batchResult] = await conn.query('INSERT INTO ia_batch_dossier_enum_item (batch_dossier_id, enum_item_id) VALUES (?,?)', [batch_dossier_id, enum_item_id])
+                const [batchResult] = await conn.query('INSERT INTO ia_enum (descr) VALUES (?)', [descr])
                 id = batchResult.insertId
             }
-            conn.commit()
-            return id as number
-        } catch (error) {
-            await conn.rollback()
-            throw new Error(`Error asserting ia_batch_dossier_enum_item_id: ${error?.message}`)
-        } finally {
-            await conn.release()
         }
+        return id as number
     }
 
-    static async retrieveEnumItems(): Promise<IAEnumItem[]> {
-        const conn = await getConnection()
-        try {
-            let result
-            [result] = await conn.query(`
+    @tran
+    static async assertIAEnumItemId(conn: any, descr: string, enum_id: number): Promise<number> {
+        // Check or insert document
+        let id: number | null = null
+        if (descr) {
+            let [batches] = await conn.query('SELECT id FROM ia_enum_item WHERE descr = ? AND enum_id = ?', [descr, enum_id])
+            if (batches.length > 0) {
+                id = batches[0].id
+            } else {
+                const [batchResult] = await conn.query('INSERT INTO ia_enum_item (descr, enum_id) VALUES (?,?)', [descr, enum_id])
+                id = batchResult.insertId
+            }
+        }
+        return id as number
+    }
+
+    @tran
+    static async assertIABatchDossierEnumItemId(conn: any, batch_dossier_id: number, enum_item_id: number): Promise<number> {
+        // Check or insert document
+        let id: number | null = null
+        let [batches] = await conn.query('SELECT id FROM ia_batch_dossier_enum_item WHERE batch_dossier_id = ? AND enum_item_id = ?', [batch_dossier_id, enum_item_id])
+        if (batches.length > 0) {
+            id = batches[0].id
+        } else {
+            const [batchResult] = await conn.query('INSERT INTO ia_batch_dossier_enum_item (batch_dossier_id, enum_item_id) VALUES (?,?)', [batch_dossier_id, enum_item_id])
+            id = batchResult.insertId
+        }
+        return id as number
+    }
+
+    @con
+    static async retrieveEnumItems(conn: any): Promise<IAEnumItem[]> {
+        let result
+        [result] = await conn.query(`
             SELECT e.id enum_id, e.descr enum_descr, ei.descr enum_item_descr, ei.hidden enum_item_hidden, ei2.descr enum_item_descr_main
             from ia_enum e
             INNER JOIN ia_enum_item ei ON ei.enum_id = e.id
             LEFT JOIN ia_enum_item ei2 ON ei2.id = ei.enum_item_id_main
             ORDER BY e.id, ei.descr
             `, [])
-            if (!result || result.length === 0) return []
-            return result
-        } catch (error) {
-            throw new Error(`Error retrieving enum itens: ${error?.message}`)
-        } finally {
-            await conn.release()
-        }
+        if (!result || result.length === 0) return []
+        return result
     }
 
-    static async assertIAUserId(username: string): Promise<number> {
-        // Start a transaction
-        const conn = await getConnection()
-        await conn.beginTransaction()
-
-        try {
-            // Check or insert batch
-            let user_id: number | null = null
-            if (username) {
-                let [batches] = await conn.query('SELECT id FROM ia_user WHERE username = ?', [username])
-                if (batches.length > 0) {
-                    user_id = batches[0].id
-                } else {
-                    const [batchResult] = await conn.query('INSERT INTO ia_user (username) VALUES (?)', [username])
-                    user_id = batchResult.insertId
-                }
+    @tran
+    static async assertIAUserId(conn: any, username: string): Promise<number> {
+        // Check or insert batch
+        let user_id: number | null = null
+        if (username) {
+            let [batches] = await conn.query('SELECT id FROM ia_user WHERE username = ?', [username])
+            if (batches.length > 0) {
+                user_id = batches[0].id
+            } else {
+                const [batchResult] = await conn.query('INSERT INTO ia_user (username) VALUES (?)', [username])
+                user_id = batchResult.insertId
             }
-            conn.commit()
-            return user_id as number
-        } catch (error) {
-            await conn.rollback()
-            throw new Error(`Error asserting user_id: ${error?.message}`)
-        } finally {
-            await conn.release()
         }
+        return user_id as number
     }
 
 }

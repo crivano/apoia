@@ -35,7 +35,7 @@ export async function retrieveFromCache(sha256: string, model: string, prompt: s
 }
 
 export async function saveToCache(sha256: string, model: string, prompt: string, generated: string): Promise<number | undefined> {
-    const inserted = await Dao.insertIAGeneration({ sha256, model, prompt, generation: generated })
+    const inserted = await Dao.insertIAGeneration(null, { sha256, model, prompt, generation: generated })
     if (!inserted) return undefined
     return inserted.id
 }
@@ -160,7 +160,7 @@ export async function streamValue(prompt: string, data: any, date: Date):
 export async function evaluate(prompt: string, data: any, evaluation_id: number, evaluation_descr: string | null):
     Promise<boolean> {
     const user = await assertCurrentUser()
-    const user_id = await Dao.assertIAUserId(user.name)
+    const user_id = await Dao.assertIAUserId(null, user.name)
 
     if (!user_id) throw new Error('Unauthorized')
 
@@ -172,7 +172,7 @@ export async function evaluate(prompt: string, data: any, evaluation_id: number,
     const cached = await retrieveFromCache(sha256, model, prompt)
     if (!cached) throw new Error('Generation not found')
 
-    await Dao.evaluateIAGeneration(user_id, cached.id, evaluation_id, evaluation_descr)
+    await Dao.evaluateIAGeneration(null, user_id, cached.id, evaluation_id, evaluation_descr)
 
     return true
 }
