@@ -95,30 +95,6 @@ export const retrieveCountByBatchIdAndEnumId = async (batch_id: number, enum_id:
     }
 }
 
-export const retrieveCountByBatchIdAndEnumIdWithEnumItemId = async (batch_id: number, enum_id: number): Promise<AICountByBatchIdAndEnumId[]> => {
-    const conn = await getConnection()
-    try {
-        let result
-        [result] = await conn.query(`
-            SELECT ei.id enum_item_id, ei.descr enum_item_descr, ei.hidden hidden, count(distinct bd.id) count FROM ia_batch b
-            INNER JOIN ia_batch_dossier bd ON bd.batch_id = b.id
-            INNER JOIN ia_dossier d ON d.id = bd.dossier_id
-            INNER JOIN ia_batch_dossier_enum_item bdei ON bdei.batch_dossier_id = bd.id
-            INNER JOIN ia_enum_item ei ON ei.id = bdei.enum_item_id
-            INNER JOIN ia_enum e ON e.id = ei.enum_id
-            WHERE b.id = ? AND e.id = ?
-            GROUP BY ei.id, ei.descr, ei.hidden
-            ORDER BY count(distinct bd.id) desc
-            `, [batch_id, enum_id])
-        if (!result || result.length === 0) return []
-        return result
-    } catch (error) {
-        throw new Error(`Error retrieving batch by enum: ${error?.message}`)
-    } finally {
-        await conn.release()
-    }
-}
-
 interface AIBatchDossierGeneration {
     descr: string,
     generation: string,
@@ -232,79 +208,6 @@ interface FindAIGeneratedParams {
     model: string
 }
 
-export const findAIGenerated = async (params: FindAIGeneratedParams): Promise<any> => {
-    const { batchName, dossierCode, documentCode, sha256, model } = params
-
-    // Start a connection
-    const connection = await getConnection()
-
-    try {
-        const query = `
-            SELECT ag.* 
-            FROM ai_generated ag
-            JOIN ia_batch b ON ag.batch_id = b.id
-            JOIN ia_dossier d ON ag.dossier_id = d.id
-            JOIN ia_document doc ON ag.document_id = doc.id
-            WHERE b.name = ? AND d.code = ? AND doc.code = ? AND ag.sha256 = ? AND ag.model = ?
-        `
-        const [results] = await connection.query(query, [batchName, dossierCode, documentCode, sha256, model])
-        return results.length > 0 ? results[0] : null
-    } catch (error) {
-        console.error('Error finding ai_generated record:', error)
-        throw error
-    } finally {
-        await connection.release()
-    }
-}
-
-interface FindAIGeneratedMinParams {
-    sha256: string
-    model: string
-}
-
-export const findAIGeneratedMin = async (params: FindAIGeneratedMinParams): Promise<any> => {
-    const { sha256, model } = params
-
-    // Start a connection
-    const connection = await getConnection()
-
-    try {
-        const query = `
-            SELECT ag.* 
-            FROM ai_generated ag
-            WHERE ag.sha256 = ? AND ag.model = ?
-        `
-        const [results] = await connection.query(query, [sha256, model])
-
-        return results.length > 0 ? results[0] : null
-    } catch (error) {
-        console.error('Error finding ai_generated min record:', error)
-        throw error;
-    } finally {
-        await connection.release()
-    }
-}
-
-interface AIGeneratedData {
-    batchName: string
-    dossierCode: string
-    documentCode: string
-    prompt: string
-    sha256: string
-    model: string
-}
-
-// export async function loadAIGenerated(data: AIGeneratedData): Promise<IAGenerated | null> {
-//     const existingRecord = await findAIGenerated(data)
-//     if (existingRecord) return existingRecord
-//     const existingMinRecord = await findAIGeneratedMin({ model: data.model, sha256: data.sha256 })
-//     if (existingMinRecord) {
-//         return await insertIAGeneration({ ...data, generation: existingMinRecord.generation })
-//     }
-//     return null
-// }
-
-
 export const assertIABatchId = async (batchName: string): Promise<number> => {
     // Start a transaction
     const conn = await getConnection()
@@ -382,6 +285,7 @@ export const assertIADocumentId = async (documentCode: string, dossier_id: numbe
         await conn.release()
     }
 }
+
 export const assertIABatchDossierId = async (batch_id: number, dossier_id: number): Promise<number> => {
     // Start a transaction
     const conn = await getConnection()
@@ -535,18 +439,6 @@ export const assertIABatchDossierEnumItemId = async (batch_dossier_id: number, e
     }
 }
 
-export const updateIAEnumItem = async (enum_item_id: number, enum_item_id_main: number | null): Promise<any> => {
-    const conn = await getConnection()
-    try {
-        await conn.query('UPDATE ia_enum_item set enum_item_id_main = ? WHERE id = ?', [enum_item_id_main, enum_item_id])
-    } catch (error) {
-        throw new Error(`Error setting enum_item_id_main: ${error?.message}`)
-    } finally {
-        await conn.release()
-    }
-}
-
-
 interface IAEnumItem {
     enum_id: number,
     enum_descr: string,
@@ -555,26 +447,6 @@ interface IAEnumItem {
     enum_item_descr_main: string | null
 }
 
-
-export const retrieveEnumItemsByEnumId = async (enum_id: number): Promise<IAEnumItem[]> => {
-    const conn = await getConnection()
-    try {
-        let result
-        [result] = await conn.query(`
-            SELECT ei.descr enum_item_descr, ei.hidden enum_item_hidden, ei2.descr enum_item_descr_main
-            from ia_enum_item ei
-            LEFT JOIN ia_enum_item ei2 ON ei2.id = ei.enum_item_id_main
-            WHERE ei.enum_id = ?
-            ORDER BY ei.descr
-            `, [enum_id])
-        if (!result || result.length === 0) return []
-        return result
-    } catch (error) {
-        throw new Error(`Error retrieving enum itens: ${error?.message}`)
-    } finally {
-        await conn.release()
-    }
-}
 
 export const retrieveEnumItems = async (): Promise<IAEnumItem[]> => {
     const conn = await getConnection()
