@@ -3,14 +3,9 @@ import { DadosDoProcessoType, obterDadosDoProcesso, PecaType } from '@/lib/mni'
 import { assertCurrentUser } from '@/lib/user'
 import { T, P, ProdutosValidos, Plugin, ProdutoCompleto, CombinacaoValida, InfoDeProduto, ProdutoValido } from '@/lib/combinacoes'
 import { slugify } from '@/lib/utils'
-import {
-    assertIABatchId, assertIADossierId, assertIADocumentId, assertIABatchDossierId, insertIABatchDossierItem, deleteIABatchDossierId, assertIAEnumId, assertIAEnumItemId,
-    assertIABatchDossierEnumItemId,
-    IAGenerated
-} from '@/lib/mysql'
+import { Dao, IAGenerated } from '@/lib/mysql'
 import { getTriagem, getNormas, getPalavrasChave } from '@/lib/fix'
 import { generateContent } from '@/lib/generate'
-import { info } from 'console'
 
 type PecaComConteudoType = {
     id: string, // identificador da peça no Eproc
@@ -172,14 +167,14 @@ export async function getPiecesWithContent(dadosDoProcesso: DadosDoProcessoType,
 
 // Insert into database as part of a batch
 async function storeBatchItem(batchName: string, dossierNumber: string, requests: GeneratedContent[], dadosDoProcesso: any) {
-    const batch_id = await assertIABatchId(batchName)
-    const dossier_id = await assertIADossierId(dossierNumber, dadosDoProcesso.codigoDaClasse, dadosDoProcesso.ajuizamento)
-    await deleteIABatchDossierId(batch_id, dossier_id)
-    const batch_dossier_id = await assertIABatchDossierId(batch_id, dossier_id)
+    const batch_id = await Dao.assertIABatchId(batchName)
+    const dossier_id = await Dao.assertIADossierId(dossierNumber, dadosDoProcesso.codigoDaClasse, dadosDoProcesso.ajuizamento)
+    await Dao.deleteIABatchDossierId(batch_id, dossier_id)
+    const batch_dossier_id = await Dao.assertIABatchDossierId(batch_id, dossier_id)
     let seq = 0
     for (const req of requests) {
-        const document_id = req.documentCode ? await assertIADocumentId(req.documentCode, dossier_id) : null
-        await insertIABatchDossierItem({ batch_dossier_id, document_id, generation_id: req.id as number, descr: req.infoDeProduto.titulo, seq })
+        const document_id = req.documentCode ? await Dao.assertIADocumentId(req.documentCode, dossier_id) : null
+        await Dao.insertIABatchDossierItem({ batch_dossier_id, document_id, generation_id: req.id as number, descr: req.infoDeProduto.titulo, seq })
         seq++
 
         // process plugins
@@ -188,26 +183,26 @@ async function storeBatchItem(batchName: string, dossierNumber: string, requests
             switch (plugin) {
                 case Plugin.TRIAGEM: {
                     const triage = getTriagem(req.generated)
-                    const enum_id = await assertIAEnumId(Plugin.TRIAGEM)
-                    const enum_item_id = await assertIAEnumItemId(triage, enum_id)
-                    await assertIABatchDossierEnumItemId(batch_dossier_id, enum_item_id)
+                    const enum_id = await Dao.assertIAEnumId(Plugin.TRIAGEM)
+                    const enum_item_id = await Dao.assertIAEnumItemId(triage, enum_id)
+                    await Dao.assertIABatchDossierEnumItemId(batch_dossier_id, enum_item_id)
                     break
                 }
                 case Plugin.NORMAS: {
                     const normas = getNormas(req.generated)
-                    const enum_id = await assertIAEnumId(Plugin.NORMAS)
+                    const enum_id = await Dao.assertIAEnumId(Plugin.NORMAS)
                     for (const norma of normas) {
-                        const enum_item_id = await assertIAEnumItemId(norma, enum_id)
-                        await assertIABatchDossierEnumItemId(batch_dossier_id, enum_item_id)
+                        const enum_item_id = await Dao.assertIAEnumItemId(norma, enum_id)
+                        await Dao.assertIABatchDossierEnumItemId(batch_dossier_id, enum_item_id)
                     }
                     break
                 }
                 case Plugin.PALAVRAS_CHAVE: {
                     const palavrasChave = getPalavrasChave(req.generated)
-                    const enum_id = await assertIAEnumId(Plugin.PALAVRAS_CHAVE)
+                    const enum_id = await Dao.assertIAEnumId(Plugin.PALAVRAS_CHAVE)
                     for (const palavraChave of palavrasChave) {
-                        const enum_item_id = await assertIAEnumItemId(palavraChave, enum_id)
-                        await assertIABatchDossierEnumItemId(batch_dossier_id, enum_item_id)
+                        const enum_item_id = await Dao.assertIAEnumItemId(palavraChave, enum_id)
+                        await Dao.assertIABatchDossierEnumItemId(batch_dossier_id, enum_item_id)
                     }
                     break
                 }

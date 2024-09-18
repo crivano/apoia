@@ -1,11 +1,6 @@
 import { unstable_noStore as noStore } from 'next/cache'
-import { Suspense } from 'react'
-import ProcessTitle from '../../process/[id]/process-title'
-import { Container } from 'react-bootstrap'
-
-import { assertIABatchId, assertIAEnumId, retrieveByBatchIdAndEnumId, retrieveGenerationByBatchDossierId } from '../../../lib/mysql'
+import { Dao } from "@/lib/mysql"
 import { Plugin } from '../../../lib/combinacoes'
-import { slugify } from '../../../lib/utils'
 
 
 export const maxDuration = 60 // seconds
@@ -20,12 +15,12 @@ export default async function ShowBatchResult({ params }: { params: { name: stri
         </div>
     }
 
-    const batch_id = await assertIABatchId(params.name)
-    const enum_id = await assertIAEnumId(Plugin.TRIAGEM)
+    const batch_id = await Dao.assertIABatchId(params.name)
+    const enum_id = await Dao.assertIAEnumId(Plugin.TRIAGEM)
 
     let html = ''
 
-    const items = await retrieveByBatchIdAndEnumId(batch_id, enum_id)
+    const items = await Dao.retrieveByBatchIdAndEnumId(batch_id, enum_id)
 
     const enumDescrs = items.reduce((acc, i) => {
         if (!acc.includes(i.enum_item_descr))
@@ -58,7 +53,7 @@ export default async function ShowBatchResult({ params }: { params: { name: stri
 
         for (const item of ti.items) {
             html += `<div class="page"><h1>Processo ${item.dossier_code}</h1>`
-            const generations = await retrieveGenerationByBatchDossierId(item.batch_dossier_id)
+            const generations = await Dao.retrieveGenerationByBatchDossierId(item.batch_dossier_id)
             for (const g of generations) {
                 html += `<h2>${g.descr}</h2><div>${g.generation}</div>`
             }
