@@ -77,6 +77,15 @@ interface IAEnumItem {
     enum_item_descr_main: string | null
 }
 
+interface IADocument {
+    document_id: number
+    dossier_id: number
+    content_source_id: number
+    code: string
+    created_at: Date | null
+    content: string
+}
+
 function con(target: any, propertyKey: string, descriptor: PropertyDescriptor) {
     const original = descriptor.value;
 
@@ -206,6 +215,24 @@ export class Dao {
     }
 
     @tran
+    static async assertSystemId(conn: any, code: string): Promise<number> {
+        // Check or insert batch
+        let id: number | null = null
+        if (code) {
+            let [batches] = await conn.query('SELECT id FROM ia_system WHERE code = ?', [code])
+            if (batches.length > 0) {
+                id = batches[0].id
+            } else {
+                const [batchResult] = await conn.query('INSERT INTO ia_system (code) VALUES (?)', [code])
+                id = batchResult.insertId
+            }
+        }
+        return id as number
+    }
+
+
+
+    @tran
     static async assertIABatchId(conn: any, batchName: string): Promise<number> {
         // Check or insert batch
         let batch_id: number | null = null
@@ -222,14 +249,14 @@ export class Dao {
     }
 
     @tran
-    static async assertIADossierId(conn: any, dossierCode: string, classCode: number, filingDate: Date): Promise<number> {
+    static async assertIADossierId(conn: any, dossierCode: string, systemId: number, classCode: number, filingDate: Date): Promise<number> {
         // Check or insert dossier
-        let [dossiers] = await conn.query('SELECT id FROM ia_dossier WHERE code = ?', [dossierCode])
+        let [dossiers] = await conn.query('SELECT id FROM ia_dossier WHERE code = ? and system_id = ?', [dossierCode, systemId])
         let dossier_id: number
         if (dossiers.length > 0) {
             dossier_id = dossiers[0].id
         } else {
-            const [dossierResult] = await conn.query('INSERT INTO ia_dossier (code, class_code, filing_at) VALUES (?,?,?)', [dossierCode, classCode, filingDate])
+            const [dossierResult] = await conn.query('INSERT INTO ia_dossier (system_id, code, class_code, filing_at) VALUES (?,?,?)', [systemId, dossierCode, classCode, filingDate])
             dossier_id = dossierResult.insertId
         }
         return dossier_id as number
@@ -250,6 +277,19 @@ export class Dao {
             }
         }
         return document_id as number
+    }
+
+    @tran
+    static async updateDocumentContent(conn: any, document_id: number, content_source_id: number, content: string) {
+        await conn.query('UPDATE ia_document SET content_source_id = ?, content = ? WHERE id = ?', [content_source_id, content, document_id])
+    }
+
+    @con
+    static async retrieveDocument(conn: any, document_id: number): Promise<IADocument | undefined> {
+        const [result] = await conn.query('SELECT * FROM ia_document WHERE id = ?', [document_id])
+        if (!result || result.length === 0) return undefined
+        const record: IADocument = result[0]
+        return record
     }
 
     @tran

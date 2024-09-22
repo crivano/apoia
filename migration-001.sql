@@ -56,7 +56,7 @@ CREATE TABLE ia_document (
     dossier_id INT NOT NULL,
     content_source_id INT NULL,
     code VARCHAR(64) NOT NULL,   
-    created_at TIMESTAMP NULL,
+    created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
     content TEXT NULL,
     PRIMARY KEY (id),
     FOREIGN KEY (dossier_id) REFERENCES ia_dossier (id) ON UPDATE NO ACTION ON DELETE CASCADE,

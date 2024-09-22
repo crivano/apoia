@@ -19,7 +19,7 @@ export default async function UserMenu() {
         <ul className="navbar-nav me-1 mb-2x mb-lg-0x">
             <li className="nav-item dropdown">
                 <a className="nav-link dropdown-toggle text-white" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                    {user.name}
+                    {user.name}/{user.image.system}
                 </a>
                 <ul className="dropdown-menu" aria-labelledby="navbarDropdown">
                     <li><Link className="dropdown-item" href="/model">Modelo de IA{!automatic && ` (${model})`}</Link></li>

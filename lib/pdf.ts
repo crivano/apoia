@@ -77,9 +77,10 @@ export async function pdfToText(blob, options) {
         await Promise.all(promises);
         pdf.pages.sort((a, b) => a.pageInfo.num - b.pageInfo.num);
 
-        const s = pdf.pages.map(page =>
-            page.content.map((item) => item.str).join(' ')
-        ).join(' ').replace(/\s+/g, ' ').replace(/\s([.,;?])/g, '$1').trim()
+        const pagesText = pdf.pages.map(page =>
+            page.content.map((item) => item.str).join(' ').replace(/\s+/g, ' ').replace(/\s([.,;?])/g, '$1').trim())
+        
+        const s = pagesText.map((str, idx) => `<page number="${idx+1}">\n${str}\n</page>`).join('\n')
 
         return s
     }

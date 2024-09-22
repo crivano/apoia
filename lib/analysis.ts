@@ -143,8 +143,12 @@ export async function analyze(batchName: string | undefined, dossierNumber: stri
             req.id = result.id
         }
 
-        if (batchName)
-            storeBatchItem(batchName, dossierNumber, requests, dadosDoProcesso)
+        if (batchName) {
+            const user = await pUser
+            const systemCode = user.image.system
+            const systemId = await Dao.assertSystemId(null, systemCode)
+            storeBatchItem(systemId, batchName, dossierNumber, requests, dadosDoProcesso)
+        }
 
         return { dossierData: dadosDoProcesso, generatedContent: requests }
     } catch (error) {
@@ -156,19 +160,19 @@ export async function analyze(batchName: string | undefined, dossierNumber: stri
 export async function getPiecesWithContent(dadosDoProcesso: DadosDoProcessoType, dossierNumber: string): Promise<PecaComConteudoType[]> {
     let pecasComConteudo: PecaComConteudoType[] = []
     for (const peca of dadosDoProcesso.pecas) {
-        if (peca.conteudo === undefined) {
+        if (peca.pConteudo === undefined) {
             throw new Error(`${dossierNumber}: ${peca.descr}: Conteúdo não encontrado`)
         }
         const slug = await slugify(peca.descr)
-        pecasComConteudo.push({ id: peca.id, descr: peca.descr, slug, pTexto: peca.conteudo })
+        pecasComConteudo.push({ id: peca.id, descr: peca.descr, slug, pTexto: peca.pConteudo })
     }
     return pecasComConteudo
 }
 
 // Insert into database as part of a batch
-async function storeBatchItem(batchName: string, dossierNumber: string, requests: GeneratedContent[], dadosDoProcesso: any) {
+async function storeBatchItem(systemId: number, batchName: string, dossierNumber: string, requests: GeneratedContent[], dadosDoProcesso: any) {
     const batch_id = await Dao.assertIABatchId(null, batchName)
-    const dossier_id = await Dao.assertIADossierId(null, dossierNumber, dadosDoProcesso.codigoDaClasse, dadosDoProcesso.ajuizamento)
+    const dossier_id = await Dao.assertIADossierId(null, dossierNumber, systemId, dadosDoProcesso.codigoDaClasse, dadosDoProcesso.ajuizamento)
     await Dao.deleteIABatchDossierId(null, batch_id, dossier_id)
     const batch_dossier_id = await Dao.assertIABatchDossierId(null, batch_id, dossier_id)
     let seq = 0

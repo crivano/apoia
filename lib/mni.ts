@@ -8,6 +8,8 @@ import { parseYYYYMMDDHHMMSS, formatBrazilianDateTime, addBlockQuote } from './u
 import { systems } from './env'
 import { assertCurrentUser, getCurrentUser } from './user'
 import { decrypt } from './crypt'
+import { Dao } from './mysql'
+import { isNullOrUndefined } from 'util'
 
 const clientMap = new Map<string, soap.Client>()
 
@@ -48,7 +50,7 @@ export type PecaType = {
     descr: string
     tipoDoConteudo: string
     sigilo: string,
-    conteudo: Promise<string> | undefined
+    pConteudo: Promise<string> | undefined
 }
 
 const selecionarPecas = (pecas: PecaType[], descricoes: string[]) => {
@@ -70,12 +72,12 @@ const selecionarPecas = (pecas: PecaType[], descricoes: string[]) => {
     return pecasSelecionadas
 }
 
-const iniciarObtencaoDeConteudo = (numeroDoProcesso: string, pecas: PecaType[], username: string, password: string) => {
+const iniciarObtencaoDeConteudo = (dossier_id: number, numeroDoProcesso: string, pecas: PecaType[], username: string, password: string) => {
     const pecasComConteudo: PecaType[] = []
     for (const peca of pecas) {
         pecasComConteudo.push({
             ...peca,
-            conteudo: obterConteudoDaPeca(numeroDoProcesso, peca.id, username, password)
+            pConteudo: obterConteudoDaPeca(dossier_id, numeroDoProcesso, peca.id, username, password)
         })
     }
     return pecasComConteudo
@@ -111,6 +113,11 @@ export const obterDadosDoProcesso = async (numeroDoProcesso: string, pUser: Prom
         const ajuizamento = parseYYYYMMDDHHMMSS(dataAjuizamento)
         // ajuizamentoDate.setTime(ajuizamentoDate.getTime() - ajuizamentoDate.getTimezoneOffset() * 60 * 1000)
         const codigoDaClasse = parseInt(dadosBasicos.attributes.classeProcessual)
+
+        // grava os dados do processo no banco
+        const system_id = await Dao.assertSystemId(null, user.image.system)
+        const dossier_id = await Dao.assertIADossierId(null, numeroDoProcesso, system_id, codigoDaClasse, ajuizamento)
+
         const documentos = respQuery[0].processo.documento
         // console.log('documentos', JSON.stringify(documentos, null, 2))
         for (const doc of documentos) {
@@ -121,7 +128,7 @@ export const obterDadosDoProcesso = async (numeroDoProcesso: string, pUser: Prom
                 descr: doc.attributes.descricao,
                 tipoDoConteudo: doc.attributes.mimetype,
                 sigilo: doc.attributes.nivelSigilo,
-                conteudo: undefined
+                pConteudo: undefined
             })
         }
 
@@ -135,7 +142,7 @@ export const obterDadosDoProcesso = async (numeroDoProcesso: string, pUser: Prom
             pecas = pecas.filter(p => p.id === idDaPeca)
             if (pecas.length === 0)
                 throw new Error(`Peça ${idDaPeca} não encontrada`)
-            const pecasComConteudo = iniciarObtencaoDeConteudo(numeroDoProcesso, pecas, username, password)
+            const pecasComConteudo = iniciarObtencaoDeConteudo(dossier_id, numeroDoProcesso, pecas, username, password)
             return { pecas: pecasComConteudo, ajuizamento, codigoDaClasse, numeroDoProcesso, nomeOrgaoJulgador }
         }
 
@@ -146,7 +153,7 @@ export const obterDadosDoProcesso = async (numeroDoProcesso: string, pUser: Prom
                     for (const peca of pecasSelecionadas)
                         assertNivelDeSigilo(peca.sigilo, `${peca.descr} (${peca.id})`)
 
-                const pecasComConteudo = iniciarObtencaoDeConteudo(numeroDoProcesso, pecasSelecionadas, username, password)
+                const pecasComConteudo = iniciarObtencaoDeConteudo(dossier_id, numeroDoProcesso, pecasSelecionadas, username, password)
                 return { pecas: pecasComConteudo, combinacao: comb, ajuizamento, codigoDaClasse, numeroDoProcesso, nomeOrgaoJulgador }
             }
         }
@@ -202,20 +209,76 @@ const obterPeca = async (numeroDoProcesso, idDaPeca, username: string, password:
     return resultado
 }
 
-const obterConteudoDaPeca = async (numeroDoProcesso: string, idDaPeca: string, username: string, password: string) => {
+const obterTextoDeHtml = async (buffer: ArrayBuffer, documentId: number) => {
+    const decoder = new TextDecoder('iso-8859-1')
+    const html = decoder.decode(buffer)
+    const htmlWithBlockQuote = addBlockQuote(html)
+    const texto = await html2md(htmlWithBlockQuote)
+    Dao.updateDocumentContent(null, documentId, 1, texto)
+    return texto
+}
+
+const obterPaginasECaracteres = (texto) => {
+    const pages = texto.replace(/<page number="\d+">\n/, '').split('</page>')
+    pages.pop()
+    const chars = pages.reduce((acc, p) => acc + p.length, 0)
+    return { pages, chars }
+}
+
+// Método que recebe um buffer de um PDF, faz um post http para o serviço de OCR e retorna o PDF processado pelo OCR
+const ocrPdf = async (buffer: ArrayBuffer) => {
+    const url = process.env.OCR_URL as string
+    const formData = new FormData()
+    const file = new Blob([buffer], { type: 'application/pdf' })
+    formData.append('file', file)
+    const res = await fetch(url, {
+        method: 'POST',
+        body: formData
+    })
+    return await res.arrayBuffer()
+}
+
+const obterTextoDePdf = async (buffer: ArrayBuffer, documentId: number) => {
+    const texto = await pdfToText(buffer, {})
+    const { pages, chars } = obterPaginasECaracteres(texto)
+
+    // PDF tem texto suficiente para se considerar que não será necessário realizar o OCR
+    if (chars / pages.length > 300) {
+        Dao.updateDocumentContent(null, documentId, 2, texto);
+        return texto
+    }
+
+    const ocrBuffer = await ocrPdf(buffer)
+    const ocrTexto = await pdfToText(ocrBuffer, {})
+    const { pages: ocrPages, chars: ocrChars } = obterPaginasECaracteres(ocrTexto)
+
+    // PDF processado pelo OCR tem mais texto que o original
+    if (ocrChars > chars) {
+        Dao.updateDocumentContent(null, documentId, 3, ocrTexto);
+        return ocrTexto
+    }
+
+    return undefined
+}
+
+const obterConteudoDaPeca = async (dossier_id: number, numeroDoProcesso: string, idDaPeca: string, username: string, password: string) => {
+    const document_id = await Dao.assertIADocumentId(null, idDaPeca, dossier_id)
+
+    // verificar se a peça já foi gravada no banco
+    const document = await Dao.retrieveDocument(null, document_id)
+    if (document && document.content) {
+        console.log('Retrieving from cache, content of type', document.content_source_id)
+        return document.content
+    }
+
     const { buffer, contentType } = await obterPeca(numeroDoProcesso, idDaPeca, username, password)
+
     switch (contentType) {
-        case 'application/pdf': {
-            const texto = pdfToText(buffer, {})
-            return texto
-        }
         case 'text/html': {
-            const decoder = new TextDecoder('iso-8859-1')
-            const html = decoder.decode(buffer)
-            const htmlWithBlockQuote = addBlockQuote(html)
-            // return html
-            const texto = html2md(htmlWithBlockQuote)
-            return texto
+            return obterTextoDeHtml(buffer, document_id)
+        }
+        case 'application/pdf': {
+            return obterTextoDePdf(buffer, document_id)
         }
     }
     throw new Error(`Tipo de conteúdo não suportado: ${contentType}`)
