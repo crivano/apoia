@@ -17,13 +17,15 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faAdd } from '@fortawesome/free-solid-svg-icons'
 import Link from 'next/link'
 import { link } from 'fs'
+import { usePathname } from "next/navigation"
 
 
 
 export default function Table({ records, spec, linkToAdd, pageSize }: { records: any[], spec: string, linkToAdd?: string, pageSize?: number }) {
     const [sorting, setSorting] = useState([])
     const [globalFilter, setGlobalFilter] = useState('')
-    const { columns, thead, tr } = tableSpecs[spec]
+    const pathname = usePathname()
+    const { columns, thead, tr } = tableSpecs(pathname)[spec]
 
 
     // const records: [{ id: string, date: Date, category_name: string, description: string, explanation: string, value: string }] = props.records
@@ -80,7 +82,7 @@ export default function Table({ records, spec, linkToAdd, pageSize }: { records:
             <div className="row">
                 <div className="col col-auto ms-auto">
                     {linkToAdd &&
-                        <Link href={linkToAdd} className="btn btn-light bt float-end d-print-none"><FontAwesomeIcon icon={faAdd} /></Link>
+                        <Link href={`${pathname}/${linkToAdd}`} className="btn btn-light bt float-end d-print-none"><FontAwesomeIcon icon={faAdd} /></Link>
                     }
                 </div>
                 <div className="col col-auto">

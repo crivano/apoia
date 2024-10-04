@@ -8,10 +8,14 @@ import TablePlaceholder from '@/components/table-placeholder'
 import TableRecords from '@/components/table-records'
 import { Button, Container } from 'react-bootstrap'
 import Link from 'next/link'
+import { headers } from "next/headers";
 
 
 export default async function Home({ params }: { params: { kind: string } }) {
     noStore()
+    const heads = headers()
+    const pathname = heads.get('next-url')
+    console.log('pathname', pathname)
     const kind = params.kind
     console.log('kind', kind)
     const prompts = await Dao.retrievePromptsByKind(null, kind)

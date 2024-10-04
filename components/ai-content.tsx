@@ -52,6 +52,11 @@ export default function AiContent(params: { infoDeProduto: InfoDeProduto, textos
             overrideJsonSchema: params.overrideJsonSchema,
             overrideFormat: params.overrideFormat
         }
+        Object.keys(payload).forEach(key => {
+            if (payload[key] === '') {
+            delete payload[key]
+            }
+        })
         console.log('payload', JSON.stringify(payload))
         
         const response = await fetch('/api/ai', {

@@ -14,10 +14,10 @@ const promptSchema = z.object({
     model_id: numericString(z.number()),
     testset_id: numericString(z.number()).nullable(),
     content: z.object({
-        system_prompt: z.string().nullable(),
+        system_prompt: z.string().nullable().optional(),
         prompt: z.string().min(1),
-        json_schema: z.string().nullable(),
-        format: z.string().nullable()
+        json_schema: z.string().nullable().optional(),
+        format: z.string().nullable().optional()
     })
 })
 

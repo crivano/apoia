@@ -162,7 +162,7 @@ export class Dao {
     @con
     static async retrieveCountersByPromptKinds(conn: any): Promise<{ kind: string, prompts: string, testsets: number }[]> {
         const [result] = await conn.query(`
-            SELECT k.kind, count(distinct(p.slug)) prompts, count(distinct(t.slug)) testsets
+            SELECT any_value(k.kind) kind, count(distinct(p.slug)) prompts, count(distinct(t.slug)) testsets
             FROM (select kind from (select distinct(kind) kind from ia_prompt union select distinct(kind) kind from ia_testset) u group by kind) k
             left join ia_prompt p on p.kind = k.kind
             left join ia_testset t on t.kind = k.kind
@@ -263,7 +263,7 @@ export class Dao {
             LEFT JOIN ia_testset t on p.testset_id = t.id
             LEFT JOIN ia_model m on p.model_id = m.id
             LEFT JOIN ia_user u on p.created_by = u.id
-            LEFT JOIN ia_score s on p.testset_id = s.testset_id AND p.model_id = s.model_id AND p.id = s.prompt_id
+            LEFT JOIN ia_test s on p.testset_id = s.testset_id AND p.model_id = s.model_id AND p.id = s.prompt_id
             WHERE p.kind = ? AND p.slug = ?
             ORDER BY p.created_at DESC
         `, [kind, slug])

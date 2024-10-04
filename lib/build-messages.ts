@@ -7,7 +7,7 @@ export type PromptOptions = {
     overrideFormat?: string
 }
 
-function(data: any, options: PromptOptions): PromptType {
+function buildCustomPrompt(data: any, options: PromptOptions): PromptType {
     let structuredOutputs: {
         schemaName: string;
         schemaDescription: string;
