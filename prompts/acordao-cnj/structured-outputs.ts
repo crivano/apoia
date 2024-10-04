@@ -1,6 +1,7 @@
 import { z } from 'zod'
+import zodToJsonSchema from 'zod-to-json-schema'
 
-export default {
+const structuredOutputs = {
     schemaName: 'ementa',
     schemaDescription: 'Ementa de Acórdão',
     schema: z.object({
@@ -19,3 +20,7 @@ export default {
         jurisprudenciaRelevanteCitada: z.array(z.string())
     })
 }
+
+export default structuredOutputs
+
+// console.log('Structured output schema loaded', JSON.stringify(zodToJsonSchema(structuredOutputs.schema, 'ementa')))

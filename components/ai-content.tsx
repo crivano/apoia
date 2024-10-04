@@ -14,7 +14,7 @@ import { Form } from 'react-bootstrap'
 
 export const dynamic = 'force-dynamic'
 
-export default function AiContent(params: { infoDeProduto: InfoDeProduto, textos: TextoType[] }) {
+export default function AiContent(params: { infoDeProduto: InfoDeProduto, textos: TextoType[], overrideSystemPrompt?: string, overridePrompt?: string, overrideJsonSchema?: string, overrideFormat?: string }) {
     const [current, setCurrent] = useState('')
     const [complete, setComplete] = useState(false)
     const [errormsg, setErrormsg] = useState('')
@@ -43,13 +43,20 @@ export default function AiContent(params: { infoDeProduto: InfoDeProduto, textos
 
 
     const fetchStream = async () => {
+        const payload = {
+            prompt,
+            data: { textos: params.textos.map(t => ({ descr: t.descr, slug: t.slug, texto: t.texto })) },
+            date: new Date(),
+            overrideSystemPrompt: params.overrideSystemPrompt,
+            overridePrompt: params.overridePrompt,
+            overrideJsonSchema: params.overrideJsonSchema,
+            overrideFormat: params.overrideFormat
+        }
+        console.log('payload', JSON.stringify(payload))
+        
         const response = await fetch('/api/ai', {
             method: 'POST',
-            body: JSON.stringify({
-                prompt,
-                data: { textos: params.textos.map(t => ({ descr: t.descr, slug: t.slug, texto: t.texto })) },
-                date: new Date()
-            })
+            body: JSON.stringify(payload)
         })
         const reader = response.body?.getReader()
 

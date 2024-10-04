@@ -51,7 +51,7 @@ export const getNumberOfDaysInMonth = (year: number, month: number): number => {
 
 // Format date as YYYY-MM-DD HH:mm:ss
 export const formatDate = (date: Date): string =>
-  date.toISOString().replace('T', ' ').replace(/\..+/, '')
+  date ? date.toISOString().replace('T', ' ').replace(/\..+/, '') : ''
 
 
 export const convertBrazilianValueToNumber = (value) => {
@@ -73,7 +73,7 @@ export const slugify = (str) => {
     str = str.replace(new RegExp(from.charAt(i), 'g'), to.charAt(i));
   }
 
-  str = str.replace(/[^a-z -]/g, '') // remove invalid chars and numbers
+  str = str.replace(/[^a-z0-9 -]/g, '') // remove invalid chars and numbers
     .replace(/\s+/g, '-') // collapse whitespace and replace by -
     .replace(/-+/g, '-') // collapse dashes
     .replace(/-+$/g, '') // remove trailing -

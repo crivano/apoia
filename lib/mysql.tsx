@@ -1,3 +1,7 @@
+import { getCurrentUser } from "./user"
+import { slugify } from "./utils"
+import * as mysqlTypes from "./mysql-types"
+
 const mysql = require("mysql2/promise")
 
 const pool = process.env.MYSQL_HOST && mysql.createPool({
@@ -12,78 +16,6 @@ const pool = process.env.MYSQL_HOST && mysql.createPool({
 
 const getConnection = async () => {
     return await pool.getConnection()
-}
-
-
-export interface IAGenerated {
-    id: number
-    model: string
-    prompt: string
-    sha256: string
-    generation: string
-}
-
-export interface IAGeneration {
-    model: string
-    prompt: string
-    sha256: string
-    generation?: string
-}
-
-interface AIBatchIdAndEnumId {
-    dossier_code: string,
-    enum_item_id: number,
-    enum_item_descr: string,
-    enum_item_descr_main: string | null,
-    batch_dossier_id: number
-}
-
-interface AICountByBatchIdAndEnumId {
-    enum_item_id: number
-    enum_item_descr: string
-    hidden: number
-    count: number
-}
-
-interface AIBatchDossierGeneration {
-    descr: string
-    generation: string
-    document_id: number
-    document_code: string
-    prompt: string
-}
-
-interface FindAIGeneratedParams {
-    batchName: string
-    dossierCode: string
-    documentCode: string
-    sha256: string
-    model: string
-}
-
-interface IABatchDossierItem {
-    batch_dossier_id: number
-    document_id: number | null
-    generation_id: number
-    descr: string
-    seq: number
-}
-
-interface IAEnumItem {
-    enum_id: number
-    enum_descr: string
-    enum_item_descr: string
-    enum_item_hidden: number
-    enum_item_descr_main: string | null
-}
-
-interface IADocument {
-    document_id: number
-    dossier_id: number
-    content_source_id: number
-    code: string
-    created_at: Date | null
-    content: string
 }
 
 function con(target: any, propertyKey: string, descriptor: PropertyDescriptor) {
@@ -129,18 +61,245 @@ function tran(target: any, propertyKey: string, descriptor: PropertyDescriptor) 
 
 export class Dao {
 
+    @tran
+    static async insertIATestset(conn: any, data: mysqlTypes.IATestsetToInsert): Promise<mysqlTypes.IATestset | undefined> {
+        const { base_testset_id, kind, name, model_id, content } = data
+        const slug = slugify(name)
+        const created_by = (await getCurrentUser())?.id || null
+        console.log('created_by', created_by)
+        await conn.query(`
+          INSERT INTO ia_testset (base_id, kind, name, slug, model_id, content, created_by)
+          VALUES (?, ?, ?, ?, ?, ?, ?)
+        `, [base_testset_id, kind, name, slug, model_id, JSON.stringify(content), created_by])
+        conn.commit()
+        const [insertResult] = await conn.query('SELECT * FROM ia_testset WHERE id = LAST_INSERT_ID()')
+        const insertedRecord: mysqlTypes.IATestset = insertResult[0]
+        return insertedRecord
+    }
+
+    @tran
+    static async setOfficialTestset(conn: any, id: number): Promise<boolean> {
+        const testset = await Dao.retrieveTestsetById(conn, id)
+        if (!testset) throw new Error('Testset not found')
+        const queryRemoveOthers = `
+          UPDATE ia_testset SET is_official = 0 WHERE kind = ? AND slug = ? AND id != ?
+        `
+        await conn.query(queryRemoveOthers, [testset.kind, testset.slug, id])
+        const query = `
+          UPDATE ia_testset SET is_official = 1 WHERE id = ?
+        `
+        await conn.query(query, [id])
+        return true
+    }
+
+    @tran
+    static async removeOfficialTestset(conn: any, id: number): Promise<boolean> {
+        const query = `
+          UPDATE ia_testset SET is_official = 0 WHERE id = ?
+        `
+        await conn.query(query, [id])
+        return true
+    }
+
     @con
-    static async retrieveIAGeneration(conn: any, data: IAGeneration): Promise<IAGenerated | undefined> {
-        const { model, prompt, sha256 } = data
-        let result
-        [result] = await conn.query('SELECT * FROM ia_generation WHERE model = ? AND prompt = ? AND sha256 = ? AND evaluation_id is null', [model, prompt, sha256])
+    static async retrieveTestsetById(conn: any, id: number): Promise<mysqlTypes.IATestset | undefined> {
+        const [result] = await conn.query('SELECT * FROM ia_testset WHERE id = ?', [id])
         if (!result || result.length === 0) return undefined
-        const record: IAGenerated = result[0]
+        const record: mysqlTypes.IATestset = { ...result[0] }
+        return record
+    }
+
+
+    @tran
+    static async insertIAPrompt(conn: any, data: mysqlTypes.IAPromptToInsert): Promise<mysqlTypes.IAPrompt | undefined> {
+        const { base_prompt_id, kind, name, model_id, testset_id, content } = data
+        const slug = slugify(name)
+        const created_by = (await getCurrentUser())?.id || null
+        console.log('created_by', created_by)
+        await conn.query(`
+          INSERT INTO ia_prompt (base_id, kind, name, slug, model_id, testset_id, content, created_by)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        `, [base_prompt_id, kind, name, slug, model_id, testset_id, JSON.stringify(content), created_by])
+        conn.commit()
+        const [insertResult] = await conn.query('SELECT * FROM ia_prompt WHERE id = LAST_INSERT_ID()')
+        const insertedRecord: mysqlTypes.IAPrompt = insertResult[0]
+        return insertedRecord
+    }
+
+    @tran
+    static async setOfficialPrompt(conn: any, id: number): Promise<boolean> {
+        const prompt = await Dao.retrievePromptById(conn, id)
+        if (!prompt) throw new Error('Prompt not found')
+        const queryRemoveOthers = `
+          UPDATE ia_prompt SET is_official = 0 WHERE kind = ? AND slug = ? AND id != ?
+        `
+        await conn.query(queryRemoveOthers, [prompt.kind, prompt.slug, id])
+        const query = `
+          UPDATE ia_prompt SET is_official = 1 WHERE id = ?
+        `
+        await conn.query(query, [id])
+        return true
+    }
+
+    @tran
+    static async removeOfficialPrompt(conn: any, id: number): Promise<boolean> {
+        const query = `
+          UPDATE ia_prompt SET is_official = 0 WHERE id = ?
+        `
+        await conn.query(query, [id])
+        return true
+    }
+
+
+    @con
+    static async retrievePromptById(conn: any, id: number): Promise<mysqlTypes.IAPrompt | undefined> {
+        const [result] = await conn.query('SELECT * FROM ia_prompt WHERE id = ?', [id])
+        if (!result || result.length === 0) return undefined
+        const record: mysqlTypes.IAPrompt = { ...result[0] }
         return record
     }
 
     @con
-    static async retrieveByBatchIdAndEnumId(conn: any, batch_id: number, enum_id: number): Promise<AIBatchIdAndEnumId[]> {
+    static async retrieveCountersByPromptKinds(conn: any): Promise<{ kind: string, prompts: string, testsets: number }[]> {
+        const [result] = await conn.query(`
+            SELECT k.kind, count(distinct(p.slug)) prompts, count(distinct(t.slug)) testsets
+            FROM (select kind from (select distinct(kind) kind from ia_prompt union select distinct(kind) kind from ia_testset) u group by kind) k
+            left join ia_prompt p on p.kind = k.kind
+            left join ia_testset t on t.kind = k.kind
+        `)
+        console.log('result', result)
+        if (!result || result.length === 0) return []
+        const records = result.map((record: any) => ({ ...record }))
+        return records
+    }
+
+    @con
+    static async retrievePromptsByKind(conn: any, kind: string): Promise<{ slug: string, name: string, versions: number, created_at: Date, modified_at: Date, official_at: Date, created_id: number, modified_id: number, official_id: number }[]> {
+        const [result] = await conn.query(`
+            WITH t1 AS
+            (SELECT slug, min(created_at) created_at, min(created_id) created_id, min(modified_at) modified_at, min(modified_id) modified_id, min(name) name, count(*) versions
+            FROM (
+                SELECT 
+                slug, 
+                FIRST_VALUE(created_at) OVER first AS created_at,
+                FIRST_VALUE(id) OVER first AS created_id,
+                FIRST_VALUE(created_at) OVER last AS modified_at,
+                FIRST_VALUE(id) OVER last AS modified_id,
+                FIRST_VALUE(name) OVER last AS name
+                FROM ia_prompt
+                WHERE kind = ?
+                WINDOW first as (PARTITION BY slug ORDER BY created_at), last as (PARTITION BY slug ORDER BY created_at desc)
+            ) p
+            GROUP BY slug
+            ORDER BY slug),
+            t2 AS
+            (SELECT t1.*, o.id official_id, o.created_at official_at
+            FROM t1 LEFT JOIN ia_prompt o ON t1.slug = o.slug AND o.is_official = 1)
+            SELECT t2.* from t2;
+        `, [kind])
+        if (!result || result.length === 0) return []
+        const records = result.map((record: any) => ({ ...record }))
+        return records
+    }
+
+    @con
+    static async retrieveTestsetsByKind(conn: any, kind: string): Promise<{ slug: string, name: string, versions: number, created: Date, modified: Date }[]> {
+        const [result] = await conn.query(`
+            WITH t1 AS
+            (SELECT slug, min(created_at) created_at, min(created_id) created_id, min(modified_at) modified_at, min(modified_id) modified_id, min(name) name, count(*) versions
+            FROM (
+                SELECT 
+                slug, 
+                FIRST_VALUE(created_at) OVER first AS created_at,
+                FIRST_VALUE(id) OVER first AS created_id,
+                FIRST_VALUE(created_at) OVER last AS modified_at,
+                FIRST_VALUE(id) OVER last AS modified_id,
+                FIRST_VALUE(name) OVER last AS name
+                FROM ia_testset
+                WHERE kind = ?
+                WINDOW first as (PARTITION BY slug ORDER BY created_at), last as (PARTITION BY slug ORDER BY created_at desc)
+            ) p
+            GROUP BY slug
+            ORDER BY slug),
+            t2 AS
+            (SELECT t1.*, o.id official_id, o.created_at official_at
+            FROM t1 LEFT JOIN ia_testset o ON t1.slug = o.slug AND o.is_official = 1)
+            SELECT t2.* from t2;
+        `, [kind])
+        if (!result || result.length === 0) return []
+        const records = result.map((record: any) => ({ ...record }))
+        return records
+    }
+
+    @con
+    static async retrieveOfficialTestsetsIdsAndNamesByKind(conn: any, kind: string): Promise<{ id: string, name: string }[]> {
+        const [result] = await conn.query(`
+            SELECT t.id, t.name
+            FROM ia_testset t
+            WHERE t.kind = ? AND is_official = 1
+        `, [kind])
+        if (!result || result.length === 0) return []
+        const records = result.map((record: any) => ({ ...record }))
+        return records
+    }
+
+    @con
+    static async retrieveModels(conn: any): Promise<{ id: string, name: string }[]> {
+        const [result] = await conn.query(`
+            SELECT t.id, t.name
+            FROM ia_model t
+        `)
+        if (!result || result.length === 0) return []
+        const records = result.map((record: any) => ({ ...record }))
+        return records
+    }
+
+
+    @con
+    static async retrievePromptsByKindAndSlug(conn: any, kind: string, slug: string): Promise<{ id: number, testset_id: number, model_id: number, kind: string, name: string, slug: string, content: any, created_by: number, created_at: Date, is_official: boolean, testset_slug: string, testset_name: string, model_name: string, user_username: string, score: number }[]> {
+        const [result] = await conn.query(`
+            SELECT p.id, p.testset_id, p.model_id, p.kind, p.name, p.slug, p.content, p.created_by, p.created_at, p.is_official, t.slug testset_slug, t.name testset_name, m.name model_name, u.username user_username, s.score score
+            FROM ia_prompt p
+            LEFT JOIN ia_testset t on p.testset_id = t.id
+            LEFT JOIN ia_model m on p.model_id = m.id
+            LEFT JOIN ia_user u on p.created_by = u.id
+            LEFT JOIN ia_score s on p.testset_id = s.testset_id AND p.model_id = s.model_id AND p.id = s.prompt_id
+            WHERE p.kind = ? AND p.slug = ?
+            ORDER BY p.created_at DESC
+        `, [kind, slug])
+        if (!result || result.length === 0) return []
+        const records = result.map((record: any) => ({ ...record }))
+        return records
+    }
+
+    @con
+    static async retrieveTestsetsByKindAndSlug(conn: any, kind: string, slug: string): Promise<{ id: number, testset_id: number, model_id: number, kind: string, name: string, slug: string, content: any, created_by: number, created_at: Date, is_official: boolean, testset_slug: string, testset_name: string, model_name: string, user_username: string, score: number }[]> {
+        const [result] = await conn.query(`
+            SELECT p.id, p.model_id, p.kind, p.name, p.slug, p.content, p.created_by, p.created_at, p.is_official, m.name model_name, u.username user_username
+            FROM ia_testset p
+            LEFT JOIN ia_model m on p.model_id = m.id
+            LEFT JOIN ia_user u on p.created_by = u.id
+            WHERE p.kind = ? AND p.slug = ?
+            ORDER BY p.created_at DESC
+        `, [kind, slug])
+        if (!result || result.length === 0) return []
+        const records = result.map((record: any) => ({ ...record }))
+        return records
+    }
+
+
+    @con
+    static async retrieveIAGeneration(conn: any, data: mysqlTypes.IAGeneration): Promise<mysqlTypes.IAGenerated | undefined> {
+        const { model, prompt, sha256 } = data
+        let result
+        [result] = await conn.query('SELECT * FROM ia_generation WHERE model = ? AND prompt = ? AND sha256 = ? AND evaluation_id is null', [model, prompt, sha256])
+        if (!result || result.length === 0) return undefined
+        const record: mysqlTypes.IAGenerated = result[0]
+        return record
+    }
+
+    @con
+    static async retrieveByBatchIdAndEnumId(conn: any, batch_id: number, enum_id: number): Promise<mysqlTypes.AIBatchIdAndEnumId[]> {
         let result
         [result] = await conn.query(`
             SELECT d.code dossier_code, d.class_code dossier_class_code, d.filing_at dossier_filing_at, ei.id enum_item_id, ei.descr enum_item_descr, ei2.descr enum_item_descr_main, bd.id batch_dossier_id FROM ia_batch b        
@@ -158,7 +317,7 @@ export class Dao {
     }
 
     @con
-    static async retrieveCountByBatchIdAndEnumId(conn: any, batch_id: number, enum_id: number): Promise<AICountByBatchIdAndEnumId[]> {
+    static async retrieveCountByBatchIdAndEnumId(conn: any, batch_id: number, enum_id: number): Promise<mysqlTypes.AICountByBatchIdAndEnumId[]> {
         let result
         [result] = await conn.query(`
             SELECT ei.descr enum_item_descr, ei.hidden hidden, count(distinct bd.id) count FROM ia_batch b
@@ -176,7 +335,7 @@ export class Dao {
     }
 
     @con
-    static async retrieveGenerationByBatchDossierId(conn: any, batch_dossier_id: number): Promise<AIBatchDossierGeneration[]> {
+    static async retrieveGenerationByBatchDossierId(conn: any, batch_dossier_id: number): Promise<mysqlTypes.AIBatchDossierGeneration[]> {
         let result
         [result] = await conn.query(`
             SELECT bdi.descr, g.generation, g.prompt, d.id document_id, d.code document_code FROM apoia.ia_batch_dossier_item bdi 
@@ -189,7 +348,7 @@ export class Dao {
     }
 
     @tran
-    static async insertIAGeneration(conn: any, data: IAGeneration): Promise<IAGenerated | undefined> {
+    static async insertIAGeneration(conn: any, data: mysqlTypes.IAGeneration): Promise<mysqlTypes.IAGenerated | undefined> {
         const { model, prompt, sha256, generation } = data
 
         // Insert into ia_generation
@@ -200,7 +359,7 @@ export class Dao {
         await conn.query(query, [model, prompt, sha256, generation])
         conn.commit()
         const [insertResult] = await conn.query('SELECT * FROM ia_generation WHERE id = LAST_INSERT_ID()')
-        const insertedRecord: IAGenerated = insertResult[0]
+        const insertedRecord: mysqlTypes.IAGenerated = insertResult[0]
         return insertedRecord
     }
 
@@ -285,10 +444,10 @@ export class Dao {
     }
 
     @con
-    static async retrieveDocument(conn: any, document_id: number): Promise<IADocument | undefined> {
+    static async retrieveDocument(conn: any, document_id: number): Promise<mysqlTypes.IADocument | undefined> {
         const [result] = await conn.query('SELECT * FROM ia_document WHERE id = ?', [document_id])
         if (!result || result.length === 0) return undefined
-        const record: IADocument = result[0]
+        const record: mysqlTypes.IADocument = result[0]
         return record
     }
 
@@ -312,7 +471,7 @@ export class Dao {
     }
 
     @tran
-    static async insertIABatchDossierItem(conn: any, data: IABatchDossierItem): Promise<IAGenerated> {
+    static async insertIABatchDossierItem(conn: any, data: mysqlTypes.IABatchDossierItem): Promise<mysqlTypes.IAGenerated> {
         const { batch_dossier_id, document_id, generation_id, descr, seq } = data
 
         // Insert into ia_generation
@@ -323,7 +482,7 @@ export class Dao {
         await conn.query(query, [batch_dossier_id, document_id, generation_id, descr, seq])
         conn.commit()
         const [insertResult] = await conn.query('SELECT * FROM ia_batch_dossier_item WHERE id = LAST_INSERT_ID()')
-        const insertedRecord: IAGenerated = insertResult[0]
+        const insertedRecord: mysqlTypes.IAGenerated = insertResult[0]
         return insertedRecord
     }
 
@@ -374,7 +533,7 @@ export class Dao {
     }
 
     @con
-    static async retrieveEnumItems(conn: any): Promise<IAEnumItem[]> {
+    static async retrieveEnumItems(conn: any): Promise<mysqlTypes.IAEnumItem[]> {
         let result
         [result] = await conn.query(`
             SELECT e.id enum_id, e.descr enum_descr, ei.descr enum_item_descr, ei.hidden enum_item_hidden, ei2.descr enum_item_descr_main

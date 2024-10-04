@@ -40,6 +40,59 @@ CREATE TABLE ia_system (
     PRIMARY KEY (id)
 );
 
+CREATE TABLE ia_model (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(128) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE ia_testset (
+    id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    base_id INT NULL,
+    model_id INT NULL,
+    kind VARCHAR(32) NOT NULL,   
+    name VARCHAR(128) NOT NULL,   
+    slug VARCHAR(128) NOT NULL,
+    content JSON NOT NULL,
+    created_by INT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    is_official BOOLEAN DEFAULT FALSE,
+    FOREIGN KEY (base_id) REFERENCES ia_testset (id) ON UPDATE NO ACTION ON DELETE CASCADE,
+    FOREIGN KEY (model_id) REFERENCES ia_model (id) ON UPDATE NO ACTION ON DELETE CASCADE,
+    FOREIGN KEY (created_by) REFERENCES ia_user (id) ON UPDATE NO ACTION ON DELETE CASCADE
+);
+
+CREATE TABLE ia_prompt (
+    id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    base_id INT NULL,
+    testset_id INT NULL,
+    model_id INT NULL,
+    kind VARCHAR(32) NOT NULL,   
+    name VARCHAR(128) NOT NULL,
+    slug VARCHAR(128) NOT NULL,
+    content JSON NOT NULL,
+    created_by INT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    is_official BOOLEAN DEFAULT FALSE,
+    FOREIGN KEY (base_id) REFERENCES ia_prompt (id) ON UPDATE NO ACTION ON DELETE CASCADE,
+    FOREIGN KEY (testset_id) REFERENCES ia_testset (id) ON UPDATE NO ACTION ON DELETE CASCADE,
+    FOREIGN KEY (model_id) REFERENCES ia_model (id) ON UPDATE NO ACTION ON DELETE CASCADE,
+    FOREIGN KEY (created_by) REFERENCES ia_user (id) ON UPDATE NO ACTION ON DELETE CASCADE
+);
+
+CREATE TABLE ia_test (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    prompt_id INT,
+    testset_id INT,
+    model_id INT NULL,
+    score FLOAT,
+    content JSON,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (prompt_id) REFERENCES ia_prompt(id) ON UPDATE NO ACTION ON DELETE CASCADE,
+    FOREIGN KEY (testset_id) REFERENCES ia_testset(id) ON UPDATE NO ACTION ON DELETE CASCADE,
+    FOREIGN KEY (model_id) REFERENCES ia_model (id) ON UPDATE NO ACTION ON DELETE CASCADE
+);
+
 CREATE TABLE ia_dossier (
     id INT NOT NULL AUTO_INCREMENT,
     system_id INT NOT NULL,

@@ -9,6 +9,7 @@ import analise_tr from "./analise-tr"
 import resumo from "./resumo"
 import triagem from "./triagem"
 import acordao from "./acordao-cnj/prompt"
+import ementa from "./acordao-cnj/prompt"
 import revisao from "./revisao"
 import refinamento from "./refinamento"
 import sentenca from "./sentenca/prompt"
@@ -39,5 +40,6 @@ export default {
     acordao,
     revisao,
     refinamento,
-    sentenca
+    sentenca,
+    ementa
 }

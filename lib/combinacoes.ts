@@ -23,6 +23,7 @@ export enum P {
     ANALISE_TR = 'Análise para Turma Recursal',
     RESUMO = 'Resumo',
     RELATORIO = 'Relatório',
+    EMENTA = 'Ementa',
     ACORDAO = 'Acórdão',
     REVISAO = 'Revisão',
     REFINAMENTO = 'Refinamento',

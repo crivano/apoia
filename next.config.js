@@ -10,6 +10,7 @@
 // module.exports = withBundleAnalyzer(nextConfig)
 
 const nextConfig = {
+    // trailingSlash: true,
     output: "standalone",
     webpack: (config, { buildId, dev, isServer, defaultLoaders, webpack }) => {
             config.module.rules.push({

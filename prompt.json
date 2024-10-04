@@ -1,0 +1,21 @@
+{
+    "name": "ementa-cnj",
+    "version": "1",
+    "description": "Ementa CNJ",
+    "systemPrompt": "",
+    "prompt": "",
+    "structuredOutput": {},
+    "format": "",
+    "testSet": [{
+        "name": "SindPrev",
+        "description": "SindPrev",
+        "variables": [{
+            "name": "VOTO",
+            "identifier": "voto",
+            "text": ""
+        }],
+        "questions": [{
+            "question": ""
+        }]
+    }]
+}

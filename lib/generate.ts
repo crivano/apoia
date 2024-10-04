@@ -4,7 +4,8 @@ import { createOpenAI } from '@ai-sdk/openai'
 import { createAnthropic } from '@ai-sdk/anthropic'
 import { generateText, GenerateTextResult, CoreTool, streamText, StreamTextResult, LanguageModel, streamObject, generateObject, StreamObjectResult } from 'ai'
 import { getModelAndApiKeyCookieValue } from '../app/model/cookie'
-import { Dao, IAGenerated } from './mysql'
+import { IAGenerated } from './mysql-types'
+import { Dao } from './mysql'
 import { SHA256 } from 'crypto-js'
 import { canonicalize } from 'json-canonicalize'
 import { createStreamableValue, StreamableValue } from 'ai/rsc'
@@ -21,8 +22,6 @@ function getModel(params?: { structuredOutputs: boolean }): { model: string, mod
     const openai = createOpenAI({ apiKey: apiKey })
     return { model, modelRef: openai(model, params) }
 }
-
-
 
 function calcSha256(messages: any): string {
     return SHA256(canonicalize(messages)).toString()
@@ -81,7 +80,10 @@ export async function generateContent(prompt: string, data: any): Promise<IAGene
     return { id, sha256, model, prompt, generation: generated }
 }
 
-export async function streamContent(prompt: string, data: any, date: Date):
+export async function streamContent(prompt: string, data: any, date: Date, options?: {
+    overrideSystemPrompt?: string, overridePrompt?: string,
+    overrideJsonSchema?: string, overrideFormat?: string
+}):
 
     Promise<StreamTextResult<Record<string, CoreTool<any, any>>> | StreamObjectResult<Record<string, CoreTool<any, any>>> | string> {
     // const user = await getCurrentUser()
