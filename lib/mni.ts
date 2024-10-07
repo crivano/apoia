@@ -3,13 +3,12 @@
 import * as soap from 'soap'
 import { pdfToText } from './pdf'
 import { html2md } from './html2md'
-import { T, CombinacoesValidas, CombinacaoValida } from './combinacoes'
-import { parseYYYYMMDDHHMMSS, formatBrazilianDateTime, addBlockQuote } from './utils'
+import { CombinacoesValidas, CombinacaoValida } from './combinacoes'
+import { parseYYYYMMDDHHMMSS, addBlockQuote } from './utils'
 import { systems } from './env'
-import { assertCurrentUser, getCurrentUser } from './user'
+import { assertCurrentUser, } from './user'
 import { decrypt } from './crypt'
 import { Dao } from './mysql'
-import { isNullOrUndefined } from 'util'
 
 const clientMap = new Map<string, soap.Client>()
 
@@ -33,6 +32,7 @@ const getClient = async (system: string | undefined) => {
 
 export const autenticar = async (system: string, username: string, password: string) => {
     const client = await getClient(system)
+    const validation = systems.find(s => s.system === system)?.validation
     const res = await client.consultarProcessoAsync({
         idConsultante: username,
         senhaConsultante: password,
@@ -41,7 +41,7 @@ export const autenticar = async (system: string, username: string, password: str
         incluirCabecalho: false,
         incluirDocumentos: false
     })
-    return res[0].mensagem.includes('Processo não encontrado')
+    return res[0].mensagem.includes(validation)
 }
 
 export type PecaType = {
