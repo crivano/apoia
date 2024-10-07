@@ -6,32 +6,11 @@ services:
     container_name: apoiaserver
     build: .
     depends_on:
-      - apoiamysql      
+      - apoiamysql
     ports:
       - "8080:3000"
-    environment:
-      TZ: "America/Sao_Paulo"
-      NEXTAUTH_URL_INTERNAL: "http://localhost:8081/"
-      NEXTAUTH_URL: "http://localhost:8081/"
-      NEXTAUTH_SECRET: "SUBSTITUA_POR_UMA_UUID_SECRETA"
-      JWT_SECRET: "SUBSTITUA_POR_UMA_UUID_SECRETA"
-      JWT_ISSUER: "apoia.suaempresa.jus.br"
-      JWT_AUDIENCE: "apoia.suaempresa.jus.br"
-      PWD_SECRET: "SUBSTITUA_POR_UMA_UUID_SECRETA"
-      SYSTEMS: "TJSE,TJOE"
-      TJSE_MNI_WSDL_URL: "https://eproc.suaempresa.jus.br/eproc/wsdl.php?srv=intercomunicacao2.2"
-      TJSE_MNI_ENDPOINT_URL: "https://eproc.suaempresa.jus.br/eproc/ws/controlador_ws.php?srv=intercomunicacao2.2"
-      TJOE_MNI_WSDL_URL: "https://eproc.outraempresa.jus.br/eproc/wsdl.php?srv=intercomunicacao2.2"
-      TJOE_MNI_ENDPOINT_URL: "https://eproc.outraempresa.jus.br/eproc/ws/controlador_ws.php?srv=intercomunicacao2.2"
-      MODEL: "gpt-4o-2024-08-06"
-      OPENAI_API_KEY: "SUBSTITUA_POR_SUA_CHAVE_DE_API_NA_OPENAI"
-      CONFIDENTIALITY_LEVEL_MAX: "0"
-      TESTS_PATH: "app/test/tests"
-      MYSQL_HOST: "localhost"
-      MYSQL_PORT: "3306"
-      MYSQL_USER: "root"
-      MYSQL_PASSWORD: "apoia"
-      MYSQL_DATABASE: "apoia"
+    env_file:
+      - .env.local
     networks:
       - apoia
 
