@@ -55,6 +55,7 @@
         "zod": "^3.23.8"
     },
     "devDependencies": {
+        "cross-env": "^7.0.3",
         "eslint": "^8.57.0",
         "eslint-config-next": "14.0.4",
         "typescript": "5.5.4"
