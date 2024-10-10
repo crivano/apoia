@@ -11,7 +11,7 @@ import { canonicalize } from 'json-canonicalize'
 import { createStreamableValue, StreamableValue } from 'ai/rsc'
 import { assertCurrentUser } from './user'
 import build from 'next/dist/build'
-import { buildMessages } from './build-messages'
+import { buildMessages, PromptOptions } from './build-messages'
 
 function getModel(params?: { structuredOutputs: boolean }): { model: string, modelRef: LanguageModel } {
     const { model, apiKey, automatic } = getModelAndApiKeyCookieValue()
@@ -80,25 +80,24 @@ export async function generateContent(prompt: string, data: any): Promise<IAGene
     return { id, sha256, model, prompt, generation: generated }
 }
 
-export async function streamContent(prompt: string, data: any, date: Date, options?: {
-    overrideSystemPrompt?: string, overridePrompt?: string,
-    overrideJsonSchema?: string, overrideFormat?: string
-}):
+export async function streamContent(prompt: string, data: any, date: Date, options?: PromptOptions):
 
     Promise<StreamTextResult<Record<string, CoreTool<any, any>>> | StreamObjectResult<Record<string, CoreTool<any, any>>> | string> {
     // const user = await getCurrentUser()
     // if (!user) return Response.json({ errormsg: 'Unauthorized' }, { status: 401 })
 
-    const buildPrompt = await buildMessages(prompt, data)
+    const buildPrompt = await buildMessages(prompt, data, options)
     const { model, modelRef } = getModel({ structuredOutputs: !!buildPrompt.params?.structuredOutputs })
     const messages = buildPrompt.message
     const structuredOutputs = buildPrompt.params?.structuredOutputs
     const sha256 = calcSha256(messages)
 
     // try to retrieve cached generations
-    const cached = await retrieveFromCache(sha256, model, prompt)
-    if (cached) {
-        return cached.generation
+    if (!buildPrompt.params?.noCache) {
+        const cached = await retrieveFromCache(sha256, model, prompt)
+        if (cached) {
+            return cached.generation
+        }
     }
 
     // Start generating texts
@@ -122,13 +121,16 @@ export async function streamContent(prompt: string, data: any, date: Date, optio
         })
         return pResult
     } else {
+        console.log('streaming object', prompt, messages, modelRef, structuredOutputs.schema)
         const pResult = streamObject({
             model: modelRef as LanguageModel,
             messages,
             maxRetries: 1,
             // // temperature: 1.5,
             onFinish: async ({ object }) => {
-                await saveToCache(sha256, model, prompt, JSON.stringify(object))
+                if (!buildPrompt.params?.noCache) {
+                    await saveToCache(sha256, model, prompt, JSON.stringify(object))
+                }
                 // write response to a file for debugging
                 if (process.env.NODE_ENV === 'development') {
                     const fs = require('fs')

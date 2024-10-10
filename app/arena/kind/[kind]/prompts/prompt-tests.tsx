@@ -20,7 +20,7 @@ import { slugify } from '@/lib/utils'
 
 const Frm = new FormHelper()
 
-export default function PromptForm(props) {
+export default function PromptTests(props) {
     const router = useRouter()
     const initialState = props.record || { content: {} }
     if (!initialState.model_id || (props.models && props.models[0] && !props.models.map(i => i.id).includes(initialState.model_id))) initialState.model_id = props.models && props.models[0] ? props.models[0].id : null
@@ -93,51 +93,12 @@ export default function PromptForm(props) {
         loadTests()
     }, [data.testset_id])
 
-    return (
+    return (<>
         <div className="row mb-5">
-            <Frm.Input label="Nome" name="name" width={4} />
-            <Frm.Select label="Modelo de Linguagem Padrão" name="model_id" options={props.models} width={4} />
-            <Frm.Select label="Coleção de Testes Padrão" name="testset_id" options={[{ id: 0, value: '' }, ...props.testsets]} width={4} />
-
-            <div className='col col-12'>
-                <Nav variant="underline" defaultActiveKey="fields" onSelect={(eventKey) => { setTab(eventKey || 'fields') }} className="mb-2">
-                    <Nav.Item>
-                        <Nav.Link eventKey="fields">Campos</Nav.Link>
-                    </Nav.Item>
-                    <Nav.Item>
-                        <Nav.Link eventKey="yaml">YAML</Nav.Link>
-                    </Nav.Item>
-                </Nav>
-                {tab === 'fields'
-                    ? (<>
-                        <Frm.TextArea label="JSON Schema (opcional)" name="content.json_schema" maxRows={5} />
-                        <Frm.TextArea label="Format (opcional)" name="content.format" maxRows={5} />
-                        <Frm.TextArea label="Prompt de Sistema (opcional)" name="content.system_prompt" maxRows={5} />
-                        <Frm.TextArea label="Prompt" name="content.prompt" maxRows={20} />
-                    </>)
-                    : (<TextareaAutosize className="form-control" value={yaml} onChange={(e) => handleYamlChanged(e.target.value)} />)}
-            </div>
-            <div className="col col-auto mt-3 mb-3">
-                <Button variant="light" className="" onClick={handleBack}>Voltar</Button>
-            </div>
-
-            <div className="col col-auto mt-3 mb-3 ms-auto">
-                {_.isEqual(data, initialState) && data.id && (data.is_official
-                    ? <Button variant="secondary" disabled={pending} className="me-3" onClick={handleRemoveOfficial}>Desmarcar como Oficial</Button>
-                    : <Button variant="secondary" disabled={pending} className="me-3" onClick={handleSetOfficial}>Marcar como Oficial</Button>
-                )}
-                <Button variant="primary" disabled={pending || _.isEqual(data, initialState)} className="" onClick={handleSave}>Salvar</Button>
-                <FormError formState={formState} />
-
-                {/* <Suspense>
-                    <DeleteForm id={state.id} />
-                </Suspense> */}
-            </div>
-
-            {testset && <><hr className="mt-3" /><h2>Testes</h2>
-                <PromptTest testset={testset} overrideSystemPrompt={data.content.system_prompt} overridePrompt={data.content.prompt} overrideJsonSchema={data.content.json_schema} overrideFormat={data.content.format} />
-            </>}
-
+            <Frm.Select label="Modelo de Linguagem" name="model_id" options={props.models} width={4} />
+            <Frm.Select label="Coleção de Testes" name="testset_id" options={[{ id: 0, value: '' }, ...props.testsets]} width={4} />
+            <Frm.Button onClick={loadTests} variant="primary">Testar</Frm.Button>
         </div >
+        <Button variant="light" className="" onClick={handleBack}>Voltar</Button></>
     )
 }

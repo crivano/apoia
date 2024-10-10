@@ -14,7 +14,7 @@ import { Form } from 'react-bootstrap'
 
 export const dynamic = 'force-dynamic'
 
-export default function AiContent(params: { infoDeProduto: InfoDeProduto, textos: TextoType[], overrideSystemPrompt?: string, overridePrompt?: string, overrideJsonSchema?: string, overrideFormat?: string }) {
+export default function AiContent(params: { infoDeProduto: InfoDeProduto, textos: TextoType[], overrideSystemPrompt?: string, overridePrompt?: string, overrideJsonSchema?: string, overrideFormat?: string, noCache?: boolean }) {
     const [current, setCurrent] = useState('')
     const [complete, setComplete] = useState(false)
     const [errormsg, setErrormsg] = useState('')
@@ -50,7 +50,8 @@ export default function AiContent(params: { infoDeProduto: InfoDeProduto, textos
             overrideSystemPrompt: params.overrideSystemPrompt,
             overridePrompt: params.overridePrompt,
             overrideJsonSchema: params.overrideJsonSchema,
-            overrideFormat: params.overrideFormat
+            overrideFormat: params.overrideFormat,
+            noCache: params.noCache
         }
         Object.keys(payload).forEach(key => {
             if (payload[key] === '') {

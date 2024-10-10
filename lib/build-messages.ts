@@ -1,3 +1,4 @@
+import { jsonSchema } from 'ai'
 import prompts, { PromptType } from '../prompts/_prompts'
 
 export type PromptOptions = {
@@ -5,6 +6,7 @@ export type PromptOptions = {
     overridePrompt?: string
     overrideJsonSchema?: string
     overrideFormat?: string
+    noCache?: boolean
 }
 
 function buildCustomPrompt(data: any, options: PromptOptions): PromptType {
@@ -14,7 +16,7 @@ function buildCustomPrompt(data: any, options: PromptOptions): PromptType {
         schema: any;
     } | undefined = undefined
     if (options.overrideJsonSchema) {
-        structuredOutputs = { schemaName: 'test', schemaDescription: 'test', schema: options.overrideJsonSchema }
+        structuredOutputs = { schemaName: 'test', schemaDescription: 'test', schema: jsonSchema(JSON.parse(options.overrideJsonSchema)) }
     }
 
     let format: ((s: string) => string) | undefined = undefined
@@ -24,7 +26,7 @@ function buildCustomPrompt(data: any, options: PromptOptions): PromptType {
 
     const result: PromptType = {
         message: [],
-        params: { structuredOutputs, format }
+        params: { structuredOutputs, format, noCache: options.noCache }
     }
 
     if (options.overrideSystemPrompt) {
@@ -62,7 +64,7 @@ export async function buildMessages(prompt: string, data: any, options?: PromptO
         }
     }
     if (options?.overridePrompt) {
-        prompt = options.overridePrompt
+        return buildCustomPrompt(data, options)
     }
     let buildPrompt = getBuildPrompt(prompt)
     return (await buildPrompt(data))

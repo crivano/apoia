@@ -22,7 +22,7 @@ export default async function Home({ params }: { params: { kind: string } }) {
     console.log('prompts', prompts)
     const testsets = await Dao.retrieveTestsetsByKind(null, kind)
 
-    return (<Container className="mt-3" fluid={false}>
+    return (<Container className="mt-5" fluid={false}>
         <h1 className="mb-0">Prompts</h1>
         <Suspense fallback={< TablePlaceholder />} >
             <TableRecords records={prompts} spec="PromptsByKind" linkToAdd="prompts/new" pageSize={10} />
@@ -30,7 +30,7 @@ export default async function Home({ params }: { params: { kind: string } }) {
 
         <h1 className="mb-0">Conjuntos de Testes</h1>
         <Suspense fallback={< TablePlaceholder />} >
-            <TableRecords records={testsets} spec="TestsetsByKind" linkToAdd="testsets/new" pageSize={10} />
+            <TableRecords records={testsets} spec="TestsetsByKind" linkToAdd="testsets/new" linkToBack="../.." pageSize={10} />
         </Suspense>
     </Container>)
 }

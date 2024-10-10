@@ -42,6 +42,7 @@ export const filterText = (text) => {
 }
 
 export const preprocess = (text: string, infoDeProduto: InfoDeProduto, textos: TextoType[], complete: boolean, visualization?: VisualizationEnum) => {
+    console.log('preprocess', text, infoDeProduto, textos, complete, visualization)
     text = filterText(text)
 
     const format = getFormatter(infoDeProduto.prompt)
@@ -65,8 +66,8 @@ export const preprocess = (text: string, infoDeProduto: InfoDeProduto, textos: T
         }
     }
 
-    if (complete)
-        console.log('Markdown\n\n', text)
+    // if (complete)
+    //     console.log('Markdown\n\n', text)
 
     text = converter.makeHtml(text)
     return text

@@ -13,6 +13,7 @@ import _ from 'lodash'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faAdd, faRemove } from '@fortawesome/free-solid-svg-icons'
 import { T } from '@/lib/combinacoes'
+import { slugify } from '@/lib/utils'
 
 // const EditorComp = dynamic(() => import('@/components/EditorComponent'), { ssr: false })
 
@@ -29,7 +30,7 @@ export default function TestsetForm(props) {
     const [tab, setTab] = useState('fields')
     Frm.update(data, (d) => { setData(d); updateYaml(d) }, formState)
 
-    const pristine = _.isEqual(data, {...initialState})
+    const pristine = _.isEqual(data, { ...initialState })
 
     const updateYaml = (newData) => {
         setYaml(yamlps.dump(newData.content))
@@ -103,7 +104,7 @@ export default function TestsetForm(props) {
 
     if (formState?.message === 'success') {
         console.log('sucesso')
-        router.push('../..')
+        router.push(`/arena/kind/${data.kind}/testsets/${slugify(data.name)}`)
     }
 
     const [pending, setPending] = useState(false)
@@ -158,7 +159,7 @@ export default function TestsetForm(props) {
                                 {item.texts.map((text, txtIndex) => (<>
                                     <div className="row" key={txtIndex}>
                                         <Frm.Select label="Tipo" name={`content.tests[${index}].texts[${txtIndex}].name`} options={tiposDePecas} width={3} />
-                                        <Frm.TextArea label="Conteúdo" name={`content.tests[${index}].texts[${txtIndex}].value`} width={""} />
+                                        <Frm.TextArea label="Conteúdo" name={`content.tests[${index}].texts[${txtIndex}].value`} width={""} maxRows={5} />
                                         <Frm.Button variant="light" onClick={() => removeText(index, txtIndex)}><FontAwesomeIcon icon={faRemove} /></Frm.Button>
                                     </div>
                                 </>))}
@@ -168,20 +169,20 @@ export default function TestsetForm(props) {
                                 {item.variables.map((variable, varIndex) => (<>
                                     <div className="row" key={varIndex}>
                                         <Frm.Input label="Nome" name={`content.tests[${index}].variables[${varIndex}].name`} width={3} />
-                                        <Frm.TextArea label="Valor" name={`content.tests[${index}].variables[${varIndex}].value`} width={""} />
+                                        <Frm.TextArea label="Valor" name={`content.tests[${index}].variables[${varIndex}].value`} width={""} maxRows={5} />
                                         <Frm.Button variant="light" onClick={() => removeVariable(index, varIndex)}><FontAwesomeIcon icon={faRemove} /></Frm.Button>
                                     </div>
                                 </>))}
                             </> : null}
                             <div className="row">
-                                <Frm.TextArea label="Resultado Esperado" name={`content.tests[${index}].expected`} width={""} />
+                                <Frm.TextArea label="Resultado Esperado" name={`content.tests[${index}].expected`} width={""} maxRows={5} />
                                 {(data.content.tests[index].questions?.length || 0) === 0 && <Frm.Button onClick={() => addQuestion(index)}><FontAwesomeIcon icon={faAdd} /> Questão</Frm.Button>}
                             </div>
                             {data.content.tests[index].questions?.length ? <>
                                 <h5 className="mt-4 mb-0">Questões <Button variant="light" onClick={() => addQuestion(index)}><FontAwesomeIcon icon={faAdd} /></Button></h5>
                                 {item.questions.map((question, qIndex) => (<>
                                     <div className="row" key={qIndex}>
-                                        <Frm.TextArea label="Questão" name={`content.tests[${index}].questions[${qIndex}].question`} width={""} />
+                                        <Frm.TextArea label="Questão" name={`content.tests[${index}].questions[${qIndex}].question`} width={""} maxRows={5} />
                                         <Frm.Button variant="light" onClick={() => removeQuestion(index, qIndex)}><FontAwesomeIcon icon={faRemove} /></Frm.Button>
                                     </div>
                                 </>))}

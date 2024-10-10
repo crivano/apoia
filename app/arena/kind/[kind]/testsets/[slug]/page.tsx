@@ -15,7 +15,7 @@ export default async function Home({ params }: { params: { kind: string, slug: s
     return (<Container className="mt-3">
         <h1 className="mb-0">Versões do Conjunto de Testes {kind.toUpperCase()} - {slug.toUpperCase()}</h1>
         <Suspense fallback={< TablePlaceholder />} >
-            <TableRecords records={records} spec="TestsetsByKindAndSlug" pageSize={20} />
+            <TableRecords records={records} spec="TestsetsByKindAndSlug" linkToBack="../.." pageSize={20} />
         </Suspense>
     </Container>)
 }

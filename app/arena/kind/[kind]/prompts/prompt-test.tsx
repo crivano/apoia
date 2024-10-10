@@ -12,7 +12,7 @@ import { slugify } from '@/lib/utils'
 
 const EditorComp = dynamic(() => import('@/components/EditorComponent'), { ssr: false })
 
-export default function Test(params: {
+export default function PromptTest(params: {
     testset: IATestset, overrideSystemPrompt?: string, overridePrompt?: string,
     overrideJsonSchema?: string, overrideFormat?: string
 }) {
@@ -26,6 +26,7 @@ export default function Test(params: {
             "plugins": []
         }
         const textos = test.texts.map(t => ({ descr: t.name, slug: slugify(t.name), texto: t.value }))
+        console.log('textos', textos)
         const result = test.expected
         const file = idx.toString()
         return { file, titulo, infoDeProduto, textos, result }
@@ -49,6 +50,7 @@ export default function Test(params: {
     }
 
     const test = parsedTests.find(e => e.file === file)
+    console.log('test', test)
     if (!test) return <div className="alert alert-danger">Teste não encontrado {file}</div>
 
     return (
@@ -61,15 +63,15 @@ export default function Test(params: {
                     </Form.Select>
                 </div>
                 <div className="col col-auto">
-                    <Button className="me-3" onClick={() => setHidden(false)}>Testar</Button>
-                    <Button className="" onClick={() => setRefresh(true)}>Refazer</Button>
+                    {hidden && <Button className="me-3" onClick={() => setHidden(false)}>Testar</Button>}
+                    {!hidden && <Button className="" onClick={() => setRefresh(true)}>Refazer</Button>}
                 </div>
             </div>
             {!hidden && !refresh && <>
                 <h2 className="mt-3">{test.infoDeProduto.titulo}</h2>
                 <AiContent infoDeProduto={test.infoDeProduto} textos={test.textos}
                     overrideSystemPrompt={params.overrideSystemPrompt} overridePrompt={params.overridePrompt}
-                    overrideJsonSchema={params.overrideJsonSchema} overrideFormat={params.overrideFormat} />
+                    overrideJsonSchema={params.overrideJsonSchema} overrideFormat={params.overrideFormat} noCache={true} />
             </>}
         </>
     )

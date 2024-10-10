@@ -205,7 +205,7 @@ export class FormHelper {
         )
     }
 
-    public TextArea = ({ label, name, width }: { label: string, name: string, width?: number | string }) => {
+    public TextArea = ({ label, name, width, maxRows }: { label: string, name: string, width?: number | string, maxRows?: number }) => {
         return (
             <Form.Group className={this.colClass(width)} controlId={name}>
                 <Form.Label>{label}</Form.Label>
@@ -230,7 +230,7 @@ export class FormHelper {
     public Button = ({ onClick, variant, children }: { onClick: () => void, variant?: string, children }) => {
         return (<div className="col col-auto mt-3">
             <label className="form-label">&nbsp;</label><br />
-            <Button variant="light" onClick={onClick}>{children}</Button>
+            <Button variant={variant || 'light'} onClick={onClick}>{children}</Button>
         </div>)
     }
 

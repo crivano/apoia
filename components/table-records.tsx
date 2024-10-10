@@ -21,7 +21,7 @@ import { usePathname } from "next/navigation"
 
 
 
-export default function Table({ records, spec, linkToAdd, pageSize }: { records: any[], spec: string, linkToAdd?: string, pageSize?: number }) {
+export default function Table({ records, spec, linkToAdd, linkToBack, pageSize }: { records: any[], spec: string, linkToAdd?: string, linkToBack?: string, pageSize?: number }) {
     const [sorting, setSorting] = useState([])
     const [globalFilter, setGlobalFilter] = useState('')
     const pathname = usePathname()
@@ -80,6 +80,11 @@ export default function Table({ records, spec, linkToAdd, pageSize }: { records:
                 </tbody>
             </table>
             <div className="row">
+                <div className="col col-auto">
+                    {linkToBack &&
+                        <Link href={`${pathname}/${linkToBack}`} className="btn btn-light bt d-print-none">Voltar</Link>
+                    }
+                </div>
                 <div className="col col-auto ms-auto">
                     {linkToAdd &&
                         <Link href={`${pathname}/${linkToAdd}`} className="btn btn-light bt float-end d-print-none"><FontAwesomeIcon icon={faAdd} /></Link>

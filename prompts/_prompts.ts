@@ -21,7 +21,8 @@ export type PromptData = { textos: TextoType[] }
 export type PromptType = {
     message: CoreMessage[], params?: {
         structuredOutputs?: { schemaName: string, schemaDescription: string, schema: any },
-        format?: (s: string) => string
+        format?: (s: string) => string,
+        noCache?: boolean
     }
 }
 

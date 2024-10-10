@@ -15,7 +15,7 @@ export default async function Home({ params }: { params: { kind: string, slug: s
     return (<Container className="mt-3" fluid={false}>
         <h1 className="mb-0">Versões do Prompt {kind.toUpperCase()} - {slug.toUpperCase()}</h1>
         <Suspense fallback={< TablePlaceholder />} >
-            <TableRecords records={records} spec="PromptsByKindAndSlug" pageSize={20} />
+            <TableRecords records={records} spec="PromptsByKindAndSlug" linkToBack="../.." pageSize={20} />
         </Suspense>
     </Container>)
 }

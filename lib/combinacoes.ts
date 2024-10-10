@@ -3,6 +3,7 @@ import { maiusculasEMinusculas, slugify } from "./utils"
 
 // Enum com os tipos de peças
 export enum T {
+    TEXTO = 'TEXTO',
     PETICAO_INICIAL = 'PETIÇÃO INICIAL',
     CONTESTACAO = 'CONTESTAÇÃO',
     INFORMACAO_EM_MANDADO_DE_SEGURANCA = 'INFORMAÇÃO EM MANDADO DE SEGURANÇA',
