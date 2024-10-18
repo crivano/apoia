@@ -1,3 +1,5 @@
+import int_testar from "./int-testar/prompt"
+import int_gerar_perguntas from "./int-gerar-perguntas/prompt"
 import resumo_peca from "./resumo-peca"
 import resumo_peticao_inicial from "./resumo-peticao-inicial"
 import resumo_contestacao from "./resumo-contestacao"
@@ -22,12 +24,27 @@ export type PromptType = {
     message: CoreMessage[], params?: {
         structuredOutputs?: { schemaName: string, schemaDescription: string, schema: any },
         format?: (s: string) => string,
-        noCache?: boolean
+        cacheControl?: boolean | number
     }
+}
+
+export const applyTextsAndVariables = (text: string, data: PromptData): string => {
+    const allTexts = `${data.textos.reduce((acc, txt) => acc + `${txt.descr}:\n<${txt.slug}>\n${txt.texto}\n</${txt.slug}>\n\n`, '')}`
+    text = text.replace('{{textos}}', allTexts)
+
+    text = text.replace(/{{textos\.([a-z_]+)}}/g, (match, slug) => {
+        const found = data.textos.find(txt => txt.slug === slug)
+        if (!found) throw new Error(`Slug '${slug}' não encontrado`)
+        return `${found.descr}:\n<${found.slug}>\n${found.texto}\n</${found.slug}>\n\n`
+    })
+
+    return text
 }
 
 // Enum for the different types of prompts
 export default {
+    int_testar,
+    int_gerar_perguntas,
     resumo_peca,
     resumo_peticao_inicial,
     resumo_contestacao,

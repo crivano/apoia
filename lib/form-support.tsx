@@ -219,7 +219,7 @@ export class FormHelper {
         return (
             <Form.Group className={this.colClass(width)} controlId={name}>
                 <Form.Label>{label}</Form.Label>
-                <Form.Select name={name} value={this.get(name)} onChange={e => this.set(name, e.target.value)}>
+                <Form.Select name={name} value={this.get(name) || ''} onChange={e => this.set(name, e.target.value)}>
                     {options.map(c => (<option value={c.id} key={c.id}  >{c.name}</option>))}
                 </Form.Select>
                 <FieldError formState={this.formState} name={name} />

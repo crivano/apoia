@@ -71,7 +71,7 @@ export default function PromptTest(params: {
                 <h2 className="mt-3">{test.infoDeProduto.titulo}</h2>
                 <AiContent infoDeProduto={test.infoDeProduto} textos={test.textos}
                     overrideSystemPrompt={params.overrideSystemPrompt} overridePrompt={params.overridePrompt}
-                    overrideJsonSchema={params.overrideJsonSchema} overrideFormat={params.overrideFormat} noCache={true} />
+                    overrideJsonSchema={params.overrideJsonSchema} overrideFormat={params.overrideFormat} cacheControl={false} />
             </>}
         </>
     )

@@ -37,7 +37,7 @@ export default function PromptTests(props) {
             setTestset(undefined)
             return
         }
-        if (data.testset_id === testset?.testset_id) return
+        if (data.testset_id === testset?.id) return
         console.log('loading testset', data.testset_id)
         setTestset(await getTestsetById(data.testset_id))
     }

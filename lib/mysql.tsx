@@ -1,6 +1,6 @@
 import { getCurrentUser } from "./user"
 import { slugify } from "./utils"
-import * as mysqlTypes from "./mysql-types"
+import type * as mysqlTypes from "./mysql-types"
 
 const mysql = require("mysql2/promise")
 
@@ -60,7 +60,6 @@ function tran(target: any, propertyKey: string, descriptor: PropertyDescriptor) 
 }
 
 export class Dao {
-
     @tran
     static async insertIATestset(conn: any, data: mysqlTypes.IATestsetToInsert): Promise<mysqlTypes.IATestset | undefined> {
         const { base_testset_id, kind, name, model_id, content } = data
@@ -166,6 +165,7 @@ export class Dao {
             FROM (select kind from (select distinct(kind) kind from ia_prompt union select distinct(kind) kind from ia_testset) u group by kind) k
             left join ia_prompt p on p.kind = k.kind
             left join ia_testset t on t.kind = k.kind
+            group by k.kind
         `)
         console.log('result', result)
         if (!result || result.length === 0) return []
@@ -232,6 +232,34 @@ export class Dao {
     }
 
     @con
+    static async retrievePromptsIdsAndNamesByKind(conn: any, kind: string): Promise<{ id: string, name: string, slug: string, created_at: Date, is_last: boolean, is_official: boolean }[]> {
+        const [result] = await conn.query(`
+            SELECT t.id, t.name, t.slug, t.created_at, t.is_official
+            FROM ia_prompt t
+            WHERE t.kind = ?
+            ORDER BY t.slug, t.created_at DESC
+        `, [kind])
+        if (!result || result.length === 0) return []
+        result.forEach((record: any, index: number) => {
+            record.is_last = index === 0 || record.slug !== result[index - 1].slug
+        })
+        const records = result.map((record: any) => ({ ...record }))
+        return records
+    }
+
+    @con
+    static async retrieveOfficialPromptsIdsAndNamesByKind(conn: any, kind: string): Promise<{ id: string, name: string }[]> {
+        const [result] = await conn.query(`
+            SELECT t.id, t.name
+            FROM ia_prompt t
+            WHERE t.kind = ? AND is_official = 1
+        `, [kind])
+        if (!result || result.length === 0) return []
+        const records = result.map((record: any) => ({ ...record }))
+        return records
+    }
+
+    @con
     static async retrieveOfficialTestsetsIdsAndNamesByKind(conn: any, kind: string): Promise<{ id: string, name: string }[]> {
         const [result] = await conn.query(`
             SELECT t.id, t.name
@@ -252,6 +280,14 @@ export class Dao {
         if (!result || result.length === 0) return []
         const records = result.map((record: any) => ({ ...record }))
         return records
+    }
+
+    @con
+    static async retrieveModelById(conn: any, id: number): Promise<mysqlTypes.IAModel | undefined> {
+        const [result] = await conn.query('SELECT * FROM ia_model WHERE id = ?', [id])
+        if (!result || result.length === 0) return undefined
+        const record: mysqlTypes.IAModel = result[0]
+        return record
     }
 
 
@@ -287,12 +323,55 @@ export class Dao {
         return records
     }
 
+    @con
+    static async retrieveRanking(conn: any, kind: string, testset_id?: number, prompt_id?: number, model_id?: number): Promise<mysqlTypes.IARankingType[]> {
+        console.log('retrieveRanking', kind, testset_id, prompt_id, model_id)
+        const [result] = await conn.query(`
+            SELECT s.testset_id, t.name testset_name, s.prompt_id, p.name prompt_name, p.slug prompt_slug, s.model_id, m.name model_name, s.score
+            FROM ia_test s
+            INNER JOIN ia_model m ON s.model_id = m.id
+            INNER JOIN ia_prompt p ON s.prompt_id = p.id
+            INNER JOIN ia_testset t ON s.testset_id = t.id AND t.kind = ?
+            WHERE (s.testset_id = ? OR ? IS NULL) AND (s.prompt_id = ? OR ? IS NULL) AND (s.model_id = ? OR ? IS NULL)
+            ORDER BY s.score DESC
+        `, [kind, testset_id || null, testset_id || null, prompt_id || null, prompt_id || null, model_id || null, model_id || null])
+        console.log('~result', result)
+        if (!result || result.length === 0) return []
+        const records = result.map((record: any) => ({ ...record }))
+        return records
+    }
+
+    @tran
+    static insertIATest(conn: any, test: mysqlTypes.IATest) {
+        return conn.query(`
+            INSERT INTO ia_test (testset_id, prompt_id, model_id, score, content)
+            VALUES (?, ?, ?, ?, ?)
+        `, [test.testset_id, test.prompt_id, test.model_id, test.score, JSON.stringify(test.content)])
+    }
+
+    @con
+    static async retrieveTestByTestsetIdPromptIdAndModelId(conn: any, testset_id: number, prompt_id: number, model_id: number): Promise<mysqlTypes.IATest | undefined> {
+        const [result] = await conn.query(`
+            SELECT * FROM ia_test 
+            WHERE testset_id = ? AND prompt_id = ? AND model_id = ?
+        `, [testset_id, prompt_id, model_id])
+        if (!result || result.length === 0) return undefined
+        const record: mysqlTypes.IATest = { ...result[0] }
+        return record
+    }
 
     @con
     static async retrieveIAGeneration(conn: any, data: mysqlTypes.IAGeneration): Promise<mysqlTypes.IAGenerated | undefined> {
-        const { model, prompt, sha256 } = data
-        let result
-        [result] = await conn.query('SELECT * FROM ia_generation WHERE model = ? AND prompt = ? AND sha256 = ? AND evaluation_id is null', [model, prompt, sha256])
+        const { model, prompt, sha256, attempt } = data
+        const sql = `
+            SELECT * FROM ia_generation WHERE evaluation_id IS NULL
+                AND model = ? 
+                AND prompt = ? 
+                AND sha256 = ?
+                AND attempt ${attempt === null ? 'IS NULL' : '= ?'}`
+        console.log('sql', sql, attempt)
+        console.log('Executing SQL:', conn.format(sql, [model, prompt, sha256, attempt]))
+        const [result] = await conn.query(sql, [model, prompt, sha256, attempt])
         if (!result || result.length === 0) return undefined
         const record: mysqlTypes.IAGenerated = result[0]
         return record
@@ -349,14 +428,14 @@ export class Dao {
 
     @tran
     static async insertIAGeneration(conn: any, data: mysqlTypes.IAGeneration): Promise<mysqlTypes.IAGenerated | undefined> {
-        const { model, prompt, sha256, generation } = data
+        const { model, prompt, sha256, generation, attempt } = data
 
         // Insert into ia_generation
         const query = `
-          INSERT INTO ia_generation (model, prompt, sha256, generation)
-          VALUES (?, ?, ?, ?)
+          INSERT INTO ia_generation (model, prompt, sha256, generation, attempt)
+          VALUES (?, ?, ?, ?, ?)
           `
-        await conn.query(query, [model, prompt, sha256, generation])
+        await conn.query(query, [model, prompt, sha256, generation, attempt])
         conn.commit()
         const [insertResult] = await conn.query('SELECT * FROM ia_generation WHERE id = LAST_INSERT_ID()')
         const insertedRecord: mysqlTypes.IAGenerated = insertResult[0]

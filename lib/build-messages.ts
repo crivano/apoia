@@ -6,7 +6,7 @@ export type PromptOptions = {
     overridePrompt?: string
     overrideJsonSchema?: string
     overrideFormat?: string
-    noCache?: boolean
+    cacheControl?: boolean | number
 }
 
 function buildCustomPrompt(data: any, options: PromptOptions): PromptType {
@@ -26,7 +26,7 @@ function buildCustomPrompt(data: any, options: PromptOptions): PromptType {
 
     const result: PromptType = {
         message: [],
-        params: { structuredOutputs, format, noCache: options.noCache }
+        params: { structuredOutputs, format, cacheControl: options.cacheControl }
     }
 
     if (options.overrideSystemPrompt) {
@@ -75,4 +75,13 @@ export function getFormatter(prompt: string, options?: PromptOptions): ((s: stri
     const builtPrompt = buildPrompt({ textos: [] })
     const formatter = builtPrompt.params?.format
     return formatter
+}
+
+
+export const removeEmptyKeys = (payload: any) => {
+    Object.keys(payload).forEach(key => {
+        if (payload[key] === '') {
+            delete payload[key]
+        }
+    })
 }

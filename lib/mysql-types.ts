@@ -4,6 +4,7 @@ export type IAGenerated = {
     prompt: string
     sha256: string
     generation: string
+    attempt: number | null
 }
 
 export type IAGeneration = {
@@ -11,6 +12,7 @@ export type IAGeneration = {
     prompt: string
     sha256: string
     generation?: string
+    attempt: number | null
 }
 
 export type AIBatchIdAndEnumId = {
@@ -70,7 +72,7 @@ export type IADocument = {
 }
 
 export type IAPrompt = {
-    prompt_id: number
+    id: number
     base_prompt_id: number | null
     kind: string
     created_by: number | null
@@ -102,7 +104,7 @@ export type IAPromptToInsert = {
 }
 
 export type IATestset = {
-    testset_id: number
+    id: number
     base_testset_id: number | null
     kind: string
     created_by: number | null
@@ -110,21 +112,21 @@ export type IATestset = {
     slug: string
     model_id: number
     content: {
-        tests: [{
+        tests: {
             name: string
-            variables: [{
+            variables: {
                 name: string
                 value: string
-            }]
-            texts: [{
+            }[]
+            texts: {
                 name: string
                 value: string
-            }]
+            }[]
             expected: string
-            questions: [{
+            questions: {
                 question: string
-            }]
-        }]
+            }[]
+        }[]
     }
     created_at: Date | null
 }
@@ -136,20 +138,69 @@ export type IATestsetToInsert = {
     name: string
     model_id: number
     content: {
-        tests: [{
+        tests: {
             name: string
-            variables: [{
+            variables: {
                 name: string
                 value: string
-            }]
-            texts: [{
+            }[]
+            texts: {
                 name: string
                 value: string
-            }]
+            }[]
             expected: string
-            questions: [{
+            questions: {
                 question: string
-            }]
-        }]
+            }[]
+        }[]
     }
+}
+
+export type IARankingType = {
+    testset_id: number
+    testset_name: string
+    prompt_id: number
+    prompt_name: string
+    prompt_slug: string
+    model_id: number
+    model_name: string
+    score: number
+}
+
+export type IATestTestQuestion = {
+    question: string
+}
+
+export type IATestTestAttemptAnswer = {
+    snippet: string
+    result: boolean
+    justification: string
+}
+
+export type IATestTestAttempt = {
+    result: string
+    answers: IATestTestAttemptAnswer[]
+}
+
+export type IATestTest = {
+    name: string
+    questions: IATestTestQuestion[]
+    attempts: IATestTestAttempt[]
+}
+
+export type IATest = {
+    id: number
+    testset_id: number
+    prompt_id: number
+    model_id: number
+    score: number
+    content: {
+        tests: IATestTest[]
+    }
+}
+
+export type IAModel = {
+    id: number
+    name: string
+    created_at: Date
 }

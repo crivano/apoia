@@ -19,7 +19,7 @@ export async function POST(request: Request) {
             overridePrompt: body.overridePrompt,
             overrideJsonSchema: body.overrideJsonSchema,
             overrideFormat: body.overrideFormat,
-            noCache: body.noCache,
+            cacheControl: body.cacheControl,
         }
         const result = await streamContent(prompt, data, date, options)
         if (typeof result === 'string') {

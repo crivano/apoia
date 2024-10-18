@@ -68,7 +68,7 @@ export const TCombinacoesValidas: TCombinacaoValida[] = [
     { tipos: [T.SENTENCA, T.APELACAO, T.CONTRARRAZOES], produtos: [P.RESUMOS, P.RESUMO] },
     { tipos: [T.SENTENCA, T.RECURSO_INOMINADO], produtos: [P.RESUMOS, P.RESUMO] },
     // { tipos: [T.SENTENCA, T.APELACAO, T.CONTRARRAZOES], produtos: [P.RELATORIO] },
-    { tipos: [T.PETICAO_INICIAL, T.CONTESTACAO], produtos: [P.RESUMOS, P.RESUMO] },
+    { tipos: [T.PETICAO_INICIAL, T.CONTESTACAO], produtos: [P.RESUMOS, P.ANALISE] },
     { tipos: [T.PETICAO_INICIAL, T.INFORMACAO_EM_MANDADO_DE_SEGURANCA], produtos: [P.RESUMOS, P.RESUMO] },
     { tipos: [T.PETICAO_INICIAL], produtos: [P.RESUMOS] },
 ]

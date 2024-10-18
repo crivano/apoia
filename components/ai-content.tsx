@@ -14,7 +14,27 @@ import { Form } from 'react-bootstrap'
 
 export const dynamic = 'force-dynamic'
 
-export default function AiContent(params: { infoDeProduto: InfoDeProduto, textos: TextoType[], overrideSystemPrompt?: string, overridePrompt?: string, overrideJsonSchema?: string, overrideFormat?: string, noCache?: boolean }) {
+export const getColor = (text, errormsg) => {
+    let color = 'info'
+    if (text && text.includes('<scratchpad>'))
+        color = 'warning'
+    if (text && text.includes('<result>'))
+        color = 'success'
+    if (errormsg)
+        color = 'danger'
+    return color
+}
+
+export const spinner = (s: string, complete: boolean): string => {
+    if (complete) return s
+    // if s ends with a tag, add a flashing cursor before it
+    if (s && s.match(/<\/[a-z]+>$/)) {
+        s = s.replace(/(?:\s*<\/[a-z]+>)+$/, '<span class="blinking-cursor">&#x25FE;</span>$&')
+    }
+    return s
+}
+
+export default function AiContent(params: { infoDeProduto: InfoDeProduto, textos: TextoType[], overrideSystemPrompt?: string, overridePrompt?: string, overrideJsonSchema?: string, overrideFormat?: string, cacheControl?: boolean | number }) {
     const [current, setCurrent] = useState('')
     const [complete, setComplete] = useState(false)
     const [errormsg, setErrormsg] = useState('')
@@ -30,18 +50,6 @@ export default function AiContent(params: { infoDeProduto: InfoDeProduto, textos
     }
     const handleShow = () => setShow(true)
 
-    const getColor = (text, errormsg) => {
-        let color = 'info'
-        if (text && text.includes('<scratchpad>'))
-            color = 'warning'
-        if (text && text.includes('<result>'))
-            color = 'success'
-        if (errormsg)
-            color = 'danger'
-        return color
-    }
-
-
     const fetchStream = async () => {
         const payload = {
             prompt,
@@ -51,7 +59,7 @@ export default function AiContent(params: { infoDeProduto: InfoDeProduto, textos
             overridePrompt: params.overridePrompt,
             overrideJsonSchema: params.overrideJsonSchema,
             overrideFormat: params.overrideFormat,
-            noCache: params.noCache
+            cacheControl: params.cacheControl
         }
         Object.keys(payload).forEach(key => {
             if (payload[key] === '') {
@@ -97,22 +105,6 @@ export default function AiContent(params: { infoDeProduto: InfoDeProduto, textos
     }, [])
 
     const color = getColor(current, errormsg)
-
-    const spinner = (s: string, complete: boolean): string => {
-        if (complete) return s
-        // if s ends with a tag, add a flashing cursor before it
-        if (s && s.match(/<\/[a-z]+>$/)) {
-            s = s.replace(/(?:\s*<\/[a-z]+>)+$/, '<span class="blinking-cursor">&#x25FE;</span>$&')
-        }
-        return s
-    }
-
-    function getEnumKeys<
-        T extends string,
-        TEnumValue extends string | number,
-    >(enumVariable: { [key in T]: TEnumValue }) {
-        return Object.keys(enumVariable) as Array<T>;
-    }
 
     return <>
         {current || errormsg
