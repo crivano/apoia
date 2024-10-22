@@ -23,7 +23,7 @@ export default function RootLayout({
     children: React.ReactNode;
 }) {
     return (
-        <html lang="en">
+        <html lang="pt-BR">
             <head>
                 <meta property="og:title" content="ApoIA" />
                 <meta property="og:description" content="ApoIA" />

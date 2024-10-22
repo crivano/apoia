@@ -15,7 +15,8 @@ export default async function UserMenu() {
     const session = await getServerSession(authOptions);
     if (!session) return <><Link href="/auth/signin">Login</Link></>
 
-    const { model, apiKey, automatic } = getModelAndApiKeyCookieValue()
+    const byCookie = getModelAndApiKeyCookieValue()
+    const model = byCookie?.model
 
     const user = session.user
     return (
@@ -29,7 +30,7 @@ export default async function UserMenu() {
                     {user.name}/{user.image.system}
                 </a>
                 <ul className="dropdown-menu" aria-labelledby="navbarDropdown">
-                    <li><Link className="dropdown-item" href="/model">Modelo de IA{!automatic && ` (${model})`}</Link></li>
+                    <li><Link className="dropdown-item" href="/model">Modelo de IA{model && ` (${model})`}</Link></li>
                     <li><UserMenuSignout /></li>
                 </ul>
             </li>

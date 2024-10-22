@@ -1,27 +1,14 @@
 'use server'
 
-import { createOpenAI } from '@ai-sdk/openai'
-import { createAnthropic } from '@ai-sdk/anthropic'
-import { generateText, GenerateTextResult, CoreTool, streamText, StreamTextResult, LanguageModel, streamObject, generateObject, StreamObjectResult } from 'ai'
-import { getModelAndApiKeyCookieValue } from '../app/model/cookie'
+import { generateText, CoreTool, streamText, StreamTextResult, LanguageModel, streamObject, StreamObjectResult } from 'ai'
 import { IAGenerated } from './mysql-types'
 import { Dao } from './mysql'
 import { SHA256 } from 'crypto-js'
 import { canonicalize } from 'json-canonicalize'
 import { createStreamableValue, StreamableValue } from 'ai/rsc'
 import { assertCurrentUser } from './user'
-import build from 'next/dist/build'
 import { buildMessages, PromptOptions } from './build-messages'
-
-function getModel(params?: { structuredOutputs: boolean }): { model: string, modelRef: LanguageModel } {
-    const { model, apiKey, automatic } = getModelAndApiKeyCookieValue()
-    if (model.startsWith('claude-')) {
-        const anthropic = createAnthropic({ apiKey: apiKey })
-        return { model, modelRef: anthropic(model === 'claude-3-5-sonnet' ? 'claude-3-5-sonnet-20240620' : model) }
-    }
-    const openai = createOpenAI({ apiKey: apiKey })
-    return { model, modelRef: openai(model, params) }
-}
+import { getModel } from './model'
 
 function calcSha256(messages: any): string {
     return SHA256(canonicalize(messages)).toString()
@@ -87,12 +74,12 @@ export async function streamContent(prompt: string, data: any, date: Date, optio
     // const user = await getCurrentUser()
     // if (!user) return Response.json({ errormsg: 'Unauthorized' }, { status: 401 })
     const buildPrompt = await buildMessages(prompt, data, options)
-    const { model, modelRef } = getModel({ structuredOutputs: !!buildPrompt.params?.structuredOutputs })
+    const { model, modelRef } = getModel({ structuredOutputs: !!buildPrompt.params?.structuredOutputs, overrideModel: options?.overrideModel })
     const messages = buildPrompt.message
     const structuredOutputs = buildPrompt.params?.structuredOutputs
     const sha256 = calcSha256(messages)
     const attempt = options?.cacheControl !== true && options?.cacheControl || null
-    
+
     console.log('attempt', attempt)
 
     // try to retrieve cached generations

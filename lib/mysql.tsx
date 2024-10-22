@@ -494,7 +494,7 @@ export class Dao {
         if (dossiers.length > 0) {
             dossier_id = dossiers[0].id
         } else {
-            const [dossierResult] = await conn.query('INSERT INTO ia_dossier (system_id, code, class_code, filing_at) VALUES (?,?,?)', [systemId, dossierCode, classCode, filingDate])
+            const [dossierResult] = await conn.query('INSERT INTO ia_dossier (system_id, code, class_code, filing_at) VALUES (?,?,?,?)', [systemId, dossierCode, classCode, filingDate])
             dossier_id = dossierResult.insertId
         }
         return dossier_id as number

@@ -1,6 +1,6 @@
 import { headers, cookies } from 'next/headers'
 
-export function getModelAndApiKeyCookieValue(): { model: string, apiKey: string, automatic: boolean } {
+export function getModelAndApiKeyCookieValue(): { model: string, apiKey: string, automatic: boolean } | undefined {
 
     // Get from model-and-api-key header, which is model and apiKey separated by ':' and encoded in base64
     const headersList = headers();
@@ -18,5 +18,5 @@ export function getModelAndApiKeyCookieValue(): { model: string, apiKey: string,
         return JSON.parse(atob(modelCookie))
 
 
-    return { model: process.env.MODEL as string, apiKey: process.env.OPENAI_API_KEY as string, automatic: true }
+    return undefined
 }

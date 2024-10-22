@@ -1,6 +1,6 @@
 import { IAModel, IAPrompt, IATest, IATestset, IATestTest, IATestTestAttemptAnswer } from "@/lib/mysql-types"
 
-export const ATTEMPTS = 6
+export const ATTEMPTS = 5
 
 export function scorePerQuestion(arg0: IATestTest, idxQuestion: number): number {
     let total = 0
@@ -54,6 +54,12 @@ export function score(tests: IATestTest[]): number {
     return totalQuestions > 0 ? ((totalCorrect / totalQuestions) * 100) : 0;
 }
 
+export function preprocessQuestion(question: string): string {
+    if (question.startsWith('"') && question.endsWith('"'))
+        return `Existe, no texto a ser analisado, um trecho com o mesmo sentido de ${question}?`
+    return question
+}
+
 export function buildTest(testset: IATestset, prompt: IAPrompt, model: IAModel, promptResults: string[], questionsResults: any[]): IATest {
     const jsonTest: IATest = {
         id: 0,
@@ -64,7 +70,7 @@ export function buildTest(testset: IATestset, prompt: IAPrompt, model: IAModel, 
         content: {
             tests: testset.content.tests.map(test => ({
                 name: test.name,
-                questions: test.questions,
+                questions: test.questions.map(q => ({ question: preprocessQuestion(q.question) })),
                 attempts: []
             }))
         }
@@ -78,7 +84,7 @@ export function buildTest(testset: IATestset, prompt: IAPrompt, model: IAModel, 
         if (questionsResults.length > i && questionsResults[i].respostas) {
             answers = questionsResults[i].respostas.map((r) => ({
                 snippet: r.trecho,
-                result: r.resposta === 'sim',
+                result: r.resposta === 'sim' ? true : r.resposta === 'não' ? false : undefined,
                 justification: r.justificativa
             }))
         }

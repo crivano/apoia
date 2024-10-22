@@ -337,3 +337,7 @@ div.ai-content {
         opacity: 1;
     }
 }
+
+.popover {
+    max-width: 50% !important;
+}

@@ -9,6 +9,7 @@ import _ from 'lodash'
 import { IARankingType, IATestset } from '@/lib/mysql-types'
 import { useEffect } from 'react'
 import TableRecords from '@/components/table-records'
+import Link from 'next/link'
 
 const Frm = new FormHelper()
 
@@ -22,6 +23,11 @@ function RankingTable({ kind, testsetId, promptId, modelId }) {
         }
         asyncSetData()
     }, [testsetId, promptId, modelId])
+
+    if (testsetId && promptId && modelId && records.length === 0) return <div>
+        <p>Não foi realizada uma avaliação para a Coleção de Testes, o Prompt e o Modelo de Liguagem selecionados acima. Clique no botão abaixo para iniciar.</p>
+        <Link className="btn btn-primary" href={`test/${testsetId}/${promptId}/${modelId}`}>Avaliar</Link>
+    </div>
 
     return (<TableRecords records={records} spec="Ranking" pageSize={20} linkToBack='..' />)
 }

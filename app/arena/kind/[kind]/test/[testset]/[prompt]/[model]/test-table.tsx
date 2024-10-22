@@ -3,7 +3,7 @@
 import { ATTEMPTS, score, scorePerAttempt, scorePerQuestion } from "@/lib/test-config";
 import { IATest, IATestset, IATestTest } from "@/lib/mysql-types";
 import { faComment } from "@fortawesome/free-regular-svg-icons";
-import { faCheck, faX } from "@fortawesome/free-solid-svg-icons";
+import { faBrain, faCheck, faX } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { OverlayTrigger, Popover } from "react-bootstrap";
 
@@ -20,7 +20,8 @@ export function TestTable({ testset, test }: { testset: IATestset, test: IATest 
                         (idx < test.content.tests[idxTest].attempts.length && test.content.tests[idxTest].attempts[idx].result)
                             ?
                             <OverlayTrigger
-                                trigger="hover"
+                                trigger={["hover", "click"]}
+                                placement="left"
                                 overlay={
                                     <Popover id={`popover-${idxTest}-${idx}-result`}>
                                         <Popover.Header as="h3">Resultado do Prompt</Popover.Header>
@@ -37,15 +38,17 @@ export function TestTable({ testset, test }: { testset: IATestset, test: IATest 
                 </tr>
                 {t.questions.map((question, idxQuestion) =>
                     <tr key={`question-${question.question}`}>
-                        <td className="ps-4">{question.question}</td>
+                        <td className="ps-4">{question.question.length > 100 ? question.question.substring(0, 99) + '...' : question.question}</td>
                         {Array.from({ length: ATTEMPTS }).map((_, idx) => (<td key={`td-question-${idxTest}-${idxQuestion}-${idx}`}>{
                             (idx < test.content.tests[idxTest].attempts.length && idxQuestion < test.content.tests[idxTest].attempts[idx].answers.length)
                                 ? <OverlayTrigger
-                                    trigger="hover"
+                                trigger={["hover", "focus"]}
+                                    placement="left"
                                     overlay={
                                         <Popover id={`popover-${idxTest}-${idx}-result`}>
-                                            <Popover.Header as="h3">Resposta à Pergunta de Teste</Popover.Header>
+                                            <Popover.Header as="h3">Avaliação de Resultado</Popover.Header>
                                             <Popover.Body>
+                                                <p><strong>Pergunta:</strong> {test.content.tests[idxTest].questions[idxQuestion].question}</p>
                                                 <p><strong>Trecho Identificado:</strong> {test.content.tests[idxTest].attempts[idx].answers[idxQuestion].snippet}</p>
                                                 <p><strong>Resposta:</strong> {test.content.tests[idxTest].attempts[idx].answers[idxQuestion].result ? 'Sim' : 'Não'}</p>
                                                 <p><strong>Justificativa:</strong> {test.content.tests[idxTest].attempts[idx].answers[idxQuestion].justification}</p>
@@ -56,7 +59,7 @@ export function TestTable({ testset, test }: { testset: IATestset, test: IATest 
                                         ? <FontAwesomeIcon icon={faCheck} className="text-success" />
                                         : test.content.tests[idxTest].attempts[idx].answers[idxQuestion].result === false
                                             ? <FontAwesomeIcon icon={faX} className="text-danger" />
-                                            : <></>}
+                                            : <FontAwesomeIcon icon={faBrain} className="text-warning" />}
                                 </OverlayTrigger>
                                 : ''
                         }</td>))}

@@ -6,6 +6,7 @@ export type PromptOptions = {
     overridePrompt?: string
     overrideJsonSchema?: string
     overrideFormat?: string
+    overrideModel?: string
     cacheControl?: boolean | number
 }
 

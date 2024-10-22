@@ -50,9 +50,10 @@ export default function ModelForm(params) {
                                         <div className="form-group">
                                             <label>Modelo</label>
                                             <select id="model" name="model" placeholder="" autoFocus={true} className="form-control" onChange={(e) => setModel(e.target.value)} value={model} autoComplete='off'>
-                                            <option value="gpt-4o">GPT-4o</option>
-                                            <option value="gpt-4o-mini">GPT-4o-Mini</option>
-                                            <option value="claude-3-5-sonnet">Claude 3.5 Sonnet</option>
+                                            <option value="gpt-4o-2024-08-06">GPT-4o</option>
+                                            <option value="gpt-4o-mini-2024-07-18">GPT-4o-Mini</option>
+                                            <option value="claude-3-5-sonnet-20240620">Claude 3.5 Sonnet</option>
+                                            <option value="gemini-1.5-pro-002">Gemini 1.5 Pro 002</option>
                                             </select>
                                         </div>
                                     </div>
