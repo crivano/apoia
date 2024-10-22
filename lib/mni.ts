@@ -1,4 +1,5 @@
 'use server'
+import { createHash } from 'node:crypto';
 
 import * as soap from 'soap'
 import { pdfToText } from './pdf'
@@ -29,10 +30,27 @@ const getClient = async (system: string | undefined) => {
     return client
 }
 
+const criarHash = (senha: string) => {
+    const date = new Intl.DateTimeFormat('pt-BR', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+    }).format(new Date()).replaceAll('/', '-');
+
+    const input = `${date}${senha}`;
+    const hash = createHash('sha256').update(input).digest('hex');
+    return hash;
+}
 
 export const autenticar = async (system: string, username: string, password: string) => {
     const client = await getClient(system)
-    const validation = systems.find(s => s.system === system)?.validation
+    const currentSystem = systems.find(s => s.system === system)
+    if (!currentSystem) {
+        throw new Error(`Client for system ${system} not found`)
+    }
+    if (currentSystem.hashable) {
+        password = criarHash(password)
+    }
     const res = await client.consultarProcessoAsync({
         idConsultante: username,
         senhaConsultante: password,
@@ -41,7 +59,7 @@ export const autenticar = async (system: string, username: string, password: str
         incluirCabecalho: false,
         incluirDocumentos: false
     })
-    return res[0].mensagem.includes(validation)
+    return res[0].mensagem.includes(currentSystem.validation)
 }
 
 export type PecaType = {
@@ -118,18 +136,21 @@ export const obterDadosDoProcesso = async (numeroDoProcesso: string, pUser: Prom
         const system_id = await Dao.assertSystemId(null, user.image.system)
         const dossier_id = await Dao.assertIADossierId(null, numeroDoProcesso, system_id, codigoDaClasse, ajuizamento)
 
-        const documentos = respQuery[0].processo.documento
+        const documentos = respQuery[0].processo?.documento ?? []
+
         // console.log('documentos', JSON.stringify(documentos, null, 2))
         for (const doc of documentos) {
             // if (!Object.values(T).includes(doc.attributes.descricao)) continue
-            pecas.unshift({
-                id: doc.attributes.idDocumento,
-                numeroDoEvento: doc.attributes.movimento,
-                descr: doc.attributes.descricao,
-                tipoDoConteudo: doc.attributes.mimetype,
-                sigilo: doc.attributes.nivelSigilo,
-                pConteudo: undefined
-            })
+            if (doc?.attributes?.movimento && doc?.attributes?.descricao) {
+                pecas.unshift({
+                    id: doc.attributes.idDocumento,
+                    numeroDoEvento: doc.attributes.movimento,
+                    descr: doc.attributes.descricao.toUpperCase(),
+                    tipoDoConteudo: doc.attributes.mimetype,
+                    sigilo: doc.attributes.nivelSigilo,
+                    pConteudo: undefined
+                })
+            }
         }
 
         pecas.sort((a, b) => {
@@ -166,6 +187,11 @@ export const obterDadosDoProcesso = async (numeroDoProcesso: string, pUser: Prom
 }
 
 const consultarProcesso = async (numero, username, password) => {
+    const user = await assertCurrentUser()
+    const system = systems.find(s => s.system === user.image.system)
+    if (system?.hashable) {
+        password = criarHash(password)
+    }
     const client = await getClient(undefined)
     // throw an error if the number is invalid
     if (!numero.match(/^\d{20}$/))
@@ -174,11 +200,10 @@ const consultarProcesso = async (numero, username, password) => {
         idConsultante: username,
         senhaConsultante: password,
         numeroProcesso: numero,
-        movimentos: false,
+        movimentos: true,
         incluirCabecalho: true,
         incluirDocumentos: true
     })
-    // console.log('lastRequest', client.lastRequest)
     return pConsultarProcesso
 }
 
@@ -192,6 +217,11 @@ const consultarProcesso = async (numero, username, password) => {
 //   }
 
 const obterPeca = async (numeroDoProcesso, idDaPeca, username: string, password: string) => {
+    const user = await assertCurrentUser()
+    const system = systems.find(s => s.system === user.image.system)
+    if (system?.hashable) {
+        password = criarHash(password)
+    }
     const client = await getClient(undefined)
     const respPeca = await client.consultarProcessoAsync({
         idConsultante: username,
@@ -273,6 +303,10 @@ const obterConteudoDaPeca = async (dossier_id: number, numeroDoProcesso: string,
 
     const { buffer, contentType } = await obterPeca(numeroDoProcesso, idDaPeca, username, password)
 
+
+    if (buffer.byteLength == 0) {
+        throw new Error(`Buffer vazio ${buffer.byteLength}`)
+    }
     switch (contentType) {
         case 'text/html': {
             return obterTextoDeHtml(buffer, document_id)
