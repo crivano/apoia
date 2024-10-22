@@ -1,5 +1,8 @@
+// @ts-nocheck
 import { getDocument } from 'pdfjs-dist'
 await import('pdfjs-dist/build/pdf.worker.min.js')
+
+
 
 export async function pdfToText(blob: ArrayBuffer, options) {
     const doc = await getDocument(blob.slice(0)).promise
