@@ -265,6 +265,10 @@ const ocrPdf = async (buffer: ArrayBuffer) => {
         method: 'POST',
         body: formData
     })
+    if (!res.ok) {
+        const data = await res.text()
+        throw new Error(`Erro ao fazer OCR em pdf ${data}`)
+    }
     return await res.arrayBuffer()
 }
 
