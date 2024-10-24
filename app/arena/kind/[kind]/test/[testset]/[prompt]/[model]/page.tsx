@@ -32,14 +32,16 @@ export default async function TestResult({ params }: { params: { kind: string, t
         </>
     </>
 
+    const { kind } = params
+
     if (!test) {
         return <Container fluid={false}>
             <Cabecalho />
             <TestBuilder kind={params.kind} testset={testset} prompt={prompt} model={model} />
+            <Link href={`/arena/kind/${kind}/ranking`} className="btn btn-light">Voltar</Link>
         </Container>
     }
 
-    const { kind } = params
     return <Container fluid={false}>
         <Cabecalho />
         <TestTable testset={testset} test={test} promptFormat={prompt.content.format} />
