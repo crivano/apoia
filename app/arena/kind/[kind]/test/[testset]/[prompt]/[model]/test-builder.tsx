@@ -27,9 +27,6 @@ const buildArray = (json: any, prefix: string, splitter: string): string[] => {
 
 
 export default function TestBuilder({ kind, testset, prompt, model }: { kind: string, testset: IATestset, prompt: IAPrompt, model: IAModel }) {
-
-    console.log('TestBuilder', kind, testset, prompt, model)
-
     const [current, setCurrent] = useState('')
     const [complete, setComplete] = useState(false)
     const [errormsg, setErrormsg] = useState('')
@@ -114,8 +111,6 @@ export default function TestBuilder({ kind, testset, prompt, model }: { kind: st
     //     jsonTest.content.tests[test].attempts.push({ result: promptResult, answers })
     // }
 
-    console.log('jsonTest', promptResults, questionsResults, JSON.stringify(jsonTest))
-
     return <div className="row mb-3">
         <div className="col-12">
             {progress?.s !== '' && <>
@@ -129,7 +124,7 @@ export default function TestBuilder({ kind, testset, prompt, model }: { kind: st
             </>}
         </div>
         <div className="col-12">
-            <TestTable testset={testset} test={jsonTest} />
+            <TestTable testset={testset} test={jsonTest} promptFormat={prompt.content.format} />
         </div>
     </div>
 }

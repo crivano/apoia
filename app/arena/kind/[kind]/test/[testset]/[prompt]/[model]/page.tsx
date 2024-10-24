@@ -2,6 +2,7 @@ import { Container } from 'react-bootstrap'
 import { Dao } from '@/lib/mysql'
 import TestBuilder from './test-builder'
 import { TestTable } from './test-table'
+import Link from 'next/link'
 
 
 export default async function TestResult({ params }: { params: { kind: string, testset: number, prompt: number, model: number } }) {
@@ -21,7 +22,7 @@ export default async function TestResult({ params }: { params: { kind: string, t
         <>
             <h1 className="mt-5 mb-3">Teste de Prompt</h1>
             <div className="row">
-            <div className="col col-auto">
+                <div className="col col-auto">
                     <p><strong>Tipo de Prompt:</strong> {params.kind.toUpperCase()}<br /><strong>Prompt:</strong> {prompt.name}<br /></p>
                 </div>
                 <div className="col col-auto">
@@ -38,11 +39,10 @@ export default async function TestResult({ params }: { params: { kind: string, t
         </Container>
     }
 
-    console.log('vou apenas apresentar o teste', JSON.stringify(test))
-
     const { kind } = params
     return <Container fluid={false}>
         <Cabecalho />
-        <TestTable testset={testset} test={test} />
+        <TestTable testset={testset} test={test} promptFormat={prompt.content.format} />
+        <Link href={`/arena/kind/${kind}/ranking`} className="btn btn-light">Voltar</Link>
     </Container>
 }

@@ -2,7 +2,7 @@ description: "Ementa e Acórdão"
 
 providers:
   - openai:gpt-4o-2024-08-06
-  - anthropic:messages:claude-3-5-sonnet-20240620
+  - anthropic:messages:claude-3-5-sonnet-20241022
 
 prompts:
   - file://../test-prompt.js

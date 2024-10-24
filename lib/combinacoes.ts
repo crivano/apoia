@@ -17,6 +17,28 @@ export enum T {
     ACORDAO = 'ACÓRDÃO',
 }
 
+export const Categorias = {
+    TEXTO: { descr: 'TEXTO' },
+    PETICAO_INICIAL: { descr: 'PETIÇÃO INICIAL' },
+    CONTESTACAO: { descr: 'CONTESTAÇÃO' },
+    INFORMACAO_EM_MANDADO_DE_SEGURANCA: { descr: 'INFORMAÇÃO EM MANDADO DE SEGURANÇA' },
+    SENTENCA: { descr: 'SENTENÇA' },
+    APELACAO: { descr: 'APELAÇÃO' },
+    RECURSO_INOMINADO: { descr: 'RECURSO INOMINADO' },
+    CONTRARRAZOES: { descr: 'CONTRARRAZÕES' },
+    RELATORIO: { descr: 'RELATÓRIO' },
+    EXTRATO_DE_ATA: { descr: 'EXTRATO DE ATA' },
+    VOTO: { descr: 'VOTO' },
+    ACORDAO: { descr: 'ACÓRDÃO' },
+}
+
+export const findCategoria = (descr: string) => {
+    for (const [key, value] of Object.entries(Categorias)) {
+        if (value.descr === descr) return key
+    }
+    return null
+}
+
 export enum P {
     RESUMOS = 'Resumos',
     RESUMO_PECA = 'Resumo de Peça',

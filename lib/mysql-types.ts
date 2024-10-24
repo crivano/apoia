@@ -63,10 +63,12 @@ export type IAEnumItem = {
 }
 
 export type IADocument = {
-    document_id: number
+    id: number
     dossier_id: number
-    content_source_id: number
     code: string
+    content_source_id: number
+    assigned_category: string | null
+    predicted_category: string | null
     created_at: Date | null
     content: string
 }

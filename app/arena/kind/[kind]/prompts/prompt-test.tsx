@@ -26,7 +26,6 @@ export default function PromptTest(params: {
             "plugins": []
         }
         const textos = test.texts.map(t => ({ descr: t.name, slug: slugify(t.name), texto: t.value }))
-        console.log('textos', textos)
         const result = test.expected
         const file = idx.toString()
         return { file, titulo, infoDeProduto, textos, result }
@@ -50,7 +49,6 @@ export default function PromptTest(params: {
     }
 
     const test = parsedTests.find(e => e.file === file)
-    console.log('test', test)
     if (!test) return <div className="alert alert-danger">Teste não encontrado {file}</div>
 
     return (

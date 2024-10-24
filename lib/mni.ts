@@ -10,6 +10,8 @@ import { assertCurrentUser, getCurrentUser } from './user'
 import { decrypt } from './crypt'
 import { Dao } from './mysql'
 import { isNullOrUndefined } from 'util'
+import { IADocument } from './mysql-types'
+import { inferirCategoriaDaPeca } from './category'
 
 const clientMap = new Map<string, soap.Client>()
 
@@ -51,6 +53,9 @@ export type PecaType = {
     tipoDoConteudo: string
     sigilo: string,
     pConteudo: Promise<string> | undefined
+    pDocumento: Promise<IADocument> | undefined
+    documento: IADocument | undefined
+    pCategoria: Promise<string> | undefined
 }
 
 const selecionarPecas = (pecas: PecaType[], descricoes: string[]) => {
@@ -77,7 +82,18 @@ const iniciarObtencaoDeConteudo = (dossier_id: number, numeroDoProcesso: string,
     for (const peca of pecas) {
         pecasComConteudo.push({
             ...peca,
-            pConteudo: obterConteudoDaPeca(dossier_id, numeroDoProcesso, peca.id, username, password)
+            pConteudo: obterConteudoDaPeca(dossier_id, numeroDoProcesso, peca.id, peca.descr, username, password)
+        })
+    }
+    return pecasComConteudo
+}
+
+const iniciarObtencaoDeDocumentoGravado = (dossier_id: number, numeroDoProcesso: string, pecas: PecaType[], username: string, password: string) => {
+    const pecasComConteudo: PecaType[] = []
+    for (const peca of pecas) {
+        pecasComConteudo.push({
+            ...peca,
+            pDocumento: obterDocumentoGravado(dossier_id, numeroDoProcesso, peca.id, peca.descr, username, password)
         })
     }
     return pecasComConteudo
@@ -128,7 +144,10 @@ export const obterDadosDoProcesso = async (numeroDoProcesso: string, pUser: Prom
                 descr: doc.attributes.descricao,
                 tipoDoConteudo: doc.attributes.mimetype,
                 sigilo: doc.attributes.nivelSigilo,
-                pConteudo: undefined
+                pConteudo: undefined,
+                pDocumento: undefined,
+                documento: undefined,
+                pCategoria: undefined
             })
         }
 
@@ -145,6 +164,42 @@ export const obterDadosDoProcesso = async (numeroDoProcesso: string, pUser: Prom
             const pecasComConteudo = iniciarObtencaoDeConteudo(dossier_id, numeroDoProcesso, pecas, username, password)
             return { pecas: pecasComConteudo, ajuizamento, codigoDaClasse, numeroDoProcesso, nomeOrgaoJulgador }
         }
+
+        // Localiza pecas with descricao == 'OUTROS' e busca no banco de dados se já foram inferidas por IA
+        const pecasOutros = pecas.filter(p => p.descr === 'OUTROS')
+        if (pecasOutros.length > 0) {
+            console.log('pecasOutros', pecasOutros.length)
+            const pecasComDocumento = iniciarObtencaoDeDocumentoGravado(dossier_id, numeroDoProcesso, pecasOutros, username, password)
+            for (const peca of pecasComDocumento) {
+                if (peca.pDocumento) {
+                    peca.documento = await peca.pDocumento
+                    if (peca.documento.predicted_category && peca.documento.predicted_category !== '') {
+                        peca.descr = peca.documento.predicted_category
+                    }
+                }
+            }
+        }
+        console.log('pecasOutros-fim')
+
+        // Localiza pecas with descricao == 'OUTROS' e usa IA para determinar quais são os tipos destas peças
+        const pecasOutros2 = pecas.filter(p => p.descr === 'OUTROS')
+        if (pecasOutros2.length > 0) {
+            console.log('pecasOutros2', pecasOutros2.length)
+            const pecasComConteudo = iniciarObtencaoDeConteudo(dossier_id, numeroDoProcesso, pecasOutros2, username, password)
+            for (const peca of pecasComConteudo) {
+                if (peca.pConteudo) {
+                    const conteudo = await peca.pConteudo
+                    peca.pCategoria = inferirCategoriaDaPeca(dossier_id, peca.documento?.id, conteudo)
+                }
+            }
+            for (const peca of pecasComConteudo) {
+                if (peca.pCategoria) {
+                    const categoria = await peca.pCategoria
+                    if (categoria) peca.descr = categoria
+                }
+            }
+        }
+        console.log('pecasOutros2-fim')
 
         for (const comb of CombinacoesValidas) {
             const pecasSelecionadas = selecionarPecas(pecas, comb.tipos)
@@ -227,6 +282,7 @@ const obterPaginasECaracteres = (texto) => {
 
 // Método que recebe um buffer de um PDF, faz um post http para o serviço de OCR e retorna o PDF processado pelo OCR
 const ocrPdf = async (buffer: ArrayBuffer) => {
+    console.log('ocrPdf', buffer.byteLength)
     const url = process.env.OCR_URL as string
     const formData = new FormData()
     const file = new Blob([buffer], { type: 'application/pdf' })
@@ -239,6 +295,10 @@ const ocrPdf = async (buffer: ArrayBuffer) => {
 }
 
 const obterTextoDePdf = async (buffer: ArrayBuffer, documentId: number) => {
+
+    const bufferCopy = buffer.slice(0);
+
+    console.log('obterTextoDePdf', buffer.byteLength)
     const texto = await pdfToText(buffer, {})
     const { pages, chars } = obterPaginasECaracteres(texto)
 
@@ -248,7 +308,7 @@ const obterTextoDePdf = async (buffer: ArrayBuffer, documentId: number) => {
         return texto
     }
 
-    const ocrBuffer = await ocrPdf(buffer)
+    const ocrBuffer = await ocrPdf(bufferCopy)
     const ocrTexto = await pdfToText(ocrBuffer, {})
     const { pages: ocrPages, chars: ocrChars } = obterPaginasECaracteres(ocrTexto)
 
@@ -261,11 +321,28 @@ const obterTextoDePdf = async (buffer: ArrayBuffer, documentId: number) => {
     return undefined
 }
 
-const obterConteudoDaPeca = async (dossier_id: number, numeroDoProcesso: string, idDaPeca: string, username: string, password: string) => {
-    const document_id = await Dao.assertIADocumentId(null, idDaPeca, dossier_id)
+const obterTipoDePecaPelaDescricao = (descr: string) => {
+    for (const tipo in T) {
+        if (descr === T[tipo]) {
+            return tipo
+        }
+    }
+    return null
+}
+
+const obterDocumentoGravado = async (dossier_id: number, numeroDoProcesso: string, idDaPeca: string, descrDaPeca: string, username: string, password: string): Promise<IADocument> => {
+    const document_id = await Dao.assertIADocumentId(null, idDaPeca, dossier_id, descrDaPeca)
 
     // verificar se a peça já foi gravada no banco
     const document = await Dao.retrieveDocument(null, document_id)
+    if (!document) throw new Error(`Documento ${idDaPeca} não encontrado`)
+    return document
+}
+
+
+const obterConteudoDaPeca = async (dossier_id: number, numeroDoProcesso: string, idDaPeca: string, descrDaPeca: string, username: string, password: string) => {
+    const document = await obterDocumentoGravado(dossier_id, numeroDoProcesso, idDaPeca, descrDaPeca, username, password)
+    const document_id = document.id
     if (document && document.content) {
         console.log('Retrieving from cache, content of type', document.content_source_id)
         return document.content
@@ -301,3 +378,4 @@ const assertNivelDeSigilo = (nivel, descrDaPeca?) => {
 const verificarNivelDeSigilo = () => {
     return !(process.env.CONFIDENTIALITY_LEVEL_MAX === undefined || process.env.CONFIDENTIALITY_LEVEL_MAX === '')
 }
+

@@ -42,7 +42,7 @@ JFES_MNI_WSDL_URL="https://epr.jfes.jus.br/eproc/wsdl.php?srv=intercomunicacao2.
 JFES_MNI_ENDPOINT_URL="https://epr.jfes.jus.br/eproc/ws/controlador_ws.php?srv=intercomunicacao2.2"
 ```
 
-Informe o identificador do modelo de inteligência artificial que deseja utilizar. Outros possíveis seriam: `gpt-4o-mini-2024-07-18`, `claude-3-5-sonnet-20240620` ou qualquer outro suportado pelo framework Vercel AI.
+Informe o identificador do modelo de inteligência artificial que deseja utilizar. Outros possíveis seriam: `gpt-4o-mini-2024-07-18`, `claude-3-5-sonnet-20241022` ou qualquer outro suportado pelo framework Vercel AI.
 
 ```properties
 MODEL=gpt-4o-2024-08-06

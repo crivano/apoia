@@ -15,7 +15,6 @@ function calcSha256(messages: any): string {
 }
 
 export async function retrieveFromCache(sha256: string, model: string, prompt: string, attempt: number | null): Promise<IAGenerated | undefined> {
-    console.log('attempt', attempt)
     const cached = await Dao.retrieveIAGeneration(null, { sha256, model, prompt, attempt })
     if (cached) return cached
     return undefined
@@ -40,7 +39,7 @@ export async function generateContent(prompt: string, data: any, attempt?: numbe
     // write response to a file for debugging
     if (process.env.NODE_ENV === 'development') {
         const fs = require('fs')
-        fs.writeFileSync(`/tmp/generating-${prompt}.txt`, `${messages[0].content}\n\n${messages[1].content}\n\n---\n\n`)
+        fs.writeFileSync(`/tmp/generating-${prompt}.txt`, `${messages[0].content}\n\n${messages[1]?.content}\n\n---\n\n`)
     }
 
 
@@ -80,8 +79,6 @@ export async function streamContent(prompt: string, data: any, date: Date, optio
     const sha256 = calcSha256(messages)
     const attempt = options?.cacheControl !== true && options?.cacheControl || null
 
-    console.log('attempt', attempt)
-
     // try to retrieve cached generations
     if (buildPrompt.params?.cacheControl !== false) {
         const cached = await retrieveFromCache(sha256, model, prompt, attempt)
@@ -90,28 +87,28 @@ export async function streamContent(prompt: string, data: any, date: Date, optio
         }
     }
 
-    // Start generating texts
-    // console.log('streaming', prompt, messages)
-
     if (!structuredOutputs) {
+        // console.log('streaming text', prompt, messages, modelRef)
         const pResult = streamText({
             model: modelRef as LanguageModel,
             messages,
             maxRetries: 1,
             // temperature: 1.5,
             onFinish: async ({ text }) => {
-                await saveToCache(sha256, model, prompt, text, attempt || null)
+                if (buildPrompt.params?.cacheControl !== false) {
+                    await saveToCache(sha256, model, prompt, text, attempt || null)
+                }
                 // write response to a file for debugging
                 if (process.env.NODE_ENV === 'development') {
                     const fs = require('fs')
                     const currentDate = new Date().toISOString().replace(/[-:]/g, '').replace('T', '-').split('.')[0]
-                    fs.writeFileSync(`/tmp/${currentDate}-${prompt}.txt`, `${messages[0].content}\n\n${messages[1].content}\n\n---\n\n${text}`)
+                    fs.writeFileSync(`/tmp/${currentDate}-${prompt}.txt`, `${messages[0].content}\n\n${messages[1]?.content}\n\n---\n\n${text}`)
                 }
             }
         })
         return pResult
     } else {
-        console.log('streaming object', prompt, messages, modelRef, structuredOutputs.schema)
+        // console.log('streaming object', prompt, messages, modelRef, structuredOutputs.schema)
         const pResult = streamObject({
             model: modelRef as LanguageModel,
             messages,

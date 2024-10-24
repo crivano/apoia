@@ -5,6 +5,7 @@ import { TextoType } from '@/prompts/_prompts'
 import { diff, diffAndCollapse as diffAndCompact } from './mddiff'
 import { info } from 'console'
 import { getFormatter } from './build-messages'
+import { format as libFormat } from './format'
 
 const converter = new showdown.Converter()
 
@@ -41,12 +42,16 @@ export const filterText = (text) => {
     return s.trim()
 }
 
-export const preprocess = (text: string, infoDeProduto: InfoDeProduto, textos: TextoType[], complete: boolean, visualization?: VisualizationEnum) => {
+export const preprocess = (text: string, infoDeProduto: InfoDeProduto, textos: TextoType[], complete: boolean, visualization?: VisualizationEnum, overrideFormatter?: string) => {
     console.log('preprocess', text, infoDeProduto, textos, complete, visualization)
     text = filterText(text)
 
-    const format = getFormatter(infoDeProduto.prompt)
-    if (format) text = format(text)
+    if (overrideFormatter) {
+        text = libFormat(overrideFormatter, text)
+    } else {
+        const format = getFormatter(infoDeProduto.prompt)
+        if (format) text = format(text)
+    }
 
     if (infoDeProduto.produto === P.REFINAMENTO && complete) {
 

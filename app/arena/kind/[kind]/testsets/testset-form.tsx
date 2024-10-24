@@ -103,7 +103,6 @@ export default function TestsetForm(props) {
 
 
     if (formState?.message === 'success') {
-        console.log('sucesso')
         router.push(`/arena/kind/${data.kind}/testsets/${slugify(data.name)}`)
     }
 

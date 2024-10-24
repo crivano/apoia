@@ -65,7 +65,6 @@ export class Dao {
         const { base_testset_id, kind, name, model_id, content } = data
         const slug = slugify(name)
         const created_by = (await getCurrentUser())?.id || null
-        console.log('created_by', created_by)
         await conn.query(`
           INSERT INTO ia_testset (base_id, kind, name, slug, model_id, content, created_by)
           VALUES (?, ?, ?, ?, ?, ?, ?)
@@ -114,7 +113,6 @@ export class Dao {
         const { base_prompt_id, kind, name, model_id, testset_id, content } = data
         const slug = slugify(name)
         const created_by = (await getCurrentUser())?.id || null
-        console.log('created_by', created_by)
         await conn.query(`
           INSERT INTO ia_prompt (base_id, kind, name, slug, model_id, testset_id, content, created_by)
           VALUES (?, ?, ?, ?, ?, ?, ?, ?)
@@ -167,7 +165,6 @@ export class Dao {
             left join ia_testset t on t.kind = k.kind
             group by k.kind
         `)
-        console.log('result', result)
         if (!result || result.length === 0) return []
         const records = result.map((record: any) => ({ ...record }))
         return records
@@ -325,9 +322,8 @@ export class Dao {
 
     @con
     static async retrieveRanking(conn: any, kind: string, testset_id?: number, prompt_id?: number, model_id?: number): Promise<mysqlTypes.IARankingType[]> {
-        console.log('retrieveRanking', kind, testset_id, prompt_id, model_id)
         const [result] = await conn.query(`
-            SELECT s.testset_id, t.name testset_name, s.prompt_id, p.name prompt_name, p.slug prompt_slug, s.model_id, m.name model_name, s.score
+            SELECT s.testset_id, t.name testset_name, t.slug testset_slug, s.prompt_id, p.name prompt_name, p.slug prompt_slug, s.model_id, m.name model_name, s.score
             FROM ia_test s
             INNER JOIN ia_model m ON s.model_id = m.id
             INNER JOIN ia_prompt p ON s.prompt_id = p.id
@@ -335,7 +331,6 @@ export class Dao {
             WHERE (s.testset_id = ? OR ? IS NULL) AND (s.prompt_id = ? OR ? IS NULL) AND (s.model_id = ? OR ? IS NULL)
             ORDER BY s.score DESC
         `, [kind, testset_id || null, testset_id || null, prompt_id || null, prompt_id || null, model_id || null, model_id || null])
-        console.log('~result', result)
         if (!result || result.length === 0) return []
         const records = result.map((record: any) => ({ ...record }))
         return records
@@ -369,8 +364,6 @@ export class Dao {
                 AND prompt = ? 
                 AND sha256 = ?
                 AND attempt ${attempt === null ? 'IS NULL' : '= ?'}`
-        console.log('sql', sql, attempt)
-        console.log('Executing SQL:', conn.format(sql, [model, prompt, sha256, attempt]))
         const [result] = await conn.query(sql, [model, prompt, sha256, attempt])
         if (!result || result.length === 0) return undefined
         const record: mysqlTypes.IAGenerated = result[0]
@@ -502,15 +495,20 @@ export class Dao {
 
 
     @tran
-    static async assertIADocumentId(conn: any, documentCode: string, dossier_id: number): Promise<number> {
+    static async assertIADocumentId(conn: any, documentCode: string, dossier_id: number, assigned_category: string | null): Promise<number> {
         // Check or insert document
         let document_id: number | null = null
         if (documentCode) {
             let [documents] = await conn.query('SELECT id FROM ia_document WHERE code = ?', [documentCode])
             if (documents.length > 0) {
                 document_id = documents[0].id
+
+                // Update assigned_category_id
+                if (assigned_category && documents[0].assigned_category !== assigned_category) {
+                    await conn.query('UPDATE ia_document SET assigned_category = ? WHERE id = ?', [assigned_category, document_id])
+                }
             } else {
-                const [documentResult] = await conn.query('INSERT INTO ia_document (code, dossier_id) VALUES (?, ?)', [documentCode, dossier_id])
+                const [documentResult] = await conn.query('INSERT INTO ia_document (code, dossier_id, assigned_category) VALUES (?, ?, ?)', [documentCode, dossier_id, assigned_category])
                 document_id = documentResult.insertId
             }
         }
@@ -520,6 +518,11 @@ export class Dao {
     @tran
     static async updateDocumentContent(conn: any, document_id: number, content_source_id: number, content: string) {
         await conn.query('UPDATE ia_document SET content_source_id = ?, content = ? WHERE id = ?', [content_source_id, content, document_id])
+    }
+    
+    @tran
+    static async updateDocumentCategory(conn: any, document_id: number, assigned_category: string | null, predicted_category: string | null) {
+        await conn.query('UPDATE ia_document SET assigned_category = ?, predicted_category = ? WHERE id = ?', [assigned_category, predicted_category, document_id])
     }
 
     @con

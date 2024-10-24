@@ -1,15 +1,7 @@
-import { parse, ALL } from 'partial-json'
-import nunjucks from 'nunjucks'
+import { format as libFormat } from '@/lib/format'
 
 export default function format(s: string): string {
-    if (!s) return ''
-
-    if (!s.startsWith('{')) return s
-
-    const json = parse(s, ALL)
-    if (!json) return ''
-
-    const result = nunjucks.renderString(`_**Ementa:**_ <span style="font-variant: small-caps slashed-zero;">{{cabecalho}}</span>
+    return libFormat(`_**Ementa:**_ <span style="font-variant: small-caps slashed-zero;">{{cabecalho}}</span>
 
 {% if casoEmExame %}<h4 style="font-variant: small-caps slashed-zero;">I. Caso em exame</h4>
 
@@ -31,8 +23,6 @@ export default function format(s: string): string {
 _Dispositivos relevantes citados_: {% for d in dispositivosRelevantesCitados %}{{ "" if loop.first else ("; e " if loop.last else "; ") }}{{ d }}{{"." if loop.last else ""}}{% endfor %}{% endif %}
 {% if jurisprudenciaRelevanteCitada %}
 _Jurisprudência relevante citada_: {% for d in jurisprudenciaRelevanteCitada %}{{ "" if loop.first else ("; e " if loop.last else "; ") }}{{ d }}{{"." if loop.last else ""}}{% endfor %}
-{% endif %}`, json)
-
-    return result
+{% endif %}`, s)
 }
 

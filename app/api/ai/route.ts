@@ -25,12 +25,10 @@ export async function POST(request: Request) {
         if (typeof result === 'string') {
             return new Response(result, { status: 200 });
         }
-        // console.log('result', result)
-        if (result.toTextStreamResponse)
+        if (result.toTextStreamResponse) {
             return result.toTextStreamResponse();
-        else {
-            const objectResult = result as unknown as StreamObjectResult<Record<string, CoreTool<any, any>>>
-            return new StreamingTextResponse(objectResult.fullStream)
+        } else {
+           throw new Error('Invalid response')
         }
     } catch (error) {
         console.log('error', error)

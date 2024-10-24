@@ -51,7 +51,7 @@ const tableSpecs = (pathname: string) => {
 
         Ranking: {
             columns: [
-                { header: 'Coleção de Testes', accessorKey: 'testset_name', enableSorting: true, cell: data => <a href={`${pathname}/../testsets/${data.row.original.testset_id}`}>{data.row.original.testset_name}</a> },
+                { header: 'Coleção de Testes', accessorKey: 'testset_name', enableSorting: true, cell: data => <a href={`${pathname}/../testsets/${data.row.original.testset_slug}/${data.row.original.testset_id}/edit`}>{data.row.original.testset_name}</a> },
                 { header: 'Prompt', accessorKey: 'prompt_name', enableSorting: true, cell: data => <a href={`${pathname}/../prompts/${data.row.original.prompt_slug}/${data.row.original.prompt_id}/edit`}>{data.row.original.prompt_name}</a> },
                 { header: 'Modelo', accessorKey: 'model_name', enableSorting: true },
                 { header: 'Nota %', accessorKey: 'score', enableSorting: true, style: { textAlign: "right" }, cell: data => <a href={`${pathname}/../test/${data.row.original.testset_id}/${data.row.original.prompt_id}/${data.row.original.model_id}`}>{(data.row.original.score).toFixed(1)}</a> },

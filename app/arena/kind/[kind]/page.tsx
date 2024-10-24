@@ -14,11 +14,8 @@ export default async function Home({ params }: { params: { kind: string } }) {
     noStore()
     const heads = headers()
     const pathname = heads.get('next-url')
-    console.log('pathname', pathname)
     const kind = params.kind
-    console.log('kind', kind)
     const prompts = await Dao.retrievePromptsByKind(null, kind)
-    console.log('prompts', prompts)
     const testsets = await Dao.retrieveTestsetsByKind(null, kind)
 
     return (<Container className="mt-5" fluid={false}>

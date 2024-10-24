@@ -72,6 +72,7 @@ export async function buildMessages(prompt: string, data: any, options?: PromptO
 }
 
 export function getFormatter(prompt: string, options?: PromptOptions): ((s: string) => string) | undefined {
+    if (!prompt) return undefined
     const buildPrompt = getBuildPrompt(prompt)
     const builtPrompt = buildPrompt({ textos: [] })
     const formatter = builtPrompt.params?.format

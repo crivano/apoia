@@ -51,7 +51,7 @@ export function getModel(params?: { structuredOutputs: boolean, overrideModel?: 
     }
     if (getEnvKeyByModel(model) === 'OPENAI_API_KEY') {
         const openai = createOpenAI({ apiKey: apiKey })
-        return { model, modelRef: openai(model, { structuredOutputs: params?.structuredOutputs }) }
+       return { model, modelRef: openai(model, { structuredOutputs: params?.structuredOutputs }) }
     }
     if (getEnvKeyByModel(model) === 'GOOGLE_API_KEY') {
         const google = createGoogleGenerativeAI({ apiKey: apiKey })

@@ -15,6 +15,8 @@ import { IATestset } from '@/lib/mysql-types'
 import { useEffect } from 'react'
 import { getTestsetById } from '../testsets/testset-actions'
 import { slugify } from '@/lib/utils'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faAdd, faRemove } from '@fortawesome/free-solid-svg-icons'
 
 // const EditorComp = dynamic(() => import('@/components/EditorComponent'), { ssr: false })
 
@@ -38,7 +40,6 @@ export default function PromptForm(props) {
             return
         }
         if (data.testset_id === testset?.id) return
-        console.log('loading testset', data.testset_id)
         setTestset(await getTestsetById(data.testset_id))
     }
 
@@ -53,14 +54,12 @@ export default function PromptForm(props) {
 
 
     if (formState?.message === 'success') {
-        console.log('sucesso')
         handleBack()
     }
 
     const [pending, setPending] = useState(false)
 
     function handleBack() {
-        console.log('back', props)
         if (data.name && data.id)
             router.push(`/arena/kind/${data.kind}/prompts/${slugify(data.name)}`)
         else
@@ -89,7 +88,6 @@ export default function PromptForm(props) {
     }
 
     useEffect(() => {
-        console.log('load tests')
         loadTests()
     }, [data.testset_id])
 
@@ -110,9 +108,19 @@ export default function PromptForm(props) {
                 </Nav>
                 {tab === 'fields'
                     ? (<>
-                        <Frm.TextArea label="JSON Schema (opcional)" name="content.json_schema" maxRows={5} />
-                        <Frm.TextArea label="Format (opcional)" name="content.format" maxRows={5} />
-                        <Frm.TextArea label="Prompt de Sistema (opcional)" name="content.system_prompt" maxRows={5} />
+                        <div className="row">
+                            {data.content.json_schema !== undefined && <Frm.TextArea label="JSON Schema (opcional)" name="content.json_schema" maxRows={5} width={""} />}
+                            {data.content.json_schema !== undefined && <Frm.Button variant="light" onClick={() => { data.content.json_schema = undefined; setData({ ...data }) }}><FontAwesomeIcon icon={faRemove} /> Schema</Frm.Button>}
+                        </div>
+                        <div className="row">
+                            {data.content.format !== undefined && <Frm.TextArea label="Format (opcional)" name="content.format" maxRows={5} width={""} />}
+                            {data.content.format !== undefined && <Frm.Button variant="light" onClick={() => { data.content.format = undefined; setData({ ...data }) }}><FontAwesomeIcon icon={faRemove} /> Format</Frm.Button>}
+                        </div>
+                        <div className="row">
+                            <Frm.TextArea label="Prompt de Sistema (opcional)" name="content.system_prompt" maxRows={5} width={""} />
+                            {data.content.json_schema === undefined && <Frm.Button variant="light" onClick={() => { data.content.json_schema = ''; setData({ ...data }) }}><FontAwesomeIcon icon={faAdd} /> Schema</Frm.Button>}
+                            {data.content.format === undefined && <Frm.Button variant="light" onClick={() => { data.content.format = ''; setData({ ...data }) }}><FontAwesomeIcon icon={faAdd} /> Format</Frm.Button>}
+                        </div>
                         <Frm.TextArea label="Prompt" name="content.prompt" maxRows={20} />
                     </>)
                     : (<TextareaAutosize className="form-control" value={yaml} onChange={(e) => handleYamlChanged(e.target.value)} />)}

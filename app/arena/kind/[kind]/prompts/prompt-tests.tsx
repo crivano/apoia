@@ -38,7 +38,6 @@ export default function PromptTests(props) {
             return
         }
         if (data.testset_id === testset?.id) return
-        console.log('loading testset', data.testset_id)
         setTestset(await getTestsetById(data.testset_id))
     }
 
@@ -53,14 +52,12 @@ export default function PromptTests(props) {
 
 
     if (formState?.message === 'success') {
-        console.log('sucesso')
         handleBack()
     }
 
     const [pending, setPending] = useState(false)
 
     function handleBack() {
-        console.log('back', props)
         if (data.name && data.id)
             router.push(`/arena/kind/${data.kind}/prompts/${slugify(data.name)}`)
         else
@@ -89,7 +86,6 @@ export default function PromptTests(props) {
     }
 
     useEffect(() => {
-        console.log('load tests')
         loadTests()
     }, [data.testset_id])
 

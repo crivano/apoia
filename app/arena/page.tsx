@@ -22,8 +22,6 @@ export default async function Home() {
         })
     records.sort((a, b) => a.kind.localeCompare(b.kind))
 
-    console.log('promptKinds', promptKinds)
-
     return (<Container className="mt-5" fluid={false}>
         <h1 className="mb-0">Tipos de Prompts</h1>
         <Suspense fallback={< TablePlaceholder />} >

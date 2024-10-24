@@ -40,11 +40,14 @@ const execute = async (testsetId: number, promptId: number, modelId: number, con
   if (!testset) throw new Error('Testset not found')
   const testsetModel = await Dao.retrieveModelById(null, testset.model_id)
   if (!testsetModel) throw new Error('Testset model not found')
-    const prompt = await Dao.retrievePromptById(null, promptId)
+  const prompt = await Dao.retrievePromptById(null, promptId)
   const model = await Dao.retrieveModelById(null, modelId)
 
   if (!testset || !prompt || !model)
     throw new Error('Testset, Prompt or Model not found')
+
+  if (prompt.content.format)
+    controller.enqueue(`,"promptFormat": "${encodeJsonString(prompt.content.format)}"`)
 
   let testCount = testset.content.tests.length
   let stepMax = testCount * 2 * ATTEMPTS + 1

@@ -6,8 +6,11 @@ import { faComment } from "@fortawesome/free-regular-svg-icons";
 import { faBrain, faCheck, faX } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { OverlayTrigger, Popover } from "react-bootstrap";
+import { format } from "@/lib/format";
+import { preprocess, VisualizationEnum } from "@/lib/preprocess";
+import { InfoDeProduto } from "@/lib/combinacoes";
 
-export function TestTable({ testset, test }: { testset: IATestset, test: IATest }) {
+export function TestTable({ testset, test, promptFormat }: { testset: IATestset, test: IATest, promptFormat: string | null }) {
     return <table className="table table-sm table-striped">
         <thead>
             <tr><th>Teste</th>{Array.from({ length: ATTEMPTS }).map((_, idx) => (<th key={`th-${idx}`}>{idx + 1}</th>))}<th style={{ textAlign: 'right' }}>%</th></tr>
@@ -20,14 +23,18 @@ export function TestTable({ testset, test }: { testset: IATestset, test: IATest 
                         (idx < test.content.tests[idxTest].attempts.length && test.content.tests[idxTest].attempts[idx].result)
                             ?
                             <OverlayTrigger
-                                trigger={["hover", "click"]}
+                                trigger="click"
                                 placement="left"
                                 overlay={
                                     <Popover id={`popover-${idxTest}-${idx}-result`}>
                                         <Popover.Header as="h3">Resultado do Prompt</Popover.Header>
-                                        <Popover.Body>
-                                            {test.content.tests[idxTest].attempts[idx].result}
-                                        </Popover.Body>
+                                        <Popover.Body dangerouslySetInnerHTML={{
+                                            __html: preprocess(
+                                                test.content.tests[idxTest].attempts[idx].result,
+                                                {} as InfoDeProduto,
+                                                testset.content.tests[idxTest].texts?.map(t => ({ descr: t.name, slug: t.name, texto: t.value })),
+                                                true, VisualizationEnum.DIFF, promptFormat || undefined)
+                                        }} />
                                     </Popover>
                                 }>
                                 <FontAwesomeIcon icon={faComment} className="text-primary" />
@@ -42,7 +49,7 @@ export function TestTable({ testset, test }: { testset: IATestset, test: IATest 
                         {Array.from({ length: ATTEMPTS }).map((_, idx) => (<td key={`td-question-${idxTest}-${idxQuestion}-${idx}`}>{
                             (idx < test.content.tests[idxTest].attempts.length && idxQuestion < test.content.tests[idxTest].attempts[idx].answers.length)
                                 ? <OverlayTrigger
-                                trigger={["hover", "focus"]}
+                                    trigger="click"
                                     placement="left"
                                     overlay={
                                         <Popover id={`popover-${idxTest}-${idx}-result`}>

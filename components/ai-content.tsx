@@ -66,8 +66,6 @@ export default function AiContent(params: { infoDeProduto: InfoDeProduto, textos
             delete payload[key]
             }
         })
-        console.log('payload', JSON.stringify(payload))
-        
         const response = await fetch('/api/ai', {
             method: 'POST',
             body: JSON.stringify(payload)
