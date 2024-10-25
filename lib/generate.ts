@@ -1,13 +1,14 @@
 'use server'
 
-import { generateText, CoreTool, streamText, StreamTextResult, LanguageModel, streamObject, StreamObjectResult } from 'ai'
+import { generateText, CoreTool, streamText, StreamTextResult, LanguageModel, streamObject, StreamObjectResult, DeepPartial } from 'ai'
 import { IAGenerated } from './mysql-types'
 import { Dao } from './mysql'
 import { SHA256 } from 'crypto-js'
 import { canonicalize } from 'json-canonicalize'
 import { createStreamableValue, StreamableValue } from 'ai/rsc'
 import { assertCurrentUser } from './user'
-import { buildMessages, PromptOptions } from './build-messages'
+import { buildMessages } from './build-messages'
+import { PromptOptions } from '@/lib/prompt-types'
 import { getModel } from './model'
 
 function calcSha256(messages: any): string {
@@ -69,7 +70,7 @@ export async function generateContent(prompt: string, data: any, attempt?: numbe
 
 export async function streamContent(prompt: string, data: any, date: Date, options?: PromptOptions):
 
-    Promise<StreamTextResult<Record<string, CoreTool<any, any>>> | StreamObjectResult<Record<string, CoreTool<any, any>>> | string> {
+    Promise<StreamTextResult<Record<string, CoreTool<any, any>>> | StreamObjectResult<DeepPartial<any>, any, never> | string> {
     // const user = await getCurrentUser()
     // if (!user) return Response.json({ errormsg: 'Unauthorized' }, { status: 401 })
     const buildPrompt = await buildMessages(prompt, data, options)

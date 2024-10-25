@@ -1,14 +1,6 @@
 import { jsonSchema } from 'ai'
-import prompts, { PromptType } from '../prompts/_prompts'
-
-export type PromptOptions = {
-    overrideSystemPrompt?: string
-    overridePrompt?: string
-    overrideJsonSchema?: string
-    overrideFormat?: string
-    overrideModel?: string
-    cacheControl?: boolean | number
-}
+import prompts from '../prompts/_prompts'
+import { PromptOptions, PromptType } from './prompt-types'
 
 function buildCustomPrompt(data: any, options: PromptOptions): PromptType {
     let structuredOutputs: {

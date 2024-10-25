@@ -35,7 +35,11 @@ function PromptConfigForm({ kind, config, onSave }: { kind: string, config: Prom
         console.log('returnConfig', prompts, prompt_slug, model_slug, extra)
         const prompt_name = prompts.find(p => p.id == prompt_slug)?.name
         const model_name = models.find(m => m.id == model_slug)?.name
-        onSave({ prompt_slug, prompt_name, model_slug, model_name, extra: extra ? extra : undefined })
+        onSave({
+            prompt_slug: prompt_slug ? prompt_slug : undefined, prompt_name,
+            model_slug: model_slug ? model_slug : undefined, model_name,
+            extra: extra ? extra : undefined
+        })
     }
 
     Frm.update({ prompt_slug: prompt_slug, model_slug: model_slug, extra }, (d) => { setPromptSlug(d.prompt_slug); setModelSlug(d.model_slug); setExtra(d.extra) }, EMPTY_FORM_STATE)
@@ -44,10 +48,10 @@ function PromptConfigForm({ kind, config, onSave }: { kind: string, config: Prom
         <div className="alert alert-warning pt-0">
             <div className="row">
                 {prompts?.length
-                    ? <Frm.Select label="Prompt" name="prompt_slug" options={[{ id: 0, name: '' }, ...prompts]} width={6} />
+                    ? <Frm.Select label="Prompt" name="prompt_slug" options={[{ id: '', name: 'Padrão' }, ...prompts]} width={6} />
                     : null}
                 {models?.length
-                    ? <Frm.Select label="Modelo de Linguagem" name="model_slug" options={[{ id: 0, name: '' }, ...models]} width={6} />
+                    ? <Frm.Select label="Modelo de Linguagem" name="model_slug" options={[{ id: '', name: 'Padrão' }, ...models]} width={6} />
                     : null}
                 <Frm.TextArea label="Personalização do Prompt" name="extra" width={''} />
                 <Frm.Button onClick={returnConfig} variant="primary"><FontAwesomeIcon icon={faSave} /></Frm.Button>

@@ -1,4 +1,4 @@
-import { PromptData, PromptType } from '../_prompts'
+import { PromptData, PromptType } from '@/lib/prompt-types'
 import promptText from './prompt.txt'
 import systemText from './system-prompt.txt'
 import format from './format'

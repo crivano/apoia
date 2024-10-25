@@ -1,8 +1,7 @@
 import { streamContent } from '../../../lib/generate'
 import { NextResponse } from 'next/server'
 import Fetcher from '../../../lib/fetcher'
-import { CoreTool, StreamingTextResponse, StreamObjectResult } from 'ai'
-import { PromptOptions } from '@/lib/build-messages'
+import { PromptOptions } from '@/lib/prompt-types'
 
 export const maxDuration = 60
 
@@ -28,7 +27,7 @@ export async function POST(request: Request) {
         if (result.toTextStreamResponse) {
             return result.toTextStreamResponse();
         } else {
-           throw new Error('Invalid response')
+            throw new Error('Invalid response')
         }
     } catch (error) {
         console.log('error', error)

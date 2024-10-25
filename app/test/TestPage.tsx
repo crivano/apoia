@@ -7,7 +7,7 @@ import { P } from '@/lib/combinacoes'
 import { Button, Container, Form } from 'react-bootstrap'
 import { TestFileType } from './test'
 import { get } from 'http'
-import { TextoType } from '@/prompts/_prompts'
+import { TextoType } from '@/lib/prompt-types'
 
 const EditorComp = dynamic(() => import('../../components/EditorComponent'), { ssr: false })
 

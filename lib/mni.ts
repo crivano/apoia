@@ -331,7 +331,7 @@ const obterTipoDePecaPelaDescricao = (descr: string) => {
 }
 
 const obterDocumentoGravado = async (dossier_id: number, numeroDoProcesso: string, idDaPeca: string, descrDaPeca: string, username: string, password: string): Promise<IADocument> => {
-    const document_id = await Dao.assertIADocumentId(null, idDaPeca, dossier_id, descrDaPeca)
+    const document_id = await Dao.assertIADocumentId(null, dossier_id, idDaPeca, descrDaPeca)
 
     // verificar se a peça já foi gravada no banco
     const document = await Dao.retrieveDocument(null, document_id)

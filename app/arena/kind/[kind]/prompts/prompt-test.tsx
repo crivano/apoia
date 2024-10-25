@@ -6,7 +6,7 @@ import AiContent from '@/components/ai-content'
 import { InfoDeProduto, P } from '@/lib/combinacoes'
 import { Button, Container, Form } from 'react-bootstrap'
 import { get } from 'http'
-import { TextoType } from '@/prompts/_prompts'
+import { TextoType } from '@/lib/prompt-types'
 import { IATestset } from '@/lib/mysql-types'
 import { slugify } from '@/lib/utils'
 

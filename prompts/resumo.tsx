@@ -1,4 +1,4 @@
-import { PromptType } from './_prompts'
+import { PromptType } from '@/lib/prompt-types'
 import { system, systemMessage } from './_system'
 
 export default (data): PromptType => {

@@ -1,7 +1,5 @@
-import { slugify } from '../../../lib/utils'
 import AiContent from '../../../components/ai-content'
-import Placeholder from 'react-bootstrap/Placeholder'
-import { PromptData } from '../../../prompts/_prompts'
+import { PromptData } from '@/lib/prompt-types'
 import { InfoDeProduto } from '@/lib/combinacoes'
 
 export const Produto = async (params: { infoDeProduto: InfoDeProduto, data: PromptData }) => {

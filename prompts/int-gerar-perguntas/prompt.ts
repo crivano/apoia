@@ -1,4 +1,5 @@
-import { applyTextsAndVariables, PromptData, PromptType } from '../_prompts'
+import { applyTextsAndVariables } from '../_prompts'
+import { PromptData, PromptType } from '@/lib/prompt-types'
 import promptText from './prompt.txt'
 import systemText from './system-prompt.txt'
 

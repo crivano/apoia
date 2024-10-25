@@ -1,7 +1,7 @@
 import showdown from 'showdown'
 import { InfoDeProduto } from './combinacoes'
 import { P } from './combinacoes'
-import { TextoType } from '@/prompts/_prompts'
+import { TextoType } from './prompt-types'
 import { diff, diffAndCollapse as diffAndCompact } from './mddiff'
 import { info } from 'console'
 import { getFormatter } from './build-messages'

@@ -495,7 +495,7 @@ export class Dao {
 
 
     @tran
-    static async assertIADocumentId(conn: any, documentCode: string, dossier_id: number, assigned_category: string | null): Promise<number> {
+    static async assertIADocumentId(conn: any, dossier_id: number, documentCode: string, assigned_category: string | null): Promise<number> {
         // Check or insert document
         let document_id: number | null = null
         if (documentCode) {
@@ -519,7 +519,7 @@ export class Dao {
     static async updateDocumentContent(conn: any, document_id: number, content_source_id: number, content: string) {
         await conn.query('UPDATE ia_document SET content_source_id = ?, content = ? WHERE id = ?', [content_source_id, content, document_id])
     }
-    
+
     @tran
     static async updateDocumentCategory(conn: any, document_id: number, assigned_category: string | null, predicted_category: string | null) {
         await conn.query('UPDATE ia_document SET assigned_category = ?, predicted_category = ? WHERE id = ?', [assigned_category, predicted_category, document_id])

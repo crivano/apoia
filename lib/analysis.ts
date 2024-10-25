@@ -1,4 +1,5 @@
-import prompts, { PromptData } from '@/prompts/_prompts'
+import prompts from '@/prompts/_prompts'
+import { PromptData } from '@/lib/prompt-types'
 import { DadosDoProcessoType, obterDadosDoProcesso, PecaType } from '@/lib/mni'
 import { assertCurrentUser } from '@/lib/user'
 import { T, P, ProdutosValidos, Plugin, ProdutoCompleto, CombinacaoValida, InfoDeProduto, ProdutoValido } from '@/lib/combinacoes'
@@ -22,6 +23,7 @@ type PecaComConteudoType = {
 export type GeneratedContent = {
     id?: number,
     documentCode: string | null, // identificador da peça no Eproc
+    documentDescr: string | null, // descrição da peça no Eproc
     infoDeProduto: InfoDeProduto
     // prompt: string,
     // descr: string
@@ -54,7 +56,7 @@ export async function summarize(dossierNumber: string, pieceNumber: string): Pro
     const data: PromptData = { textos: [{ descr: peca.descr, slug: peca.slug, pTexto: peca.pTexto }] }
     const infoDeProduto: InfoDeProduto = { produto: P.RESUMO_PECA, titulo: peca.descr, dados: [peca.descr as T], prompt, plugins: [] }
     const req: GeneratedContent = {
-        documentCode: peca.id, data, infoDeProduto
+        documentCode: peca.id, documentDescr: peca.descr, data, infoDeProduto
     }
 
     // Retrieve from cache or generate
@@ -83,7 +85,7 @@ export function buildRequests(combinacao: CombinacaoValida, pecasComConteudo: Pe
                 infoDeProduto.titulo = peca.descr
                 infoDeProduto.prompt = prompt
                 const data: PromptData = { textos: [{ descr: peca.descr, slug: peca.slug, pTexto: peca.pTexto }] }
-                requests.push({ documentCode: peca.id, data, infoDeProduto })
+                requests.push({ documentCode: peca.id, documentDescr: peca.descr, data, infoDeProduto })
             }
             continue
         }
@@ -111,7 +113,7 @@ export function buildRequests(combinacao: CombinacaoValida, pecasComConteudo: Pe
 
         const infoDeProduto = { ...produto }
 
-        requests.push({ documentCode: null, data, infoDeProduto })
+        requests.push({ documentCode: null, documentDescr: null, data, infoDeProduto })
     }
     return requests
 }
@@ -182,7 +184,7 @@ async function storeBatchItem(systemId: number, batchName: string, dossierNumber
     const batch_dossier_id = await Dao.assertIABatchDossierId(null, batch_id, dossier_id)
     let seq = 0
     for (const req of requests) {
-        const document_id = req.documentCode ? await Dao.assertIADocumentId(null, req.documentCode, dossier_id) : null
+        const document_id = req.documentCode ? await Dao.assertIADocumentId(null, dossier_id, req.documentCode, req.documentDescr) : null
         await Dao.insertIABatchDossierItem(null, { batch_dossier_id, document_id, generation_id: req.id as number, descr: req.infoDeProduto.titulo, seq })
         seq++
 

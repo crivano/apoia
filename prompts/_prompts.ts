@@ -19,17 +19,7 @@ import { any } from "zod"
 import { CoreMessage } from "ai"
 import { slugify } from "@/lib/utils"
 import int_identificar_tipo_de_documento from './int-identificar-tipo-de-documento.md'
-
-export type TextoType = { descr: string; slug: string; pTexto?: Promise<string>; texto?: string }
-export type PromptData = { textos: TextoType[] }
-export type PromptTypeParams = {
-    structuredOutputs?: { schemaName: string, schemaDescription: string, schema: any },
-    format?: (s: string) => string,
-    cacheControl?: boolean | number
-}
-export type PromptType = {
-    message: CoreMessage[], params?: PromptTypeParams
-}
+import { PromptData, PromptType, PromptTypeParams } from "@/lib/prompt-types"
 
 export const applyTextsAndVariables = (text: string, data: PromptData): string => {
     const allTexts = `${data.textos.reduce((acc, txt) => acc + `${txt.descr}:\n<${txt.slug}>\n${txt.texto}\n</${txt.slug}>\n\n`, '')}`

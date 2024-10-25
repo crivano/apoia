@@ -1,8 +1,9 @@
 import { streamContent } from '@/lib/generate'
 import { NextResponse } from 'next/server'
 import Fetcher from '@/lib/fetcher'
-import { CoreTool, StreamingTextResponse, StreamObjectResult, StreamTextResult } from 'ai'
-import { PromptOptions, removeEmptyKeys } from '@/lib/build-messages'
+import { CoreTool, DeepPartial, StreamingTextResponse, StreamObjectResult, StreamTextResult } from 'ai'
+import { removeEmptyKeys } from '@/lib/build-messages'
+import { PromptOptions } from '@/lib/prompt-types'
 import { ProgressType } from '@/lib/progress'
 import { Dao } from '@/lib/mysql'
 import { slugify } from '@/lib/utils'
@@ -117,7 +118,7 @@ function encodeJsonString(s: string): string {
   return JSON.stringify(s).slice(1, -1)
 }
 
-async function streamString(key: string, stream: StreamTextResult<Record<string, CoreTool<any, any>>> | StreamObjectResult<Record<string, CoreTool<any, any>>> | string, controller) {
+async function streamString(key: string, stream: StreamTextResult<Record<string, CoreTool<any, any>>> | StreamObjectResult<DeepPartial<any>, any, never> | string, controller) {
   controller.enqueue(`,\n"${key}": "`)
   let text: string
   if (typeof stream === 'string') {

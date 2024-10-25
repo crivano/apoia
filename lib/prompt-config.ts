@@ -8,5 +8,5 @@ export async function loadPrompts(kind: string): Promise<SelectableItemWithLates
 }
 
 export async function loadModels(kind: string): Promise<SelectableItem[]> {
-    return (await Dao.retrieveModels(null)).map(model => ({ id: model.id, name: model.name }))
+    return await Dao.retrieveModels(null)
 }
