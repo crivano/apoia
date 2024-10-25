@@ -27,11 +27,12 @@ export default function PromptForm(props) {
     const initialState = props.record || { content: {} }
     if (!initialState.model_id || (props.models && props.models[0] && !props.models.map(i => i.id).includes(initialState.model_id))) initialState.model_id = props.models && props.models[0] ? props.models[0].id : null
     if (!initialState.testset_id || (props.testsets && props.testsets[0] && !props.testsets.map(i => i.id).includes(initialState.testset_id))) initialState.testset_id = props.testsets && props.testsets[0] ? props.testsets[0].id : null
-    const [data, setData] = useState({ ...initialState })
+    const [data, setData] = useState(_.cloneDeep(initialState))
     const [yaml, setYaml] = useState(yamlps.dump(initialState.content))
     const [formState, setFormState] = useState(EMPTY_FORM_STATE)
     const [tab, setTab] = useState('fields')
     Frm.update(data, (d) => { setData(d); updateYaml(d) }, formState)
+    const pristine = _.isEqual(data, { ...initialState })
     const [testset, setTestset] = useState(undefined as IATestset | undefined)
 
     const loadTests = async () => {
@@ -130,11 +131,11 @@ export default function PromptForm(props) {
             </div>
 
             <div className="col col-auto mt-3 mb-3 ms-auto">
-                {_.isEqual(data, initialState) && data.id && (data.is_official
+                {pristine && data.id && data.id && (data.is_official
                     ? <Button variant="secondary" disabled={pending} className="me-3" onClick={handleRemoveOfficial}>Desmarcar como Oficial</Button>
                     : <Button variant="secondary" disabled={pending} className="me-3" onClick={handleSetOfficial}>Marcar como Oficial</Button>
                 )}
-                <Button variant="primary" disabled={pending || _.isEqual(data, initialState)} className="" onClick={handleSave}>Salvar</Button>
+                <Button variant="primary" disabled={pending || pristine} className="" onClick={handleSave}>Salvar</Button>
                 <FormError formState={formState} />
 
                 {/* <Suspense>

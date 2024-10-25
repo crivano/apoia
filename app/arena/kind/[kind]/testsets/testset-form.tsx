@@ -146,7 +146,7 @@ export default function TestsetForm(props) {
                 </Nav>
                 {tab === 'fields'
                     ? data.content.tests.map((item, index) => (<>
-                        <div key={index} className="alert alert-light mt-3">
+                        <div key={index} className="alert alert-secondary mt-3">
                             <h3 className="mb-0">Teste {index + 1} <Button variant="light" onClick={() => removeTest(index)}><FontAwesomeIcon icon={faRemove} /></Button></h3>
                             <div className="row">
                                 <Frm.Input label="Nome" name={`content.tests[${index}].name`} width={""} />

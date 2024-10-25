@@ -1,1 +1,1 @@
-export type PromptConfigType = { prompt_id?: number, prompt_name?: string, model_id?: number, model_name?: string, extra?: string }
+export type PromptConfigType = { prompt_slug?: string, prompt_name?: string, model_slug?: string, model_name?: string, extra?: string }

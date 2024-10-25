@@ -3,7 +3,7 @@
 import { EMPTY_FORM_STATE, FormHelper } from '@/lib/form-support'
 import { useEffect, useState } from 'react'
 import _ from 'lodash'
-import { IAModel, IAPrompt, IARankingType, IATestset, SelectableItem, SelectableItemWithLatestAndOfficial } from '@/lib/mysql-types'
+import { filterOnlyOfficial, IAModel, IAPrompt, IARankingType, IATestset, SelectableItem, SelectableItemWithLatestAndOfficial } from '@/lib/mysql-types'
 import { loadModels, loadPrompts } from '@/lib/prompt-config'
 import { PromptConfigType } from '@/lib/prompt-types'
 import { updateWithLatestAndOfficial } from '@/lib/mysql-types'
@@ -18,34 +18,40 @@ const Frm = new FormHelper()
 function PromptConfigForm({ kind, config, onSave }: { kind: string, config: PromptConfigType, onSave: (config: PromptConfigType) => void }) {
     const [prompts, setPrompts] = useState([] as SelectableItem[])
     const [models, setModels] = useState([] as SelectableItem[])
-    const [prompt_id, setPromptId] = useState(config.prompt_id ? config.prompt_id.toString() : undefined)
-    const [model_id, setModelId] = useState(config.model_id ? config.model_id.toString() : undefined)
+    const [prompt_slug, setPromptSlug] = useState(config.prompt_slug ? config.prompt_slug.toString() : undefined)
+    const [model_slug, setModelSlug] = useState(config.model_slug ? config.model_slug.toString() : undefined)
     const [extra, setExtra] = useState(config.extra)
 
     useEffect(() => {
         const asyncSetData = async () => {
-            const promptRecords = await loadPrompts(kind, config.prompt_id)
-            setPrompts(updateWithLatestAndOfficial(promptRecords) as SelectableItemWithLatestAndOfficial[])
-            const modelRecords = await loadModels(kind, config.model_id)
-            setModels(modelRecords as SelectableItemWithLatestAndOfficial[])
+            const promptRecords = await loadPrompts(kind)
+            if (promptRecords?.length)
+                setPrompts(promptRecords.filter(i => i.is_official).map(i => ({ id: i.slug, name: i.name })))
+            const modelRecords = (await loadModels(kind))
+            if (modelRecords?.length)
+                setModels(modelRecords.map(i => ({ id: i.name, name: i.name })))
         }
         asyncSetData()
     }, [kind])
 
     const returnConfig = () => {
-        console.log('returnConfig', prompts, prompt_id, model_id, extra)
-        const prompt_name = prompts.find(p => p.id == prompt_id)?.name
-        const model_name = models.find(m => m.id == model_id)?.name
-        onSave({ prompt_id: prompt_id ? parseInt(prompt_id) : undefined, prompt_name, model_id: model_id ? parseInt(model_id) : undefined, model_name, extra })
+        console.log('returnConfig', prompts, prompt_slug, model_slug, extra)
+        const prompt_name = prompts.find(p => p.id == prompt_slug)?.name
+        const model_name = models.find(m => m.id == model_slug)?.name
+        onSave({ prompt_slug, prompt_name, model_slug, model_name, extra: extra ? extra : undefined })
     }
 
-    Frm.update({ prompt_id, model_id, extra }, (d) => { setPromptId(d.prompt_id); setModelId(d.model_id); setExtra(d.extra) }, EMPTY_FORM_STATE)
+    Frm.update({ prompt_slug: prompt_slug, model_slug: model_slug, extra }, (d) => { setPromptSlug(d.prompt_slug); setModelSlug(d.model_slug); setExtra(d.extra) }, EMPTY_FORM_STATE)
 
     return <div className="mb-5">
-        <div className="alert alert-info pt-0">
+        <div className="alert alert-warning pt-0">
             <div className="row">
-                <Frm.Select label="Prompt" name="prompt_id" options={[{ id: 0, name: '' }, ...prompts]} width={6} />
-                <Frm.Select label="Modelo de Linguagem" name="model_id" options={[{ id: 0, name: '' }, ...models]} width={6} />
+                {prompts?.length
+                    ? <Frm.Select label="Prompt" name="prompt_slug" options={[{ id: 0, name: '' }, ...prompts]} width={6} />
+                    : null}
+                {models?.length
+                    ? <Frm.Select label="Modelo de Linguagem" name="model_slug" options={[{ id: 0, name: '' }, ...models]} width={6} />
+                    : null}
                 <Frm.TextArea label="Personalização do Prompt" name="extra" width={''} />
                 <Frm.Button onClick={returnConfig} variant="primary"><FontAwesomeIcon icon={faSave} /></Frm.Button>
             </div>
@@ -53,17 +59,28 @@ function PromptConfigForm({ kind, config, onSave }: { kind: string, config: Prom
     </div >
 }
 
-export default function PromptConfig({ kind, config }: { kind: string, config: PromptConfigType }) {
+export default function PromptConfig({ kind, setPromptConfig }: { kind: string, setPromptConfig: (config: PromptConfigType) => void }) {
     const [editing, setEditing] = useState(false)
-    const [current, setCurrent] = useState(config)
+    const [current, setCurrent] = useState({} as PromptConfigType)
+
+    useEffect(() => {
+        const stored = localStorage.getItem(`prompt-config-${kind}`)
+        if (stored) {
+            const storedConfig = JSON.parse(stored)
+            setCurrent(storedConfig)
+            setPromptConfig(storedConfig)
+        }
+    }, [])
 
     const onSave = (newConfig: PromptConfigType) => {
         console.log('onSave', newConfig)
         setCurrent(newConfig)
+        localStorage.setItem(`prompt-config-${kind}`, JSON.stringify(newConfig))
+        setPromptConfig(newConfig)
         setEditing(false)
     }
 
     if (!editing)
-        return <p className="text-muted">Prompt: {current.prompt_name || 'Padrão'}, modelo de linguagem: {current.model_name || 'Padrão'}{current.extra && `, Personalização do Prompt: ${current.extra}`} - <FontAwesomeIcon onClick={() => { setEditing(true) }} icon={faEdit} /></p>
+        return <p className="text-muted">Prompt: {current.prompt_name || 'Padrão'}{current.model_name && `, modelo de linguagem: ${current.model_name}`}{current.extra && `, Personalização do Prompt: ${current.extra}`} - <FontAwesomeIcon onClick={() => { setEditing(true) }} icon={faEdit} /></p>
     return <PromptConfigForm kind={kind} config={current} onSave={onSave} />
 }
