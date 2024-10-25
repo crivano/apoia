@@ -211,9 +211,5 @@ export function updateWithLatestAndOfficial(l) {
     return l.map(i => ({ id: i.id, name: i.name + (i.is_official ? ' (oficial)' : i.is_last ? ' (último)' : '') }))
 }
 
-export function filterOnlyOfficial(l: SelectableItemWithLatestAndOfficial[]): SelectableItemWithLatestAndOfficial[] {
-    return l.filter(i => i.is_official)
-}
-
 export type SelectableItemWithLatestAndOfficial = { id: string, name: string, slug: string, created_at: Date, is_last: boolean, is_official: boolean }
 export type SelectableItem = { id: string, name: string }
