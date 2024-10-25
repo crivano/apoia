@@ -8,7 +8,7 @@ Você receberá um **Texto de Referência** e deverá seguir os passos abaixo:
 
    - Leia cuidadosamente o texto fornecido abaixo para entender todos os tópicos e ideias principais.
 
-{{textos.esperado}}
+{{textos}}
 
 2. **Identificação de Tópicos**:
 

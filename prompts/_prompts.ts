@@ -1,25 +1,22 @@
-import int_testar from "./int-testar/prompt"
-import int_gerar_perguntas from "./int-gerar-perguntas/prompt"
-import resumo_peca from "./resumo-peca"
-import resumo_peticao_inicial from "./resumo-peticao-inicial"
-import resumo_contestacao from "./resumo-contestacao"
-import resumo_informacao_em_mandado_de_seguranca from "./resumo-informacao-em-mandado-de-seguranca"
-import resumo_sentenca from "./resumo-sentenca"
-import resumo_recurso_inominado from "./resumo-recurso-inominado"
-import analise from "./analise"
-import analise_tr from "./analise-tr"
-import resumo from "./resumo"
-import triagem from "./triagem"
-import acordao from "./acordao-cnj/prompt"
-// import ementa from "./acordao-cnj/prompt"
-import revisao from "./revisao"
-import refinamento from "./refinamento"
-import sentenca from "./sentenca/prompt"
-import { any } from "zod"
+import ementa from './ementa.md'
+import int_testar from "./int-testar.md"
+import int_gerar_perguntas from "./int-gerar-perguntas.md"
+import resumo_peca from "./resumo-peca.md"
+import resumo_peticao_inicial from "./resumo-peticao-inicial.md"
+import resumo_contestacao from "./resumo-contestacao.md"
+import resumo_informacao_em_mandado_de_seguranca from "./resumo-informacao-em-mandado-de-seguranca.md"
+import resumo_sentenca from "./resumo-sentenca.md"
+import resumo_recurso_inominado from "./resumo-recurso-inominado.md"
+import analise from "./analise.md"
+import analise_tr from "./analise-tr.md"
+import resumo from "./resumo.md"
+import revisao from "./revisao.md"
+import refinamento from "./refinamento.md"
+import sentenca from "./sentenca.md"
+import int_identificar_tipo_de_documento from './int-identificar-tipo-de-documento.md'
+
 import { CoreMessage, jsonSchema } from "ai"
 import { slugify } from "@/lib/utils"
-import int_identificar_tipo_de_documento from './int-identificar-tipo-de-documento.md'
-import ementa from './ementa.md'
 import { PromptData, PromptType, PromptTypeParams } from "@/lib/prompt-types"
 import { buildFormatter } from "@/lib/format"
 
@@ -50,8 +47,6 @@ export const promptDefinitionFromMarkdown = (md: string): (data: PromptData) => 
         return acc;
     }, {} as { prompt: string, system_prompt?: string, json_schema?: string, format?: string })
 
-    console.log('parts', parts)
-
     const { prompt, system_prompt, json_schema, format } = parts
 
     const promptBuilder = (data: PromptData): PromptType => {
@@ -73,26 +68,23 @@ export const promptDefinitionFromMarkdown = (md: string): (data: PromptData) => 
     return promptBuilder
 }
 
-
-
 // Enum for the different types of prompts
 export default {
-    int_testar,
-    int_gerar_perguntas,
-    int_identificar_tipo_de_documento: promptDefinitionFromMarkdown(int_identificar_tipo_de_documento),
-    resumo_peca,
-    resumo_peticao_inicial,
-    resumo_contestacao,
-    resumo_informacao_em_mandado_de_seguranca,
-    resumo_sentenca,
-    resumo_recurso_inominado,
-    analise,
-    analise_tr,
-    resumo,
-    triagem,
-    acordao,
-    revisao,
-    refinamento,
-    sentenca,
     ementa: promptDefinitionFromMarkdown(ementa),
+    int_testar: promptDefinitionFromMarkdown(int_testar),
+    int_gerar_perguntas: promptDefinitionFromMarkdown(int_gerar_perguntas),
+    resumo_peca: promptDefinitionFromMarkdown(resumo_peca),
+    resumo_peticao_inicial: promptDefinitionFromMarkdown(resumo_peticao_inicial),
+    resumo_contestacao: promptDefinitionFromMarkdown(resumo_contestacao),
+    resumo_informacao_em_mandado_de_seguranca: promptDefinitionFromMarkdown(resumo_informacao_em_mandado_de_seguranca),
+    resumo_sentenca: promptDefinitionFromMarkdown(resumo_sentenca),
+    resumo_recurso_inominado: promptDefinitionFromMarkdown(resumo_recurso_inominado),
+    analise: promptDefinitionFromMarkdown(analise),
+    analise_tr: promptDefinitionFromMarkdown(analise_tr),
+    resumo: promptDefinitionFromMarkdown(resumo),
+    revisao: promptDefinitionFromMarkdown(revisao),
+    refinamento: promptDefinitionFromMarkdown(refinamento),
+    sentenca: promptDefinitionFromMarkdown(sentenca),
+    int_identificar_tipo_de_documento: promptDefinitionFromMarkdown(int_identificar_tipo_de_documento),
+
 }

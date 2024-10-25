@@ -1,3 +1,5 @@
+# PROMPT
+
 # Tarefa principal
 
 Leia cuidadosamente os textos abaixo e produza a sentença.
