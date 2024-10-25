@@ -11,15 +11,17 @@ import analise_tr from "./analise-tr"
 import resumo from "./resumo"
 import triagem from "./triagem"
 import acordao from "./acordao-cnj/prompt"
-import ementa from "./acordao-cnj/prompt"
+// import ementa from "./acordao-cnj/prompt"
 import revisao from "./revisao"
 import refinamento from "./refinamento"
 import sentenca from "./sentenca/prompt"
 import { any } from "zod"
-import { CoreMessage } from "ai"
+import { CoreMessage, jsonSchema } from "ai"
 import { slugify } from "@/lib/utils"
 import int_identificar_tipo_de_documento from './int-identificar-tipo-de-documento.md'
+import ementa from './ementa.md'
 import { PromptData, PromptType, PromptTypeParams } from "@/lib/prompt-types"
+import { buildFormatter } from "@/lib/format"
 
 export const applyTextsAndVariables = (text: string, data: PromptData): string => {
     const allTexts = `${data.textos.reduce((acc, txt) => acc + `${txt.descr}:\n<${txt.slug}>\n${txt.texto}\n</${txt.slug}>\n\n`, '')}`
@@ -47,6 +49,9 @@ export const promptDefinitionFromMarkdown = (md: string): (data: PromptData) => 
         }
         return acc;
     }, {} as { prompt: string, system_prompt?: string, json_schema?: string, format?: string })
+
+    console.log('parts', parts)
+
     const { prompt, system_prompt, json_schema, format } = parts
 
     const promptBuilder = (data: PromptData): PromptType => {
@@ -59,9 +64,9 @@ export const promptDefinitionFromMarkdown = (md: string): (data: PromptData) => 
 
         const params: PromptTypeParams = {}
         if (json_schema)
-            params.structuredOutputs = { schemaName: 'structuredOutputs', schemaDescription: 'Structured Outputs', schema: JSON.parse(json_schema) }
+            params.structuredOutputs = { schemaName: 'structuredOutputs', schemaDescription: 'Structured Outputs', schema: jsonSchema(JSON.parse(json_schema)) }
         if (format)
-            params.format = (s: string) => s.replace('{{textos}}', `${data.textos.reduce((acc, txt) => acc + `${txt.descr}:\n<${txt.slug}>\n${txt.texto}\n</${txt.slug}>\n\n`, '')}`)
+            params.format = buildFormatter(format)
         return { message, params }
     }
 
@@ -89,5 +94,5 @@ export default {
     revisao,
     refinamento,
     sentenca,
-    ementa
+    ementa: promptDefinitionFromMarkdown(ementa),
 }

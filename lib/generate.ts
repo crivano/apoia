@@ -73,6 +73,7 @@ export async function streamContent(prompt: string, data: any, date: Date, optio
     Promise<StreamTextResult<Record<string, CoreTool<any, any>>> | StreamObjectResult<DeepPartial<any>, any, never> | string> {
     // const user = await getCurrentUser()
     // if (!user) return Response.json({ errormsg: 'Unauthorized' }, { status: 401 })
+    console.log('will build prompt', prompt, data, options)
     const buildPrompt = await buildMessages(prompt, data, options)
     const { model, modelRef } = getModel({ structuredOutputs: !!buildPrompt.params?.structuredOutputs, overrideModel: options?.overrideModel })
     const messages = buildPrompt.message
