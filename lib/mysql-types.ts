@@ -206,3 +206,10 @@ export type IAModel = {
     name: string
     created_at: Date
 }
+
+export function updateWithLatestAndOfficial(l) {
+    return l.map(i => ({ id: i.id, name: i.name + (i.is_last ? ' (último)' : i.is_last ? ' (último)' : '') }))
+}
+
+export type SelectableItemWithLatestAndOfficial = { id: string, name: string, slug: string, created_at: Date, is_last: boolean, is_official: boolean }
+export type SelectableItem = { id: string, name: string }

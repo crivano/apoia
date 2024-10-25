@@ -229,7 +229,7 @@ export class Dao {
     }
 
     @con
-    static async retrievePromptsIdsAndNamesByKind(conn: any, kind: string): Promise<{ id: string, name: string, slug: string, created_at: Date, is_last: boolean, is_official: boolean }[]> {
+    static async retrievePromptsIdsAndNamesByKind(conn: any, kind: string): Promise<mysqlTypes.SelectableItemWithLatestAndOfficial[]> {
         const [result] = await conn.query(`
             SELECT t.id, t.name, t.slug, t.created_at, t.is_official
             FROM ia_prompt t

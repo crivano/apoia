@@ -5,6 +5,7 @@ import { Suspense, useState } from 'react'
 import AiContent from '../../components/ai-content'
 import { P } from '@/lib/combinacoes'
 import { Button, Container } from 'react-bootstrap'
+import PromptConfig from '@/components/prompt-config'
 
 const EditorComp = dynamic(() => import('../../components/EditorComponent'), { ssr: false })
 
@@ -25,7 +26,8 @@ export default function Revison() {
 
     return (
         <div className="mb-3">
-            <h2 className="mt-3">Parâmetros</h2>
+            <h2 className="mt-3">Geração de Ementa</h2>
+            <PromptConfig kind="ementa" config={{ prompt_id: 0, model_id: 0 }} prompts={[]} models={[]} />
             <div className="row mb-3 mt-3">
                 <div className="col">
                     <div className="form-group">
