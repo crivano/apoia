@@ -81,7 +81,16 @@ export default function PromptConfig({ kind, setPromptConfig }: { kind: string, 
         setEditing(false)
     }
 
-    if (!editing)
-        return <p className="text-muted">Prompt: {current.prompt_name || 'Padrão'}{current.model_name && `, modelo de linguagem: ${current.model_name}`}{current.extra && `, Personalização do Prompt: ${current.extra}`} - <FontAwesomeIcon onClick={() => { setEditing(true) }} icon={faEdit} /></p>
+    if (!editing) {
+        const a: string[] = []
+        if (current.prompt_name)
+            a.push(`Prompt: ${current.model_name}`)
+        if (current.model_name)
+            a.push(`Modelo de linguagem: ${current.model_name}`)
+        if (current.extra)
+            a.push(`Personalização do Prompt: ${current.extra}`)
+        const s = a.join(', ') || 'Prompt'
+        return <p className="text-muted">{s} - <FontAwesomeIcon onClick={() => { setEditing(true) }} icon={faEdit} /></p>
+    }
     return <PromptConfigForm kind={kind} config={current} onSave={onSave} />
 }
