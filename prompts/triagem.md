@@ -1,12 +1,16 @@
-import { PromptType } from '@/lib/prompt-types'
-import { system } from './_system'
+# SYSTEM PROMPT
 
-export default (data): PromptType => {
-    const prompt = `
+Escreva de modo CONCISO, mas completo e abrangente, sem redundância
+Seja econômico, usando apenas expressões necessárias para a clareza
+Escreve na resposta somente o JSON e nada mais. Começe com o símbolo "{".
+
+
+# PROMPT
+
 Você foi designado para organizar uma triagem de processos judiciais.
 Leia atentamente o JSON abaixo. Ele contém uma lista de códigos de assunto, descrições e quantidade de processos:
 
-${data.textos.reduce((acc, txt) => acc + txt.texto, '')}
+{{textos}}
 
 DESCRIÇÃO DA TAREFA:
 Por favor, gere um JSON, conforme o modelo abaixo. 
@@ -25,16 +29,5 @@ Por favor, gere um JSON, conforme o modelo abaixo.
     },
     "agrupamentos": {
         [Nome do Agrupamento]: [[códigos dos assuntos que pertencem a este agrupamento]] 
-    },
-}
-`
-    return {
-        message: [
-            {
-                role: 'system', content: `
-            Escreva de modo CONCISO, mas completo e abrangente, sem redundância
-            Seja econômico, usando apenas expressões necessárias para a clareza
-            Escreve na resposta somente o JSON e nada mais. Começe com o símbolo "{"` },
-            { role: 'user', content: prompt }]
     }
 }

@@ -1,4 +1,4 @@
-import _prompts from "@/prompts/_prompts"
+import _prompts from "@/lib/prompts"
 import { maiusculasEMinusculas, slugify } from "./utils"
 
 // Enum com os tipos de peças

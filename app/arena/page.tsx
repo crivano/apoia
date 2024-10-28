@@ -7,7 +7,7 @@ import { formatDate, maiusculasEMinusculas } from '@/lib/utils'
 import TablePlaceholder from '../../components/table-placeholder'
 import TableRecords from '../../components/table-records'
 import { Container } from 'react-bootstrap'
-import prompts from '@/prompts/_prompts'
+import prompts from '@/lib/prompts'
 
 export default async function Home() {
     noStore()

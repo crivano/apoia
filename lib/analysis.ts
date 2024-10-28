@@ -1,4 +1,4 @@
-import prompts from '@/prompts/_prompts'
+import prompts from '@/lib/prompts'
 import { PromptData } from '@/lib/prompt-types'
 import { DadosDoProcessoType, obterDadosDoProcesso, PecaType } from '@/lib/mni'
 import { assertCurrentUser } from '@/lib/user'

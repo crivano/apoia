@@ -1,5 +1,5 @@
 import { jsonSchema } from 'ai'
-import prompts from '../prompts/_prompts'
+import prompts from './prompts'
 import { PromptOptions, PromptType } from './prompt-types'
 
 function buildCustomPrompt(data: any, options: PromptOptions): PromptType {
