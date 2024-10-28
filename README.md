@@ -32,6 +32,8 @@ A ApoIA requer que diversas variáveis de ambiente sejam informadas. No ambiente
 
 Primeiro, indique quais são os sistemas aos quais deseja conectar a ApoIA, depois, para cada sistema, informe o endereço do WSDL e do Endpoint do MNI:
 
+**Observação**: caso haja a necessidade de utilizar senhas criptografadas ao enviar as requisições, devemos adicionar a variavél de anbiente `<SYSTEM>_HASH_PASSWORD`
+
 ```properties
 SYSTEMS=TRF2,JFRJ,JFES
 TRF2_MNI_WSDL_URL="https://epr.trf2.jus.br/eproc/wsdl.php?srv=intercomunicacao2.2"
@@ -40,6 +42,7 @@ JFRJ_MNI_WSDL_URL="https://epr.jfrj.jus.br/eproc/wsdl.php?srv=intercomunicacao2.
 JFRJ_MNI_ENDPOINT_URL="https://epr.jfrj.jus.br/eproc/ws/controlador_ws.php?srv=intercomunicacao2.2"
 JFES_MNI_WSDL_URL="https://epr.jfes.jus.br/eproc/wsdl.php?srv=intercomunicacao2.2"
 JFES_MNI_ENDPOINT_URL="https://epr.jfes.jus.br/eproc/ws/controlador_ws.php?srv=intercomunicacao2.2"
+JFES_HAS_PASSWORD=true
 ```
 
 Informe o identificador do modelo de inteligência artificial que deseja utilizar. Outros possíveis seriam: `gpt-4o`, `claude-3-5-sonnet` ou qualquer outro suportado pelo framework Vercel AI.
