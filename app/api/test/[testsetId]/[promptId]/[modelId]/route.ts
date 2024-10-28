@@ -1,14 +1,13 @@
-import { streamContent } from '@/lib/generate'
+import { streamContent } from '@/lib/ai/generate'
 import { NextResponse } from 'next/server'
-import Fetcher from '@/lib/fetcher'
 import { CoreTool, DeepPartial, StreamingTextResponse, StreamObjectResult, StreamTextResult } from 'ai'
-import { removeEmptyKeys } from '@/lib/build-messages'
-import { PromptOptions } from '@/lib/prompt-types'
+import { removeEmptyKeys } from '@/lib/ai/build-messages'
+import { PromptOptions } from '@/lib/ai/prompt-types'
 import { ProgressType } from '@/lib/progress'
-import { Dao } from '@/lib/mysql'
-import { slugify } from '@/lib/utils'
-import { ATTEMPTS, buildTest, preprocessQuestion } from '../../../../../../lib/test-config'
-import { IATest } from '@/lib/mysql-types'
+import { Dao } from '@/lib/db/mysql'
+import { slugify } from '@/lib/utils/utils'
+import { ATTEMPTS, buildTest, preprocessQuestion } from '../../../../../../lib/ai/test/test-config'
+import { IATest } from '@/lib/db/mysql-types'
 
 export const maxDuration = 60
 

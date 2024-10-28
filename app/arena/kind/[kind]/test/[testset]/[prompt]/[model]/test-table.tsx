@@ -1,14 +1,14 @@
 'use client'
 
-import { ATTEMPTS, score, scorePerAttempt, scorePerQuestion } from "@/lib/test-config";
-import { IATest, IATestset, IATestTest } from "@/lib/mysql-types";
+import { ATTEMPTS, score, scorePerAttempt, scorePerQuestion } from "@/lib/ai/test/test-config";
+import { IATest, IATestset, IATestTest } from "@/lib/db/mysql-types";
 import { faComment } from "@fortawesome/free-regular-svg-icons";
 import { faBrain, faCheck, faX } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { OverlayTrigger, Popover } from "react-bootstrap";
-import { format } from "@/lib/format";
-import { preprocess, VisualizationEnum } from "@/lib/preprocess";
-import { InfoDeProduto } from "@/lib/combinacoes";
+import { format } from "@/lib/ai/format";
+import { preprocess, VisualizationEnum } from "@/lib/ui/preprocess";
+import { InfoDeProduto } from "@/lib/proc/combinacoes";
 
 export function TestTable({ testset, test, promptFormat }: { testset: IATestset, test: IATest, promptFormat: string | null }) {
     return <table className="table table-sm table-striped">

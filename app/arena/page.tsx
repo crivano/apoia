@@ -2,12 +2,12 @@
 
 import { Suspense } from 'react'
 import { unstable_noStore as noStore } from 'next/cache'
-import { Dao } from '@/lib/mysql'
-import { formatDate, maiusculasEMinusculas } from '@/lib/utils'
+import { Dao } from '@/lib/db/mysql'
+import { formatDate, maiusculasEMinusculas } from '@/lib/utils/utils'
 import TablePlaceholder from '../../components/table-placeholder'
 import TableRecords from '../../components/table-records'
 import { Container } from 'react-bootstrap'
-import prompts from '@/lib/prompts'
+import prompts from '@/lib/ai/prompts'
 
 export default async function Home() {
     noStore()

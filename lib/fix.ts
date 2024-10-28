@@ -1,5 +1,5 @@
 
-import { Plugin } from './combinacoes'
+import { Plugin } from './proc/combinacoes'
 
 export const assertStr = (str: string): string => {
     if (!str) return ''

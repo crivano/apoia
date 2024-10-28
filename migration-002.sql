@@ -5,8 +5,3 @@ INSERT INTO ia_model VALUES
     (2,'claude-3-5-sonnet-20241022','2024-09-30 16:10:09'),
     (3,'gpt-4o-mini-2024-07-18','2024-10-15 19:15:04'),
     (4,'gemini-1.5-pro-002','2024-10-22 12:16:39');
-
-ALTER TABLE `apoia`.`ia_document` 
-ADD COLUMN `assigned_category` VARCHAR(64) NULL DEFAULT NULL AFTER `content_source_id`,
-ADD COLUMN `predicted_category` VARCHAR(64) NULL DEFAULT NULL AFTER `assigned_category_id`,
-CHANGE COLUMN `code` `code` VARCHAR(64) NOT NULL AFTER `dossier_id`;

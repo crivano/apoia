@@ -3,11 +3,11 @@
 import dynamic from 'next/dynamic'
 import { Suspense, useState, useEffect } from 'react'
 import AiContent from '../../components/ai-content'
-import { P } from '@/lib/combinacoes'
+import { P } from '@/lib/proc/combinacoes'
 import { Button, Container, Form } from 'react-bootstrap'
 import { TestFileType } from './test'
 import { get } from 'http'
-import { TextoType } from '@/lib/prompt-types'
+import { TextoType } from '@/lib/ai/prompt-types'
 
 const EditorComp = dynamic(() => import('../../components/EditorComponent'), { ssr: false })
 

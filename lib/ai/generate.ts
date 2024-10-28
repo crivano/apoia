@@ -1,14 +1,14 @@
 'use server'
 
 import { generateText, CoreTool, streamText, StreamTextResult, LanguageModel, streamObject, StreamObjectResult, DeepPartial } from 'ai'
-import { IAGenerated } from './mysql-types'
-import { Dao } from './mysql'
+import { IAGenerated } from '../db/mysql-types'
+import { Dao } from '../db/mysql'
 import { SHA256 } from 'crypto-js'
 import { canonicalize } from 'json-canonicalize'
 import { createStreamableValue, StreamableValue } from 'ai/rsc'
-import { assertCurrentUser } from './user'
+import { assertCurrentUser } from '../user'
 import { buildMessages } from './build-messages'
-import { PromptOptions } from '@/lib/prompt-types'
+import { PromptOptions } from '@/lib/ai/prompt-types'
 import { getModel } from './model'
 
 function calcSha256(messages: any): string {

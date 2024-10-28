@@ -3,12 +3,12 @@
 import dynamic from 'next/dynamic'
 import { Suspense, useState, useEffect } from 'react'
 import AiContent from '@/components/ai-content'
-import { InfoDeProduto, P } from '@/lib/combinacoes'
+import { InfoDeProduto, P } from '@/lib/proc/combinacoes'
 import { Button, Container, Form } from 'react-bootstrap'
 import { get } from 'http'
-import { TextoType } from '@/lib/prompt-types'
-import { IATestset } from '@/lib/mysql-types'
-import { slugify } from '@/lib/utils'
+import { TextoType } from '@/lib/ai/prompt-types'
+import { IATestset } from '@/lib/db/mysql-types'
+import { slugify } from '@/lib/utils/utils'
 
 const EditorComp = dynamic(() => import('@/components/EditorComponent'), { ssr: false })
 

@@ -1,5 +1,5 @@
-import { getCurrentUser } from "./user"
-import { slugify } from "./utils"
+import { getCurrentUser } from "../user"
+import { slugify } from "../utils/utils"
 import type * as mysqlTypes from "./mysql-types"
 
 const mysql = require("mysql2/promise")

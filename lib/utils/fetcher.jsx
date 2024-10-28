@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation'
-import { getCurrentUser } from './user'
+import { getCurrentUser } from '../user'
 
 
 export default {

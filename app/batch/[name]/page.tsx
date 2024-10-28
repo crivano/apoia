@@ -1,6 +1,6 @@
 import { unstable_noStore as noStore } from 'next/cache'
-import { Dao } from "@/lib/mysql"
-import { Plugin } from '../../../lib/combinacoes'
+import { Dao } from "@/lib/db/mysql"
+import { Plugin } from '../../../lib/proc/combinacoes'
 
 
 export const maxDuration = 60 // seconds

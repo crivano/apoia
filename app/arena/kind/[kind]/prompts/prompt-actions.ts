@@ -1,7 +1,7 @@
 'use server'
 
-import { FormState, fromErrorToFormState, numericString } from '@/lib/form-support'
-import { Dao } from '@/lib/mysql'
+import { FormState, fromErrorToFormState, numericString } from '@/lib/ui/form-support'
+import { Dao } from '@/lib/db/mysql'
 import test from 'node:test'
 import z, { ZodError } from 'zod'
 

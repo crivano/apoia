@@ -1,6 +1,6 @@
 import AiContent from '../../../components/ai-content'
-import { PromptData } from '@/lib/prompt-types'
-import { InfoDeProduto } from '@/lib/combinacoes'
+import { PromptData } from '@/lib/ai/prompt-types'
+import { InfoDeProduto } from '@/lib/proc/combinacoes'
 
 export const Produto = async (params: { infoDeProduto: InfoDeProduto, data: PromptData }) => {
     const textos = params?.data?.textos

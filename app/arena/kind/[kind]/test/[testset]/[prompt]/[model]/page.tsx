@@ -1,5 +1,5 @@
 import { Container } from 'react-bootstrap'
-import { Dao } from '@/lib/mysql'
+import { Dao } from '@/lib/db/mysql'
 import TestBuilder from './test-builder'
 import { TestTable } from './test-table'
 import Link from 'next/link'

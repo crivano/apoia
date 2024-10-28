@@ -12,7 +12,7 @@ import {
     useReactTable
 } from '@tanstack/react-table'
 import { Table as BTable, Pagination, Form } from 'react-bootstrap'
-import tableSpecs from '@/lib/table-specs'
+import tableSpecs from '@/lib/ui/table-specs'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faAdd } from '@fortawesome/free-solid-svg-icons'
 import Link from 'next/link'

@@ -1,6 +1,6 @@
 import { unstable_noStore as noStore } from 'next/cache'
 import ProcessServerContents from './process-server-contents'
-import Fetcher from '../../../lib/fetcher'
+import Fetcher from '../../../lib/utils/fetcher'
 import { Suspense } from 'react'
 import ProcessTitle from './process-title'
 import { Container } from 'react-bootstrap'

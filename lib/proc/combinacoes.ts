@@ -1,5 +1,5 @@
-import _prompts from "@/lib/prompts"
-import { maiusculasEMinusculas, slugify } from "./utils"
+import _prompts from "@/lib/ai/prompts"
+import { maiusculasEMinusculas, slugify } from "../utils/utils"
 
 // Enum com os tipos de peças
 export enum T {

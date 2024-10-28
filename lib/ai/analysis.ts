@@ -1,13 +1,13 @@
-import prompts from '@/lib/prompts'
-import { PromptData } from '@/lib/prompt-types'
-import { DadosDoProcessoType, obterDadosDoProcesso, PecaType } from '@/lib/mni'
+import prompts from '@/lib/ai/prompts'
+import { PromptData } from '@/lib/ai/prompt-types'
+import { DadosDoProcessoType, obterDadosDoProcesso } from '@/lib/proc/process'
 import { assertCurrentUser } from '@/lib/user'
-import { T, P, ProdutosValidos, Plugin, ProdutoCompleto, CombinacaoValida, InfoDeProduto, ProdutoValido } from '@/lib/combinacoes'
-import { slugify } from '@/lib/utils'
-import { IAGenerated } from '@/lib/mysql-types'
-import { Dao } from '@/lib/mysql'
+import { T, P, ProdutosValidos, Plugin, ProdutoCompleto, CombinacaoValida, InfoDeProduto, ProdutoValido } from '@/lib/proc/combinacoes'
+import { slugify } from '@/lib/utils/utils'
+import { IAGenerated } from '@/lib/db/mysql-types'
+import { Dao } from '@/lib/db/mysql'
 import { getTriagem, getNormas, getPalavrasChave } from '@/lib/fix'
-import { generateContent } from '@/lib/generate'
+import { generateContent } from '@/lib/ai/generate'
 
 type PecaComConteudoType = {
     id: string, // identificador da peça no Eproc

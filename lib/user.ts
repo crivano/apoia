@@ -5,7 +5,7 @@ import { getServerSession } from 'next-auth'
 import { redirect } from 'next/navigation'
 import { headers } from "next/headers"
 import { verify } from 'crypto'
-import { verifyJweToken } from './jwt'
+import { verifyJweToken } from './utils/jwt'
 
 export const getCurrentUser = async (): Promise<{ id?: number, name: string, email: string, image: { password: string, system: string } } | undefined > => {
     const headersList = headers()

@@ -1,11 +1,11 @@
 import showdown from 'showdown'
-import { InfoDeProduto } from './combinacoes'
-import { P } from './combinacoes'
-import { TextoType } from './prompt-types'
+import { InfoDeProduto } from '../proc/combinacoes'
+import { P } from '../proc/combinacoes'
+import { TextoType } from '../ai/prompt-types'
 import { diff, diffAndCollapse as diffAndCompact } from './mddiff'
 import { info } from 'console'
-import { getFormatter } from './build-messages'
-import { format as libFormat } from './format'
+import { getFormatter } from '@/lib/ai/build-messages'
+import { format as libFormat } from '../ai/format'
 
 const converter = new showdown.Converter()
 

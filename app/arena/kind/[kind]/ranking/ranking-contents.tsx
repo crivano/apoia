@@ -1,5 +1,6 @@
+import { updateWithLatestAndOfficial } from '@/lib/db/mysql-types'
 import Ranking from './ranking'
-import { Dao } from '@/lib/mysql'
+import { Dao } from '@/lib/db/mysql'
 
 
 export default async function RankingContents(props: { kind: string }) {
@@ -8,7 +9,7 @@ export default async function RankingContents(props: { kind: string }) {
     const prompts = await Dao.retrievePromptsIdsAndNamesByKind(null, kind)
     const testsets = await Dao.retrieveOfficialTestsetsIdsAndNamesByKind(null, kind)
 
-    const promptsWithLatestAndOfficial = prompts.map(prompt => ({ id: prompt.id, name: prompt.name + (prompt.is_last ? ' (último)' : prompt.is_last ? ' (último)' : '') }))
+    const promptsWithLatestAndOfficial = updateWithLatestAndOfficial(prompts)
 
     return (
         <Ranking kind={kind} prompts={promptsWithLatestAndOfficial} models={models} testsets={testsets} />

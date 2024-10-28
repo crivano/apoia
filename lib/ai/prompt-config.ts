@@ -1,7 +1,7 @@
 'use server'
 
-import { Dao } from "./mysql";
-import { SelectableItem, SelectableItemWithLatestAndOfficial } from "./mysql-types";
+import { Dao } from "../db/mysql";
+import { SelectableItem, SelectableItemWithLatestAndOfficial } from "../db/mysql-types";
 
 export async function loadPrompts(kind: string): Promise<SelectableItemWithLatestAndOfficial[]> {
     return Dao.retrievePromptsIdsAndNamesByKind(null, kind)

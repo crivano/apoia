@@ -1,8 +1,8 @@
 import { Suspense } from 'react'
-import { maiusculasEMinusculas } from '../../../lib/utils'
-import { infoDeProduto, ProdutosValidos } from '../../../lib/combinacoes'
+import { maiusculasEMinusculas } from '../../../lib/utils/utils'
+import { infoDeProduto, ProdutosValidos } from '../../../lib/proc/combinacoes'
 import { Produto } from './produto'
-import { buildRequests, getPiecesWithContent } from '@/lib/analysis'
+import { buildRequests, getPiecesWithContent } from '@/lib/ai/analysis'
 import { ResumoDePecaLoading } from '@/components/loading'
 
 export const ListaDeProdutos = async ({ pDadosDoProcesso }) => {

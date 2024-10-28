@@ -1,7 +1,7 @@
 import { createOpenAI } from '@ai-sdk/openai'
 import { createAnthropic } from '@ai-sdk/anthropic'
 import { createGoogleGenerativeAI } from '@ai-sdk/google'
-import { getModelAndApiKeyCookieValue } from '../app/model/cookie'
+import { getModelAndApiKeyCookieValue } from '../../app/model/cookie'
 import { LanguageModelV1 } from '@ai-sdk/provider'
 import { createGroq } from '@ai-sdk/groq'
 

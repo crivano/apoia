@@ -6,14 +6,14 @@ import { useRouter } from 'next/navigation'
 import dynamic from 'next/dynamic'
 import TextareaAutosize from 'react-textarea-autosize'
 import { removeOfficial, save, setOfficial } from './testset-actions'
-import { EMPTY_FORM_STATE, FormHelper, FormError, FormInput, FormInput2, FormSelect, FormSelect2, FormState, FormTextArea, FormTextArea2 } from '@/lib/form-support'
+import { EMPTY_FORM_STATE, FormHelper, FormError, FormInput, FormInput2, FormSelect, FormSelect2, FormState, FormTextArea, FormTextArea2 } from '@/lib/ui/form-support'
 import yamlps from 'js-yaml'
 import { useState } from 'react'
 import _ from 'lodash'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faAdd, faRemove } from '@fortawesome/free-solid-svg-icons'
-import { T } from '@/lib/combinacoes'
-import { slugify } from '@/lib/utils'
+import { T } from '@/lib/proc/combinacoes'
+import { slugify } from '@/lib/utils/utils'
 
 // const EditorComp = dynamic(() => import('@/components/EditorComponent'), { ssr: false })
 

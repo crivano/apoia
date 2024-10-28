@@ -1,6 +1,6 @@
 import { Container } from 'react-bootstrap'
 import TestsetForm from '../testset-form'
-import { Dao } from '@/lib/mysql'
+import { Dao } from '@/lib/db/mysql'
 
 export default async function New({ params }: { params: { kind: string } }) {
     const { kind } = params

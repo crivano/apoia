@@ -1,4 +1,4 @@
-import { IAModel, IAPrompt, IATest, IATestset, IATestTest, IATestTestAttemptAnswer } from "@/lib/mysql-types"
+import { IAModel, IAPrompt, IATest, IATestset, IATestTest, IATestTestAttemptAnswer } from "@/lib/db/mysql-types"
 
 export const ATTEMPTS = 5
 

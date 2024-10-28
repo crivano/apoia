@@ -2,7 +2,7 @@
 
 import { Suspense } from 'react'
 import { unstable_noStore as noStore } from 'next/cache'
-import { Dao } from '@/lib/mysql'
+import { Dao } from '@/lib/db/mysql'
 import TablePlaceholder from '@/components/table-placeholder'
 import TableRecords from '@/components/table-records'
 import { Container } from 'react-bootstrap'

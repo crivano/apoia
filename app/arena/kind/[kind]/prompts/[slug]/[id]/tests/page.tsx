@@ -1,6 +1,6 @@
 import { Container } from 'react-bootstrap'
 import PromptTests from '../../../prompt-tests'
-import { Dao } from '@/lib/mysql'
+import { Dao } from '@/lib/db/mysql'
 
 export default async function New({ params }: { params: { kind: string, slug: string, id: number } }) {
     const { kind, slug, id } = params

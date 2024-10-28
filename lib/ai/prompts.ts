@@ -1,24 +1,24 @@
-import ementa from '../prompts/ementa.md'
-import int_testar from "../prompts/int-testar.md"
-import int_gerar_perguntas from "../prompts/int-gerar-perguntas.md"
-import resumo_peca from "../prompts/resumo-peca.md"
-import resumo_peticao_inicial from "../prompts/resumo-peticao-inicial.md"
-import resumo_contestacao from "../prompts/resumo-contestacao.md"
-import resumo_informacao_em_mandado_de_seguranca from "../prompts/resumo-informacao-em-mandado-de-seguranca.md"
-import resumo_sentenca from "../prompts/resumo-sentenca.md"
-import resumo_recurso_inominado from "../prompts/resumo-recurso-inominado.md"
-import analise from "../prompts/analise.md"
-import analise_tr from "../prompts/analise-tr.md"
-import resumo from "../prompts/resumo.md"
-import revisao from "../prompts/revisao.md"
-import refinamento from "../prompts/refinamento.md"
-import sentenca from "../prompts/sentenca.md"
-import int_identificar_tipo_de_documento from '../prompts/int-identificar-tipo-de-documento.md'
+import ementa from '@/prompts/ementa.md'
+import int_testar from "@/prompts/int-testar.md"
+import int_gerar_perguntas from "@/prompts/int-gerar-perguntas.md"
+import resumo_peca from "@/prompts/resumo-peca.md"
+import resumo_peticao_inicial from "@/prompts/resumo-peticao-inicial.md"
+import resumo_contestacao from "@/prompts/resumo-contestacao.md"
+import resumo_informacao_em_mandado_de_seguranca from "@/prompts/resumo-informacao-em-mandado-de-seguranca.md"
+import resumo_sentenca from "@/prompts/resumo-sentenca.md"
+import resumo_recurso_inominado from "@/prompts/resumo-recurso-inominado.md"
+import analise from "@/prompts/analise.md"
+import analise_tr from "@/prompts/analise-tr.md"
+import resumo from "@/prompts/resumo.md"
+import revisao from "@/prompts/revisao.md"
+import refinamento from "@/prompts/refinamento.md"
+import sentenca from "@/prompts/sentenca.md"
+import int_identificar_tipo_de_documento from '@/prompts/int-identificar-tipo-de-documento.md'
 
 import { CoreMessage, jsonSchema } from "ai"
-import { slugify } from "@/lib/utils"
-import { PromptData, PromptType, PromptTypeParams } from "@/lib/prompt-types"
-import { buildFormatter } from "@/lib/format"
+import { slugify } from "@/lib/utils/utils"
+import { PromptData, PromptType, PromptTypeParams } from "@/lib/ai/prompt-types"
+import { buildFormatter } from "@/lib/ai/format"
 
 export const applyTextsAndVariables = (text: string, data: PromptData): string => {
     const allTexts = `${data.textos.reduce((acc, txt) => acc + `${txt.descr}:\n<${txt.slug}>\n${txt.texto}\n</${txt.slug}>\n\n`, '')}`

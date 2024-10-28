@@ -1,7 +1,7 @@
-import { streamContent } from '../../../lib/generate'
+import { streamContent } from '../../../lib/ai/generate'
 import { NextResponse } from 'next/server'
-import Fetcher from '../../../lib/fetcher'
-import { PromptOptions } from '@/lib/prompt-types'
+import Fetcher from '../../../lib/utils/fetcher'
+import { PromptOptions } from '@/lib/ai/prompt-types'
 
 export const maxDuration = 60
 
