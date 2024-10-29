@@ -1,7 +1,6 @@
-import { summarize } from "@/lib/analysis"
-import fetcher from "@/lib/fetcher"
-import { generateContent } from "@/lib/generate"
-import { filterText } from "@/lib/preprocess"
+import { summarize } from "@/lib/ai/analysis"
+import fetcher from "@/lib/utils/fetcher"
+import { filterText } from "@/lib/ui/preprocess"
 import { NextResponse } from "next/server"
 
 export const maxDuration = 60

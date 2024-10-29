@@ -1,0 +1,8 @@
+# PROMPT
+
+# Tarefa principal
+
+Leia cuidadosamente os textos abaixo e produza a sentença.
+Sua resposta deve ser formatada em Markdown.
+
+{{textos}}

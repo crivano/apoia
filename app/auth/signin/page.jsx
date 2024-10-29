@@ -2,12 +2,12 @@ import { getServerSession } from "next-auth/next"
 // import { getProviders, getSession, signIn } from "next-auth/react"
 import React from 'react'
 import { redirect } from 'next/navigation'
-import Version from '../../../components/version'
+import Version from '@/components/version'
 import Image from 'next/image'
 import authOptions from '../../api/auth/[...nextauth]/options'
 import CredentialsForm from './credentials-form'
 import Provider from './provider'
-import { systems } from '../../../lib/env.ts'
+import { systems } from '@/lib/utils/env.ts'
 
 
 const Signin = async () => {

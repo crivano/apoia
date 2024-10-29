@@ -2,11 +2,11 @@
 
 import { useEffect, useRef, useState } from 'react'
 import EvaluationModal from './ai-evaluation'
-import { evaluate } from '../lib/generate'
-import { preprocess, Visualization, VisualizationEnum } from '@/lib/preprocess'
+import { evaluate } from '../lib/ai/generate'
+import { preprocess, Visualization, VisualizationEnum } from '@/lib/ui/preprocess'
 import { ResumoDePecaLoading } from '@/components/loading'
-import { InfoDeProduto, P } from '@/lib/combinacoes'
-import { TextoType } from '@/prompts/_prompts'
+import { InfoDeProduto, P } from '@/lib/proc/combinacoes'
+import { TextoType } from '@/lib/ai/prompt-types'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faThumbsDown } from '@fortawesome/free-regular-svg-icons'
 import { faRefresh } from '@fortawesome/free-solid-svg-icons'
@@ -14,7 +14,27 @@ import { Form } from 'react-bootstrap'
 
 export const dynamic = 'force-dynamic'
 
-export default function AiContent(params: { infoDeProduto: InfoDeProduto, textos: TextoType[] }) {
+export const getColor = (text, errormsg) => {
+    let color = 'info'
+    if (text && text.includes('<scratchpad>'))
+        color = 'warning'
+    if (text && text.includes('<result>'))
+        color = 'success'
+    if (errormsg)
+        color = 'danger'
+    return color
+}
+
+export const spinner = (s: string, complete: boolean): string => {
+    if (complete) return s
+    // if s ends with a tag, add a flashing cursor before it
+    if (s && s.match(/<\/[a-z]+>$/)) {
+        s = s.replace(/(?:\s*<\/[a-z]+>)+$/, '<span class="blinking-cursor">&#x25FE;</span>$&')
+    }
+    return s
+}
+
+export default function AiContent(params: { infoDeProduto: InfoDeProduto, textos: TextoType[], overrideSystemPrompt?: string, overridePrompt?: string, overrideJsonSchema?: string, overrideFormat?: string, cacheControl?: boolean | number }) {
     const [current, setCurrent] = useState('')
     const [complete, setComplete] = useState(false)
     const [errormsg, setErrormsg] = useState('')
@@ -30,26 +50,25 @@ export default function AiContent(params: { infoDeProduto: InfoDeProduto, textos
     }
     const handleShow = () => setShow(true)
 
-    const getColor = (text, errormsg) => {
-        let color = 'info'
-        if (text && text.includes('<scratchpad>'))
-            color = 'warning'
-        if (text && text.includes('<result>'))
-            color = 'success'
-        if (errormsg)
-            color = 'danger'
-        return color
-    }
-
-
     const fetchStream = async () => {
+        const payload = {
+            prompt,
+            data: { textos: params.textos.map(t => ({ descr: t.descr, slug: t.slug, texto: t.texto })) },
+            date: new Date(),
+            overrideSystemPrompt: params.overrideSystemPrompt,
+            overridePrompt: params.overridePrompt,
+            overrideJsonSchema: params.overrideJsonSchema,
+            overrideFormat: params.overrideFormat,
+            cacheControl: params.cacheControl
+        }
+        Object.keys(payload).forEach(key => {
+            if (payload[key] === '') {
+            delete payload[key]
+            }
+        })
         const response = await fetch('/api/ai', {
             method: 'POST',
-            body: JSON.stringify({
-                prompt,
-                data: { textos: params.textos.map(t => ({ descr: t.descr, slug: t.slug, texto: t.texto })) },
-                date: new Date()
-            })
+            body: JSON.stringify(payload)
         })
         const reader = response.body?.getReader()
 
@@ -84,22 +103,6 @@ export default function AiContent(params: { infoDeProduto: InfoDeProduto, textos
     }, [])
 
     const color = getColor(current, errormsg)
-
-    const spinner = (s: string, complete: boolean): string => {
-        if (complete) return s
-        // if s ends with a tag, add a flashing cursor before it
-        if (s && s.match(/<\/[a-z]+>$/)) {
-            s = s.replace(/(?:\s*<\/[a-z]+>)+$/, '<span class="blinking-cursor">&#x25FE;</span>$&')
-        }
-        return s
-    }
-
-    function getEnumKeys<
-        T extends string,
-        TEnumValue extends string | number,
-    >(enumVariable: { [key in T]: TEnumValue }) {
-        return Object.keys(enumVariable) as Array<T>;
-    }
 
     return <>
         {current || errormsg

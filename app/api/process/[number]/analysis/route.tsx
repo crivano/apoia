@@ -1,11 +1,7 @@
-import { openai } from '@ai-sdk/openai'
-import { streamText } from 'ai'
-import { RequestCookies } from '@edge-runtime/cookies'
-import { analyze, GeneratedContent } from '@/lib/analysis'
-import { describe } from 'node:test'
-import fetcher from '@/lib/fetcher'
+import { analyze, GeneratedContent } from '@/lib/ai/analysis'
+import fetcher from '@/lib/utils/fetcher'
 import { NextResponse } from 'next/server'
-import { filterText } from '@/lib/preprocess'
+import { filterText } from '@/lib/ui/preprocess'
 
 export const maxDuration = 60
 // export const runtime = 'edge'

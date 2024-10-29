@@ -3,8 +3,10 @@
 import dynamic from 'next/dynamic'
 import { Suspense, useState } from 'react'
 import AiContent from '../../components/ai-content'
-import { P } from '@/lib/combinacoes'
+import { P } from '@/lib/proc/combinacoes'
 import { Button, Container } from 'react-bootstrap'
+import PromptConfig from '@/components/prompt-config'
+import { PromptConfigType } from '@/lib/ai/prompt-types'
 
 const EditorComp = dynamic(() => import('../../components/EditorComponent'), { ssr: false })
 
@@ -12,6 +14,7 @@ export default function Revison() {
     const [markdown, setMarkdown] = useState('')
     const [orgaoJulgador, setOrgaoJulgador] = useState('')
     const [hidden, setHidden] = useState(true)
+    const [promptConfig, setPromptConfig] = useState({} as PromptConfigType)
 
     const textChanged = (text) => {
         setMarkdown(text)
@@ -25,7 +28,8 @@ export default function Revison() {
 
     return (
         <div className="mb-3">
-            <h2 className="mt-3">Parâmetros</h2>
+            <h2 className="mt-3">Geração de Ementa</h2>
+            <PromptConfig kind="ementa" setPromptConfig={setPromptConfig} />
             <div className="row mb-3 mt-3">
                 <div className="col">
                     <div className="form-group">
@@ -49,8 +53,8 @@ export default function Revison() {
             {!hidden && markdown && <>
                 <h2 className="mt-3">Ementa</h2>
                 <AiContent
-                    infoDeProduto={{ produto: P.ACORDAO, dados: [], titulo: 'Ementa e Acórdão', prompt: 'acordao', plugins: [] }}
-                    textos={[{descr: 'EXTRATO DE ATA', slug: 'extrato-de-ata', texto: `ÓRGÃO JULGADOR: ${orgaoJulgador}\nTIPO DE DECISÁO: UNÂMINE`}, { descr: 'Voto', slug: 'voto', texto: markdown }]} />
+                    infoDeProduto={{ produto: P.ACORDAO, dados: [], titulo: 'Ementa e Acórdão', prompt: 'ementa', plugins: [] }}
+                    textos={[{ descr: 'EXTRATO DE ATA', slug: 'extrato-de-ata', texto: `ÓRGÃO JULGADOR: ${orgaoJulgador}\nTIPO DE DECISÁO: UNÂMINE` }, { descr: 'Voto', slug: 'voto', texto: markdown }]} />
             </>}
         </div>
     )

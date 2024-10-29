@@ -10,10 +10,11 @@
 // module.exports = withBundleAnalyzer(nextConfig)
 
 const nextConfig = {
+    // trailingSlash: true,
     output: "standalone",
     webpack: (config, { buildId, dev, isServer, defaultLoaders, webpack }) => {
             config.module.rules.push({
-                test: /\.txt$/,
+                test: /\.(txt|md)$/,
                 // This is the asset module.
                 type: 'asset/source',
             })

@@ -1,0 +1,215 @@
+export type IAGenerated = {
+    id: number
+    model: string
+    prompt: string
+    sha256: string
+    generation: string
+    attempt: number | null
+}
+
+export type IAGeneration = {
+    model: string
+    prompt: string
+    sha256: string
+    generation?: string
+    attempt: number | null
+}
+
+export type AIBatchIdAndEnumId = {
+    dossier_code: string,
+    enum_item_id: number,
+    enum_item_descr: string,
+    enum_item_descr_main: string | null,
+    batch_dossier_id: number
+}
+
+export type AICountByBatchIdAndEnumId = {
+    enum_item_id: number
+    enum_item_descr: string
+    hidden: number
+    count: number
+}
+
+export type AIBatchDossierGeneration = {
+    descr: string
+    generation: string
+    document_id: number
+    document_code: string
+    prompt: string
+}
+
+export type FindAIGeneratedParams = {
+    batchName: string
+    dossierCode: string
+    documentCode: string
+    sha256: string
+    model: string
+}
+
+export type IABatchDossierItem = {
+    batch_dossier_id: number
+    document_id: number | null
+    generation_id: number
+    descr: string
+    seq: number
+}
+
+export type IAEnumItem = {
+    enum_id: number
+    enum_descr: string
+    enum_item_descr: string
+    enum_item_hidden: number
+    enum_item_descr_main: string | null
+}
+
+export type IADocument = {
+    id: number
+    dossier_id: number
+    code: string
+    content_source_id: number
+    assigned_category: string | null
+    predicted_category: string | null
+    created_at: Date | null
+    content: string
+}
+
+export type IAPrompt = {
+    id: number
+    base_prompt_id: number | null
+    kind: string
+    created_by: number | null
+    name: string
+    slug: string
+    model_id: number,
+    testset_id: number | null
+    content: {
+        system_prompt: string | null
+        prompt: string | null
+        json_schema: string | null
+        format: string | null
+    }
+    created_at: Date | null
+}
+
+export type IAPromptToInsert = {
+    base_prompt_id?: number
+    kind: string
+    name: string
+    model_id: number
+    testset_id: number | null
+    content: {
+        system_prompt?: string
+        prompt: string | null
+        json_schema?: string
+        format?: string
+    }
+}
+
+export type IATestset = {
+    id: number
+    base_testset_id: number | null
+    kind: string
+    created_by: number | null
+    name: string
+    slug: string
+    model_id: number
+    content: {
+        tests: {
+            name: string
+            variables: {
+                name: string
+                value: string
+            }[]
+            texts: {
+                name: string
+                value: string
+            }[]
+            expected: string
+            questions: {
+                question: string
+            }[]
+        }[]
+    }
+    created_at: Date | null
+}
+
+export type IATestsetToInsert = {
+    base_testset_id: number | null
+    kind: string
+    created_by: number | null
+    name: string
+    model_id: number
+    content: {
+        tests: {
+            name: string
+            variables: {
+                name: string
+                value: string
+            }[]
+            texts: {
+                name: string
+                value: string
+            }[]
+            expected: string
+            questions: {
+                question: string
+            }[]
+        }[]
+    }
+}
+
+export type IARankingType = {
+    testset_id: number
+    testset_name: string
+    prompt_id: number
+    prompt_name: string
+    prompt_slug: string
+    model_id: number
+    model_name: string
+    score: number
+}
+
+export type IATestTestQuestion = {
+    question: string
+}
+
+export type IATestTestAttemptAnswer = {
+    snippet: string
+    result: boolean
+    justification: string
+}
+
+export type IATestTestAttempt = {
+    result: string
+    answers: IATestTestAttemptAnswer[]
+}
+
+export type IATestTest = {
+    name: string
+    questions: IATestTestQuestion[]
+    attempts: IATestTestAttempt[]
+}
+
+export type IATest = {
+    id: number
+    testset_id: number
+    prompt_id: number
+    model_id: number
+    score: number
+    content: {
+        tests: IATestTest[]
+    }
+}
+
+export type IAModel = {
+    id: number
+    name: string
+    created_at: Date
+}
+
+export function updateWithLatestAndOfficial(l) {
+    return l.map(i => ({ id: i.id, name: i.name + (i.is_official ? ' (oficial)' : i.is_last ? ' (último)' : '') }))
+}
+
+export type SelectableItemWithLatestAndOfficial = { id: string, name: string, slug: string, created_at: Date, is_last: boolean, is_official: boolean }
+export type SelectableItem = { id: string, name: string }

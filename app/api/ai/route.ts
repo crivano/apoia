@@ -1,7 +1,7 @@
-import { streamContent } from '../../../lib/generate'
+import { streamContent } from '../../../lib/ai/generate'
 import { NextResponse } from 'next/server'
-import Fetcher from '../../../lib/fetcher'
-import { CoreTool, StreamingTextResponse, StreamObjectResult } from 'ai'
+import Fetcher from '../../../lib/utils/fetcher'
+import { PromptOptions } from '@/lib/ai/prompt-types'
 
 export const maxDuration = 60
 
@@ -13,18 +13,24 @@ export async function POST(request: Request) {
         const prompt: string = body.prompt
         const data: any = body.data
         const date: Date = body.date
-        const result = await streamContent(prompt, data, date)
+        const options: PromptOptions = {
+            overrideSystemPrompt: body.overrideSystemPrompt,
+            overridePrompt: body.overridePrompt,
+            overrideJsonSchema: body.overrideJsonSchema,
+            overrideFormat: body.overrideFormat,
+            cacheControl: body.cacheControl,
+        }
+        const result = await streamContent(prompt, data, date, options)
         if (typeof result === 'string') {
             return new Response(result, { status: 200 });
         }
-        // console.log('result', result)
-        if (result.toTextStreamResponse)
+        if (result.toTextStreamResponse) {
             return result.toTextStreamResponse();
-        else {
-            const objectResult = result as unknown as StreamObjectResult<Record<string, CoreTool<any, any>>>
-            return new StreamingTextResponse(objectResult.fullStream)
+        } else {
+            throw new Error('Invalid response')
         }
     } catch (error) {
+        console.log('error', error)
         const message = Fetcher.processError(error)
         return NextResponse.json({ message: `${message}` }, { status: 405 });
     }

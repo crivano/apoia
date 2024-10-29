@@ -5,7 +5,7 @@ import { unstable_noStore as noStore } from 'next/cache'
 import { Button, Form } from 'react-bootstrap'
 import { useRouter } from 'next/navigation'
 // import { produceContent } from './produce-content'
-import Fetcher from '../../lib/fetcher'
+import Fetcher from '../../lib/utils/fetcher'
 
 export default function ProcessNumberForm(params) {
     const router = useRouter()

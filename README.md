@@ -45,10 +45,10 @@ JFES_MNI_ENDPOINT_URL="https://epr.jfes.jus.br/eproc/ws/controlador_ws.php?srv=i
 JFES_HAS_PASSWORD=true
 ```
 
-Informe o identificador do modelo de inteligência artificial que deseja utilizar. Outros possíveis seriam: `gpt-4o`, `claude-3-5-sonnet` ou qualquer outro suportado pelo framework Vercel AI.
+Informe o identificador do modelo de inteligência artificial que deseja utilizar. Outros possíveis seriam: `gpt-4o-mini-2024-07-18`, `claude-3-5-sonnet-20241022` ou qualquer outro suportado pelo framework Vercel AI.
 
 ```properties
-MODEL=gpt-4o-mini
+MODEL=gpt-4o-2024-08-06
 ```
 
 Forneça a chave da API. Informe a chave de API relativa ao modelo selecionado. As outras não serão utilizadas.

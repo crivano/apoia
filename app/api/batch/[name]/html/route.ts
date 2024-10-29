@@ -1,9 +1,9 @@
-import { Dao } from "@/lib/mysql"
-import { Plugin, P, InfoDeProduto } from "@/lib/combinacoes"
-import { formatBrazilianDate, maiusculasEMinusculas, slugify } from "@/lib/utils"
-import { preprocess } from "@/lib/preprocess"
+import { Dao } from "@/lib/db/mysql"
+import { Plugin, P, InfoDeProduto } from "@/lib/proc/combinacoes"
+import { formatBrazilianDate, maiusculasEMinusculas, slugify } from "@/lib/utils/utils"
+import { preprocess } from "@/lib/ui/preprocess"
 import { fixText } from "@/lib/fix"
-import { tua } from "@/lib/tua"
+import { tua } from "@/lib/proc/tua"
 
 export const maxDuration = 60
 

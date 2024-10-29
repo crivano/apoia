@@ -3,7 +3,7 @@
 // import dynamic from 'next/dynamic'
 import { Suspense, useState } from 'react'
 import AiContent from './ai-content'
-import { P } from '@/lib/combinacoes'
+import { P } from '@/lib/proc/combinacoes'
 import { Button, Container } from 'react-bootstrap'
 
 // const EditorComp = dynamic(() => import('./EditorComponent'), { ssr: false })

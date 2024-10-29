@@ -1,5 +1,5 @@
 import { getCurrentUser, assertCurrentUser } from '../../../../../lib/user'
-import { analyze } from '@/lib/analysis'
+import { analyze } from '@/lib/ai/analysis'
 
 export const maxDuration = 60
 // export const runtime = 'edge'

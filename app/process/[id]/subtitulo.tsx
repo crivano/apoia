@@ -1,5 +1,5 @@
-import { formatBrazilianDate } from "../../../lib/utils"
-import { tua } from '../../../lib/tua'
+import { formatBrazilianDate } from "../../../lib/utils/utils"
+import { tua } from '../../../lib/proc/tua'
 
 const Subtitulo = async ({ pDadosDoProcesso }) => {
     const dadosDoProcesso = await pDadosDoProcesso
