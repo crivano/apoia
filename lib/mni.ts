@@ -1,4 +1,5 @@
 'use server'
+import { createHash } from 'node:crypto';
 
 import * as soap from 'soap'
 import { systems } from '@/lib/utils/env'
@@ -23,9 +24,27 @@ const getClient = async (system: string | undefined) => {
     return client
 }
 
+const criarHash = (senha: string) => {
+    const date = new Intl.DateTimeFormat('pt-BR', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+    }).format(new Date()).replaceAll('/', '-');
+
+    const input = `${date}${senha}`;
+    const hash = createHash('sha256').update(input).digest('hex');
+    return hash;
+}
 
 export const autenticar = async (system: string, username: string, password: string) => {
     const client = await getClient(system)
+    const currentSystem = systems.find(s => s.system === system)
+    if (!currentSystem) {
+        throw new Error(`Client for system ${system} not found`)
+    }
+    if (currentSystem.hashable) {
+        password = criarHash(password)
+    }
     const res = await client.consultarProcessoAsync({
         idConsultante: username,
         senhaConsultante: password,
@@ -34,7 +53,7 @@ export const autenticar = async (system: string, username: string, password: str
         incluirCabecalho: false,
         incluirDocumentos: false
     })
-    return res[0].mensagem.includes('Processo não encontrado')
+    return res[0].mensagem.includes(currentSystem.validation)
 }
 
 export const consultarProcesso = async (numero, username, password) => {
@@ -42,11 +61,16 @@ export const consultarProcesso = async (numero, username, password) => {
     // throw an error if the number is invalid
     if (!numero.match(/^\d{20}$/))
         throw new Error('Número de processo inválido')
+    const user = await assertCurrentUser()
+    const system = systems.find(s => s.system === user.image.system)
+    if (system?.hashable) {
+        password = criarHash(password)
+    }
     const pConsultarProcesso = client.consultarProcessoAsync({
         idConsultante: username,
         senhaConsultante: password,
         numeroProcesso: numero,
-        movimentos: false,
+        movimentos: true,
         incluirCabecalho: true,
         incluirDocumentos: true
     })
@@ -55,6 +79,11 @@ export const consultarProcesso = async (numero, username, password) => {
 
 export const obterPeca = async (numeroDoProcesso, idDaPeca, username: string, password: string) => {
     const client = await getClient(undefined)
+    const user = await assertCurrentUser()
+    const system = systems.find(s => s.system === user.image.system)
+    if (system?.hashable) {
+        password = criarHash(password)
+    }
     const respPeca = await client.consultarProcessoAsync({
         idConsultante: username,
         senhaConsultante: password,
