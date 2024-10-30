@@ -1,10 +1,7 @@
 import showdown from 'showdown'
-import { InfoDeProduto } from '../proc/combinacoes'
 import { P } from '../proc/combinacoes'
-import { TextoType } from '../ai/prompt-types'
+import { PromptDataType, PromptDefinitionType, TextoType } from '../ai/prompt-types'
 import { diff, diffAndCollapse as diffAndCompact } from './mddiff'
-import { info } from 'console'
-import { getFormatter } from '@/lib/ai/build-messages'
 import { format as libFormat } from '../ai/format'
 
 const converter = new showdown.Converter()
@@ -42,20 +39,14 @@ export const filterText = (text) => {
     return s.trim()
 }
 
-export const preprocess = (text: string, infoDeProduto: InfoDeProduto, textos: TextoType[], complete: boolean, visualization?: VisualizationEnum, overrideFormatter?: string) => {
-    console.log('preprocess', text, infoDeProduto, textos, complete, visualization)
+export const preprocess = (text: string, definition: PromptDefinitionType, data: PromptDataType, complete: boolean, visualization?: VisualizationEnum) => {
     text = filterText(text)
 
-    if (overrideFormatter) {
-        text = libFormat(overrideFormatter, text)
-    } else {
-        const format = getFormatter(infoDeProduto.prompt)
-        if (format) text = format(text)
-    }
+    if (definition.format)
+        text = libFormat(definition.format, text)
 
-    if (infoDeProduto.produto === P.REFINAMENTO && complete) {
-
-        let texto = textos[0].texto
+    if (definition.kind === 'refinamento' && complete) {
+        let texto = data.textos[0].texto
 
         switch (visualization) {
             case VisualizationEnum.DIFF:
@@ -70,9 +61,6 @@ export const preprocess = (text: string, infoDeProduto: InfoDeProduto, textos: T
                 return converter.makeHtml(text)
         }
     }
-
-    // if (complete)
-    //     console.log('Markdown\n\n', text)
 
     text = converter.makeHtml(text)
     return text

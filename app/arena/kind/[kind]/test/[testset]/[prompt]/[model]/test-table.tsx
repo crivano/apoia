@@ -9,14 +9,16 @@ import { OverlayTrigger, Popover } from "react-bootstrap";
 import { format } from "@/lib/ai/format";
 import { preprocess, VisualizationEnum } from "@/lib/ui/preprocess";
 import { InfoDeProduto } from "@/lib/proc/combinacoes";
+import { PromptDefinitionType } from "@/lib/ai/prompt-types";
+import React from "react";
 
 export function TestTable({ testset, test, promptFormat }: { testset: IATestset, test: IATest, promptFormat: string | null }) {
     return <table className="table table-sm table-striped">
         <thead>
-            <tr><th>Teste</th>{Array.from({ length: ATTEMPTS }).map((_, idx) => (<th key={`th-${idx}`}>{idx + 1}</th>))}<th style={{ textAlign: 'right' }}>%</th></tr>
+            <tr><th>Teste</th>{Array.from({ length: ATTEMPTS }).map((_, idx) => (<th key={`th-${idx}`}>{idx + 1}</th>))}<th key="th-score" style={{ textAlign: 'right' }}>%</th></tr>
         </thead>
-        <tbody>
-            {testset.content.tests.map((t, idxTest) => <>
+        <tbody key="test-table-body">
+            {testset.content.tests.map((t, idxTest) => <React.Fragment key={`test-fragment-${idxTest}`}>
                 <tr key={`test-${t.name}`}>
                     <td>{t.name}</td>
                     {Array.from({ length: ATTEMPTS }).map((_, idx) => (<td key={`td-prompt-${idxTest}-${idx}`}>{
@@ -31,9 +33,9 @@ export function TestTable({ testset, test, promptFormat }: { testset: IATestset,
                                         <Popover.Body dangerouslySetInnerHTML={{
                                             __html: preprocess(
                                                 test.content.tests[idxTest].attempts[idx].result,
-                                                {} as InfoDeProduto,
-                                                testset.content.tests[idxTest].texts?.map(t => ({ descr: t.name, slug: t.name, texto: t.value })),
-                                                true, VisualizationEnum.DIFF, promptFormat || undefined)
+                                                { kind: '', prompt: '', format: promptFormat } as PromptDefinitionType,
+                                                { textos: testset.content.tests[idxTest].texts?.map(t => ({ descr: t.name, slug: t.name, texto: t.value })) },
+                                                true, VisualizationEnum.DIFF)
                                         }} />
                                     </Popover>
                                 }>
@@ -72,7 +74,7 @@ export function TestTable({ testset, test, promptFormat }: { testset: IATestset,
                         }</td>))}
                         <td style={{ textAlign: 'right' }}>{scorePerQuestion(test.content.tests[idxTest], idxQuestion).toFixed(0)}</td>
                     </tr>)}
-            </>)}
+            </React.Fragment>)}
             <tr key="footer">
                 <td style={{ textAlign: 'left', paddingRight: '1em' }}>Total %</td>
                 {Array.from({ length: ATTEMPTS }).map((_, idx) => (<td key={`td-score-${idx}`}>{scorePerAttempt(test.content.tests, idx).toFixed(0)}</td>))}

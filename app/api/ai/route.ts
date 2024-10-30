@@ -1,26 +1,61 @@
 import { streamContent } from '../../../lib/ai/generate'
 import { NextResponse } from 'next/server'
 import Fetcher from '../../../lib/utils/fetcher'
-import { PromptOptions } from '@/lib/ai/prompt-types'
+import { PromptDefinitionType, PromptOptionsType } from '@/lib/ai/prompt-types'
+import { getInternalPrompt, promptDefinitionFromDefinitionAndOptions } from '@/lib/ai/prompt'
+import { Dao } from '@/lib/db/mysql'
+import { IAPrompt } from '@/lib/db/mysql-types'
 
 export const maxDuration = 60
+
+async function getPromptDefinition(kind: string, promptSlug?: string, promptId?: number): Promise<PromptDefinitionType> {
+    let prompt: IAPrompt | undefined = undefined
+    if (promptId) {
+        prompt = await Dao.retrievePromptById(null, promptId)
+        if (!prompt)
+            throw new Error(`Prompt not found: ${promptId}`)
+    } else if (kind && promptSlug) {
+        const prompts = await Dao.retrievePromptsByKindAndSlug(null, kind, promptSlug)
+        if (prompts.length === 0)
+            throw new Error(`Prompt not found: ${kind}/${promptSlug}`)
+        let prompt = prompts.find(p => p.is_official)
+        if (!prompt)
+            prompt = prompts[0]
+    }
+
+    const definition: PromptDefinitionType =
+        prompt ? {
+            kind: prompt.kind,
+            systemPrompt: prompt.content.system_prompt || undefined,
+            prompt: prompt.content.prompt || '',
+            jsonSchema: prompt.content.json_schema || undefined,
+            format: prompt.content.format || undefined,
+        } : getInternalPrompt(kind)
+
+    return definition
+}
 
 export async function POST(request: Request) {
     try {
         // const body = JSON.parse(JSON.stringify(request.body))
         const body = await request.json()
         // console.log('body', JSON.stringify(body))
-        const prompt: string = body.prompt
+        const kind: string = body.kind
+        const promptSlug: string | undefined = body.promptSlug
+        const promptId: number | undefined = body.promptId
+
+        const definition = await getPromptDefinition(kind, promptSlug, promptId)
         const data: any = body.data
-        const date: Date = body.date
-        const options: PromptOptions = {
+        const options: PromptOptionsType = {
             overrideSystemPrompt: body.overrideSystemPrompt,
             overridePrompt: body.overridePrompt,
             overrideJsonSchema: body.overrideJsonSchema,
             overrideFormat: body.overrideFormat,
             cacheControl: body.cacheControl,
         }
-        const result = await streamContent(prompt, data, date, options)
+
+        const definitionWithOptions = promptDefinitionFromDefinitionAndOptions(definition, options)
+        const result = await streamContent(definitionWithOptions, data)
         if (typeof result === 'string') {
             return new Response(result, { status: 200 });
         }

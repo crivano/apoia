@@ -3,8 +3,8 @@
 import dynamic from 'next/dynamic'
 import { Suspense, useState } from 'react'
 import AiContent from '../../components/ai-content'
-import { P } from '@/lib/proc/combinacoes'
-import { Button, Container } from 'react-bootstrap'
+import { Button } from 'react-bootstrap'
+import { getInternalPrompt } from '@/lib/ai/prompt'
 
 const EditorComp = dynamic(() => import('../../components/EditorComponent'), { ssr: false })
 
@@ -35,9 +35,7 @@ export default function Revison() {
                     infoDeProduto={{ produto: P.REVISAO, dados: [], titulo: 'Revisão', prompt: 'revisao', plugins: [] }}
                     textos={[{ descr: 'Texto', slug: 'texto', texto: markdown }]} /> */}
                 <h2 className="mt-3">Refinamento</h2>
-                <AiContent
-                    infoDeProduto={{ produto: P.REFINAMENTO, dados: [], titulo: 'Refinamento', prompt: 'refinamento', plugins: [] }}
-                    textos={[{ descr: 'Texto', slug: 'texto', texto: markdown }]} />
+                <AiContent definition={getInternalPrompt('refinamento')} data={{ textos: [{ descr: 'Texto', slug: 'texto', texto: markdown }] }} />
             </>}
         </>
     )

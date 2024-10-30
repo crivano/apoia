@@ -1,5 +1,5 @@
-import prompts from '@/lib/ai/prompts'
-import { PromptData } from '@/lib/ai/prompt-types'
+import { getInternalPrompt } from '@/lib/ai/prompt'
+import { PromptDataType, PromptDefinitionType } from '@/lib/ai/prompt-types'
 import { DadosDoProcessoType, obterDadosDoProcesso } from '@/lib/proc/process'
 import { assertCurrentUser } from '@/lib/user'
 import { T, P, ProdutosValidos, Plugin, ProdutoCompleto, CombinacaoValida, InfoDeProduto, ProdutoValido } from '@/lib/proc/combinacoes'
@@ -14,21 +14,17 @@ type PecaComConteudoType = {
     pTexto: Promise<string>,
     descr: string,
     slug: string,
-    // prompt?: string,
-    // sha256?: string,
-    // result?: Promise<GenerateTextResult<Record<string, CoreTool<any, any>>>>,
-    // generated?: string
 }
 
 export type GeneratedContent = {
     id?: number,
     documentCode: string | null, // identificador da peça no Eproc
     documentDescr: string | null, // descrição da peça no Eproc
-    infoDeProduto: InfoDeProduto
-    // prompt: string,
-    // descr: string
-    // produto?: P,
-    data: PromptData,
+    // infoDeProduto: InfoDeProduto
+    title: string,
+    promptSlug: string,
+    data: PromptDataType,
+    plugins?: Plugin[],
     sha256?: string,
     result?: Promise<IAGenerated | undefined>,
     generated?: string,
@@ -47,20 +43,16 @@ export async function summarize(dossierNumber: string, pieceNumber: string): Pro
     const pecasComConteudo = await getPiecesWithContent(dadosDoProcesso, dossierNumber)
     const peca = pecasComConteudo[0]
 
-    let prompt = `resumo-${peca.slug}`
-    const promptUnderscore = prompt.replace(/-/g, '_')
-    let buildPrompt = prompts[promptUnderscore]
-    if (!buildPrompt)
-        prompt = 'resumo-peca'
+    const definition: PromptDefinitionType = getInternalPrompt(`resumo-${peca.slug}`)
 
-    const data: PromptData = { textos: [{ descr: peca.descr, slug: peca.slug, pTexto: peca.pTexto }] }
-    const infoDeProduto: InfoDeProduto = { produto: P.RESUMO_PECA, titulo: peca.descr, dados: [peca.descr as T], prompt, plugins: [] }
+    const data: PromptDataType = { textos: [{ descr: peca.descr, slug: peca.slug, pTexto: peca.pTexto }] }
+    const infoDeProduto: InfoDeProduto = { produto: P.RESUMO_PECA, titulo: peca.descr, dados: [peca.descr as T], prompt: definition.kind, plugins: [] }
     const req: GeneratedContent = {
-        documentCode: peca.id, documentDescr: peca.descr, data, infoDeProduto
+        documentCode: peca.id, documentDescr: peca.descr, data, title: peca.descr, promptSlug: definition.kind
     }
 
     // Retrieve from cache or generate
-    req.result = generateContent(req.infoDeProduto.prompt, req.data)
+    req.result = generateContent(definition, data)
     const result = await req.result as IAGenerated
     req.generated = result.generation
     req.id = result.id
@@ -76,21 +68,14 @@ export function buildRequests(combinacao: CombinacaoValida, pecasComConteudo: Pe
         // Add resume for each piece
         if (produto.produto === P.RESUMOS) {
             for (const peca of pecasComConteudo) {
-                let prompt = `resumo-${peca.slug}`
-                const promptUnderscore = prompt.replace(/-/g, '_')
-                const buildPrompt = prompts[promptUnderscore]
-                if (!buildPrompt) prompt = 'resumo-peca'
-
-                const infoDeProduto = { ...produto }
-                infoDeProduto.titulo = peca.descr
-                infoDeProduto.prompt = prompt
-                const data: PromptData = { textos: [{ descr: peca.descr, slug: peca.slug, pTexto: peca.pTexto }] }
-                requests.push({ documentCode: peca.id, documentDescr: peca.descr, data, infoDeProduto })
+                const definition = getInternalPrompt(`resumo-${peca.slug}`)
+                const data: PromptDataType = { textos: [{ descr: peca.descr, slug: peca.slug, pTexto: peca.pTexto }] }
+                requests.push({ documentCode: peca.id, documentDescr: peca.descr, data, title: peca.descr, promptSlug: definition.kind })
             }
             continue
         }
 
-        let data: PromptData = { textos: pecasComConteudo.map(peca => ({ descr: peca.descr, slug: peca.slug, pTexto: peca.pTexto })) }
+        let data: PromptDataType = { textos: pecasComConteudo.map(peca => ({ descr: peca.descr, slug: peca.slug, pTexto: peca.pTexto })) }
 
         let produtoSimples: P | undefined = undefined
         // if produto is complex filter data.textos
@@ -106,14 +91,12 @@ export function buildRequests(combinacao: CombinacaoValida, pecasComConteudo: Pe
 
         const produtoValido = ProdutosValidos[produtoSimples]
 
-        const prompt = produtoValido.prompt
-        const promptUnderscore = prompt.replace(/-/g, '_')
-        const buildPrompt = prompts[promptUnderscore]
-        if (!buildPrompt) continue
+        const definition = getInternalPrompt(produtoValido.prompt)
+        if (!definition) continue
 
-        const infoDeProduto = { ...produto }
+        // const infoDeProduto = { ...produto }
 
-        requests.push({ documentCode: null, documentDescr: null, data, infoDeProduto })
+        requests.push({ documentCode: null, documentDescr: null, data, promptSlug: definition.kind, title: produtoValido.titulo, plugins: produtoValido.plugins })
     }
     return requests
 }
@@ -140,7 +123,7 @@ export async function analyze(batchName: string | undefined, dossierNumber: stri
 
         // Retrieve from cache or generate
         for (const req of requests) {
-            req.result = generateContent(req.infoDeProduto.prompt, req.data)
+            req.result = generateContent(getInternalPrompt(req.promptSlug), req.data)
         }
 
         for (const req of requests) {
@@ -185,12 +168,12 @@ async function storeBatchItem(systemId: number, batchName: string, dossierNumber
     let seq = 0
     for (const req of requests) {
         const document_id = req.documentCode ? await Dao.assertIADocumentId(null, dossier_id, req.documentCode, req.documentDescr) : null
-        await Dao.insertIABatchDossierItem(null, { batch_dossier_id, document_id, generation_id: req.id as number, descr: req.infoDeProduto.titulo, seq })
+        await Dao.insertIABatchDossierItem(null, { batch_dossier_id, document_id, generation_id: req.id as number, descr: req.title, seq })
         seq++
 
         // process plugins
-        if (!req.infoDeProduto.plugins || !req.infoDeProduto.plugins.length) continue
-        for (const plugin of req.infoDeProduto.plugins) {
+        if (!req.plugins || !req.plugins.length) continue
+        for (const plugin of req.plugins) {
             switch (plugin) {
                 case Plugin.TRIAGEM: {
                     const triage = getTriagem(req.generated)

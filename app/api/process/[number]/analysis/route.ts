@@ -1,7 +1,7 @@
-import { summarize } from "@/lib/ai/analysis"
-import fetcher from "@/lib/utils/fetcher"
-import { filterText } from "@/lib/ui/preprocess"
-import { NextResponse } from "next/server"
+import { analyze, GeneratedContent } from '@/lib/ai/analysis'
+import fetcher from '@/lib/utils/fetcher'
+import { NextResponse } from 'next/server'
+import { filterText } from '@/lib/ui/preprocess'
 
 export const maxDuration = 60
 // export const runtime = 'edge'
@@ -9,9 +9,9 @@ export const maxDuration = 60
 /**
  * @swagger
  * 
- * /api/process/{number}/piece/{piece}/summary:
+ * /api/process/{number}/analysis:
  *   get:
- *     description: Resume uma peça processual
+ *     description: Analisa um processo judicial, produzindo resumo das principais peças e gerando o conteúdo dos produtos pertinentes
  *     tags:
  *       - ai
  *     security:
@@ -21,10 +21,6 @@ export const maxDuration = 60
  *         name: number
  *         required: true
  *         description: Número do processo (apenas números)
- *       - in: path
- *         name: piece
- *         required: true
- *         description: Identificador da peça processual (apenas números)
  *       - in: header
  *         name: model-and-api-key
  *         schema:
@@ -52,25 +48,26 @@ export const maxDuration = 60
  *                 status:
  *                   type: string
  *                   description: OK se a análise foi realizada com sucesso
- *                 product:
- *                   type: object
- *                   properties:
- *                     descr:
- *                       type: string
- *                       description: Descrição do produto
- *                     prompt:
- *                       type: string
- *                       description: Prompt para geração do produto
- *                     generated:
- *                       type: string
- *                       description: Conteúdo gerado
+ *                 products:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       descr:
+ *                         type: string
+ *                         description: Descrição do produto
+ *                       prompt:
+ *                         type: string
+ *                         description: Prompt para geração do produto
+ *                       generated:
+ *                         type: string
+ *                         description: Conteúdo gerado
  */
-export async function GET(req: Request, { params }: { params: { number: string, piece: string } }) {
+export async function GET(req: Request, { params }: { params: { number: string } }) {
   try {
-    const summary = await summarize(params.number, params.piece)
-    const content = summary.generatedContent
-    const resp = { descr: content.infoDeProduto.titulo, prompt: content.infoDeProduto.prompt, generated: filterText(content.generated) }
-    return Response.json({ status: 'OK', generatedContent: resp })
+    const analysis = await analyze(undefined, params.number)
+    const resp = analysis.generatedContent.map((content: GeneratedContent) => ({ descr: content.title, prompt: content.promptSlug, generated: filterText(content.generated) }))
+    return Response.json({ status: 'OK', products: resp })
   } catch (error) {
     const message = fetcher.processError(error)
     return NextResponse.json({ message: `${message}` }, { status: 405 });

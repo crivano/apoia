@@ -6,7 +6,7 @@ import { evaluate } from '../lib/ai/generate'
 import { preprocess, Visualization, VisualizationEnum } from '@/lib/ui/preprocess'
 import { ResumoDePecaLoading } from '@/components/loading'
 import { InfoDeProduto, P } from '@/lib/proc/combinacoes'
-import { TextoType } from '@/lib/ai/prompt-types'
+import { PromptDataType, PromptDefinitionType, PromptOptionsType, TextoType } from '@/lib/ai/prompt-types'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faThumbsDown } from '@fortawesome/free-regular-svg-icons'
 import { faRefresh } from '@fortawesome/free-solid-svg-icons'
@@ -34,7 +34,8 @@ export const spinner = (s: string, complete: boolean): string => {
     return s
 }
 
-export default function AiContent(params: { infoDeProduto: InfoDeProduto, textos: TextoType[], overrideSystemPrompt?: string, overridePrompt?: string, overrideJsonSchema?: string, overrideFormat?: string, cacheControl?: boolean | number }) {
+// export default function AiContent(params: { infoDeProduto: InfoDeProduto, textos: TextoType[], overrideSystemPrompt?: string, overridePrompt?: string, overrideJsonSchema?: string, overrideFormat?: string, cacheControl?: boolean | number }) {
+export default function AiContent(params: { definition: PromptDefinitionType, data: PromptDataType, options?: PromptOptionsType }) {
     const [current, setCurrent] = useState('')
     const [complete, setComplete] = useState(false)
     const [errormsg, setErrormsg] = useState('')
@@ -42,30 +43,24 @@ export default function AiContent(params: { infoDeProduto: InfoDeProduto, textos
     const [evaluated, setEvaluated] = useState(false)
     const [visualizationId, setVisualizationId] = useState<number>(VisualizationEnum.DIFF)
     const initialized = useRef(false)
-    const prompt = params.infoDeProduto.prompt
 
     const handleClose = async (evaluation_id: number, descr: string | null) => {
         setShow(false)
-        if (evaluation_id) setEvaluated(await evaluate(prompt, params, evaluation_id, descr))
+        if (evaluation_id) setEvaluated(await evaluate(params.definition, params.data, evaluation_id, descr))
     }
     const handleShow = () => setShow(true)
 
     const fetchStream = async () => {
         const payload = {
-            prompt,
-            data: { textos: params.textos.map(t => ({ descr: t.descr, slug: t.slug, texto: t.texto })) },
+            kind: params.definition.kind,
+            data: params.data,
             date: new Date(),
-            overrideSystemPrompt: params.overrideSystemPrompt,
-            overridePrompt: params.overridePrompt,
-            overrideJsonSchema: params.overrideJsonSchema,
-            overrideFormat: params.overrideFormat,
-            cacheControl: params.cacheControl
+            overrideSystemPrompt: params.options?.overrideSystemPrompt,
+            overridePrompt: params.options?.overridePrompt,
+            overrideJsonSchema: params.options?.overrideJsonSchema,
+            overrideFormat: params.options?.overrideFormat,
+            cacheControl: params.options?.cacheControl
         }
-        Object.keys(payload).forEach(key => {
-            if (payload[key] === '') {
-            delete payload[key]
-            }
-        })
         const response = await fetch('/api/ai', {
             method: 'POST',
             body: JSON.stringify(payload)
@@ -115,13 +110,13 @@ export default function AiContent(params: { infoDeProduto: InfoDeProduto, textos
                     : null}
                 {errormsg
                     ? <span>{errormsg}</span>
-                    : <div dangerouslySetInnerHTML={{ __html: spinner(preprocess(current, params.infoDeProduto, params.textos, complete, visualizationId), complete) }} />}
+                    : <div dangerouslySetInnerHTML={{ __html: spinner(preprocess(current, params.definition, params.data, complete, visualizationId), complete) }} />}
                 <EvaluationModal show={show} onClose={handleClose} />
             </div>
             : <ResumoDePecaLoading />
         }
 
-        {params.infoDeProduto.produto === P.REFINAMENTO && complete &&
+        {params.definition.kind === 'refinamento' && complete &&
             <div className="row d-print-none">
                 <div className="col col-auto">
                     <Form.Select aria-label="Tipo de Visualização" value={visualizationId} onChange={e => setVisualizationId(parseInt(e.target.value))} className='w-100 mt-2'>

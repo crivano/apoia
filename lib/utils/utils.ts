@@ -112,3 +112,11 @@ export const addBlockQuote = (str: string) => {
   const result = str.replace(regex, subst)
   return result
 }
+
+export const removeEmptyKeys = (payload: any) => {
+    Object.keys(payload).forEach(key => {
+        if (payload[key] === '') {
+            delete payload[key]
+        }
+    })
+}

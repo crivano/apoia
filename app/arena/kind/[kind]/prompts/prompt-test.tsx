@@ -1,14 +1,15 @@
 'use client'
 
 import dynamic from 'next/dynamic'
-import { Suspense, useState, useEffect } from 'react'
+import { Suspense, useState, useEffect, cache } from 'react'
 import AiContent from '@/components/ai-content'
 import { InfoDeProduto, P } from '@/lib/proc/combinacoes'
 import { Button, Container, Form } from 'react-bootstrap'
 import { get } from 'http'
-import { TextoType } from '@/lib/ai/prompt-types'
+import { PromptDefinitionType, PromptOptionsType, TextoType } from '@/lib/ai/prompt-types'
 import { IATestset } from '@/lib/db/mysql-types'
 import { slugify } from '@/lib/utils/utils'
+import { getInternalPrompt } from '@/lib/ai/prompt'
 
 const EditorComp = dynamic(() => import('@/components/EditorComponent'), { ssr: false })
 
@@ -34,6 +35,9 @@ export default function PromptTest(params: {
     const [file, setFile] = useState("0")
     const [hidden, setHidden] = useState(true)
     const [refresh, setRefresh] = useState(false)
+    // const [definition, setDefinition] = useState<PromptDefinitionType>({ kind: params.testset.kind, prompt: '' })
+    // setDefinition()
+
 
     useEffect(() => {
         if (!refresh) return
@@ -67,9 +71,16 @@ export default function PromptTest(params: {
             </div>
             {!hidden && !refresh && <>
                 <h2 className="mt-3">{test.infoDeProduto.titulo}</h2>
-                <AiContent infoDeProduto={test.infoDeProduto} textos={test.textos}
-                    overrideSystemPrompt={params.overrideSystemPrompt} overridePrompt={params.overridePrompt}
-                    overrideJsonSchema={params.overrideJsonSchema} overrideFormat={params.overrideFormat} cacheControl={false} />
+                <AiContent
+                    definition={{ kind: params.testset.kind, prompt: '' }}
+                    data={{ textos: test.textos }}
+                    options={{
+                        overrideSystemPrompt: params.overrideSystemPrompt || '',
+                        overridePrompt: params.overridePrompt || '',
+                        overrideJsonSchema: params.overrideJsonSchema || '',
+                        overrideFormat: params.overrideFormat || '',
+                        cacheControl: true
+                    }} />
             </>}
         </>
     )

@@ -1,4 +1,4 @@
-import _prompts from "@/lib/ai/prompts"
+import { getInternalPrompt } from "@/lib/ai/prompt"
 import { maiusculasEMinusculas, slugify } from "../utils/utils"
 
 // Enum com os tipos de peças
@@ -90,7 +90,7 @@ export const TCombinacoesValidas: TCombinacaoValida[] = [
     { tipos: [T.SENTENCA, T.APELACAO, T.CONTRARRAZOES], produtos: [P.RESUMOS, P.RESUMO] },
     { tipos: [T.SENTENCA, T.RECURSO_INOMINADO], produtos: [P.RESUMOS, P.RESUMO] },
     // { tipos: [T.SENTENCA, T.APELACAO, T.CONTRARRAZOES], produtos: [P.RELATORIO] },
-    { tipos: [T.PETICAO_INICIAL, T.CONTESTACAO], produtos: [P.RESUMOS, P.ANALISE] },
+    { tipos: [T.PETICAO_INICIAL, T.CONTESTACAO], produtos: [P.RESUMOS, P.RESUMO] },
     { tipos: [T.PETICAO_INICIAL, T.INFORMACAO_EM_MANDADO_DE_SEGURANCA], produtos: [P.RESUMOS, P.RESUMO] },
     { tipos: [T.PETICAO_INICIAL], produtos: [P.RESUMOS] },
 ]
@@ -120,12 +120,8 @@ export const infoDeProduto = (produto: P | ProdutoCompleto): InfoDeProduto => {
     // Caso o produto seja um resumo de peça, vamos tentar localizar o melhor prompt e trocar o título
     if (ip.produto === P.RESUMO_PECA) {
         ip.titulo = maiusculasEMinusculas(ip.dados[0])
-        const prompt = `resumo-${slugify(ip.dados[0])}`
-        const promptUnderscore = prompt.replace(/-/g, '_')
-        let buildPrompt = _prompts[promptUnderscore]
-        if (buildPrompt) {
-            ip.prompt = prompt
-        }
+        const definition = getInternalPrompt(`resumo-${slugify(ip.dados[0])}`)
+        ip.prompt = definition.kind
     }
     return ip
 }

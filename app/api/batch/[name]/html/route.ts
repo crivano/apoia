@@ -165,7 +165,7 @@ export async function GET(req: Request, { params }: { params: { name: string } }
                 if (g.descr === P.RESUMO) {
                     text = fixText(text, enumMap)
                 }
-                html += `<h2>${g.document_id ? maiusculasEMinusculas(g.descr) : g.descr}</h2><div class="ai-content">${preprocess(text, { prompt: g.prompt } as InfoDeProduto, [], true)}</div>`
+                html += `<h2>${g.document_id ? maiusculasEMinusculas(g.descr) : g.descr}</h2><div class="ai-content">${preprocess(text, { kind: g.prompt, prompt: '' }, { textos: [] }, true)}</div>`
             }
             html += `</div>`
             html += `<hr style="margin-top: 2em;" />`

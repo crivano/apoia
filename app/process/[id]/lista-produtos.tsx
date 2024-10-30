@@ -4,6 +4,7 @@ import { infoDeProduto, ProdutosValidos } from '../../../lib/proc/combinacoes'
 import { Produto } from './produto'
 import { buildRequests, getPiecesWithContent } from '@/lib/ai/analysis'
 import { ResumoDePecaLoading } from '@/components/loading'
+import { getInternalPrompt } from '@/lib/ai/prompt'
 
 export const ListaDeProdutos = async ({ pDadosDoProcesso }) => {
     const dadosDoProcesso = await pDadosDoProcesso
@@ -18,10 +19,10 @@ export const ListaDeProdutos = async ({ pDadosDoProcesso }) => {
     const requests = buildRequests(combinacao, pecasComConteudo)
 
     return requests.map((request) => {
-        return (<div key={request.infoDeProduto.titulo}>
-            <h2>{maiusculasEMinusculas(request.infoDeProduto.titulo)}</h2>
+        return (<div key={request.title}>
+            <h2>{maiusculasEMinusculas(request.title)}</h2>
             <Suspense fallback={ResumoDePecaLoading()}>
-                <Produto infoDeProduto={request.infoDeProduto} data={request.data} />
+                <Produto definition={getInternalPrompt(request.promptSlug)} data={request.data} />
             </Suspense>
         </div>
         )

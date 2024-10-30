@@ -1,15 +1,14 @@
 'use server'
 
-import { generateText, CoreTool, streamText, StreamTextResult, LanguageModel, streamObject, StreamObjectResult, DeepPartial } from 'ai'
+import { CoreTool, streamText, StreamTextResult, LanguageModel, streamObject, StreamObjectResult, DeepPartial, CoreMessage } from 'ai'
 import { IAGenerated } from '../db/mysql-types'
 import { Dao } from '../db/mysql'
 import { SHA256 } from 'crypto-js'
 import { canonicalize } from 'json-canonicalize'
-import { createStreamableValue, StreamableValue } from 'ai/rsc'
 import { assertCurrentUser } from '../user'
-import { buildMessages } from './build-messages'
-import { PromptOptions } from '@/lib/ai/prompt-types'
+import { PromptDataType, PromptDefinitionType, PromptExecutionResultsType, PromptOptionsType } from '@/lib/ai/prompt-types'
 import { getModel } from './model'
+import { promptExecuteBuilder, waitForTexts } from './prompt'
 
 function calcSha256(messages: any): string {
     return SHA256(canonicalize(messages)).toString()
@@ -27,108 +26,98 @@ export async function saveToCache(sha256: string, model: string, prompt: string,
     return inserted.id
 }
 
-export async function generateContent(prompt: string, data: any, attempt?: number): Promise<IAGenerated> {
-    // const user = await getCurrentUser()
-    // if (!user) return Response.json({ errormsg: 'Unauthorized' }, { status: 401 })
-
-    const { model, modelRef } = getModel()
-    const buildPrompt = await buildMessages(prompt, data)
-    const messages = buildPrompt.message
-    const structuredOutputs = buildPrompt.params?.structuredOutputs
-    const sha256 = calcSha256(messages)
-
-    // write response to a file for debugging
-    if (process.env.NODE_ENV === 'development') {
+// write response to a file for debugging
+function writeResponseToFile(definition: PromptDefinitionType, messages: CoreMessage[], text: string) {
+    const path: string = process.env.SAVE_PROMPT_RESULTS_PATH || ''
+    if (process.env.NODE_ENV === 'development' && path) {
         const fs = require('fs')
-        fs.writeFileSync(`/tmp/generating-${prompt}.txt`, `${messages[0].content}\n\n${messages[1]?.content}\n\n---\n\n`)
+        const currentDate = new Date().toISOString().replace(/[-:]/g, '').replace('T', '-').split('.')[0]
+        fs.writeFileSync(`${path}/${currentDate}-${definition.kind}.txt`, `${messages[0].content}\n\n${messages[1]?.content}\n\n---\n\n${text}`)
     }
-
-
-    // try to retrieve cached generations
-    const cached = await retrieveFromCache(sha256, model, prompt, attempt || null)
-    if (cached) {
-        console.log('cached', prompt)
-        return cached
-    }
-
-    // Start generating texts
-    console.log('generating', prompt)
-    const pResult = generateText({
-        model: modelRef as LanguageModel,
-        messages,
-        maxRetries: 1,
-        // temperature: 1.5,
-    })
-
-    const result = await pResult
-    const generated = result.text
-
-    // save to cache
-    const id = await saveToCache(sha256, model, prompt, generated, attempt || null) || -1
-    return { id, sha256, model, prompt, generation: generated, attempt: attempt || null }
 }
 
-export async function streamContent(prompt: string, data: any, date: Date, options?: PromptOptions):
+export async function generateContent(definition: PromptDefinitionType, data: PromptDataType): Promise<IAGenerated> {
+    const results: PromptExecutionResultsType = {}
+    const pResult = await streamContent(definition, data, results)
+    const stream = await pResult
+
+    let text: string
+    if (typeof stream === 'string') {
+        text = stream
+    } else {
+        text = ''
+        for await (const textPart of stream.textStream) {
+            process.stdout.write(textPart)
+            text += textPart
+        }
+    }
+
+    return {
+        id: results.generationId as number,
+        sha256: results.sha256 as string,
+        model: results.model as string,
+        prompt: definition.kind,
+        generation: text,
+        attempt: definition?.cacheControl !== true && definition?.cacheControl || null
+    }
+}
+
+export async function streamContent(definition: PromptDefinitionType, data: PromptDataType, results?: PromptExecutionResultsType):
 
     Promise<StreamTextResult<Record<string, CoreTool<any, any>>> | StreamObjectResult<DeepPartial<any>, any, never> | string> {
     // const user = await getCurrentUser()
     // if (!user) return Response.json({ errormsg: 'Unauthorized' }, { status: 401 })
-    console.log('will build prompt', prompt, data, options)
-    const buildPrompt = await buildMessages(prompt, data, options)
-    const { model, modelRef } = getModel({ structuredOutputs: !!buildPrompt.params?.structuredOutputs, overrideModel: options?.overrideModel })
-    const messages = buildPrompt.message
-    const structuredOutputs = buildPrompt.params?.structuredOutputs
+    console.log('will build prompt', definition.kind)
+    await waitForTexts(data)
+    const exec = promptExecuteBuilder(definition, data)
+    const messages = exec.message
+    const structuredOutputs = exec.params?.structuredOutputs
+    const { model, modelRef } = getModel({ structuredOutputs: !!structuredOutputs, overrideModel: definition.model })
     const sha256 = calcSha256(messages)
-    const attempt = options?.cacheControl !== true && options?.cacheControl || null
+    if (results) results.sha256 = sha256
+    const attempt = definition?.cacheControl !== true && definition?.cacheControl || null
 
     // try to retrieve cached generations
-    if (buildPrompt.params?.cacheControl !== false) {
-        const cached = await retrieveFromCache(sha256, model, prompt, attempt)
+    if (definition?.cacheControl !== false) {
+        const cached = await retrieveFromCache(sha256, model, definition.kind, attempt)
         if (cached) {
+            if (results) results.generationId = cached.id
             return cached.generation
         }
     }
 
     if (!structuredOutputs) {
-        // console.log('streaming text', prompt, messages, modelRef)
+        console.log('streaming text', definition.kind) //, messages, modelRef)
         const pResult = streamText({
             model: modelRef as LanguageModel,
             messages,
             maxRetries: 1,
             // temperature: 1.5,
             onFinish: async ({ text }) => {
-                if (buildPrompt.params?.cacheControl !== false) {
-                    await saveToCache(sha256, model, prompt, text, attempt || null)
+                if (definition?.cacheControl !== false) {
+                    const generationId = await saveToCache(sha256, model, definition.kind, text, attempt || null)
+                    if (results) results.generationId = generationId
                 }
-                // write response to a file for debugging
-                if (process.env.NODE_ENV === 'development') {
-                    const fs = require('fs')
-                    const currentDate = new Date().toISOString().replace(/[-:]/g, '').replace('T', '-').split('.')[0]
-                    fs.writeFileSync(`/tmp/${currentDate}-${prompt}.txt`, `${messages[0].content}\n\n${messages[1]?.content}\n\n---\n\n${text}`)
-                }
+                writeResponseToFile(definition, messages, text)
             }
         })
         return pResult
     } else {
-        // console.log('streaming object', prompt, messages, modelRef, structuredOutputs.schema)
+        console.log('streaming object', definition.kind) //, messages, modelRef, structuredOutputs.schema)
         const pResult = streamObject({
             model: modelRef as LanguageModel,
             messages,
             maxRetries: 1,
             // // temperature: 1.5,
             onFinish: async ({ object }) => {
-                if (buildPrompt.params?.cacheControl !== false) {
-                    await saveToCache(sha256, model, prompt, JSON.stringify(object), attempt || null)
+                if (definition?.cacheControl !== false) {
+                    const generationId = await saveToCache(sha256, model, definition.kind, JSON.stringify(object), attempt || null)
+                    if (results) results.generationId = generationId
                 }
-                // write response to a file for debugging
-                if (process.env.NODE_ENV === 'development') {
-                    const fs = require('fs')
-                    const currentDate = new Date().toISOString().replace(/[-:]/g, '').replace('T', '-').split('.')[0]
-                    fs.writeFileSync(`/tmp/${currentDate}-${prompt}.txt`, `${messages[0].content}\n\n${messages[1].content}\n\n---\n\n${object}`)
-                }
+                writeResponseToFile(definition, messages, JSON.stringify(object))
             },
-            schemaName: `schema${prompt}`,
-            schemaDescription: `A schema for the prompt ${prompt}`,
+            schemaName: `schema${definition.kind}`,
+            schemaDescription: `A schema for the prompt ${definition.kind}`,
             schema: structuredOutputs.schema,
         })
         // @ts-ignore-next-line
@@ -137,20 +126,7 @@ export async function streamContent(prompt: string, data: any, date: Date, optio
 
 }
 
-export async function streamValue(prompt: string, data: any, date: Date):
-    Promise<StreamableValue> {
-    const result = await streamContent(prompt, data, date)
-    if (typeof result === 'string') {
-        const stream = createStreamableValue()
-        stream.append(result)
-        stream.done()
-        return stream.value
-    }
-    const stream = createStreamableValue(result.textStream)
-    return stream.value
-}
-
-export async function evaluate(prompt: string, data: any, evaluation_id: number, evaluation_descr: string | null):
+export async function evaluate(definition: PromptDefinitionType, data: PromptDataType, evaluation_id: number, evaluation_descr: string | null):
     Promise<boolean> {
     const user = await assertCurrentUser()
     const user_id = await Dao.assertIAUserId(null, user.name)
@@ -158,11 +134,13 @@ export async function evaluate(prompt: string, data: any, evaluation_id: number,
     if (!user_id) throw new Error('Unauthorized')
 
     const { model } = getModel()
-    const messages = await buildMessages(prompt, data)
+    await waitForTexts(data)
+    const exec = promptExecuteBuilder(definition, data)
+    const messages = exec.message
     const sha256 = calcSha256(messages)
 
     // try to retrieve cached generations
-    const cached = await retrieveFromCache(sha256, model, prompt, null)
+    const cached = await retrieveFromCache(sha256, model, definition.kind, null)
     if (!cached) throw new Error('Generation not found')
 
     await Dao.evaluateIAGeneration(null, user_id, cached.id, evaluation_id, evaluation_descr)

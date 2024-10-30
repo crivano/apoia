@@ -1,13 +1,13 @@
 import { streamContent } from '@/lib/ai/generate'
 import { NextResponse } from 'next/server'
 import { CoreTool, DeepPartial, StreamingTextResponse, StreamObjectResult, StreamTextResult } from 'ai'
-import { removeEmptyKeys } from '@/lib/ai/build-messages'
-import { PromptOptions } from '@/lib/ai/prompt-types'
+import { removeEmptyKeys } from '@/lib/utils/utils'
+import { PromptDefinitionType, PromptOptionsType } from '@/lib/ai/prompt-types'
 import { ProgressType } from '@/lib/progress'
 import { Dao } from '@/lib/db/mysql'
 import { slugify } from '@/lib/utils/utils'
 import { ATTEMPTS, buildTest, preprocessQuestion } from '../../../../../../lib/ai/test/test-config'
-import { IATest } from '@/lib/db/mysql-types'
+import { getInternalPrompt, promptDefinitionFromDefinitionAndOptions } from '@/lib/ai/prompt'
 
 export const maxDuration = 60
 
@@ -74,16 +74,17 @@ const execute = async (testsetId: number, promptId: number, modelId: number, con
       yieldProgress(`Teste ${i} - ${test.name} - Executando Prompt`, 0)
       const data: any = { textos: test.texts.map(t => ({ descr: t.name, slug: slugify(t.name), texto: t.value })) }
       const date = new Date()
-      const options: PromptOptions = {
-        overrideSystemPrompt: prompt.content.system_prompt || '',
-        overridePrompt: prompt.content.prompt || '',
-        overrideJsonSchema: prompt.content.json_schema || '',
-        overrideFormat: prompt.content.format || '',
-        overrideModel: model.name,
+      const definition: PromptDefinitionType = {
+        kind: prompt.kind,
+        systemPrompt: prompt.content.system_prompt || '',
+        prompt: prompt.content.prompt || '',
+        jsonSchema: prompt.content.json_schema || '',
+        format: prompt.content.format || '',
+        model: model.name,
         cacheControl: attempt + 1
       }
-      removeEmptyKeys(options)
-      const resultStream = await streamContent(prompt.kind, data, date, options)
+      removeEmptyKeys(definition)
+      const resultStream = await streamContent(definition, data)
       const result = await streamString(`prompt-result-${attempt * stepMax + i * 2}`, resultStream, controller)
       console.log(`Result: ${result}`)
       promptResults.push(result)
@@ -94,13 +95,13 @@ const execute = async (testsetId: number, promptId: number, modelId: number, con
           { descr: 'TEXTO', slug: 'texto', texto: result },
           { descr: 'PERGUNTAS:', slug: 'perguntas', texto: JSON.stringify(test.questions.map(q => ({ question: preprocessQuestion(q.question) }))) }]
       }
-      const date2 = new Date()
-      const options2: PromptOptions = {
-        overrideModel: testsetModel.name,
-        cacheControl: attempt + 1
+      const options2: PromptOptionsType = {
+        overrideModel: testsetModel.name
       }
       removeEmptyKeys(options2)
-      const resultStream2 = await streamContent('int-testar', data2, date2, options2)
+      const definition2 = promptDefinitionFromDefinitionAndOptions(getInternalPrompt('int-testar'), options2)
+
+      const resultStream2 = await streamContent(definition2, data2)
       const result2 = await streamString(`questions-result-${attempt * stepMax + i * 2 + 1}`, resultStream2, controller)
       console.log(`Result2: ${result2}`)
       questionsResults.push(JSON.parse(result2))

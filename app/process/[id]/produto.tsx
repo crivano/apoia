@@ -1,18 +1,10 @@
 import AiContent from '../../../components/ai-content'
-import { PromptData } from '@/lib/ai/prompt-types'
+import { PromptDataType, PromptDefinitionType } from '@/lib/ai/prompt-types'
+import { waitForTexts } from '@/lib/ai/prompt'
 import { InfoDeProduto } from '@/lib/proc/combinacoes'
 
-export const Produto = async (params: { infoDeProduto: InfoDeProduto, data: PromptData }) => {
-    const textos = params?.data?.textos
-
-    if (textos) {
-        for (const texto of textos) {
-            if (texto.texto) continue
-            if (!texto.pTexto) continue
-            texto.texto = await texto.pTexto
-        }
-    }
-
-    return (<AiContent infoDeProduto={params.infoDeProduto} textos={textos} />)
+export const Produto = async (params: { definition: PromptDefinitionType, data: PromptDataType }) => {
+    await waitForTexts(params?.data)
+    return (<AiContent definition={params.definition} data={params.data} />)
 }
 

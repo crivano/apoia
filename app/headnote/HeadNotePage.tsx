@@ -7,6 +7,7 @@ import { P } from '@/lib/proc/combinacoes'
 import { Button, Container } from 'react-bootstrap'
 import PromptConfig from '@/components/prompt-config'
 import { PromptConfigType } from '@/lib/ai/prompt-types'
+import { getInternalPrompt } from '@/lib/ai/prompt'
 
 const EditorComp = dynamic(() => import('../../components/EditorComponent'), { ssr: false })
 
@@ -53,8 +54,9 @@ export default function Revison() {
             {!hidden && markdown && <>
                 <h2 className="mt-3">Ementa</h2>
                 <AiContent
-                    infoDeProduto={{ produto: P.ACORDAO, dados: [], titulo: 'Ementa e Acórdão', prompt: 'ementa', plugins: [] }}
-                    textos={[{ descr: 'EXTRATO DE ATA', slug: 'extrato-de-ata', texto: `ÓRGÃO JULGADOR: ${orgaoJulgador}\nTIPO DE DECISÁO: UNÂMINE` }, { descr: 'Voto', slug: 'voto', texto: markdown }]} />
+                    definition={getInternalPrompt('ementa')}
+                    data={{ textos: [{ descr: 'EXTRATO DE ATA', slug: 'extrato-de-ata', texto: `ÓRGÃO JULGADOR: ${orgaoJulgador}\nTIPO DE DECISÁO: UNÂMINE` }, { descr: 'Voto', slug: 'voto', texto: markdown }] }}
+                    options={{ cacheControl: true }} />
             </>}
         </div>
     )
