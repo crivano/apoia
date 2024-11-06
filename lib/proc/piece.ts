@@ -47,7 +47,7 @@ const obterTextoDePdf = async (buffer: ArrayBuffer, documentId: number) => {
     const { pages, chars } = obterPaginasECaracteres(texto)
 
     // PDF tem texto suficiente para se considerar que não será necessário realizar o OCR
-    if (chars / pages.length > 300) {
+    if (chars / pages.length > 500) {
         Dao.updateDocumentContent(null, documentId, 2, texto);
         return texto
     }

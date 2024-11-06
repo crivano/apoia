@@ -352,9 +352,15 @@ O modelo da resposta é:
 - VOTO DIVERGENTE
 - VOTO-VISTA
 
+# PEÇAS ANTERIORES
+
+Para fins de contextualização, seguem os tipos documentais de todas as peças anteriores, começando pela primeira peça do processo e terminando na peça imediatamente anterior a esta que está sendo analisada.
+
+{{textos.anteriores}}
+
 # TEXTO A SER ANALIZADO
 
-{{textos}}
+{{textos.texto}}
 
 # JSON SCHEMA
 
@@ -367,7 +373,7 @@ O modelo da resposta é:
         "justificativa": {
             "type": "string"
         }
-    }
+    },
     "required": [
         "codigo",
         "justificativa"

@@ -522,7 +522,17 @@ export class Dao {
 
     @tran
     static async updateDocumentCategory(conn: any, document_id: number, assigned_category: string | null, predicted_category: string | null) {
+        // console.log('updateDocumentCategory', document_id, assigned_category, predicted_category)
         await conn.query('UPDATE ia_document SET assigned_category = ?, predicted_category = ? WHERE id = ?', [assigned_category, predicted_category, document_id])
+    }
+
+    @con
+    static async verifyIfDossierHasDocumentsWithPredictedCategories(conn: any, dossierCode: string): Promise<boolean> {
+        const [result] = await conn.query(`
+            SELECT COUNT(*) as count FROM ia_dossier p JOIN ia_document d ON p.id = d.dossier_id
+            WHERE p.code = ? AND predicted_category IS NOT NULL
+        `, [dossierCode])
+        return result[0].count > 0
     }
 
     @con

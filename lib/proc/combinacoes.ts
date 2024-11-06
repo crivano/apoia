@@ -44,6 +44,7 @@ export enum P {
     RESUMO_PECA = 'Resumo de Peça',
     ANALISE = 'Análise',
     ANALISE_TR = 'Análise para Turma Recursal',
+    ANALISE_COMPLETA = 'Análise Completa',
     RESUMO = 'Resumo',
     RELATORIO = 'Relatório',
     EMENTA = 'Ementa',
@@ -56,6 +57,9 @@ export enum Plugin {
     TRIAGEM = 'Triagem',
     NORMAS = 'Normas',
     PALAVRAS_CHAVE = 'Palavras-Chave',
+    TRIAGEM_JSON = 'Triagem JSON',
+    NORMAS_JSON = 'Normas JSON',
+    PALAVRAS_CHAVE_JSON = 'Palavras-Chave JSON',
 }
 
 export interface ProdutoValido { titulo: string, prompt: string, plugins: Plugin[] }
@@ -65,6 +69,7 @@ export const ProdutosValidos = {
     [P.RESUMOS]: { titulo: P.RESUMOS, prompt: 'resumos', plugins: [] },
     [P.ANALISE_TR]: { titulo: P.ANALISE_TR, prompt: 'analise-tr', plugins: [Plugin.TRIAGEM, Plugin.NORMAS, Plugin.PALAVRAS_CHAVE] },
     [P.ANALISE]: { titulo: P.ANALISE, prompt: 'analise', plugins: [] },
+    [P.ANALISE_COMPLETA]: { titulo: P.ANALISE_COMPLETA, prompt: 'analise-completa', plugins: [] },
     [P.RELATORIO]: { titulo: P.RELATORIO, prompt: 'relatorio', plugins: [] },
     [P.RESUMO]: { titulo: P.RESUMO, prompt: 'resumo', plugins: [Plugin.TRIAGEM, Plugin.NORMAS, Plugin.PALAVRAS_CHAVE] },
     [P.ACORDAO]: { titulo: P.ACORDAO, prompt: 'acordao', plugins: [] },

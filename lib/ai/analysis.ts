@@ -101,13 +101,13 @@ export function buildRequests(combinacao: CombinacaoValida, pecasComConteudo: Pe
     return requests
 }
 
-export async function analyze(batchName: string | undefined, dossierNumber: string): Promise<{ dossierData: any, generatedContent: GeneratedContent[] }> {
+export async function analyze(batchName: string | undefined, dossierNumber: string, complete: boolean): Promise<{ dossierData: any, generatedContent: GeneratedContent[] }> {
     console.log('analyze', batchName, dossierNumber)
     try {
         const pUser = assertCurrentUser()
 
         // Obter peças
-        const pDadosDoProcesso = obterDadosDoProcesso(dossierNumber, pUser)
+        const pDadosDoProcesso = obterDadosDoProcesso(dossierNumber, pUser, undefined, undefined, complete)
         const dadosDoProcesso = await pDadosDoProcesso
         if (dadosDoProcesso.errorMsg) throw new Error(dadosDoProcesso.errorMsg)
         if (!dadosDoProcesso?.combinacao) throw new Error(`${dossierNumber}: Nenhuma combinacao válida`)
@@ -117,7 +117,7 @@ export async function analyze(batchName: string | undefined, dossierNumber: stri
 
         const pecasComConteudo = await getPiecesWithContent(dadosDoProcesso, dossierNumber)
 
-        console.log('pecasComConteudo', pecasComConteudo)
+        // console.log('pecasComConteudo', pecasComConteudo)
 
         const requests: GeneratedContent[] = buildRequests(dadosDoProcesso.combinacao, pecasComConteudo)
 
@@ -150,7 +150,8 @@ export async function getPiecesWithContent(dadosDoProcesso: DadosDoProcessoType,
     let pecasComConteudo: PecaComConteudoType[] = []
     for (const peca of dadosDoProcesso.pecas) {
         if (peca.pConteudo === undefined) {
-            throw new Error(`${dossierNumber}: ${peca.descr}: Conteúdo não encontrado`)
+            // console.log('peca', peca)
+            throw new Error(`Conteúdo não encontrado no processo ${dossierNumber}, peça ${peca.id}, rótulo ${peca.rotulo}`)
         }
         const slug = await slugify(peca.descr)
         pecasComConteudo.push({ id: peca.id, descr: peca.descr, slug, pTexto: peca.pConteudo })
@@ -182,6 +183,17 @@ async function storeBatchItem(systemId: number, batchName: string, dossierNumber
                     await Dao.assertIABatchDossierEnumItemId(null, batch_dossier_id, enum_item_id)
                     break
                 }
+                case Plugin.TRIAGEM_JSON: {
+                    if (req.generated) {
+                        const triage = JSON.parse(req.generated).triagem
+                        if (triage) {
+                            const enum_id = await Dao.assertIAEnumId(null, Plugin.TRIAGEM)
+                            const enum_item_id = await Dao.assertIAEnumItemId(null, triage, enum_id)
+                            await Dao.assertIABatchDossierEnumItemId(null, batch_dossier_id, enum_item_id)
+                            break
+                        }
+                    }
+                }
                 case Plugin.NORMAS: {
                     const normas = getNormas(req.generated)
                     const enum_id = await Dao.assertIAEnumId(null, Plugin.NORMAS)
@@ -191,6 +203,19 @@ async function storeBatchItem(systemId: number, batchName: string, dossierNumber
                     }
                     break
                 }
+                case Plugin.NORMAS_JSON: {
+                    if (req.generated) {
+                        const normas = JSON.parse(req.generated).normas
+                        if (normas) {
+                            const enum_id = await Dao.assertIAEnumId(null, Plugin.NORMAS)
+                            for (const norma of normas) {
+                                const enum_item_id = await Dao.assertIAEnumItemId(null, norma, enum_id)
+                                await Dao.assertIABatchDossierEnumItemId(null, batch_dossier_id, enum_item_id)
+                            }
+                            break
+                        }
+                    }
+                }
                 case Plugin.PALAVRAS_CHAVE: {
                     const palavrasChave = getPalavrasChave(req.generated)
                     const enum_id = await Dao.assertIAEnumId(null, Plugin.PALAVRAS_CHAVE)
@@ -199,6 +224,19 @@ async function storeBatchItem(systemId: number, batchName: string, dossierNumber
                         await Dao.assertIABatchDossierEnumItemId(null, batch_dossier_id, enum_item_id)
                     }
                     break
+                }
+                case Plugin.PALAVRAS_CHAVE_JSON: {
+                    if (req.generated) {
+                        const palavrasChave = JSON.parse(req.generated).palavrasChave
+                        if (palavrasChave) {
+                            const enum_id = await Dao.assertIAEnumId(null, Plugin.PALAVRAS_CHAVE)
+                            for (const palavraChave of palavrasChave) {
+                                const enum_item_id = await Dao.assertIAEnumItemId(null, palavraChave, enum_id)
+                                await Dao.assertIABatchDossierEnumItemId(null, batch_dossier_id, enum_item_id)
+                            }
+                            break
+                        }
+                    }
                 }
             }
         }

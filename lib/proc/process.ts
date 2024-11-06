@@ -2,7 +2,7 @@
 
 import { pdfToText } from '../pdf/pdf'
 import { html2md } from '../utils/html2md'
-import { T, CombinacoesValidas, CombinacaoValida } from './combinacoes'
+import { T, CombinacoesValidas, CombinacaoValida, P, infoDeProduto } from './combinacoes'
 import { parseYYYYMMDDHHMMSS, formatBrazilianDateTime, addBlockQuote } from '../utils/utils'
 import { decrypt } from '../utils/crypt'
 import { Dao } from '../db/mysql'
@@ -10,6 +10,7 @@ import { IADocument } from '../db/mysql-types'
 import { inferirCategoriaDaPeca } from '../category'
 import { consultarProcesso } from '../mni'
 import { obterConteudoDaPeca, obterDocumentoGravado } from './piece'
+import { faObjectUngroup } from '@fortawesome/free-solid-svg-icons'
 
 export type PecaType = {
     id: string
@@ -20,7 +21,10 @@ export type PecaType = {
     pConteudo: Promise<string> | undefined
     pDocumento: Promise<IADocument> | undefined
     documento: IADocument | undefined
-    pCategoria: Promise<string> | undefined
+    // pCategoria: Promise<string> | undefined
+    categoria: string | undefined
+    rotulo: string | undefined
+    dataHora: Date | undefined
 }
 
 export type DadosDoProcessoType = {
@@ -52,29 +56,23 @@ const selecionarPecas = (pecas: PecaType[], descricoes: string[]) => {
     return pecasSelecionadas
 }
 
-const iniciarObtencaoDeConteudo = (dossier_id: number, numeroDoProcesso: string, pecas: PecaType[], username: string, password: string) => {
-    const pecasComConteudo: PecaType[] = []
+const iniciarObtencaoDeConteudo = async (dossier_id: number, numeroDoProcesso: string, pecas: PecaType[], username: string, password: string, synchronous?: boolean) => {
     for (const peca of pecas) {
-        pecasComConteudo.push({
-            ...peca,
-            pConteudo: obterConteudoDaPeca(dossier_id, numeroDoProcesso, peca.id, peca.descr, username, password)
-        })
+        peca.pConteudo = obterConteudoDaPeca(dossier_id, numeroDoProcesso, peca.id, peca.descr, username, password)
+        if (synchronous)
+            await peca.pConteudo
     }
-    return pecasComConteudo
+    return pecas
 }
 
 const iniciarObtencaoDeDocumentoGravado = (dossier_id: number, numeroDoProcesso: string, pecas: PecaType[], username: string, password: string) => {
-    const pecasComConteudo: PecaType[] = []
     for (const peca of pecas) {
-        pecasComConteudo.push({
-            ...peca,
-            pDocumento: obterDocumentoGravado(dossier_id, numeroDoProcesso, peca.id, peca.descr, username, password)
-        })
+        peca.pDocumento = obterDocumentoGravado(dossier_id, numeroDoProcesso, peca.id, peca.descr, username, password)
     }
-    return pecasComConteudo
+    return pecas
 }
 
-export const obterDadosDoProcesso = async (numeroDoProcesso: string, pUser: Promise<any>, idDaPeca?: string): Promise<DadosDoProcessoType> => {
+export const obterDadosDoProcesso = async (numeroDoProcesso: string, pUser: Promise<any>, idDaPeca?: string, identificarPecas?: boolean, completo?: boolean): Promise<DadosDoProcessoType> => {
     let pecas: PecaType[] = []
     let errorMsg = undefined
     try {
@@ -112,60 +110,106 @@ export const obterDadosDoProcesso = async (numeroDoProcesso: string, pUser: Prom
                 pConteudo: undefined,
                 pDocumento: undefined,
                 documento: undefined,
-                pCategoria: undefined
+                categoria: undefined,
+                rotulo: doc.outroParametro?.find(p => p?.attributes?.nome === 'rotulo')?.attributes.valor,
+                dataHora: parseYYYYMMDDHHMMSS(doc.attributes.dataHora),
             })
         }
 
+        const parseRotulo = (rotulo: string) => {
+            const match = rotulo.match(/^([A-Z]+)(\d+)$/)
+            if (match) {
+                return { letters: match[1], number: parseInt(match[2], 10) }
+            }
+            return { letters: '', number: 0 }
+        }
+
         pecas.sort((a, b) => {
-            let i = a.numeroDoEvento.localeCompare(b.numeroDoEvento)
+            let i = parseInt(a.numeroDoEvento) - parseInt(b.numeroDoEvento)
             if (i !== 0) return i
-            return a.descr.localeCompare(b.descr)
+            if (a.rotulo && b.rotulo) {
+                const ap = parseRotulo(a.rotulo)
+                const bp = parseRotulo(b.rotulo)
+                if (ap.letters === bp.letters) {
+                    i = ap.number - bp.number
+                    if (i !== 0) return i
+                }
+            }
+            if (a.dataHora && b.dataHora) {
+                i = a.dataHora.getTime() - b.dataHora.getTime()
+                if (i !== 0) return i
+            }
+            return a.id.localeCompare(b.id)
         })
+
+        // for (const peca of pecas) {
+        //     console.log('peca', peca.id, peca.numeroDoEvento, peca.descr, peca.rotulo)
+        // }
+
+        if (completo) {
+            const pecasComConteudo = await iniciarObtencaoDeConteudo(dossier_id, numeroDoProcesso, pecas, username, password)
+            return { pecas: pecasComConteudo, combinacao: { tipos: [], produtos: [infoDeProduto(P.ANALISE_COMPLETA)] }, ajuizamento, codigoDaClasse, numeroDoProcesso, nomeOrgaoJulgador }
+        }
 
         if (idDaPeca) {
             pecas = pecas.filter(p => p.id === idDaPeca)
             if (pecas.length === 0)
                 throw new Error(`Peça ${idDaPeca} não encontrada`)
-            const pecasComConteudo = iniciarObtencaoDeConteudo(dossier_id, numeroDoProcesso, pecas, username, password)
+            const pecasComConteudo = await iniciarObtencaoDeConteudo(dossier_id, numeroDoProcesso, pecas, username, password)
             return { pecas: pecasComConteudo, ajuizamento, codigoDaClasse, numeroDoProcesso, nomeOrgaoJulgador }
         }
 
-        if (process.env.OTHER_PIECES_IDENTIFICATION === 'true') {
-            // Localiza pecas with descricao == 'OUTROS' e busca no banco de dados se já foram inferidas por IA
-            const pecasOutros = pecas.filter(p => p.descr === 'OUTROS')
-            if (pecasOutros.length > 0) {
-                console.log('pecasOutros', pecasOutros.length)
+        // Localiza pecas with descricao == 'OUTROS' e busca no banco de dados se já foram inferidas por IA
+        const pecasOutros = pecas.filter(p => p.descr === 'OUTROS')
+        if (pecasOutros.length > 0) {
+            if (await Dao.verifyIfDossierHasDocumentsWithPredictedCategories(null, numeroDoProcesso)) {
+                console.log(`Carregando tipos documentais de ${pecasOutros.length} peças marcadas com "OUTROS"`)
                 const pecasComDocumento = iniciarObtencaoDeDocumentoGravado(dossier_id, numeroDoProcesso, pecasOutros, username, password)
                 for (const peca of pecasComDocumento) {
                     if (peca.pDocumento) {
                         peca.documento = await peca.pDocumento
+                        // console.log('peca recuperada', peca.id, peca.documento.id)
                         if (peca.documento.predicted_category && peca.documento.predicted_category !== '') {
                             peca.descr = peca.documento.predicted_category
                         }
                     }
                 }
             }
-            console.log('pecasOutros-fim')
+        }
+
+        if (identificarPecas === true) {
 
             // Localiza pecas with descricao == 'OUTROS' e usa IA para determinar quais são os tipos destas peças
             const pecasOutros2 = pecas.filter(p => p.descr === 'OUTROS')
             if (pecasOutros2.length > 0) {
-                console.log('pecasOutros2', pecasOutros2.length)
-                const pecasComConteudo = iniciarObtencaoDeConteudo(dossier_id, numeroDoProcesso, pecasOutros2, username, password)
+                console.log(`Identificando tipos documentais de ${pecasOutros2.length} peças marcadas com "OUTROS"`)
+                const pecasComConteudo = await iniciarObtencaoDeConteudo(dossier_id, numeroDoProcesso, pecasOutros2, username, password, true)
                 for (const peca of pecasComConteudo) {
                     if (peca.pConteudo) {
                         const conteudo = await peca.pConteudo
-                        peca.pCategoria = inferirCategoriaDaPeca(dossier_id, peca.documento?.id, conteudo)
-                    }
-                }
-                for (const peca of pecasComConteudo) {
-                    if (peca.pCategoria) {
-                        const categoria = await peca.pCategoria
-                        if (categoria) peca.descr = categoria
+
+                        // Localiza a categoria das peças anteriores a esta peça
+                        const anteriores: string[] = []
+                        for (const pecaAnterior of pecas) {
+                            if (pecaAnterior.id === peca.id) break
+                            anteriores.push(pecaAnterior.descr)
+                        }
+
+                        const categoria = await inferirCategoriaDaPeca(dossier_id, peca.documento?.id, conteudo, anteriores)
+                        if (categoria) {
+                            // console.log(peca.id, peca.documento)
+                            if (!peca.documento)
+                                throw new Error(`Documento ${peca.id} do processo ${numeroDoProcesso} não encontrado`)
+                            console.log(`Peça ${peca.id} do processo ${numeroDoProcesso}, originalmente categorizada como ${peca.descr}, identificada como ${categoria}`)
+                            if (peca.descr !== 'OUTROS')
+                                throw new Error(`Peça ${peca.id} do processo ${numeroDoProcesso} não é do tipo 'OUTROS'`)
+                            await Dao.updateDocumentCategory(null, peca.documento.id, peca.descr, categoria)
+                            peca.descr = categoria
+                        }
                     }
                 }
             }
-            console.log('pecasOutros2-fim')
+            console.log('Identificação concluída')
         }
 
         for (const comb of CombinacoesValidas) {
@@ -175,7 +219,7 @@ export const obterDadosDoProcesso = async (numeroDoProcesso: string, pUser: Prom
                     for (const peca of pecasSelecionadas)
                         assertNivelDeSigilo(peca.sigilo, `${peca.descr} (${peca.id})`)
 
-                const pecasComConteudo = iniciarObtencaoDeConteudo(dossier_id, numeroDoProcesso, pecasSelecionadas, username, password)
+                const pecasComConteudo = await iniciarObtencaoDeConteudo(dossier_id, numeroDoProcesso, pecasSelecionadas, username, password)
                 return { pecas: pecasComConteudo, combinacao: comb, ajuizamento, codigoDaClasse, numeroDoProcesso, nomeOrgaoJulgador }
             }
         }

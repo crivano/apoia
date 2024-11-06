@@ -103,11 +103,12 @@ import resumo_sentenca from "@/prompts/resumo-sentenca.md"
 import resumo_recurso_inominado from "@/prompts/resumo-recurso-inominado.md"
 import analise from "@/prompts/analise.md"
 import analise_tr from "@/prompts/analise-tr.md"
+import analise_completa from '@/prompts/analise-completa.md'
 import resumo from "@/prompts/resumo.md"
 import revisao from "@/prompts/revisao.md"
 import refinamento from "@/prompts/refinamento.md"
 import sentenca from "@/prompts/sentenca.md"
-import int_identificar_tipo_de_documento from '@/prompts/int-identificar-tipo-de-documento.md'
+import int_identificar_categoria_de_peca from '@/prompts/int-identificar-categoria-de-peca.md'
 
 // Enum for the different types of prompts
 export const internalPrompts = {
@@ -122,11 +123,12 @@ export const internalPrompts = {
     resumo_recurso_inominado: promptDefinitionFromMarkdown('resumo_recurso_inominado', resumo_recurso_inominado),
     analise: promptDefinitionFromMarkdown('analise', analise),
     analise_tr: promptDefinitionFromMarkdown('analise_tr', analise_tr),
+    analise_completa: promptDefinitionFromMarkdown('analise_completa', analise_completa),
     resumo: promptDefinitionFromMarkdown('resumo', resumo),
     revisao: promptDefinitionFromMarkdown('revisao', revisao),
     refinamento: promptDefinitionFromMarkdown('refinamento', refinamento),
     sentenca: promptDefinitionFromMarkdown('sentenca', sentenca),
-    int_identificar_tipo_de_documento: promptDefinitionFromMarkdown('int_identificar_tipo_de_documento', int_identificar_tipo_de_documento),
+    int_identificar_categoria_de_peca: promptDefinitionFromMarkdown('int_identificar_categoria_de_peca', int_identificar_categoria_de_peca),
 
 }
 
