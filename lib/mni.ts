@@ -1,9 +1,13 @@
 'use server'
-import { createHash } from 'node:crypto';
+import { createHash } from 'node:crypto'
 
 import * as soap from 'soap'
 import { systems } from '@/lib/utils/env'
 import { assertCurrentUser } from '@/lib/user'
+
+import pLimit from 'p-limit'
+
+const limit = pLimit(process.env.MNI_LIMIT ? parseInt(process.env.MNI_LIMIT) : 1)
 
 const clientMap = new Map<string, soap.Client>()
 
@@ -77,7 +81,10 @@ export const consultarProcesso = async (numero, username, password) => {
     return pConsultarProcesso
 }
 
-export const obterPeca = async (numeroDoProcesso, idDaPeca, username: string, password: string) => {
+export const obterPeca = async (numeroDoProcesso, idDaPeca, username: string, password: string) =>
+    limit(() => obterPecaSemLimite(numeroDoProcesso, idDaPeca, username, password))
+
+export const obterPecaSemLimite = async (numeroDoProcesso, idDaPeca, username: string, password: string) => {
     const client = await getClient(undefined)
     const user = await assertCurrentUser()
     const system = systems.find(s => s.system === user.image.system)

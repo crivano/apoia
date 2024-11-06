@@ -104,6 +104,7 @@ export async function streamContent(definition: PromptDefinitionType, data: Prom
         return pResult
     } else {
         console.log('streaming object', definition.kind) //, messages, modelRef, structuredOutputs.schema)
+        writeResponseToFile(definition, messages, "antes de executar")
         const pResult = streamObject({
             model: modelRef as LanguageModel,
             messages,

@@ -8,6 +8,9 @@ import { Dao } from '../db/mysql'
 import { IADocument } from '../db/mysql-types'
 import { obterPeca } from '../mni'
 
+import pLimit from 'p-limit'
+const limit = pLimit(process.env.OCR_LIMIT ? parseInt(process.env.OCR_LIMIT) : 1)
+
 const obterTextoDeHtml = async (buffer: ArrayBuffer, documentId: number) => {
     const decoder = new TextDecoder('iso-8859-1')
     const html = decoder.decode(buffer)
@@ -24,8 +27,11 @@ const obterPaginasECaracteres = (texto) => {
     return { pages, chars }
 }
 
+export const ocrPdf = async (buffer: ArrayBuffer) =>
+    limit(() => ocrPdfSemLimite(buffer))
+
 // Método que recebe um buffer de um PDF, faz um post http para o serviço de OCR e retorna o PDF processado pelo OCR
-const ocrPdf = async (buffer: ArrayBuffer) => {
+const ocrPdfSemLimite = async (buffer: ArrayBuffer) => {
     console.log('ocrPdf', buffer.byteLength)
     const url = process.env.OCR_URL as string
     const formData = new FormData()
@@ -100,6 +106,9 @@ export const obterConteudoDaPeca = async (dossier_id: number, numeroDoProcesso: 
         }
         case 'application/pdf': {
             return obterTextoDePdf(buffer, document_id)
+        }
+        case 'image/jpeg': {
+            return 'Imagem'
         }
     }
     throw new Error(`Tipo de conteúdo não suportado: ${contentType}`)

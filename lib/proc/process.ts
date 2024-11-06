@@ -147,6 +147,9 @@ export const obterDadosDoProcesso = async (numeroDoProcesso: string, pUser: Prom
         // }
 
         if (completo) {
+            if (verificarNivelDeSigilo())
+                for (const peca of pecas)
+                    assertNivelDeSigilo(peca.sigilo, `${peca.descr} (${peca.id})`)
             const pecasComConteudo = await iniciarObtencaoDeConteudo(dossier_id, numeroDoProcesso, pecas, username, password)
             return { pecas: pecasComConteudo, combinacao: { tipos: [], produtos: [infoDeProduto(P.ANALISE_COMPLETA)] }, ajuizamento, codigoDaClasse, numeroDoProcesso, nomeOrgaoJulgador }
         }
