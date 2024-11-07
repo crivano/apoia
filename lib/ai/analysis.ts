@@ -1,6 +1,6 @@
 import { getInternalPrompt } from '@/lib/ai/prompt'
-import { PromptDataType, PromptDefinitionType } from '@/lib/ai/prompt-types'
-import { DadosDoProcessoType, obterDadosDoProcesso } from '@/lib/proc/process'
+import { PromptDataType, PromptDefinitionType, TextoType } from '@/lib/ai/prompt-types'
+import { DadosDoProcessoType, obterDadosDoProcesso, PecaType } from '@/lib/proc/process'
 import { assertCurrentUser } from '@/lib/user'
 import { T, P, ProdutosValidos, Plugin, ProdutoCompleto, CombinacaoValida, InfoDeProduto, ProdutoValido } from '@/lib/proc/combinacoes'
 import { slugify } from '@/lib/utils/utils'
@@ -8,13 +8,6 @@ import { IAGenerated } from '@/lib/db/mysql-types'
 import { Dao } from '@/lib/db/mysql'
 import { getTriagem, getNormas, getPalavrasChave } from '@/lib/fix'
 import { generateContent } from '@/lib/ai/generate'
-
-type PecaComConteudoType = {
-    id: string, // identificador da peça no Eproc
-    pTexto: Promise<string>,
-    descr: string,
-    slug: string,
-}
 
 export type GeneratedContent = {
     id?: number,
@@ -48,7 +41,7 @@ export async function summarize(dossierNumber: string, pieceNumber: string): Pro
     const data: PromptDataType = { textos: [{ descr: peca.descr, slug: peca.slug, pTexto: peca.pTexto }] }
     const infoDeProduto: InfoDeProduto = { produto: P.RESUMO_PECA, titulo: peca.descr, dados: [peca.descr as T], prompt: definition.kind, plugins: [] }
     const req: GeneratedContent = {
-        documentCode: peca.id, documentDescr: peca.descr, data, title: peca.descr, promptSlug: definition.kind
+        documentCode: peca.id || null, documentDescr: peca.descr, data, title: peca.descr, promptSlug: definition.kind
     }
 
     // Retrieve from cache or generate
@@ -60,7 +53,7 @@ export async function summarize(dossierNumber: string, pieceNumber: string): Pro
     return { dossierData: dadosDoProcesso, generatedContent: req }
 }
 
-export function buildRequests(combinacao: CombinacaoValida, pecasComConteudo: PecaComConteudoType[]): GeneratedContent[] {
+export function buildRequests(combinacao: CombinacaoValida, pecasComConteudo: TextoType[]): GeneratedContent[] {
     const requests: GeneratedContent[] = []
 
     // Add product IARequests
@@ -69,13 +62,13 @@ export function buildRequests(combinacao: CombinacaoValida, pecasComConteudo: Pe
         if (produto.produto === P.RESUMOS) {
             for (const peca of pecasComConteudo) {
                 const definition = getInternalPrompt(`resumo-${peca.slug}`)
-                const data: PromptDataType = { textos: [{ descr: peca.descr, slug: peca.slug, pTexto: peca.pTexto }] }
-                requests.push({ documentCode: peca.id, documentDescr: peca.descr, data, title: peca.descr, promptSlug: definition.kind })
+                const data: PromptDataType = { textos: pecasComConteudo }
+                requests.push({ documentCode: peca.id || null, documentDescr: peca.descr, data, title: peca.descr, promptSlug: definition.kind })
             }
             continue
         }
 
-        let data: PromptDataType = { textos: pecasComConteudo.map(peca => ({ descr: peca.descr, slug: peca.slug, pTexto: peca.pTexto })) }
+        let data: PromptDataType = { textos: pecasComConteudo }
 
         let produtoSimples: P | undefined = undefined
         // if produto is complex filter data.textos
@@ -115,7 +108,18 @@ export async function analyze(batchName: string | undefined, dossierNumber: stri
         // if (dadosDoProcesso?.combinacao?.produtos[0] !== P.ANALISE_TR)
         //   throw new Error(`${numeroDoProcesso}: Combinação inválida`)
 
-        const pecasComConteudo = await getPiecesWithContent(dadosDoProcesso, dossierNumber)
+        let pecasComConteudo = await getPiecesWithContent(dadosDoProcesso, dossierNumber)
+
+        if (complete) {
+            // Remove as informações sobre os documentos que, para esses processos mais antigos, não são confiáveis
+            for (const peca of pecasComConteudo) {
+                peca.descr = 'DOCUMENTO'
+                peca.slug = 'document'
+            }
+            // Limita aos primeiros N documentos, para não ficar muito caro nos testes
+            if (process.env.COMPLETE_ANALYSIS_LIMIT)
+                pecasComConteudo = pecasComConteudo.slice(0, parseInt(process.env.COMPLETE_ANALYSIS_LIMIT as string))
+        }
 
         // console.log('pecasComConteudo', pecasComConteudo)
 
@@ -146,15 +150,15 @@ export async function analyze(batchName: string | undefined, dossierNumber: stri
     }
 }
 
-export async function getPiecesWithContent(dadosDoProcesso: DadosDoProcessoType, dossierNumber: string): Promise<PecaComConteudoType[]> {
-    let pecasComConteudo: PecaComConteudoType[] = []
+export async function getPiecesWithContent(dadosDoProcesso: DadosDoProcessoType, dossierNumber: string): Promise<TextoType[]> {
+    let pecasComConteudo: TextoType[] = []
     for (const peca of dadosDoProcesso.pecas) {
         if (peca.pConteudo === undefined) {
             // console.log('peca', peca)
             throw new Error(`Conteúdo não encontrado no processo ${dossierNumber}, peça ${peca.id}, rótulo ${peca.rotulo}`)
         }
         const slug = await slugify(peca.descr)
-        pecasComConteudo.push({ id: peca.id, descr: peca.descr, slug, pTexto: peca.pConteudo })
+        pecasComConteudo.push({ id: peca.id, event: peca.numeroDoEvento, label: peca.rotulo, descr: peca.descr, slug, pTexto: peca.pConteudo })
     }
     return pecasComConteudo
 }

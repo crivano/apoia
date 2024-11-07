@@ -64,8 +64,10 @@ export const maxDuration = 60
  *                         description: Conteúdo gerado
  */
 export async function GET(req: Request, { params }: { params: { number: string } }) {
+  const url = new URL(req.url)
+  const complete: boolean = url.searchParams.get('complete') === 'true'
   try {
-    const analysis = await analyze(undefined, params.number)
+    const analysis = await analyze(undefined, params.number, complete)
     const resp = analysis.generatedContent.map((content: GeneratedContent) => ({ descr: content.title, prompt: content.promptSlug, generated: filterText(content.generated) }))
     return Response.json({ status: 'OK', products: resp })
   } catch (error) {

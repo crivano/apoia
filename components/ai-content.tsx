@@ -34,7 +34,6 @@ export const spinner = (s: string, complete: boolean): string => {
     return s
 }
 
-// export default function AiContent(params: { infoDeProduto: InfoDeProduto, textos: TextoType[], overrideSystemPrompt?: string, overridePrompt?: string, overrideJsonSchema?: string, overrideFormat?: string, cacheControl?: boolean | number }) {
 export default function AiContent(params: { definition: PromptDefinitionType, data: PromptDataType, options?: PromptOptionsType }) {
     const [current, setCurrent] = useState('')
     const [complete, setComplete] = useState(false)

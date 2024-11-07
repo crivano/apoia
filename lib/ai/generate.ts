@@ -86,12 +86,15 @@ export async function streamContent(definition: PromptDefinitionType, data: Prom
         }
     }
 
+    writeResponseToFile(definition, messages, "antes de executar")
+    // if (1 == 1) throw new Error('Interrupted')
+
     if (!structuredOutputs) {
         console.log('streaming text', definition.kind) //, messages, modelRef)
         const pResult = streamText({
             model: modelRef as LanguageModel,
             messages,
-            maxRetries: 1,
+            maxRetries: 0,
             // temperature: 1.5,
             onFinish: async ({ text }) => {
                 if (definition?.cacheControl !== false) {
@@ -104,7 +107,6 @@ export async function streamContent(definition: PromptDefinitionType, data: Prom
         return pResult
     } else {
         console.log('streaming object', definition.kind) //, messages, modelRef, structuredOutputs.schema)
-        writeResponseToFile(definition, messages, "antes de executar")
         const pResult = streamObject({
             model: modelRef as LanguageModel,
             messages,

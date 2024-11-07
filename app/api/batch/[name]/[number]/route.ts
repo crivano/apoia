@@ -33,11 +33,13 @@ export const maxDuration = 60
  */
 export async function POST(req: Request, { params }: { params: { name: string, number: string } }) {
   const { name, number } = params
+  const url = new URL(req.url)
+  const complete: boolean = url.searchParams.get('complete') === 'true'
   try {
     const user = await getCurrentUser()
     if (!user) return Response.json({ errormsg: 'Unauthorized' }, { status: 401 })
 
-    const msg = await analyze(name, number, false)
+    const msg = await analyze(name, number, complete)
     return Response.json({ status: 'OK', msg })
   } catch (error) {
     console.error('Erro analisando', error)

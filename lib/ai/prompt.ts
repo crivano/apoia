@@ -1,10 +1,17 @@
 import { CoreMessage, jsonSchema } from "ai"
 import { slugify } from "@/lib/utils/utils"
-import { PromptDataType, PromptExecuteType, PromptExecuteParamsType, PromptDefinitionType, PromptOptionsType } from "@/lib/ai/prompt-types"
+import { PromptDataType, PromptExecuteType, PromptExecuteParamsType, PromptDefinitionType, PromptOptionsType, TextoType } from "@/lib/ai/prompt-types"
 import { buildFormatter } from "@/lib/ai/format"
 
+
+export const formatText = (txt: TextoType) => {
+    let s: string = txt.descr
+    s += `:\n<${txt.slug}${txt.event ? ` event="${txt.event}"` : ''}${txt.label ? ` label="${txt.label}"` : ''}>\n${txt.texto}\n</${txt.slug}>\n\n`
+    return s
+}
+
 export const applyTextsAndVariables = (text: string, data: PromptDataType): string => {
-    const allTexts = `${data.textos.reduce((acc, txt) => acc + `${txt.descr}:\n<${txt.slug}>\n${txt.texto}\n</${txt.slug}>\n\n`, '')}`
+    const allTexts = `${data.textos.reduce((acc, txt) => acc + formatText(txt), '')}`
     text = text.replace('{{textos}}', allTexts)
 
     text = text.replace(/{{textos\.([a-z_]+)}}/g, (match, slug) => {

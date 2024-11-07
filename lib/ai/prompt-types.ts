@@ -27,7 +27,15 @@ export type PromptDefinitionType = {
 
 // Tipo que define os textos que serão passados para um prompt
 //
-export type TextoType = { descr: string; slug: string; pTexto?: Promise<string>; texto?: string }
+export type TextoType = { 
+    id?: string // identificador da peça no Eproc
+    event?: string
+    label?: string
+    descr: string
+    slug: string
+    pTexto?: Promise<string>
+    texto?: string 
+}
 export type PromptDataType = { textos: TextoType[] }
 
 // Tipo de dados que podem ser passados para a execução de um prompt
