@@ -12,6 +12,7 @@ export default function ProcessNumberForm(params) {
     noStore()
 
     const [batchName, setBatchName] = useState('')
+    const [complete, setComplete] = useState(false)
     const [input, setInput] = useState('')
     const [processing, setProcessing] = useState('')
     const [ready, setReady] = useState('')
@@ -41,7 +42,7 @@ export default function ProcessNumberForm(params) {
         // do the job
         try {
 
-            const result = await Fetcher.post(`/api/batch/${encodeURIComponent(batchName)}/${encodeURIComponent(number)}`)
+            const result = await Fetcher.post(`/api/batch/${encodeURIComponent(batchName)}/${encodeURIComponent(number)}?complete=${complete ? 'true' : 'false'}`)
             // if (result?.status === 'OK')
             readyItems.unshift(number)
         } catch (e) {
@@ -63,7 +64,7 @@ export default function ProcessNumberForm(params) {
         // throw an error if the number is invalid
         if (!number.match(/^\d{20}$/))
             throw new Error('Número de processo inválido')
-        
+
         processingItems.unshift(number)
         await execute(batchName, number as string)
         updateStates()
@@ -95,10 +96,25 @@ export default function ProcessNumberForm(params) {
     return (
         <>
             <div className="row">
-                <div className="col col-12">
+                <div className="col col-9">
                     <div className="form-group mb-3">
                         <label className="form-label">Nome do Lote</label>
                         <input id="batchName" name="batchName" placeholder="" className="form-control" onChange={(e) => setBatchName(e.target.value)} value={batchName} disabled={running} />
+                    </div>
+                </div>
+                <div className="col col-3">
+                    <div className="form-group mb-3">
+                        <input
+                            type="checkbox"
+                            id="complete"
+                            name="complete"
+                            className="form-check-input"
+                            onChange={(e) => setComplete(e.target.checked)}
+                            checked={complete}
+                            disabled={running}
+                        />
+                        <label className="form-check-label ms-2">Completo</label>
+                        <p className="text-muted">O custo é bem superior quando é realizada a análise completa.</p>
                     </div>
                 </div>
             </div>
