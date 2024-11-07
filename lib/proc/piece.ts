@@ -63,9 +63,12 @@ const obterTextoDePdf = async (buffer: ArrayBuffer, documentId: number) => {
     const { pages: ocrPages, chars: ocrChars } = obterPaginasECaracteres(ocrTexto)
 
     // PDF processado pelo OCR tem mais texto que o original
-    if (ocrChars > chars) {
+    if (ocrChars) {
         Dao.updateDocumentContent(null, documentId, 3, ocrTexto);
         return ocrTexto
+    } else if (chars) {
+        Dao.updateDocumentContent(null, documentId, 2, texto);
+        return texto
     }
 
     return undefined
