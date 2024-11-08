@@ -28,6 +28,7 @@ export const waitForTexts = async (data: PromptDataType): Promise<void> => {
         for (const texto of data.textos) {
             if (!texto.pTexto) continue
             texto.texto = await texto.pTexto
+            delete texto.pTexto
         }
     }
 }
