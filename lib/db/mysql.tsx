@@ -1,6 +1,7 @@
 import { getCurrentUser } from "../user"
 import { slugify } from "../utils/utils"
 import type * as mysqlTypes from "./mysql-types"
+import knex from './knex'
 
 const mysql = require("mysql2/promise")
 
@@ -445,23 +446,18 @@ export class Dao {
         return true
     }
 
-    @tran
-    static async assertSystemId(conn: any, code: string): Promise<number> {
-        // Check or insert batch
-        let id: number | null = null
-        if (code) {
-            let [batches] = await conn.query('SELECT id FROM ia_system WHERE code = ?', [code])
-            if (batches.length > 0) {
-                id = batches[0].id
-            } else {
-                const [batchResult] = await conn.query('INSERT INTO ia_system (code) VALUES (?)', [code])
-                id = batchResult.insertId
-            }
+    static async assertSystemId(code: string): Promise<number> {
+        if (!code) {
+            return 0
         }
-        return id as number
+        const item = await knex('ia_system').select<mysqlTypes.IASystem>('id').where('code', code).first()
+        if (item) {
+            return item.id
+        } else {
+            const result = await knex('ia_system').returning('id').insert({ code })
+            return result[0]
+        }
     }
-
-
 
     @tran
     static async assertIABatchId(conn: any, batchName: string): Promise<number> {
@@ -654,4 +650,17 @@ export class Dao {
         return user_id as number
     }
 
+}
+
+export async function assertSystemId(code: string): Promise<number> {
+    if (!code) {
+        return 0
+    }
+    const item = await knex('ia_system').select<mysqlTypes.IASystem>('id').where('code', code).first()
+    if (item) {
+        return item.id
+    } else {
+        const result = await knex('ia_system').returning('id').insert({ code })
+        return result[0]
+    }
 }

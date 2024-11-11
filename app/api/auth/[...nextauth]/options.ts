@@ -1,6 +1,5 @@
-import NextAuth from "next-auth"
-import GithubProvider from "next-auth/providers/github"
 import CredentialsProvider from "next-auth/providers/credentials";
+import { Dao } from "@/lib/db/mysql";
 
 const authOptions = {
   secret: process.env.NEXTAUTH_SECRET as string,
@@ -40,6 +39,7 @@ const authOptions = {
         const system = credentials?.system
         const email = credentials?.email
         const password = credentials?.password
+        const system_id = await Dao.assertSystemId(credentials.system)
         const res = await fetch(`${process.env.NEXTAUTH_URL_INTERNAL as string}api/login`, {
           method: "POST",
           headers: {

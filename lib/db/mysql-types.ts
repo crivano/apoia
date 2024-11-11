@@ -7,6 +7,11 @@ export type IAGenerated = {
     attempt: number | null
 }
 
+export type IASystem = {
+    id: number
+    code: string
+}
+
 export type IAGeneration = {
     model: string
     prompt: string

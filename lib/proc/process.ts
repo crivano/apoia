@@ -94,7 +94,7 @@ export const obterDadosDoProcesso = async (numeroDoProcesso: string, pUser: Prom
         const codigoDaClasse = parseInt(dadosBasicos.attributes.classeProcessual)
 
         // grava os dados do processo no banco
-        const system_id = await Dao.assertSystemId(null, user.image.system)
+        const system_id = await Dao.assertSystemId(user.image.system)
         const dossier_id = await Dao.assertIADossierId(null, numeroDoProcesso, system_id, codigoDaClasse, ajuizamento)
 
         const documentos = respQuery[0].processo.documento
