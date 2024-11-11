@@ -67,14 +67,22 @@ export default function AiContent(params: { definition: PromptDefinitionType, da
         const reader = response.body?.getReader()
 
         if (reader) {
-            const decoder = new TextDecoder('utf-8')
+            const chunks: Uint8Array[] = []
+            // const decoder = new TextDecoder('utf-8')
             while (true) {
-            const { done, value } = await reader.read()
-            if (done) {
-                setComplete(true)
-                break
-            }
-            setCurrent(prev => prev + decoder.decode(value))
+                const { done, value } = await reader.read()
+                if (done) {
+                    setComplete(true)
+                    break
+                }
+                chunks.push(value)
+                try {
+                    const text = Buffer.concat(chunks).toString("utf-8")
+                    setCurrent(text)
+                }
+                catch (e) {
+                    console.log(e.message)
+                }
             }
         }
     }
