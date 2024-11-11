@@ -5,7 +5,7 @@
             "name": "Next.js: debug server-side",
             "type": "node-terminal",
             "request": "launch",
-            "command": "npm run dev"
+            "command": "npx next dev -p 8081"
         },
         {
             "name": "Next.js: debug client-side",
