@@ -26,8 +26,8 @@ services:
       TZ: "America/Sao_Paulo"
       MYSQL_ROOT_PASSWORD: "apoia"
       # MYSQL_ROOT_HOST: "%"
-    volumes:
-      - ./migration-001.sql:/docker-entrypoint-initdb.d/init.sql
+      # volumes:
+      #   - ./migration-001.sql:/docker-entrypoint-initdb.d/init.sql
     networks:
       - apoia
     #   - mysql-volume:/var/lib/mysql
