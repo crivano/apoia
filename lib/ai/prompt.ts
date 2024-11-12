@@ -117,6 +117,8 @@ import revisao from "@/prompts/revisao.md"
 import refinamento from "@/prompts/refinamento.md"
 import sentenca from "@/prompts/sentenca.md"
 import int_identificar_categoria_de_peca from '@/prompts/int-identificar-categoria-de-peca.md'
+import litigancia_predatoria from '@/prompts/litigancia-predatoria.md'
+import identificar_pedidos_de_peticao_inicial from '@/prompts/identificar-pedidos-de-peticao-inicial.md'
 
 // Enum for the different types of prompts
 export const internalPrompts = {
@@ -137,6 +139,7 @@ export const internalPrompts = {
     refinamento: promptDefinitionFromMarkdown('refinamento', refinamento),
     sentenca: promptDefinitionFromMarkdown('sentenca', sentenca),
     int_identificar_categoria_de_peca: promptDefinitionFromMarkdown('int_identificar_categoria_de_peca', int_identificar_categoria_de_peca),
-
+    litigancia_predatoria: promptDefinitionFromMarkdown('litigancia_predatoria', litigancia_predatoria),
+    identificar_pedidos_de_peticao_inicial: promptDefinitionFromMarkdown('identificar_pedidos_de_peticao_inicial', identificar_pedidos_de_peticao_inicial),
 }
 
