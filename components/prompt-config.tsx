@@ -84,7 +84,7 @@ export default function PromptConfig({ kind, setPromptConfig }: { kind: string, 
     if (!editing) {
         const a: string[] = []
         if (current.prompt_name)
-            a.push(`Prompt: ${current.model_name}`)
+            a.push(`Prompt: ${current.prompt_name}`)
         if (current.model_name)
             a.push(`Modelo de linguagem: ${current.model_name}`)
         if (current.extra)

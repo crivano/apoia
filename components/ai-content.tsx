@@ -6,7 +6,7 @@ import { evaluate } from '../lib/ai/generate'
 import { preprocess, Visualization, VisualizationEnum } from '@/lib/ui/preprocess'
 import { ResumoDePecaLoading } from '@/components/loading'
 import { InfoDeProduto, P } from '@/lib/proc/combinacoes'
-import { PromptDataType, PromptDefinitionType, PromptOptionsType, TextoType } from '@/lib/ai/prompt-types'
+import { PromptConfigType, PromptDataType, PromptDefinitionType, PromptOptionsType, TextoType } from '@/lib/ai/prompt-types'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faThumbsDown } from '@fortawesome/free-regular-svg-icons'
 import { faRefresh } from '@fortawesome/free-solid-svg-icons'
@@ -34,7 +34,7 @@ export const spinner = (s: string, complete: boolean): string => {
     return s
 }
 
-export default function AiContent(params: { definition: PromptDefinitionType, data: PromptDataType, options?: PromptOptionsType }) {
+export default function AiContent(params: { definition: PromptDefinitionType, data: PromptDataType, options?: PromptOptionsType, config?: PromptConfigType }) {
     const [current, setCurrent] = useState('')
     const [complete, setComplete] = useState(false)
     const [errormsg, setErrormsg] = useState('')
@@ -58,7 +58,10 @@ export default function AiContent(params: { definition: PromptDefinitionType, da
             overridePrompt: params.options?.overridePrompt,
             overrideJsonSchema: params.options?.overrideJsonSchema,
             overrideFormat: params.options?.overrideFormat,
-            cacheControl: params.options?.cacheControl
+            cacheControl: params.options?.cacheControl,
+            modelSlug: params.config?.model_slug,
+            promptSlug: params.config?.prompt_slug,
+            extra: params.config?.extra
         }
         const response = await fetch('/api/ai', {
             method: 'POST',
