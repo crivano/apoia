@@ -1,6 +1,6 @@
 import { getCurrentUser } from "../user"
 import { slugify } from "../utils/utils"
-import type * as mysqlTypes from "./mysql-types"
+import * as mysqlTypes from "./mysql-types"
 import knex from './knex'
 
 const mysql = require("mysql2/promise")
@@ -61,51 +61,40 @@ function tran(target: any, propertyKey: string, descriptor: PropertyDescriptor) 
 }
 
 export class Dao {
-    @tran
-    static async insertIATestset(conn: any, data: mysqlTypes.IATestsetToInsert): Promise<mysqlTypes.IATestset | undefined> {
+    static async insertIATestset(data: mysqlTypes.IATestsetToInsert): Promise<mysqlTypes.IATestset | undefined> {
         const { base_testset_id, kind, name, model_id, content } = data
         const slug = slugify(name)
         const created_by = (await getCurrentUser())?.id || null
-        await conn.query(`
-          INSERT INTO ia_testset (base_id, kind, name, slug, model_id, content, created_by)
-          VALUES (?, ?, ?, ?, ?, ?, ?)
-        `, [base_testset_id, kind, name, slug, model_id, JSON.stringify(content), created_by])
-        conn.commit()
-        const [insertResult] = await conn.query('SELECT * FROM ia_testset WHERE id = LAST_INSERT_ID()')
-        const insertedRecord: mysqlTypes.IATestset = insertResult[0]
-        return insertedRecord
+        const [id] = await knex('ia_testset').insert({
+            base_id: base_testset_id, kind, name, slug, model_id, content, created_by
+        })
+        const inserted = await knex.select().from<mysqlTypes.IATestset>('ia_testset').where({ id }).first()
+        return inserted
     }
 
-    @tran
-    static async setOfficialTestset(conn: any, id: number): Promise<boolean> {
-        const testset = await Dao.retrieveTestsetById(conn, id)
+    static async setOfficialTestset(id: number): Promise<boolean> {
+        const testset = await Dao.retrieveTestsetById(id)
         if (!testset) throw new Error('Testset not found')
-        const queryRemoveOthers = `
-          UPDATE ia_testset SET is_official = 0 WHERE kind = ? AND slug = ? AND id != ?
-        `
-        await conn.query(queryRemoveOthers, [testset.kind, testset.slug, id])
-        const query = `
-          UPDATE ia_testset SET is_official = 1 WHERE id = ?
-        `
-        await conn.query(query, [id])
+        const { kind, slug } = testset
+        const queryRemoveOthers = knex('ia_testset').update({
+            is_official: 0
+        }).where({
+            kind,
+            slug,
+            id
+        })
+        await Promise.all([queryRemoveOthers, Dao.removeOfficialTestset(id)])
         return true
     }
 
-    @tran
-    static async removeOfficialTestset(conn: any, id: number): Promise<boolean> {
-        const query = `
-          UPDATE ia_testset SET is_official = 0 WHERE id = ?
-        `
-        await conn.query(query, [id])
+    static async removeOfficialTestset(id: number): Promise<boolean> {
+        await knex('ia_testset').update({ is_official: 1 }).where({ id })
         return true
     }
 
-    @con
-    static async retrieveTestsetById(conn: any, id: number): Promise<mysqlTypes.IATestset | undefined> {
-        const [result] = await conn.query('SELECT * FROM ia_testset WHERE id = ?', [id])
-        if (!result || result.length === 0) return undefined
-        const record: mysqlTypes.IATestset = { ...result[0] }
-        return record
+    static async retrieveTestsetById(id: number): Promise<mysqlTypes.IATestset | undefined> {
+        const result = await knex.select().from<mysqlTypes.IATestset>('ia_testset').where({ id }).first()
+        return result
     }
 
 
@@ -126,7 +115,7 @@ export class Dao {
 
     @tran
     static async setOfficialPrompt(conn: any, id: number): Promise<boolean> {
-        const prompt = await Dao.retrievePromptById(conn, id)
+        const prompt = await Dao.retrievePromptById(id)
         if (!prompt) throw new Error('Prompt not found')
         const queryRemoveOthers = `
           UPDATE ia_prompt SET is_official = 0 WHERE kind = ? AND slug = ? AND id != ?
@@ -139,22 +128,17 @@ export class Dao {
         return true
     }
 
-    @tran
-    static async removeOfficialPrompt(conn: any, id: number): Promise<boolean> {
-        const query = `
-          UPDATE ia_prompt SET is_official = 0 WHERE id = ?
-        `
-        await conn.query(query, [id])
-        return true
+    static async removeOfficialPrompt(id: number): Promise<boolean> {
+        const updates = await knex('ia_prompt').update({
+            is_official: 0
+        }).where({ id }).returning("*")
+        return updates.length > 0
     }
 
 
-    @con
-    static async retrievePromptById(conn: any, id: number): Promise<mysqlTypes.IAPrompt | undefined> {
-        const [result] = await conn.query('SELECT * FROM ia_prompt WHERE id = ?', [id])
-        if (!result || result.length === 0) return undefined
-        const record: mysqlTypes.IAPrompt = { ...result[0] }
-        return record
+    static async retrievePromptById(id: number): Promise<mysqlTypes.IAPrompt | undefined> {
+        const result = await knex.select().from<mysqlTypes.IAPrompt>('ia_prompt').where({ id }).first()
+        return result
     }
 
     @con

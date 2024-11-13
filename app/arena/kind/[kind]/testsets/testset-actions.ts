@@ -34,7 +34,7 @@ const testsetSchema = z.object({
 export const save = async (object: any) => {
     try {
         const data = testsetSchema.parse(object)
-        await Dao.insertIATestset(null, data as any)
+        await Dao.insertIATestset(data as any)
         return { status: 'SUCCESS', message: 'success' }
     } catch (error) {
         return fromErrorToFormState(error)
@@ -43,7 +43,7 @@ export const save = async (object: any) => {
 
 export const setOfficial = async (id: number) => {
     try {
-        await Dao.setOfficialTestset(null, id)
+        await Dao.setOfficialTestset(id)
         return { status: 'SUCCESS', message: 'success' }
     } catch (error) {
         return fromErrorToFormState(error)
@@ -52,7 +52,7 @@ export const setOfficial = async (id: number) => {
 
 export const removeOfficial = async (id: number) => {
     try {
-        await Dao.removeOfficialTestset(null, id)
+        await Dao.removeOfficialTestset(id)
         return { status: 'SUCCESS', message: 'success' }
     } catch (error) {
         return fromErrorToFormState(error)
@@ -60,5 +60,5 @@ export const removeOfficial = async (id: number) => {
 }
 
 export const getTestsetById = async (id: number) => {
-    return await Dao.retrieveTestsetById(null, id)
+    return await Dao.retrieveTestsetById(id)
 }
