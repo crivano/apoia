@@ -5,5 +5,5 @@ INSERT INTO ia_model VALUES
 
 ALTER TABLE `apoia`.`ia_document` 
 ADD COLUMN `assigned_category` VARCHAR(64) NULL DEFAULT NULL AFTER `content_source_id`,
-ADD COLUMN `predicted_category` VARCHAR(64) NULL DEFAULT NULL AFTER `assigned_category_id`,
+ADD COLUMN `predicted_category` VARCHAR(64) NULL DEFAULT NULL AFTER `assigned_category`,
 CHANGE COLUMN `code` `code` VARCHAR(64) NOT NULL AFTER `dossier_id`;

@@ -5,15 +5,22 @@ import { getModelAndApiKeyCookieValue } from '../../app/model/cookie'
 import { LanguageModelV1 } from '@ai-sdk/provider'
 import { createGroq } from '@ai-sdk/groq'
 
+const ModelProvider = {
+    ANTHROPIC: {name: 'Anthropic', apiKey: 'ANTHROPIC_API_KEY'},
+    OPENAI: {name: 'OpenAI', apiKey: 'OPENAI_API_KEY'},
+    GOOGLE: {name: 'Google', apiKey: 'GOOGLE_API_KEY'},
+    GROQ: {name: 'Groq', apiKey: 'GROQ_API_KEY'}
+}
+
 export function getEnvKeyByModel(model: string): string {
     if (model.startsWith('claude-')) {
-        return 'ANTHROPIC_API_KEY'
+        return ModelProvider.ANTHROPIC.apiKey
     } else if (model.startsWith('gpt-')) {
-        return 'OPENAI_API_KEY'
+        return ModelProvider.OPENAI.apiKey
     } else if (model.startsWith('gemini-')) {
-        return 'GOOGLE_API_KEY'
+        return ModelProvider.GOOGLE.apiKey
     } else if (model.startsWith('llama-')) {
-        return 'GROQ_API_KEY'
+        return ModelProvider.GROQ.apiKey
     }
     throw new Error('Invalid model')
 }
@@ -51,7 +58,7 @@ export function getModel(params?: { structuredOutputs: boolean, overrideModel?: 
     }
     if (getEnvKeyByModel(model) === 'OPENAI_API_KEY') {
         const openai = createOpenAI({ apiKey: apiKey })
-       return { model, modelRef: openai(model, { structuredOutputs: params?.structuredOutputs }) }
+        return { model, modelRef: openai(model, { structuredOutputs: params?.structuredOutputs }) }
     }
     if (getEnvKeyByModel(model) === 'GOOGLE_API_KEY') {
         const google = createGoogleGenerativeAI({ apiKey: apiKey })

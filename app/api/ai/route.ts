@@ -18,9 +18,11 @@ async function getPromptDefinition(kind: string, promptSlug?: string, promptId?:
         const prompts = await Dao.retrievePromptsByKindAndSlug(null, kind, promptSlug)
         if (prompts.length === 0)
             throw new Error(`Prompt not found: ${kind}/${promptSlug}`)
-        let prompt = prompts.find(p => p.is_official)
-        if (!prompt)
-            prompt = prompts[0]
+        let found = prompts.find(p => p.is_official)
+        if (!found)
+            found = prompts[0]
+        if (found)
+            prompt = await Dao.retrievePromptById(null, found.id)
     }
 
     const definition: PromptDefinitionType =
@@ -55,6 +57,13 @@ export async function POST(request: Request) {
         }
 
         const definitionWithOptions = promptDefinitionFromDefinitionAndOptions(definition, options)
+
+        if (body.modelSlug)
+            definitionWithOptions.model = body.modelSlug
+
+        if (body.extra)
+            definitionWithOptions.prompt += '\n\n' + body.extra
+
         const result = await streamContent(definitionWithOptions, data)
         if (typeof result === 'string') {
             return new Response(result, { status: 200 });
