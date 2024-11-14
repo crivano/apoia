@@ -42,7 +42,7 @@ export const setOfficial = async (id: number) => {
 
 export const removeOfficial = async (id: number) => {
     try {
-        await Dao.removeOfficialPrompt(null, id)
+        await Dao.removeOfficialPrompt(id)
         return { status: 'SUCCESS', message: 'success' }
     } catch (error) {
         return fromErrorToFormState(error)

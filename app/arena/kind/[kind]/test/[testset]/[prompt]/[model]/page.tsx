@@ -6,8 +6,8 @@ import Link from 'next/link'
 
 
 export default async function TestResult({ params }: { params: { kind: string, testset: number, prompt: number, model: number } }) {
-    const testset = await Dao.retrieveTestsetById(null, params.testset)
-    const prompt = await Dao.retrievePromptById(null, params.prompt)
+    const testset = await Dao.retrieveTestsetById(params.testset)
+    const prompt = await Dao.retrievePromptById(params.prompt)
     const model = await Dao.retrieveModelById(null, params.model)
     const test = await Dao.retrieveTestByTestsetIdPromptIdAndModelId(null, params.testset, params.prompt, params.model)
 

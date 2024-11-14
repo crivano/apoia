@@ -14,7 +14,8 @@
     "noEmit": true,
     "incremental": true,
     "esModuleInterop": true,
-    "module": "NodeNext",
+    "module": "esnext",
+    "moduleResolution": "node",
     "resolveJsonModule": true,
     "isolatedModules": true,
     "jsx": "preserve",
@@ -26,20 +27,17 @@
     "strictNullChecks": true,
     "baseUrl": ".",
     "paths": {
-      "@/*": [
-        "./*"
-      ]
-    },
+      "@/*": [ "./*" ]
+    }
   },
   "include": [
     "next-env.d.ts",
     ".next/types/**/*.ts",
     "**/*.ts",
-    "**/*.tsx",
-    "knexfile.ts",
-    "migrations/*.ts"
-  ],
+    "**/*.tsx" ],
   "exclude": [
-    "node_modules"
+    "node_modules",
+    "migrations/*.ts"
   ]
 }
+

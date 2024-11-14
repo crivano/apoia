@@ -34,6 +34,7 @@ const nextConfig = {
                     oracledb: 'oracledb',
                     pg: 'pg',
                     'pg-query-stream': 'pg-query-stream',
+                    "pdfjs-dist/build/pdf.worker.min.js": "pdfjs-dist/build/pdf.worker.min.js"
                 }
             ]
         }

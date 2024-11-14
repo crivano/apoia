@@ -6,7 +6,9 @@
         "dev": "next dev -p 8081",
         "build": "npx next-swagger-doc-cli next-swagger-doc.json && next build",
         "start": "next start -p 8081",
-        "lint": "next lint"
+        "lint": "next lint",
+        "knex": "ts-node -P tsconfig.knex.json node_modules/knex/bin/cli.js"
+
     },
     "dependencies": {
         "@ai-sdk/anthropic": "^0.0.51",
@@ -23,6 +25,7 @@
         "@next/bundle-analyzer": "^14.2.3",
         "@tanstack/react-table": "^8.20.5",
         "@types/diff-match-patch": "^1.0.36",
+        "@types/knex": "^0.16.1",
         "@types/ms": "^0.7.34",
         "@types/node": "20.8.3",
         "@types/react": "18.2.25",
@@ -71,6 +74,8 @@
         "dotenv": "^16.4.5",
         "eslint": "^8.57.0",
         "eslint-config-next": "14.0.4",
-        "typescript": "5.5.4"
+        "ts-node": "^10.9.2",
+        "tsconfig-paths": "^4.2.0",
+        "typescript": "^5.5.4"
     }
 }

@@ -36,11 +36,11 @@ const execute = async (testsetId: number, promptId: number, modelId: number, con
   controller.enqueue(`"promptId": "${promptId}",`)
   controller.enqueue(`"modelId": "${modelId}"`)
 
-  const testset = await Dao.retrieveTestsetById(null, testsetId)
+  const testset = await Dao.retrieveTestsetById(testsetId)
   if (!testset) throw new Error('Testset not found')
   const testsetModel = await Dao.retrieveModelById(null, testset.model_id)
   if (!testsetModel) throw new Error('Testset model not found')
-  const prompt = await Dao.retrievePromptById(null, promptId)
+  const prompt = await Dao.retrievePromptById(promptId)
   const model = await Dao.retrieveModelById(null, modelId)
 
   if (!testset || !prompt || !model)

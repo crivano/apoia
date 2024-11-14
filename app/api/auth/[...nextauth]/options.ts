@@ -39,7 +39,6 @@ const authOptions = {
         const system = credentials?.system
         const email = credentials?.email
         const password = credentials?.password
-        const system_id = await Dao.assertSystemId(credentials.system)
         const res = await fetch(`${process.env.NEXTAUTH_URL_INTERNAL as string}api/login`, {
           method: "POST",
           headers: {
