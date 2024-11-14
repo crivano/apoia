@@ -139,7 +139,7 @@ export async function analyze(batchName: string | undefined, dossierNumber: stri
         if (batchName) {
             const user = await pUser
             const systemCode = user.image.system
-            const systemId = await Dao.assertSystemId(null, systemCode)
+            const systemId = await Dao.assertSystemId(systemCode)
             storeBatchItem(systemId, batchName, dossierNumber, requests, dadosDoProcesso)
         }
 

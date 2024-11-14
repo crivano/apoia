@@ -636,15 +636,3 @@ export class Dao {
 
 }
 
-export async function assertSystemId(code: string): Promise<number> {
-    if (!code) {
-        return 0
-    }
-    const item = await knex('ia_system').select<mysqlTypes.IASystem>('id').where('code', code).first()
-    if (item) {
-        return item.id
-    } else {
-        const result = await knex('ia_system').returning('id').insert({ code })
-        return result[0]
-    }
-}
