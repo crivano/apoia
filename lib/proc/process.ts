@@ -177,7 +177,7 @@ export const obterDadosDoProcesso = async (numeroDoProcesso: string, pUser: Prom
                     peca.conteudo = 'Peça sigilosa, conteúdo não acessado.'
                 }
             const pecasComConteudo = await iniciarObtencaoDeConteudo(dossier_id, numeroDoProcesso, pecas, username, password)
-            return { pecas: pecasComConteudo, combinacao: { tipos: [], produtos: [infoDeProduto(P.RELATORIO_COMPLETO)] }, ajuizamento, codigoDaClasse, numeroDoProcesso, nomeOrgaoJulgador }
+            return { pecas: pecasComConteudo, combinacao: { tipos: [], produtos: [infoDeProduto(P.ANALISE_COMPLETA)] }, ajuizamento, codigoDaClasse, numeroDoProcesso, nomeOrgaoJulgador }
         }
 
         if (idDaPeca) {
