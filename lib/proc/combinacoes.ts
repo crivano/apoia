@@ -7,6 +7,7 @@ export enum T {
     PETICAO_INICIAL = 'PETIÇÃO INICIAL',
     CONTESTACAO = 'CONTESTAÇÃO',
     INFORMACAO_EM_MANDADO_DE_SEGURANCA = 'INFORMAÇÃO EM MANDADO DE SEGURANÇA',
+    DESPACHO_DECISAO = 'DESPACHO/DECISÃO',
     SENTENCA = 'SENTENÇA',
     APELACAO = 'APELAÇÃO',
     RECURSO_INOMINADO = 'RECURSO INOMINADO',
@@ -22,6 +23,7 @@ export const Categorias = {
     PETICAO_INICIAL: { descr: 'PETIÇÃO INICIAL' },
     CONTESTACAO: { descr: 'CONTESTAÇÃO' },
     INFORMACAO_EM_MANDADO_DE_SEGURANCA: { descr: 'INFORMAÇÃO EM MANDADO DE SEGURANÇA' },
+    DESPACHO_DECISAO: 'DESPACHO/DECISÃO',
     SENTENCA: { descr: 'SENTENÇA' },
     APELACAO: { descr: 'APELAÇÃO' },
     RECURSO_INOMINADO: { descr: 'RECURSO INOMINADO' },
@@ -34,7 +36,7 @@ export const Categorias = {
 
 export const findCategoria = (descr: string) => {
     for (const [key, value] of Object.entries(Categorias)) {
-        if (value.descr === descr) return key
+        if ((value as any).descr === descr) return key
     }
     return null
 }
@@ -47,6 +49,7 @@ export enum P {
     ANALISE_COMPLETA = 'Análise Completa',
     RESUMO = 'Resumo',
     RELATORIO = 'Relatório',
+    RELATORIO_COMPLETO = 'Relatório Completo',
     EMENTA = 'Ementa',
     ACORDAO = 'Acórdão',
     REVISAO = 'Revisão',
@@ -71,6 +74,7 @@ export const ProdutosValidos = {
     [P.ANALISE]: { titulo: P.ANALISE, prompt: 'analise', plugins: [] },
     [P.ANALISE_COMPLETA]: { titulo: P.ANALISE_COMPLETA, prompt: 'analise-completa', plugins: [] },
     [P.RELATORIO]: { titulo: P.RELATORIO, prompt: 'relatorio', plugins: [] },
+    [P.RELATORIO_COMPLETO]: { titulo: P.RELATORIO_COMPLETO, prompt: 'relatorio-completo', plugins: [] },
     [P.RESUMO]: { titulo: P.RESUMO, prompt: 'resumo', plugins: [Plugin.TRIAGEM, Plugin.NORMAS, Plugin.PALAVRAS_CHAVE] },
     [P.ACORDAO]: { titulo: P.ACORDAO, prompt: 'acordao', plugins: [] },
     [P.REVISAO]: { titulo: P.REVISAO, prompt: 'revisao', plugins: [] },
@@ -97,6 +101,7 @@ export const TCombinacoesValidas: TCombinacaoValida[] = [
     // { tipos: [T.SENTENCA, T.APELACAO, T.CONTRARRAZOES], produtos: [P.RELATORIO] },
     { tipos: [T.PETICAO_INICIAL, T.CONTESTACAO], produtos: [P.RESUMOS, P.RESUMO] },
     { tipos: [T.PETICAO_INICIAL, T.INFORMACAO_EM_MANDADO_DE_SEGURANCA], produtos: [P.RESUMOS, P.RESUMO] },
+    { tipos: [T.PETICAO_INICIAL, T.DESPACHO_DECISAO], produtos: [P.RELATORIO] },
     { tipos: [T.PETICAO_INICIAL], produtos: [P.RESUMOS] },
 ]
 
