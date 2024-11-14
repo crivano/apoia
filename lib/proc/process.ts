@@ -11,14 +11,16 @@ import { inferirCategoriaDaPeca } from '../category'
 import { consultarProcesso } from '../mni'
 import { obterConteudoDaPeca, obterDocumentoGravado } from './piece'
 import { faObjectUngroup } from '@fortawesome/free-solid-svg-icons'
+import { assertNivelDeSigilo, verificarNivelDeSigilo } from './sigilo'
 
 export type PecaType = {
     id: string
-    numeroDoEvento: string,
+    numeroDoEvento: string
     descr: string
     tipoDoConteudo: string
-    sigilo: string,
+    sigilo: string
     pConteudo: Promise<string> | undefined
+    conteudo: string | undefined
     pDocumento: Promise<IADocument> | undefined
     documento: IADocument | undefined
     // pCategoria: Promise<string> | undefined
@@ -40,6 +42,25 @@ export type DadosDoProcessoType = {
 const selecionarPecas = (pecas: PecaType[], descricoes: string[]) => {
     const pecasRelevantes = pecas.filter(p => descricoes.includes(p.descr))
 
+    // Seleciona as peças de acordo com o tipo de peça, pegando sempre a primeira peça de cada tipo
+    let pecasSelecionadas: PecaType[] = []
+    let idxDescricao = 0
+
+    for (const peca of pecasRelevantes) {
+        if (peca.descr === descricoes[idxDescricao]) {
+            pecasSelecionadas = [...pecasSelecionadas, peca]
+            idxDescricao++
+            if (idxDescricao >= descricoes.length) break
+        }
+    }
+    if (pecasSelecionadas.length !== descricoes.length)
+        return null
+    return pecasSelecionadas
+}
+
+const selecionarUltimasPecas = (pecas: PecaType[], descricoes: string[]) => {
+    const pecasRelevantes = pecas.filter(p => descricoes.includes(p.descr))
+
     // Seleciona as peças de acordo com o tipo de peça, pegando sempre a última peça de cada tipo
     let pecasSelecionadas: PecaType[] = []
     let idxDescricao = descricoes.length - 1
@@ -58,7 +79,9 @@ const selecionarPecas = (pecas: PecaType[], descricoes: string[]) => {
 
 const iniciarObtencaoDeConteudo = async (dossier_id: number, numeroDoProcesso: string, pecas: PecaType[], username: string, password: string, synchronous?: boolean) => {
     for (const peca of pecas) {
-        peca.pConteudo = obterConteudoDaPeca(dossier_id, numeroDoProcesso, peca.id, peca.descr, username, password)
+        if (peca.conteudo) continue
+        // console.log('obtendo conteúdo de peça', peca.numeroDoEvento, peca.id, peca.descr)
+        peca.pConteudo = obterConteudoDaPeca(dossier_id, numeroDoProcesso, peca.id, peca.descr, peca.sigilo, username, password)
         if (synchronous)
             await peca.pConteudo
     }
@@ -108,6 +131,7 @@ export const obterDadosDoProcesso = async (numeroDoProcesso: string, pUser: Prom
                 tipoDoConteudo: doc.attributes.mimetype,
                 sigilo: doc.attributes.nivelSigilo,
                 pConteudo: undefined,
+                conteudo: undefined,
                 pDocumento: undefined,
                 documento: undefined,
                 categoria: undefined,
@@ -147,11 +171,13 @@ export const obterDadosDoProcesso = async (numeroDoProcesso: string, pUser: Prom
         // }
 
         if (completo) {
-            if (verificarNivelDeSigilo())
-                for (const peca of pecas)
-                    assertNivelDeSigilo(peca.sigilo, `${peca.descr} (${peca.id})`)
+            for (const peca of pecas)
+                if (peca.sigilo && peca.sigilo !== '0') {
+                    console.log('removendo conteúdo de peca com sigilo', peca.id, peca.sigilo)
+                    peca.conteudo = 'Peça sigilosa, conteúdo não acessado.'
+                }
             const pecasComConteudo = await iniciarObtencaoDeConteudo(dossier_id, numeroDoProcesso, pecas, username, password)
-            return { pecas: pecasComConteudo, combinacao: { tipos: [], produtos: [infoDeProduto(P.ANALISE_COMPLETA)] }, ajuizamento, codigoDaClasse, numeroDoProcesso, nomeOrgaoJulgador }
+            return { pecas: pecasComConteudo, combinacao: { tipos: [], produtos: [infoDeProduto(P.RELATORIO_COMPLETO)] }, ajuizamento, codigoDaClasse, numeroDoProcesso, nomeOrgaoJulgador }
         }
 
         if (idDaPeca) {
@@ -232,23 +258,5 @@ export const obterDadosDoProcesso = async (numeroDoProcesso: string, pUser: Prom
         errorMsg = error.message
         return { pecas, errorMsg }
     }
-}
-
-// Nível de sigilo a ser aplicado ao processo. Dever-se-á utilizar os seguintes níveis:
-// - 0: públicos, acessíveis a todos os servidores do Judiciário e dos demais órgãos públicos de colaboração na administração da Justiça, assim como aos advogados e a qualquer cidadão
-// - 1: segredo de justiça, acessíveis aos servidores do Judiciário, aos servidores dos órgãos públicos de colaboração na administração da Justiça e às partes do processo.
-// - 2: sigilo mínimo, acessível aos servidores do Judiciário e aos demais órgãos públicos de colaboração na administração da Justiça 
-// - 3: sigilo médio, acessível aos servidores do órgão em que tramita o processo, à(s) parte(s) que provocou(ram) o incidente e àqueles que forem expressamente incluídos 
-// - 4: sigilo intenso, acessível a classes de servidores qualificados (magistrado, diretor de secretaria/escrivão, oficial de gabinete/assessor) do órgão em que tramita o processo, às partes que provocaram o incidente e àqueles que forem expressamente incluídos 
-// - 5: sigilo absoluto, acessível apenas ao magistrado do órgão em que tramita, aos servidores e demais usuários por ele indicado e às partes que provocaram o incidente.
-const assertNivelDeSigilo = (nivel, descrDaPeca?) => {
-    const nivelMax = parseInt(process.env.CONFIDENTIALITY_LEVEL_MAX as string)
-    nivel = parseInt(nivel)
-    if (nivel > nivelMax)
-        throw new Error(`Nível de sigilo '${nivel}'${descrDaPeca ? ' da peça ' + descrDaPeca : ''} maior que o máximo permitido '${nivelMax}'.`)
-}
-
-const verificarNivelDeSigilo = () => {
-    return !(process.env.CONFIDENTIALITY_LEVEL_MAX === undefined || process.env.CONFIDENTIALITY_LEVEL_MAX === '')
 }
 

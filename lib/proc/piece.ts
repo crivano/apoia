@@ -5,10 +5,11 @@ import { html2md } from '../utils/html2md'
 import { T } from './combinacoes'
 import { addBlockQuote } from '../utils/utils'
 import { Dao } from '../db/mysql'
-import { IADocument } from '../db/mysql-types'
+import { IADocument, IADocumentContentSource } from '../db/mysql-types'
 import { obterPeca } from '../mni'
 
 import pLimit from 'p-limit'
+import { assertNivelDeSigilo, verificarNivelDeSigilo } from './sigilo'
 const limit = pLimit(process.env.OCR_LIMIT ? parseInt(process.env.OCR_LIMIT) : 1)
 
 const obterTextoDeHtml = async (buffer: ArrayBuffer, documentId: number) => {
@@ -27,11 +28,11 @@ const obterPaginasECaracteres = (texto) => {
     return { pages, chars }
 }
 
-export const ocrPdf = async (buffer: ArrayBuffer) =>
-    limit(() => ocrPdfSemLimite(buffer))
+export const ocrPdf = async (buffer: ArrayBuffer, documentId: number) =>
+    limit(() => ocrPdfSemLimite(buffer, documentId))
 
 // Método que recebe um buffer de um PDF, faz um post http para o serviço de OCR e retorna o PDF processado pelo OCR
-const ocrPdfSemLimite = async (buffer: ArrayBuffer) => {
+const ocrPdfSemLimite = async (buffer: ArrayBuffer, documentId: number) => {
     console.log('ocrPdf', buffer.byteLength)
     const url = process.env.OCR_URL as string
     const formData = new FormData()
@@ -41,34 +42,43 @@ const ocrPdfSemLimite = async (buffer: ArrayBuffer) => {
         method: 'POST',
         body: formData
     })
+    if (res.status !== 200) {
+        if (res.headers.get('content-type') === 'application/json') {
+            const errorMsg = (await res.json()).error
+            throw new Error(`Erro ao processar documento ${documentId} pelo OCR: ${errorMsg}`)
+        }
+        throw new Error(`Erro ao processar documento ${documentId} pelo OCR`)
+    }
     return await res.arrayBuffer()
+}
+
+const atualizarConteudoDeDocumento = async (documentId: number, contentSource: number, content: string) => {
+    Dao.updateDocumentContent(null, documentId, contentSource, content)
+    return content
 }
 
 const obterTextoDePdf = async (buffer: ArrayBuffer, documentId: number) => {
 
     const bufferCopy = buffer.slice(0);
 
-    console.log('obterTextoDePdf', buffer.byteLength)
+    console.log('obterTextoDePdf', documentId, buffer.byteLength)
     const texto = await pdfToText(buffer, {})
     const { pages, chars } = obterPaginasECaracteres(texto)
 
     // PDF tem texto suficiente para se considerar que não será necessário realizar o OCR
     if (chars / pages.length > 500) {
-        Dao.updateDocumentContent(null, documentId, 2, texto);
-        return texto
+        return atualizarConteudoDeDocumento(documentId, IADocumentContentSource.PDF, texto)
     }
 
-    const ocrBuffer = await ocrPdf(bufferCopy)
+    const ocrBuffer = await ocrPdf(bufferCopy, documentId)
     const ocrTexto = await pdfToText(ocrBuffer, {})
     const { pages: ocrPages, chars: ocrChars } = obterPaginasECaracteres(ocrTexto)
 
     // PDF processado pelo OCR tem mais texto que o original
     if (ocrChars) {
-        Dao.updateDocumentContent(null, documentId, 3, ocrTexto);
-        return ocrTexto
+        return atualizarConteudoDeDocumento(documentId, IADocumentContentSource.OCR, ocrTexto)
     } else if (chars) {
-        Dao.updateDocumentContent(null, documentId, 2, texto);
-        return texto
+        return atualizarConteudoDeDocumento(documentId, IADocumentContentSource.PDF, texto)
     }
 
     return undefined
@@ -93,7 +103,10 @@ export const obterDocumentoGravado = async (dossier_id: number, numeroDoProcesso
 }
 
 
-export const obterConteudoDaPeca = async (dossier_id: number, numeroDoProcesso: string, idDaPeca: string, descrDaPeca: string, username: string, password: string) => {
+export const obterConteudoDaPeca = async (dossier_id: number, numeroDoProcesso: string, idDaPeca: string, descrDaPeca: string, sigiloDaPeca: string, username: string, password: string) => {
+    if (verificarNivelDeSigilo())
+        assertNivelDeSigilo(sigiloDaPeca, `${descrDaPeca} (${idDaPeca})`)
+
     const document = await obterDocumentoGravado(dossier_id, numeroDoProcesso, idDaPeca, descrDaPeca, username, password)
     const document_id = document.id
     if (document && document.content) {
@@ -111,7 +124,10 @@ export const obterConteudoDaPeca = async (dossier_id: number, numeroDoProcesso: 
             return obterTextoDePdf(buffer, document_id)
         }
         case 'image/jpeg': {
-            return 'Imagem'
+            return atualizarConteudoDeDocumento(document_id, IADocumentContentSource.IMAGE, 'Peça no formato de imagem JPEG, conteúdo não acessado.')
+        }
+        case 'video/mp4': {
+            return atualizarConteudoDeDocumento(document_id, IADocumentContentSource.VIDEO, 'Peça no formato de vídeo MP4, conteúdo não acessado.')
         }
     }
     throw new Error(`Tipo de conteúdo não suportado: ${contentType}`)

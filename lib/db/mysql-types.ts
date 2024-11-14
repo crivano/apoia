@@ -62,11 +62,19 @@ export type IAEnumItem = {
     enum_item_descr_main: string | null
 }
 
+export enum IADocumentContentSource {
+    HTML = 1,
+    PDF = 2,
+    OCR = 3,
+    IMAGE = 4,
+    VIDEO = 5
+}
+
 export type IADocument = {
     id: number
     dossier_id: number
     code: string
-    content_source_id: number
+    content_source_id: IADocumentContentSource
     assigned_category: string | null
     predicted_category: string | null
     created_at: Date | null
