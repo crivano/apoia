@@ -1,16 +1,11 @@
 import { createOpenAI } from '@ai-sdk/openai'
 import { createAnthropic } from '@ai-sdk/anthropic'
 import { createGoogleGenerativeAI } from '@ai-sdk/google'
-import { getModelAndApiKeyCookieValue } from '../../app/model/cookie'
+import { getModelAndApiKeyCookieValue as getPrefs } from '../utils/prefs'
 import { LanguageModelV1 } from '@ai-sdk/provider'
 import { createGroq } from '@ai-sdk/groq'
-
-const ModelProvider = {
-    ANTHROPIC: {name: 'Anthropic', apiKey: 'ANTHROPIC_API_KEY'},
-    OPENAI: {name: 'OpenAI', apiKey: 'OPENAI_API_KEY'},
-    GOOGLE: {name: 'Google', apiKey: 'GOOGLE_API_KEY'},
-    GROQ: {name: 'Groq', apiKey: 'GROQ_API_KEY'}
-}
+import { EMPTY_MODEL_COOKIE, ModelCookieType, ModelProvider } from './model-types'
+import { EMPTY_FORM_STATE } from '../ui/form-support'
 
 export function getEnvKeyByModel(model: string): string {
     if (model.startsWith('claude-')) {
@@ -25,33 +20,28 @@ export function getEnvKeyByModel(model: string): string {
     throw new Error('Invalid model')
 }
 
-export function getApiKeyByModel(model: string): string {
+export function getApiKeyByModel(model: string, cookie: ModelCookieType): string {
     const envKey = getEnvKeyByModel(model)
-    const s = process.env[envKey]
-    if (s)
-        return s
+    let s = cookie?.params[envKey]
+    if (s) return s
+    const s2 = process.env[envKey]
+    if (s2) return s2
     throw new Error(`API Key ${envKey} not found for model ${model}`)
 }
 
 export function getModel(params?: { structuredOutputs: boolean, overrideModel?: string }): { model: string, modelRef: LanguageModelV1 } {
-    const byCookie = getModelAndApiKeyCookieValue()
-    let model: string, apiKey: string
-    if (byCookie) {
-        model = byCookie.model
-        apiKey = byCookie.apiKey
+    const prefs = getPrefs()
+    let model: string
+    if (prefs) {
+        model = prefs.model
     } else {
         model = process.env.MODEL as string
-        apiKey = getApiKeyByModel(model)
     }
 
-    if (params?.overrideModel && model !== params?.overrideModel) {
-        if (getEnvKeyByModel(model) === getEnvKeyByModel(params.overrideModel)) {
-            model = params.overrideModel // just replace the model
-        } else {
-            model = params.overrideModel // replace the model
-            apiKey = getApiKeyByModel(model)
-        }
-    }
+    if (params?.overrideModel) model = params.overrideModel
+
+    const apiKey = getApiKeyByModel(model, prefs || EMPTY_MODEL_COOKIE)
+
     if (getEnvKeyByModel(model) === 'ANTHROPIC_API_KEY') {
         const anthropic = createAnthropic({ apiKey: apiKey })
         return { model, modelRef: anthropic(model) }

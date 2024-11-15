@@ -6,7 +6,7 @@ import { NavDropdown, NavItem } from 'react-bootstrap';
 import Link from 'next/link'
 import UserMenuSignout from './user-menu-signout'
 import { unstable_noStore as noStore } from 'next/cache'
-import { getModelAndApiKeyCookieValue } from '../app/model/cookie';
+import { getModelAndApiKeyCookieValue } from '../lib/utils/prefs';
 import { NavigationLink } from './NavigationLink';
 
 
