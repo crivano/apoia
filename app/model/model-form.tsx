@@ -71,7 +71,7 @@ export default function ModelForm(params) {
                                         <button onClick={handleClear} className="btn btn-warning" style={{ width: '10em' }}>Limpar</button>
                                     </div>
                                     <div className="col">
-                                        <button onClick={handleClick} disabled={processing || apiKey.length < 20} className="btn btn-primary float-end" style={{ width: '10em' }}>{processing
+                                        <button onClick={handleClick} disabled={processing || apiKey?.length < 20} className="btn btn-primary float-end" style={{ width: '10em' }}>{processing
                                             ? (<span className="spinner-border text-white opacity-50" style={{ width: '1em', height: '1em' }} role="status"><span className="visually-hidden">Loading...</span></span>)
                                             : 'Salvar'}</button>
                                     </div>

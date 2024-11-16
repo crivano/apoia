@@ -21,13 +21,13 @@ export default async function UserMenu() {
     const user = session.user
     return (
         <ul className="navbar-nav me-1 mb-2x mb-lg-0x">
-            {(process.env.ACCESS_ARENA || '').split(';').includes(user.name) &&
+            {(process.env.ACCESS_ARENA || '').split(';').includes(user.name) || user?.roles?.includes('apoia-role-arena') &&
                 (<NavItem>
                     <NavigationLink href="/arena" text="Arena" />
                 </NavItem>)}
             <li className="nav-item dropdown">
                 <a className="nav-link dropdown-toggle text-white" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                    {user.name}/{user.image.system}
+                    {user.name}{user.image?.system ? `/${user.image?.system}` : '/PDPJ'}
                 </a>
                 <ul className="dropdown-menu" aria-labelledby="navbarDropdown">
                     <li><Link className="dropdown-item" href="/model">Modelo de IA{model && ` (${model})`}</Link></li>
