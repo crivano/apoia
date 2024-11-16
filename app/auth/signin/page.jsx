@@ -23,16 +23,17 @@ const Signin = async () => {
                     <h1 className="display-5 fw-bold">ApoIA</h1>
                 </div>
 
-                <CredentialsForm systems={systems.map(o => o.system)} />
+                {providers &&
+                    providers.filter(provider => provider.name === "Credentials").map(provider =>
+                        <CredentialsForm systems={systems.map(o => o.system)} />
+                    )}
             </div >
 
             <div className="text-center mt-3">
                 {providers &&
-                    Object.values(providers).map(provider => {
-                        if (provider.name !== "Credentials") {
-                            <Provider id={provider.id} name={provider.name} />
-                        }
-                    })}
+                    providers.filter(provider => provider.name !== "Credentials").map(provider =>
+                        <Provider id={provider.id} name={provider.name} />
+                    )}
             </div>
 
             {Version()}
