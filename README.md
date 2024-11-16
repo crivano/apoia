@@ -68,8 +68,8 @@ CONFIDENTIALITY_LEVEL_MAX=0
 A Apoia utiliza o framework de autenticação NextAuth, portanto é necessário configurar as propriedades abaixo:
 
 ```properties
-NEXTAUTH_URL_INTERNAL=http://localhost:8081/
-NEXTAUTH_URL=http://localhost:8081/
+NEXTAUTH_URL_INTERNAL=http://localhost:8081
+NEXTAUTH_URL=http://localhost:8081
 NEXTAUTH_SECRET=SUBSTITUIR_POR_UM_UUID_ALEATORIO
 ```
 
