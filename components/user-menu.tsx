@@ -6,7 +6,7 @@ import { NavDropdown, NavItem } from 'react-bootstrap';
 import Link from 'next/link'
 import UserMenuSignout from './user-menu-signout'
 import { unstable_noStore as noStore } from 'next/cache'
-import { getModelAndApiKeyCookieValue } from '../lib/utils/prefs';
+import { getPrefs } from '../lib/utils/prefs';
 import { NavigationLink } from './NavigationLink';
 
 
@@ -15,7 +15,7 @@ export default async function UserMenu() {
     const session = await getServerSession(authOptions);
     if (!session) return <><Link href="/auth/signin">Login</Link></>
 
-    const byCookie = getModelAndApiKeyCookieValue()
+    const byCookie = getPrefs()
     const model = byCookie?.model
 
     const user = session.user
@@ -30,7 +30,7 @@ export default async function UserMenu() {
                     {user.name}{user.image?.system ? `/${user.image?.system}` : '/PDPJ'}
                 </a>
                 <ul className="dropdown-menu" aria-labelledby="navbarDropdown">
-                    <li><Link className="dropdown-item" href="/model">Modelo de IA{model && ` (${model})`}</Link></li>
+                    <li><Link className="dropdown-item" href="/prefs">Modelo de IA{model && ` (${model})`}</Link></li>
                     <li><UserMenuSignout /></li>
                 </ul>
             </li>

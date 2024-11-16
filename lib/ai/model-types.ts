@@ -38,7 +38,3 @@ export function enumSortById(e: EnumOfObjectsType): any[] {
     const r: { key: string, value: EnumOfObjectsValueType }[] = Object.entries(e).map(([key, value]) => ({ key, value }))
     return r.sort((a, b) => a.value.id - b.value.id)
 }
-
-export const EMPTY_MODEL_COOKIE: ModelCookieType = { model: '', params: {} }
-export type ModelCookieType = { model: string, params: { [key: string]: string } }
-

@@ -9,15 +9,13 @@ import { EMPTY_FORM_STATE, FormHelper } from '@/lib/ui/form-support';
 
 const Frm = new FormHelper()
 
-export default function ModelForm(params) {
+export default function PrefsForm(params) {
     const router = useRouter();
     noStore()
-    const [apiKey, setApiKey] = useState(params.apiKey)
-    const [model, setModel] = useState(params.model)
     const [processing, setProcessing] = useState(false)
     const [errorMessage, setErrorMessage] = useState('')
 
-    const [data, setData] = useState({ ...(params.initialState || {}) })
+    const [data, setData] = useState(params.initialState)
     const [formState, setFormState] = useState(EMPTY_FORM_STATE)
     Frm.update(data, setData, formState)
 
@@ -57,7 +55,7 @@ export default function ModelForm(params) {
                                 </div>
                                 {enumSortById(ModelProvider).map((provider) => (
                                     <div className="row mb-2">
-                                        <Frm.Input label={`${provider.value.name}: Chave da API`} name={`params['${provider.value.apiKey}']`} />
+                                        <Frm.Input label={`${provider.value.name}: Chave da API`} name={`env['${provider.value.apiKey}']`} />
                                     </div>))}
                                 {/* <div className="row mb-3">
                                     <div className="col">
