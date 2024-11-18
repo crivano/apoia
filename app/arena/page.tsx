@@ -8,9 +8,14 @@ import TablePlaceholder from '../../components/table-placeholder'
 import TableRecords from '../../components/table-records'
 import { Container } from 'react-bootstrap'
 import { internalPrompts } from '@/lib/ai/prompt'
+import { assertCurrentUser } from '@/lib/user'
+import { assertModel } from '@/lib/ai/model-server'
 
 export default async function Home() {
     noStore()
+    await assertCurrentUser()
+    await assertModel()
+    
     const records = await Dao.retrieveCountersByPromptKinds(null)
     const promptKinds = Object.entries(internalPrompts).map(([kind, prompt]) => ({ kind, prompts: 0, testsets: 0 }))
     records.forEach(record => {

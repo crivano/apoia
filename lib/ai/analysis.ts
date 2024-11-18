@@ -111,11 +111,11 @@ export async function analyze(batchName: string | undefined, dossierNumber: stri
         let pecasComConteudo = await getPiecesWithContent(dadosDoProcesso, dossierNumber)
 
         if (complete) {
-            // Remove as informações sobre os documentos que, para esses processos mais antigos, não são confiáveis
-            for (const peca of pecasComConteudo) {
-                peca.descr = 'DOCUMENTO'
-                peca.slug = 'document'
-            }
+        //     // Remove as informações sobre os documentos que, para esses processos mais antigos, não são confiáveis
+        //     for (const peca of pecasComConteudo) {
+        //         peca.descr = 'DOCUMENTO'
+        //         peca.slug = 'document'
+        //     }
             // Limita aos primeiros N documentos, para não ficar muito caro nos testes
             if (process.env.COMPLETE_ANALYSIS_LIMIT)
                 pecasComConteudo = pecasComConteudo.slice(0, parseInt(process.env.COMPLETE_ANALYSIS_LIMIT as string))
@@ -153,12 +153,12 @@ export async function analyze(batchName: string | undefined, dossierNumber: stri
 export async function getPiecesWithContent(dadosDoProcesso: DadosDoProcessoType, dossierNumber: string): Promise<TextoType[]> {
     let pecasComConteudo: TextoType[] = []
     for (const peca of dadosDoProcesso.pecas) {
-        if (peca.pConteudo === undefined) {
+        if (peca.pConteudo === undefined && peca.conteudo === undefined) {
             // console.log('peca', peca)
             throw new Error(`Conteúdo não encontrado no processo ${dossierNumber}, peça ${peca.id}, rótulo ${peca.rotulo}`)
         }
         const slug = await slugify(peca.descr)
-        pecasComConteudo.push({ id: peca.id, event: peca.numeroDoEvento, label: peca.rotulo, descr: peca.descr, slug, pTexto: peca.pConteudo })
+        pecasComConteudo.push({ id: peca.id, event: peca.numeroDoEvento, label: peca.rotulo, descr: peca.descr, slug, pTexto: peca.pConteudo, texto: peca.conteudo })
     }
     return pecasComConteudo
 }

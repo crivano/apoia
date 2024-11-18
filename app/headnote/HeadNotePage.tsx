@@ -56,7 +56,7 @@ export default function Revison() {
                 <AiContent
                     definition={getInternalPrompt('ementa')}
                     data={{ textos: [{ descr: 'EXTRATO DE ATA', slug: 'extrato-de-ata', texto: `ÓRGÃO JULGADOR: ${orgaoJulgador}\nTIPO DE DECISÁO: UNÂMINE` }, { descr: 'Voto', slug: 'voto', texto: markdown }] }}
-                    options={{ cacheControl: true }} />
+                    options={{ cacheControl: true }} config={promptConfig} />
             </>}
         </div>
     )

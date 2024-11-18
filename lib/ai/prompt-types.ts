@@ -27,14 +27,14 @@ export type PromptDefinitionType = {
 
 // Tipo que define os textos que serão passados para um prompt
 //
-export type TextoType = { 
+export type TextoType = {
     id?: string // identificador da peça no Eproc
     event?: string
     label?: string
     descr: string
     slug: string
     pTexto?: Promise<string>
-    texto?: string 
+    texto?: string
 }
 export type PromptDataType = { textos: TextoType[] }
 
@@ -71,4 +71,3 @@ export type PromptExecutionResultsType = {
     model?: string
     generationId?: number
 }
-

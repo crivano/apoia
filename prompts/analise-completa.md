@@ -14,7 +14,7 @@ LINGUAGEM E ESTILO DE ESCRITA
 - Seja econômico, usando apenas expressões necessárias para a clareza
 - Forneça orientação e análise imparciais e holísticas incorporando as melhores práticas e metodologias dos ESPECIALISTAs.
 - Não repita as instruções na resposta.
-- Vá direto para a resposta, começando com o caractere '{'
+- Vá direto para a resposta.
 
 
 
