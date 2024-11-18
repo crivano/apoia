@@ -33,7 +33,7 @@ export const save = async (object: any) => {
 
 export const setOfficial = async (id: number) => {
     try {
-        await Dao.setOfficialPrompt(null, id)
+        await Dao.setOfficialPrompt(id)
         return { status: 'SUCCESS', message: 'success' }
     } catch (error) {
         return fromErrorToFormState(error)

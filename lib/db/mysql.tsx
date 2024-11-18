@@ -73,18 +73,26 @@ export class Dao {
     }
 
     static async setOfficialTestset(id: number): Promise<boolean> {
-        const testset = await Dao.retrieveTestsetById(id)
-        if (!testset) throw new Error('Testset not found')
-        const { kind, slug } = testset
-        const queryRemoveOthers = knex('ia_testset').update({
-            is_official: 0
-        }).where({
-            kind,
-            slug,
-            id
-        })
-        await Promise.all([queryRemoveOthers, Dao.removeOfficialTestset(id)])
-        return true
+        const trx = await knex.transaction()
+        try {
+            const testset = await Dao.retrieveTestsetById(id)
+            if (!testset) throw new Error('Testset not found')
+            const { kind, slug } = testset
+            const queryRemoveOthers = trx('ia_testset').update({
+                is_official: 0
+            }).where({
+                kind,
+                slug,
+                id
+            })
+            await Promise.all([queryRemoveOthers, Dao.removeOfficialTestset(id)])
+            await trx.commit()
+            return true
+        } catch (error) {
+            await trx.rollback()
+            console.error(`Dao error ${error?.message}`)
+            return false
+        }
     }
 
     static async removeOfficialTestset(id: number): Promise<boolean> {
@@ -113,19 +121,25 @@ export class Dao {
         return insertedRecord
     }
 
-    @tran
-    static async setOfficialPrompt(conn: any, id: number): Promise<boolean> {
+    static async setOfficialPrompt(id: number): Promise<boolean> {
+        const trx = await knex.transaction()
+
         const prompt = await Dao.retrievePromptById(id)
         if (!prompt) throw new Error('Prompt not found')
-        const queryRemoveOthers = `
-          UPDATE ia_prompt SET is_official = 0 WHERE kind = ? AND slug = ? AND id != ?
-        `
-        await conn.query(queryRemoveOthers, [prompt.kind, prompt.slug, id])
-        const query = `
-          UPDATE ia_prompt SET is_official = 1 WHERE id = ?
-        `
-        await conn.query(query, [id])
-        return true
+        try {
+            await trx('ia_prompt').update<mysqlTypes.IAPrompt>({
+                is_official: 0,
+            }).where({ kind: prompt.kind, slug: prompt.slug, id })
+            await trx('ia_prompt').update<mysqlTypes.IAPrompt>({
+                is_official: 1
+            }).where({ id })
+            await trx.commit()
+            return true
+        } catch (error) {
+            trx.rollback()
+            console.error(error?.message)
+            return false
+        }
     }
 
     static async removeOfficialPrompt(id: number): Promise<boolean> {
@@ -430,7 +444,7 @@ export class Dao {
         return true
     }
 
-    static async assertSystemId(code: string): Promise<number> {
+    static async assertSystemId(code?: string): Promise<number> {
         if (!code) {
             return 0
         }

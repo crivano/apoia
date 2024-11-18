@@ -111,11 +111,11 @@ export async function analyze(batchName: string | undefined, dossierNumber: stri
         let pecasComConteudo = await getPiecesWithContent(dadosDoProcesso, dossierNumber)
 
         if (complete) {
-        //     // Remove as informações sobre os documentos que, para esses processos mais antigos, não são confiáveis
-        //     for (const peca of pecasComConteudo) {
-        //         peca.descr = 'DOCUMENTO'
-        //         peca.slug = 'document'
-        //     }
+            //     // Remove as informações sobre os documentos que, para esses processos mais antigos, não são confiáveis
+            //     for (const peca of pecasComConteudo) {
+            //         peca.descr = 'DOCUMENTO'
+            //         peca.slug = 'document'
+            //     }
             // Limita aos primeiros N documentos, para não ficar muito caro nos testes
             if (process.env.COMPLETE_ANALYSIS_LIMIT)
                 pecasComConteudo = pecasComConteudo.slice(0, parseInt(process.env.COMPLETE_ANALYSIS_LIMIT as string))
@@ -138,7 +138,7 @@ export async function analyze(batchName: string | undefined, dossierNumber: stri
 
         if (batchName) {
             const user = await pUser
-            const systemCode = user.image.system
+            const systemCode = user?.image?.system
             const systemId = await Dao.assertSystemId(systemCode)
             storeBatchItem(systemId, batchName, dossierNumber, requests, dadosDoProcesso)
         }
