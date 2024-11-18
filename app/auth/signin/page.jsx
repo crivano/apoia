@@ -25,14 +25,14 @@ const Signin = async () => {
 
                 {providers &&
                     providers.filter(provider => provider.name === "Credentials").map(provider =>
-                        <CredentialsForm systems={systems.map(o => o.system)} />
+                        <CredentialsForm key={provider.name} systems={systems.map(o => o.system)} />
                     )}
             </div >
 
             <div className="text-center mt-3">
                 {providers &&
                     providers.filter(provider => provider.name !== "Credentials").map(provider =>
-                        <Provider id={provider.id} name={provider.name} />
+                        <Provider key={provider.id} id={provider.id} name={provider.name} />
                     )}
             </div>
 

@@ -111,14 +111,12 @@ export class Dao {
         const { base_prompt_id, kind, name, model_id, testset_id, content } = data
         const slug = slugify(name)
         const created_by = (await getCurrentUser())?.id || null
-        await conn.query(`
-          INSERT INTO ia_prompt (base_id, kind, name, slug, model_id, testset_id, content, created_by)
-          VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-        `, [base_prompt_id, kind, name, slug, model_id, testset_id, JSON.stringify(content), created_by])
-        conn.commit()
-        const [insertResult] = await conn.query('SELECT * FROM ia_prompt WHERE id = LAST_INSERT_ID()')
-        const insertedRecord: mysqlTypes.IAPrompt = insertResult[0]
-        return insertedRecord
+        const result = await knex('ia_prompt').insert<mysqlTypes.IAPrompt>({
+            base_id: base_prompt_id,
+            kind, name, slug, model_id, testset_id, content: JSON.stringify(content), created_by
+        }).returning('id')
+        const record = await knex('ia_prompt').select<mysqlTypes.IAPrompt>('*').where({ id: result }).first()
+        return record
     }
 
     static async setOfficialPrompt(id: number): Promise<boolean> {
@@ -155,15 +153,25 @@ export class Dao {
         return result
     }
 
-    @con
-    static async retrieveCountersByPromptKinds(conn: any): Promise<{ kind: string, prompts: number, testsets: number }[]> {
-        const [result] = await conn.query(`
-            SELECT any_value(k.kind) kind, count(distinct(p.slug)) prompts, count(distinct(t.slug)) testsets
-            FROM (select kind from (select distinct(kind) kind from ia_prompt union select distinct(kind) kind from ia_testset) u group by kind) k
-            left join ia_prompt p on p.kind = k.kind
-            left join ia_testset t on t.kind = k.kind
-            group by k.kind
-        `)
+    static async retrieveCountersByPromptKinds(): Promise<{ kind: string, prompts: number, testsets: number }[]> {
+        const result = await knex('ia_prompt as p')
+            .select(
+                'k.kind',  // Select 'kind' from the union of both tables
+                knex.raw('COUNT(DISTINCT p.slug) as prompts'),  // Count distinct slugs in ia_prompt
+                knex.raw('COUNT(DISTINCT t.slug) as testsets')  // Count distinct slugs in ia_testset
+            )
+            .leftJoin(
+                knex
+                    .select('kind')
+                    .from('ia_prompt')
+                    .union(function () {
+                        this.select('kind').from('ia_testset');
+                    })
+                    .as('k'), 'p.kind', '=', 'k.kind'
+            )
+            .leftJoin('ia_testset as t', 't.kind', '=', 'p.kind')
+            .groupBy('k.kind');  // Group by 'kind' from the union
+
         if (!result || result.length === 0) return []
         const records = result.map((record: any) => ({ ...record }))
         return records
@@ -227,14 +235,12 @@ export class Dao {
         return records
     }
 
-    @con
-    static async retrievePromptsIdsAndNamesByKind(conn: any, kind: string): Promise<mysqlTypes.SelectableItemWithLatestAndOfficial[]> {
-        const [result] = await conn.query(`
-            SELECT t.id, t.name, t.slug, t.created_at, t.is_official
-            FROM ia_prompt t
-            WHERE t.kind = ?
-            ORDER BY t.slug, t.created_at DESC
-        `, [kind])
+    static async retrievePromptsIdsAndNamesByKind(kind: string): Promise<mysqlTypes.SelectableItemWithLatestAndOfficial[]> {
+        const result = await knex('ia_prompt')
+            .select('id', 'name', 'slug', 'created_at', 'is_official')
+            .where('kind', kind)
+            .orderBy('slug')
+            .orderBy('created_at', 'desc')
         if (!result || result.length === 0) return []
         result.forEach((record: any, index: number) => {
             record.is_last = index === 0 || record.slug !== result[index - 1].slug
@@ -243,77 +249,92 @@ export class Dao {
         return records
     }
 
-    @con
-    static async retrieveOfficialPromptsIdsAndNamesByKind(conn: any, kind: string): Promise<{ id: string, name: string }[]> {
-        const [result] = await conn.query(`
-            SELECT t.id, t.name
-            FROM ia_prompt t
-            WHERE t.kind = ? AND is_official = 1
-        `, [kind])
+    static async retrieveOfficialPromptsIdsAndNamesByKind(kind: string): Promise<{ id: string, name: string }[]> {
+        const result = await knex('ia_prompt').select<Array<mysqlTypes.IAPrompt>>('id', 'name').where({
+            kind, is_official: 1
+        })
         if (!result || result.length === 0) return []
         const records = result.map((record: any) => ({ ...record }))
         return records
     }
 
-    @con
-    static async retrieveOfficialTestsetsIdsAndNamesByKind(conn: any, kind: string): Promise<{ id: string, name: string }[]> {
-        const [result] = await conn.query(`
-            SELECT t.id, t.name
-            FROM ia_testset t
-            WHERE t.kind = ? AND is_official = 1
-        `, [kind])
+    static async retrieveOfficialTestsetsIdsAndNamesByKind(kind: string): Promise<{ id: string, name: string }[]> {
+        const result = await knex('ia_testset').select<Array<mysqlTypes.IATestset>>('id', 'name').where({
+            kind, is_official: 1
+        })
         if (!result || result.length === 0) return []
         const records = result.map((record: any) => ({ ...record }))
         return records
     }
 
-    @con
-    static async retrieveModels(conn: any): Promise<{ id: string, name: string }[]> {
-        const [result] = await conn.query(`
-            SELECT t.id, t.name
-            FROM ia_model t
-        `)
+    static async retrieveModels(): Promise<{ id: string, name: string }[]> {
+        const result = await knex('ia_model').select<Array<mysqlTypes.IAModel>>('id', 'name')
         if (!result || result.length === 0) return []
         const records = result.map((record: any) => ({ ...record }))
         return records
     }
 
-    @con
-    static async retrieveModelById(conn: any, id: number): Promise<mysqlTypes.IAModel | undefined> {
-        const [result] = await conn.query('SELECT * FROM ia_model WHERE id = ?', [id])
-        if (!result || result.length === 0) return undefined
-        const record: mysqlTypes.IAModel = result[0]
-        return record
+    static async retrieveModelById(id: number): Promise<mysqlTypes.IAModel | undefined> {
+        const result = await knex('ia_model').select<Array<mysqlTypes.IAModel>>('*').where({ id }).first()
+        return result
     }
 
+    static async retrievePromptsByKindAndSlug(kind: string, slug: string): Promise<mysqlTypes.PromptByKind[]> {
+        const result = await knex('ia_prompt as p')
+            .select<Array<mysqlTypes.PromptByKind>>(
+                'p.id',
+                'p.testset_id',
+                'p.model_id',
+                'p.kind',
+                'p.name',
+                'p.slug',
+                'p.content',
+                'p.created_by',
+                'p.created_at',
+                'p.is_official',
+                't.slug as testset_slug',
+                't.name as testset_name',
+                'm.name as model_name',
+                'u.username as user_username',
+                's.score as score'
+            )
+            .leftJoin('ia_testset as t', 'p.testset_id', 't.id')
+            .leftJoin('ia_model as m', 'p.model_id', 'm.id')
+            .leftJoin('ia_user as u', 'p.created_by', 'u.id')
+            .leftJoin('ia_test as s', function () {
+                this.on('p.testset_id', '=', 's.testset_id')
+                    .andOn('p.model_id', '=', 's.model_id')
+                    .andOn('p.id', '=', 's.prompt_id');
+            })
+            .where('p.kind', kind)
+            .andWhere('p.slug', slug)
+            .orderBy('p.created_at', 'desc');
 
-    @con
-    static async retrievePromptsByKindAndSlug(conn: any, kind: string, slug: string): Promise<{ id: number, testset_id: number, model_id: number, kind: string, name: string, slug: string, content: any, created_by: number, created_at: Date, is_official: boolean, testset_slug: string, testset_name: string, model_name: string, user_username: string, score: number }[]> {
-        const [result] = await conn.query(`
-            SELECT p.id, p.testset_id, p.model_id, p.kind, p.name, p.slug, p.content, p.created_by, p.created_at, p.is_official, t.slug testset_slug, t.name testset_name, m.name model_name, u.username user_username, s.score score
-            FROM ia_prompt p
-            LEFT JOIN ia_testset t on p.testset_id = t.id
-            LEFT JOIN ia_model m on p.model_id = m.id
-            LEFT JOIN ia_user u on p.created_by = u.id
-            LEFT JOIN ia_test s on p.testset_id = s.testset_id AND p.model_id = s.model_id AND p.id = s.prompt_id
-            WHERE p.kind = ? AND p.slug = ?
-            ORDER BY p.created_at DESC
-        `, [kind, slug])
         if (!result || result.length === 0) return []
         const records = result.map((record: any) => ({ ...record }))
         return records
     }
 
-    @con
-    static async retrieveTestsetsByKindAndSlug(conn: any, kind: string, slug: string): Promise<{ id: number, testset_id: number, model_id: number, kind: string, name: string, slug: string, content: any, created_by: number, created_at: Date, is_official: boolean, testset_slug: string, testset_name: string, model_name: string, user_username: string, score: number }[]> {
-        const [result] = await conn.query(`
-            SELECT p.id, p.model_id, p.kind, p.name, p.slug, p.content, p.created_by, p.created_at, p.is_official, m.name model_name, u.username user_username
-            FROM ia_testset p
-            LEFT JOIN ia_model m on p.model_id = m.id
-            LEFT JOIN ia_user u on p.created_by = u.id
-            WHERE p.kind = ? AND p.slug = ?
-            ORDER BY p.created_at DESC
-        `, [kind, slug])
+    static async retrieveTestsetsByKindAndSlug(kind: string, slug: string): Promise<{ id: number, testset_id: number, model_id: number, kind: string, name: string, slug: string, content: any, created_by: number, created_at: Date, is_official: boolean, testset_slug: string, testset_name: string, model_name: string, user_username: string, score: number }[]> {
+        const result = await knex('ia_testset as p')
+            .select(
+                'p.id',
+                'p.model_id',
+                'p.kind',
+                'p.name',
+                'p.slug',
+                'p.content',
+                'p.created_by',
+                'p.created_at',
+                'p.is_official',
+                'm.name as model_name',
+                'u.username as user_username'
+            )
+            .leftJoin('ia_model as m', 'p.model_id', 'm.id')
+            .leftJoin('ia_user as u', 'p.created_by', 'u.id')
+            .where('p.kind', kind)
+            .andWhere('p.slug', slug)
+            .orderBy('p.created_at', 'desc');
         if (!result || result.length === 0) return []
         const records = result.map((record: any) => ({ ...record }))
         return records
@@ -335,38 +356,37 @@ export class Dao {
         return records
     }
 
-    @tran
-    static insertIATest(conn: any, test: mysqlTypes.IATest) {
-        return conn.query(`
-            INSERT INTO ia_test (testset_id, prompt_id, model_id, score, content)
-            VALUES (?, ?, ?, ?, ?)
-        `, [test.testset_id, test.prompt_id, test.model_id, test.score, JSON.stringify(test.content)])
+    static async insertIATest(test: mysqlTypes.IATest) {
+        await knex('ia_test').insert({
+            testset_id: test.testset_id,
+            prompt_id: test.prompt_id,
+            model_id: test.model_id,
+            score: test.score,
+            content: JSON.stringify(test.content)
+        })
     }
 
-    @con
-    static async retrieveTestByTestsetIdPromptIdAndModelId(conn: any, testset_id: number, prompt_id: number, model_id: number): Promise<mysqlTypes.IATest | undefined> {
-        const [result] = await conn.query(`
-            SELECT * FROM ia_test 
-            WHERE testset_id = ? AND prompt_id = ? AND model_id = ?
-        `, [testset_id, prompt_id, model_id])
-        if (!result || result.length === 0) return undefined
-        const record: mysqlTypes.IATest = { ...result[0] }
-        return record
+    static async retrieveTestByTestsetIdPromptIdAndModelId(testset_id: number, prompt_id: number, model_id: number): Promise<mysqlTypes.IATest | undefined> {
+        const result = await knex('ia_test').select<mysqlTypes.IATest>('*').where({
+            testset_id, prompt_id, model_id
+        }).first()
+        return result
     }
 
-    @con
-    static async retrieveIAGeneration(conn: any, data: mysqlTypes.IAGeneration): Promise<mysqlTypes.IAGenerated | undefined> {
+    static async retrieveIAGeneration(data: mysqlTypes.IAGeneration): Promise<mysqlTypes.IAGenerated | undefined> {
         const { model, prompt, sha256, attempt } = data
-        const sql = `
-            SELECT * FROM ia_generation WHERE evaluation_id IS NULL
-                AND model = ? 
-                AND prompt = ? 
-                AND sha256 = ?
-                AND attempt ${attempt === null ? 'IS NULL' : '= ?'}`
-        const [result] = await conn.query(sql, [model, prompt, sha256, attempt])
-        if (!result || result.length === 0) return undefined
-        const record: mysqlTypes.IAGenerated = result[0]
-        return record
+        const sql = knex('ia_generation').select<mysqlTypes.IAGenerated>('*').whereNull('evaluation_id').where({
+            model,
+            prompt,
+            sha256,
+        })
+        if (attempt) {
+            sql.where(attempt)
+        } else {
+            sql.whereNull('attempt')
+        }
+        const result = await sql.first()
+        return result
     }
 
     @con

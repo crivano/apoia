@@ -10,7 +10,7 @@ import { Container } from 'react-bootstrap'
 export default async function Home({ params }: { params: { kind: string, slug: string } }) {
     noStore()
     const { kind, slug } = params
-    const records = await Dao.retrieveTestsetsByKindAndSlug(null, kind, slug)
+    const records = await Dao.retrieveTestsetsByKindAndSlug(kind, slug)
 
     return (<Container className="mt-3">
         <h1 className="mb-0">Versões do Conjunto de Testes {kind.toUpperCase()} - {slug.toUpperCase()}</h1>

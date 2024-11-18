@@ -15,8 +15,8 @@ export default async function Home() {
     noStore()
     await assertCurrentUser()
     await assertModel()
-    
-    const records = await Dao.retrieveCountersByPromptKinds(null)
+
+    const records = await Dao.retrieveCountersByPromptKinds()
     const promptKinds = Object.entries(internalPrompts).map(([kind, prompt]) => ({ kind, prompts: 0, testsets: 0 }))
     records.forEach(record => {
         promptKinds.forEach(promptKind => {

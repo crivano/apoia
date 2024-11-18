@@ -15,7 +15,7 @@ function calcSha256(messages: any): string {
 }
 
 export async function retrieveFromCache(sha256: string, model: string, prompt: string, attempt: number | null): Promise<IAGenerated | undefined> {
-    const cached = await Dao.retrieveIAGeneration(null, { sha256, model, prompt, attempt })
+    const cached = await Dao.retrieveIAGeneration({ sha256, model, prompt, attempt })
     if (cached) return cached
     return undefined
 }

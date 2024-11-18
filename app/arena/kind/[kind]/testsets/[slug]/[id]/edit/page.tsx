@@ -7,8 +7,8 @@ export default async function New({ params }: { params: { kind: string, slug: st
 
     const record = await Dao.retrieveTestsetById(id)
     if (!record) throw new Error('Prompt not found')
-    const models = await Dao.retrieveModels(null)
-    const testsets = await Dao.retrieveOfficialTestsetsIdsAndNamesByKind(null, kind)
+    const models = await Dao.retrieveModels()
+    const testsets = await Dao.retrieveOfficialTestsetsIdsAndNamesByKind(kind)
 
     record.base_testset_id = record.id
     return (<Container fluid={false}>

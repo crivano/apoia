@@ -226,3 +226,7 @@ export function updateWithLatestAndOfficial(l) {
 
 export type SelectableItemWithLatestAndOfficial = { id: string, name: string, slug: string, created_at: Date, is_last: boolean, is_official: boolean }
 export type SelectableItem = { id: string, name: string }
+
+export type PromptByKind = {
+    id: number, testset_id: number, model_id: number, kind: string, name: string, slug: string, content: any, created_by: number, created_at: Date, is_official: boolean, testset_slug: string, testset_name: string, model_name: string, user_username: string, score: number
+}

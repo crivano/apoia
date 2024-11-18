@@ -29,7 +29,7 @@ export async function GET(req: Request, { params }: { params: { testsetId: numbe
 }
 
 const execute = async (testsetId: number, promptId: number, modelId: number, controller) => {
-  let test = await Dao.retrieveTestByTestsetIdPromptIdAndModelId(null, testsetId, promptId, modelId)
+  let test = await Dao.retrieveTestByTestsetIdPromptIdAndModelId(testsetId, promptId, modelId)
   if (test) throw new Error('Test already exists')
 
   controller.enqueue(`"testsetId": "${testsetId}",`)
@@ -38,10 +38,10 @@ const execute = async (testsetId: number, promptId: number, modelId: number, con
 
   const testset = await Dao.retrieveTestsetById(testsetId)
   if (!testset) throw new Error('Testset not found')
-  const testsetModel = await Dao.retrieveModelById(null, testset.model_id)
+  const testsetModel = await Dao.retrieveModelById(testset.model_id)
   if (!testsetModel) throw new Error('Testset model not found')
   const prompt = await Dao.retrievePromptById(promptId)
-  const model = await Dao.retrieveModelById(null, modelId)
+  const model = await Dao.retrieveModelById(modelId)
 
   if (!testset || !prompt || !model)
     throw new Error('Testset, Prompt or Model not found')
@@ -110,7 +110,7 @@ const execute = async (testsetId: number, promptId: number, modelId: number, con
 
   yieldProgress(`Gravando resultados`, 0)
   const testToInsert = buildTest(testset, prompt, model, promptResults, questionsResults)
-  Dao.insertIATest(null, testToInsert)
+  Dao.insertIATest(testToInsert)
   yieldProgress('', 0)
 }
 
