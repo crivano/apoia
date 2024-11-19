@@ -32,7 +32,7 @@ export const save = async (object: any) => {
 }
 
 export const loadRanking = async (kind: string, testset_id: number, prompt_id?: number, model_id?: number) => {
-    const ranking = await Dao.retrieveRanking(null, kind, testset_id, prompt_id, model_id)
+    const ranking = await Dao.retrieveRanking(kind, testset_id, prompt_id, model_id)
     return ranking
 }
 

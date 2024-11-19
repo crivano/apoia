@@ -165,9 +165,8 @@ export async function getPiecesWithContent(dadosDoProcesso: DadosDoProcessoType,
 
 // Insert into database as part of a batch
 async function storeBatchItem(systemId: number, batchName: string, dossierNumber: string, requests: GeneratedContent[], dadosDoProcesso: any) {
-    const batch_id = await Dao.assertIABatchId(null, batchName)
-    console.log('batch_id', batch_id)
-    const dossier_id = await Dao.assertIADossierId(null, dossierNumber, systemId, dadosDoProcesso.codigoDaClasse, dadosDoProcesso.ajuizamento)
+    const batch_id = await Dao.assertIABatchId(batchName)
+    const dossier_id = await Dao.assertIADossierId(dossierNumber, systemId, dadosDoProcesso.codigoDaClasse, dadosDoProcesso.ajuizamento)
     await Dao.deleteIABatchDossierId(null, batch_id, dossier_id)
     const batch_dossier_id = await Dao.assertIABatchDossierId(null, batch_id, dossier_id)
     let seq = 0

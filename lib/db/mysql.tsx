@@ -332,7 +332,7 @@ export class Dao {
             )
             .leftJoin('ia_model as m', 'p.model_id', 'm.id')
             .leftJoin('ia_user as u', 'p.created_by', 'u.id')
-            .where('p.kind', kind)
+            .where({ 'p.kind': kind, 'p.slug': slug })
             .andWhere('p.slug', slug)
             .orderBy('p.created_at', 'desc');
         if (!result || result.length === 0) return []
@@ -340,20 +340,46 @@ export class Dao {
         return records
     }
 
-    @con
-    static async retrieveRanking(conn: any, kind: string, testset_id?: number, prompt_id?: number, model_id?: number): Promise<mysqlTypes.IARankingType[]> {
-        const [result] = await conn.query(`
-            SELECT s.testset_id, t.name testset_name, t.slug testset_slug, s.prompt_id, p.name prompt_name, p.slug prompt_slug, s.model_id, m.name model_name, s.score
-            FROM ia_test s
-            INNER JOIN ia_model m ON s.model_id = m.id
-            INNER JOIN ia_prompt p ON s.prompt_id = p.id
-            INNER JOIN ia_testset t ON s.testset_id = t.id AND t.kind = ?
-            WHERE (s.testset_id = ? OR ? IS NULL) AND (s.prompt_id = ? OR ? IS NULL) AND (s.model_id = ? OR ? IS NULL)
-            ORDER BY s.score DESC
-        `, [kind, testset_id || null, testset_id || null, prompt_id || null, prompt_id || null, model_id || null, model_id || null])
-        if (!result || result.length === 0) return []
-        const records = result.map((record: any) => ({ ...record }))
-        return records
+    static async retrieveRanking(kind: string, testset_id?: number, prompt_id?: number, model_id?: number): Promise<mysqlTypes.IARankingType[]> {
+        const result = await knex('ia_test as s')
+            .select<Array<mysqlTypes.IARankingType>>(
+                's.testset_id',
+                't.name as testset_name',
+                't.slug as testset_slug',
+                's.prompt_id',
+                'p.name as prompt_name',
+                'p.slug as prompt_slug',
+                's.model_id',
+                'm.name as model_name',
+                's.score'
+            )
+            .innerJoin('ia_model as m', 's.model_id', 'm.id')
+            .innerJoin('ia_prompt as p', 's.prompt_id', 'p.id')
+            .innerJoin('ia_testset as t', function () {
+                this.on('s.testset_id', '=', 't.id')
+                    .andOn('t.kind', '=', kind);
+            })
+            .where(function () {
+                if (testset_id) {
+                    this.where('s.testset_id', '=', testset_id)
+                } else {
+                    this.whereNull('s.testset_id')
+                }
+                if (prompt_id) {
+                    this.where('s.prompt_id', '=', prompt_id)
+                } else {
+
+                    this.whereNull('s.prompt_id')
+                }
+                if (model_id) {
+
+                    this.where('s.model_id', '=', model_id)
+                } else {
+                    this.whereNull('s.model_id');
+                }
+            })
+            .orderBy('s.score', 'desc')
+        return result
     }
 
     static async insertIATest(test: mysqlTypes.IATest) {
@@ -389,22 +415,28 @@ export class Dao {
         return result
     }
 
-    @con
-    static async retrieveByBatchIdAndEnumId(conn: any, batch_id: number, enum_id: number): Promise<mysqlTypes.AIBatchIdAndEnumId[]> {
-        let result
-        [result] = await conn.query(`
-            SELECT d.code dossier_code, d.class_code dossier_class_code, d.filing_at dossier_filing_at, ei.id enum_item_id, ei.descr enum_item_descr, ei2.descr enum_item_descr_main, bd.id batch_dossier_id FROM ia_batch b        
-            INNER JOIN ia_batch_dossier bd ON bd.batch_id = b.id
-            INNER JOIN ia_dossier d ON d.id = bd.dossier_id
-            LEFT JOIN ia_batch_dossier_enum_item bdei ON bdei.batch_dossier_id = bd.id
-            LEFT JOIN ia_enum_item ei ON ei.id = bdei.enum_item_id
-            LEFT JOIN ia_enum e ON e.id = ei.enum_id
-            LEFT JOIN ia_enum_item ei2 ON ei2.id = ei.enum_item_id_main
-            WHERE b.id = ? AND (e.id = 1 OR e.id is null)
-            ORDER BY ei.descr, d.code
-            `, [batch_id, enum_id])
-        if (!result || result.length === 0) return []
+    static async retrieveByBatchIdAndEnumId(batch_id: number, enum_id: number): Promise<mysqlTypes.AIBatchIdAndEnumId[]> {
+        const result = await knex('ia_batch as b')
+            .select<mysqlTypes.AIBatchIdAndEnumId[]>(
+                'd.code as dossier_code',
+                'd.class_code as dossier_class_code',
+                'd.filing_at as dossier_filing_at',
+                'ei.id as enum_item_id',
+                'ei.descr as enum_item_descr',
+                'ei2.descr as enum_item_descr_main',
+                'bd.id as batch_dossier_id'
+            )
+            .innerJoin('ia_batch_dossier as bd', 'bd.batch_id', 'b.id')
+            .innerJoin('ia_dossier as d', 'd.id', 'bd.dossier_id')
+            .leftJoin('ia_batch_dossier_enum_item as bdei', 'bdei.batch_dossier_id', 'bd.id')
+            .leftJoin('ia_enum_item as ei', 'ei.id', 'bdei.enum_item_id')
+            .leftJoin('ia_enum as e', 'e.id', 'ei.enum_id')
+            .leftJoin('ia_enum_item as ei2', 'ei2.id', 'ei.enum_item_id_main')
+            .where({ 'b.id': batch_id, 'e.id': enum_id })
+            .orderBy('ei.descr')
+            .orderBy('d.code')
         return result
+
     }
 
     @con
@@ -425,42 +457,39 @@ export class Dao {
         return result
     }
 
-    @con
-    static async retrieveGenerationByBatchDossierId(conn: any, batch_dossier_id: number): Promise<mysqlTypes.AIBatchDossierGeneration[]> {
-        let result
-        [result] = await conn.query(`
-            SELECT bdi.descr, g.generation, g.prompt, d.id document_id, d.code document_code FROM apoia.ia_batch_dossier_item bdi 
-            INNER JOIN ia_generation g ON g.id = bdi.generation_id
-            LEFT OUTER JOIN ia_document d ON d.id = bdi.document_id
-            WHERE batch_dossier_id = ? ORDER BY seq
-            `, [batch_dossier_id])
-        if (!result || result.length === 0) return []
+    static async retrieveGenerationByBatchDossierId(batch_dossier_id: number): Promise<mysqlTypes.AIBatchDossierGeneration[]> {
+        const result = knex('apoia.ia_batch_dossier_item as bdi')
+            .select<mysqlTypes.AIBatchDossierGeneration[]>(
+                'bdi.descr',
+                'g.generation',
+                'g.prompt',
+                'd.id as document_id',
+                'd.code as document_code'
+            )
+            .innerJoin('ia_generation as g', 'g.id', 'bdi.generation_id')
+            .leftJoin('ia_document as d', 'd.id', 'bdi.document_id')
+            .where({
+                'bdi.batch_dossier_id': batch_dossier_id
+            })
         return result
     }
 
-    @tran
-    static async insertIAGeneration(conn: any, data: mysqlTypes.IAGeneration): Promise<mysqlTypes.IAGenerated | undefined> {
+    static async insertIAGeneration(data: mysqlTypes.IAGeneration): Promise<mysqlTypes.IAGenerated | undefined> {
         const { model, prompt, sha256, generation, attempt } = data
-
-        // Insert into ia_generation
-        const query = `
-          INSERT INTO ia_generation (model, prompt, sha256, generation, attempt)
-          VALUES (?, ?, ?, ?, ?)
-          `
-        await conn.query(query, [model, prompt, sha256, generation, attempt])
-        conn.commit()
-        const [insertResult] = await conn.query('SELECT * FROM ia_generation WHERE id = LAST_INSERT_ID()')
-        const insertedRecord: mysqlTypes.IAGenerated = insertResult[0]
-        return insertedRecord
+        const [id] = await knex('ia_generation').insert({
+            model,
+            prompt, sha256, generation, attempt
+        }).returning('*')
+        const result = await knex('ia_generation').select<mysqlTypes.IAGenerated>('*').where({ id }).first()
+        return result
     }
 
-    @tran
-    static async evaluateIAGeneration(conn: any, user_id: number, generation_id: number, evaluation_id: number, evaluation_descr: string | null): Promise<boolean | undefined> {
-        // Insert into ia_generation
-        const query = `
-          UPDATE ia_generation SET evaluation_user_id = ?, evaluation_id = ?, evaluation_descr = ? WHERE id = ?
-          `
-        await conn.query(query, [user_id, evaluation_id, evaluation_descr, generation_id])
+    static async evaluateIAGeneration(user_id: number, generation_id: number, evaluation_id: number, evaluation_descr: string | null): Promise<boolean | undefined> {
+        await knex('ia_generation').update({
+            evaluation_user_id: user_id,
+            evaluation_id,
+            evaluation_descr
+        }).where({ id: generation_id })
         return true
     }
 
@@ -477,34 +506,32 @@ export class Dao {
         }
     }
 
-    @tran
-    static async assertIABatchId(conn: any, batchName: string): Promise<number> {
-        // Check or insert batch
-        let batch_id: number | null = null
-        if (batchName) {
-            let [batches] = await conn.query('SELECT id FROM ia_batch WHERE name = ?', [batchName])
-            if (batches.length > 0) {
-                batch_id = batches[0].id
-            } else {
-                const [batchResult] = await conn.query('INSERT INTO ia_batch (name) VALUES (?)', [batchName])
-                batch_id = batchResult.insertId
-            }
+    static async assertIABatchId(batchName: string): Promise<number> {
+        const bach = await knex('ia_bach').select('id').where({
+            name: batchName
+        }).first()
+        if (bach) {
+            return bach.id
         }
-        return batch_id as number
+        const [created] = await knex('ia_bach').insert({ name: batchName })
+        return created
     }
 
-    @tran
-    static async assertIADossierId(conn: any, dossierCode: string, systemId: number, classCode: number, filingDate: Date): Promise<number> {
-        // Check or insert dossier
-        let [dossiers] = await conn.query('SELECT id FROM ia_dossier WHERE code = ? and system_id = ?', [dossierCode, systemId])
-        let dossier_id: number
-        if (dossiers.length > 0) {
-            dossier_id = dossiers[0].id
-        } else {
-            const [dossierResult] = await conn.query('INSERT INTO ia_dossier (system_id, code, class_code, filing_at) VALUES (?,?,?,?)', [systemId, dossierCode, classCode, filingDate])
-            dossier_id = dossierResult.insertId
+    static async assertIADossierId(code: string, system_id: number, class_code: number, filing_at: Date): Promise<number> {
+        const result = await knex('ia_dossier').select('id').where({
+            code,
+            system_id
+        }).first()
+        if (result) {
+            return result.id
         }
-        return dossier_id as number
+        const [dossierResult] = await knex('ia_dossier').insert({
+            system_id,
+            code,
+            class_code,
+            filing_at
+        }).returning('id')
+        return dossierResult
     }
 
 

@@ -118,7 +118,7 @@ export const obterDadosDoProcesso = async (numeroDoProcesso: string, pUser: Prom
 
         // grava os dados do processo no banco
         const system_id = await Dao.assertSystemId(user.image.system)
-        const dossier_id = await Dao.assertIADossierId(null, numeroDoProcesso, system_id, codigoDaClasse, ajuizamento)
+        const dossier_id = await Dao.assertIADossierId(numeroDoProcesso, system_id, codigoDaClasse, ajuizamento)
 
         const documentos = respQuery[0].processo.documento
         // console.log('documentos', JSON.stringify(documentos, null, 2))

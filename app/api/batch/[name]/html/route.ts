@@ -45,12 +45,12 @@ const preprocessAgrupamento = (text: string) => {
 export async function GET(req: Request, { params }: { params: { name: string } }) {
     const { searchParams } = new URL(req.url)
     const ungrouped = searchParams.get('ungrouped') === 'true'
-    const batch_id = await Dao.assertIABatchId(null, params.name)
+    const batch_id = await Dao.assertIABatchId(params.name)
     const enum_id = await Dao.assertIAEnumId(null, Plugin.TRIAGEM)
 
     let html = ''
 
-    const items = await Dao.retrieveByBatchIdAndEnumId(null, batch_id, enum_id)
+    const items = await Dao.retrieveByBatchIdAndEnumId(batch_id, enum_id)
 
     console.log('items', items.length)
 
@@ -159,7 +159,7 @@ export async function GET(req: Request, { params }: { params: { name: string } }
             if (nomeDaClasse && item.dossier_filing_at) html += `<br/>`
             html += `Ajuizado em ${formatBrazilianDate(item.dossier_filing_at)}`
             html += `</div>`
-            const generations = await Dao.retrieveGenerationByBatchDossierId(null, item.batch_dossier_id)
+            const generations = await Dao.retrieveGenerationByBatchDossierId(item.batch_dossier_id)
             for (const g of generations) {
                 let text = g.generation
                 if (g.descr === P.RESUMO) {
