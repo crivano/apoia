@@ -167,12 +167,12 @@ export async function getPiecesWithContent(dadosDoProcesso: DadosDoProcessoType,
 async function storeBatchItem(systemId: number, batchName: string, dossierNumber: string, requests: GeneratedContent[], dadosDoProcesso: any) {
     const batch_id = await Dao.assertIABatchId(batchName)
     const dossier_id = await Dao.assertIADossierId(dossierNumber, systemId, dadosDoProcesso.codigoDaClasse, dadosDoProcesso.ajuizamento)
-    await Dao.deleteIABatchDossierId(null, batch_id, dossier_id)
-    const batch_dossier_id = await Dao.assertIABatchDossierId(null, batch_id, dossier_id)
+    await Dao.deleteIABatchDossierId(batch_id, dossier_id)
+    const batch_dossier_id = await Dao.assertIABatchDossierId(batch_id, dossier_id)
     let seq = 0
     for (const req of requests) {
-        const document_id = req.documentCode ? await Dao.assertIADocumentId(null, dossier_id, req.documentCode, req.documentDescr) : null
-        await Dao.insertIABatchDossierItem(null, { batch_dossier_id, document_id, generation_id: req.id as number, descr: req.title, seq })
+        const document_id = req.documentCode ? await Dao.assertIADocumentId(dossier_id, req.documentCode, req.documentDescr) : null
+        await Dao.insertIABatchDossierItem({ batch_dossier_id, document_id, generation_id: req.id as number, descr: req.title, seq })
         seq++
 
         // process plugins

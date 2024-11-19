@@ -79,10 +79,10 @@ export async function GET(req: Request, { params }: { params: { name: string } }
 
     html += `<h1>${params.name}</h1>`
 
-    const palavrasChave = await Dao.retrieveCountByBatchIdAndEnumId(null, batch_id, await Dao.assertIAEnumId(null, Plugin.PALAVRAS_CHAVE))
+    const palavrasChave = await Dao.retrieveCountByBatchIdAndEnumId(batch_id, await Dao.assertIAEnumId(null, Plugin.PALAVRAS_CHAVE))
     const palavrasChaveJson = computeScaledKeywords(palavrasChave, 100)
 
-    const normas = await Dao.retrieveCountByBatchIdAndEnumId(null, batch_id, await Dao.assertIAEnumId(null, Plugin.NORMAS))
+    const normas = await Dao.retrieveCountByBatchIdAndEnumId(batch_id, await Dao.assertIAEnumId(null, Plugin.NORMAS))
     const normasJson = computeScaledKeywords(normas, 100)
 
     // [['foo', 120], ['bar', 6]]

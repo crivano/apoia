@@ -439,21 +439,18 @@ export class Dao {
 
     }
 
-    @con
-    static async retrieveCountByBatchIdAndEnumId(conn: any, batch_id: number, enum_id: number): Promise<mysqlTypes.AICountByBatchIdAndEnumId[]> {
-        let result
-        [result] = await conn.query(`
-            SELECT ei.descr enum_item_descr, ei.hidden hidden, count(distinct bd.id) count FROM ia_batch b
-            INNER JOIN ia_batch_dossier bd ON bd.batch_id = b.id
-            INNER JOIN ia_dossier d ON d.id = bd.dossier_id
-            INNER JOIN ia_batch_dossier_enum_item bdei ON bdei.batch_dossier_id = bd.id
-            INNER JOIN ia_enum_item ei ON ei.id = bdei.enum_item_id
-            INNER JOIN ia_enum e ON e.id = ei.enum_id
-            WHERE b.id = ? AND e.id = ?
-            GROUP BY ei.descr, ei.hidden
-            ORDER BY count(distinct bd.id) desc
-            `, [batch_id, enum_id])
-        if (!result || result.length === 0) return []
+    static async retrieveCountByBatchIdAndEnumId(batch_id: number, enum_id: number): Promise<mysqlTypes.AICountByBatchIdAndEnumId[]> {
+        const result = await knex('ia_batch as b')
+            .select<mysqlTypes.AICountByBatchIdAndEnumId[]>('ei.descr as enum_item_descr', 'ei.hidden', knex.raw('count(distinct bd.id) as count'))
+            .join('ia_batch_dossier as bd', 'bd.batch_id', '=', 'b.id')
+            .join('ia_dossier as d', 'd.id', '=', 'bd.dossier_id')
+            .join('ia_batch_dossier_enum_item as bdei', 'bdei.batch_dossier_id', '=', 'bd.id')
+            .join('ia_enum_item as ei', 'ei.id', '=', 'bdei.enum_item_id')
+            .join('ia_enum as e', 'e.id', '=', 'ei.enum_id').
+            where({ 'b.id': batch_id, 'e.id': enum_id })
+            .groupBy('ei.descr', 'ei.hidden')
+            .orderBy('count(distinct bd.id)', 'desc');
+
         return result
     }
 
@@ -501,8 +498,8 @@ export class Dao {
         if (item) {
             return item.id
         } else {
-            const result = await knex('ia_system').returning('id').insert({ code })
-            return result[0]
+            const [result] = await knex('ia_system').returning('id').insert({ code })
+            return result
         }
     }
 
@@ -535,88 +532,82 @@ export class Dao {
     }
 
 
-    @tran
-    static async assertIADocumentId(conn: any, dossier_id: number, documentCode: string, assigned_category: string | null): Promise<number> {
-        // Check or insert document
-        let document_id: number | null = null
-        if (documentCode) {
-            let [documents] = await conn.query('SELECT id FROM ia_document WHERE code = ?', [documentCode])
-            if (documents.length > 0) {
-                document_id = documents[0].id
-
-                // Update assigned_category_id
-                if (assigned_category && documents[0].assigned_category !== assigned_category) {
-                    await conn.query('UPDATE ia_document SET assigned_category = ? WHERE id = ?', [assigned_category, document_id])
-                }
-            } else {
-                const [documentResult] = await conn.query('INSERT INTO ia_document (code, dossier_id, assigned_category) VALUES (?, ?, ?)', [documentCode, dossier_id, assigned_category])
-                document_id = documentResult.insertId
+    static async assertIADocumentId(dossier_id: number, code: string, assigned_category: string | null): Promise<number> {
+        let document = await knex('ia_document').select<mysqlTypes.IADocument[]>('id, assigned_category').where({ code }).first()
+        if (document) {
+            if (assigned_category && document.assigned_category !== assigned_category) {
+                await knex('ia_document').update({ assigned_category }).where({ id: document.id })
             }
+            return document.id
         }
-        return document_id as number
+        const [result] = await knex('ia_document').insert<mysqlTypes.IADocument>({
+            code,
+            dossier_id,
+            assigned_category
+        }).returning('*')
+        return result
     }
 
-    @tran
-    static async updateDocumentContent(conn: any, document_id: number, content_source_id: number, content: string) {
-        await conn.query('UPDATE ia_document SET content_source_id = ?, content = ? WHERE id = ?', [content_source_id, content, document_id])
+    static async updateDocumentContent(document_id: number, content_source_id: number, content: string) {
+        await knex('ia_document').update({
+            content_source_id,
+            content
+        }).where({ id: document_id })
     }
 
-    @tran
-    static async updateDocumentCategory(conn: any, document_id: number, assigned_category: string | null, predicted_category: string | null) {
-        // console.log('updateDocumentCategory', document_id, assigned_category, predicted_category)
-        await conn.query('UPDATE ia_document SET assigned_category = ?, predicted_category = ? WHERE id = ?', [assigned_category, predicted_category, document_id])
+    static async updateDocumentCategory(document_id: number, assigned_category: string | null, predicted_category: string | null) {
+        await knex('ia_document').update({
+            assigned_category,
+            predicted_category,
+        }).where({ id: document_id })
     }
 
-    @con
-    static async verifyIfDossierHasDocumentsWithPredictedCategories(conn: any, dossierCode: string): Promise<boolean> {
-        const [result] = await conn.query(`
-            SELECT COUNT(*) as count FROM ia_dossier p JOIN ia_document d ON p.id = d.dossier_id
-            WHERE p.code = ? AND predicted_category IS NOT NULL
-        `, [dossierCode])
-        return result[0].count > 0
+    static async verifyIfDossierHasDocumentsWithPredictedCategories(dossierCode: string): Promise<boolean> {
+        const result = await knex('ia_dossier as p')
+            .join('ia_document as d', 'p.id', '=', 'd.dossier_id')
+            .where({ 'p.code': dossierCode })
+            .whereNotNull('d.predicted_category')
+            .count('* as count').first()
+        const total = result?.count as number ?? 0
+        return total > 0
     }
 
-    @con
-    static async retrieveDocument(conn: any, document_id: number): Promise<mysqlTypes.IADocument | undefined> {
-        const [result] = await conn.query('SELECT * FROM ia_document WHERE id = ?', [document_id])
-        if (!result || result.length === 0) return undefined
-        const record: mysqlTypes.IADocument = result[0]
-        return record
+    static async retrieveDocument(document_id: number): Promise<mysqlTypes.IADocument | undefined> {
+        const result = await knex('ia_document').select<mysqlTypes.IADocument>('*').where({
+            document_id
+        }).first()
+        return result
     }
 
-    @tran
-    static async assertIABatchDossierId(conn: any, batch_id: number, dossier_id: number): Promise<number> {
+    static async assertIABatchDossierId(batch_id: number, dossier_id: number): Promise<number> {
         // Check or insert document
         let batch_dossier_id: number | null = null
-        let [documents] = await conn.query('SELECT id FROM ia_batch_dossier WHERE batch_id = ? AND dossier_id = ?', [batch_id, dossier_id])
-        if (documents.length > 0) {
-            batch_dossier_id = documents[0].id
-        } else {
-            const [documentResult] = await conn.query('INSERT INTO ia_batch_dossier (batch_id, dossier_id) VALUES (?, ?)', [batch_id, dossier_id])
-            batch_dossier_id = documentResult.insertId
+        const document = await knex('ia_batch_dossier').select('id').where({
+            batch_id, dossier_id
+        }).first()
+        if (document) {
+            return document.id as number
         }
-        return batch_dossier_id as number
+
+        const [id] = await knex('ia_batch_dossier').insert({
+            batch_id, dossier_id
+        }).returning('id')
+        return id as number
     }
 
-    @tran
-    static async deleteIABatchDossierId(conn: any, batch_id: number, dossier_id: number): Promise<undefined> {
-        let [documents] = await conn.query('DELETE FROM ia_batch_dossier WHERE batch_id = ? AND dossier_id = ?', [batch_id, dossier_id])
+    static async deleteIABatchDossierId(batch_id: number, dossier_id: number): Promise<undefined> {
+        await knex('ia_batch_dossier').delete().where({ batch_id, dossier_id })
     }
 
-    @tran
-    static async insertIABatchDossierItem(conn: any, data: mysqlTypes.IABatchDossierItem): Promise<mysqlTypes.IAGenerated> {
+    static async insertIABatchDossierItem(data: mysqlTypes.IABatchDossierItem): Promise<mysqlTypes.IABatchDossierItem | undefined> {
         const { batch_dossier_id, document_id, generation_id, descr, seq } = data
+        const [id] = await knex('ia_batch_dossier_item').insert({
+            batch_dossier_id,
+            document_id, generation_id, descr, seq
+        }).returning('*')
 
-        // Insert into ia_generation
-        const query = `
-          INSERT INTO ia_batch_dossier_item (batch_dossier_id, document_id, generation_id, descr, seq)
-          VALUES (?, ?, ?, ?, ?)
-          `
-        await conn.query(query, [batch_dossier_id, document_id, generation_id, descr, seq])
-        conn.commit()
-        const [insertResult] = await conn.query('SELECT * FROM ia_batch_dossier_item WHERE id = LAST_INSERT_ID()')
-        const insertedRecord: mysqlTypes.IAGenerated = insertResult[0]
-        return insertedRecord
+        const result = await knex('ia_batch_dossier_item').select<mysqlTypes.IABatchDossierItem>('*').where({ id }).first()
+        return result
     }
 
     @tran

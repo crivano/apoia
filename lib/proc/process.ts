@@ -191,7 +191,7 @@ export const obterDadosDoProcesso = async (numeroDoProcesso: string, pUser: Prom
         // Localiza pecas with descricao == 'OUTROS' e busca no banco de dados se já foram inferidas por IA
         const pecasOutros = pecas.filter(p => p.descr === 'OUTROS')
         if (pecasOutros.length > 0) {
-            if (await Dao.verifyIfDossierHasDocumentsWithPredictedCategories(null, numeroDoProcesso)) {
+            if (await Dao.verifyIfDossierHasDocumentsWithPredictedCategories(numeroDoProcesso)) {
                 console.log(`Carregando tipos documentais de ${pecasOutros.length} peças marcadas com "OUTROS"`)
                 const pecasComDocumento = iniciarObtencaoDeDocumentoGravado(dossier_id, numeroDoProcesso, pecasOutros, username, password)
                 for (const peca of pecasComDocumento) {
@@ -232,7 +232,7 @@ export const obterDadosDoProcesso = async (numeroDoProcesso: string, pUser: Prom
                             console.log(`Peça ${peca.id} do processo ${numeroDoProcesso}, originalmente categorizada como ${peca.descr}, identificada como ${categoria}`)
                             if (peca.descr !== 'OUTROS')
                                 throw new Error(`Peça ${peca.id} do processo ${numeroDoProcesso} não é do tipo 'OUTROS'`)
-                            await Dao.updateDocumentCategory(null, peca.documento.id, peca.descr, categoria)
+                            await Dao.updateDocumentCategory(peca.documento.id, peca.descr, categoria)
                             peca.descr = categoria
                         }
                     }
