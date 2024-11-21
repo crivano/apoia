@@ -610,80 +610,57 @@ export class Dao {
         return result
     }
 
-    @tran
-    static async assertIAEnumId(conn: any, descr: string): Promise<number> {
-        // Check or insert batch
-        let id: number | null = null
-        if (descr) {
-            let [batches] = await conn.query('SELECT id FROM ia_enum WHERE descr = ?', [descr])
-            if (batches.length > 0) {
-                id = batches[0].id
-            } else {
-                const [batchResult] = await conn.query('INSERT INTO ia_enum (descr) VALUES (?)', [descr])
-                id = batchResult.insertId
-            }
-        }
-        return id as number
+    static async assertIAEnumId(descr: string): Promise<number> {
+        const iaEnum = await knex('ia_enum').select('id').where({ descr, }).first()
+        if (iaEnum) return iaEnum.id
+        const [result] = await knex('ia_enum').insert({
+            descr,
+        }).returning("*")
+        return result.id as number
     }
 
-    @tran
-    static async assertIAEnumItemId(conn: any, descr: string, enum_id: number): Promise<number> {
+    static async assertIAEnumItemId(descr: string, enum_id: number): Promise<number> {
+        const iaEnum = await knex('ia_enum').select('id').where({ descr, enum_id }).first()
+        if (iaEnum) return iaEnum.id
+        const [result] = await knex('ia_enum').insert({
+            descr, enum_id
+        }).returning("*")
+        return result.id as number
+    }
+
+    static async assertIABatchDossierEnumItemId(batch_dossier_id: number, enum_item_id: number): Promise<number> {
         // Check or insert document
-        let id: number | null = null
-        if (descr) {
-            let [batches] = await conn.query('SELECT id FROM ia_enum_item WHERE descr = ? AND enum_id = ?', [descr, enum_id])
-            if (batches.length > 0) {
-                id = batches[0].id
-            } else {
-                const [batchResult] = await conn.query('INSERT INTO ia_enum_item (descr, enum_id) VALUES (?,?)', [descr, enum_id])
-                id = batchResult.insertId
-            }
-        }
-        return id as number
+        const bachItem = await knex('ia_batch_dossier_enum_item').select('id').where({ batch_dossier_id, enum_item_id }).first()
+        if (bachItem) return bachItem.id
+        const [result] = await knex('ia_batch_dossier_enum_item').insert({
+            batch_dossier_id, enum_item_id
+        }).returning("id")
+        return result.id as number
     }
 
-    @tran
-    static async assertIABatchDossierEnumItemId(conn: any, batch_dossier_id: number, enum_item_id: number): Promise<number> {
-        // Check or insert document
-        let id: number | null = null
-        let [batches] = await conn.query('SELECT id FROM ia_batch_dossier_enum_item WHERE batch_dossier_id = ? AND enum_item_id = ?', [batch_dossier_id, enum_item_id])
-        if (batches.length > 0) {
-            id = batches[0].id
-        } else {
-            const [batchResult] = await conn.query('INSERT INTO ia_batch_dossier_enum_item (batch_dossier_id, enum_item_id) VALUES (?,?)', [batch_dossier_id, enum_item_id])
-            id = batchResult.insertId
-        }
-        return id as number
-    }
-
-    @con
-    static async retrieveEnumItems(conn: any): Promise<mysqlTypes.IAEnumItem[]> {
-        let result
-        [result] = await conn.query(`
-            SELECT e.id enum_id, e.descr enum_descr, ei.descr enum_item_descr, ei.hidden enum_item_hidden, ei2.descr enum_item_descr_main
-            from ia_enum e
-            INNER JOIN ia_enum_item ei ON ei.enum_id = e.id
-            LEFT JOIN ia_enum_item ei2 ON ei2.id = ei.enum_item_id_main
-            ORDER BY e.id, ei.descr
-            `, [])
-        if (!result || result.length === 0) return []
+    static async retrieveEnumItems(): Promise<mysqlTypes.IAEnumItem[]> {
+        const result = await knex('ia_enum as e')
+            .select<mysqlTypes.IAEnumItem[]>(
+                'e.id as enum_id',
+                'e.descr as enum_descr',
+                'ei.descr as enum_item_descr',
+                'ei.hidden as enum_item_hidden',
+                'ei2.descr as enum_item_descr_main'
+            )
+            .innerJoin('ia_enum_item as ei', 'ei.enum_id', 'e.id') // INNER JOIN
+            .leftJoin('ia_enum_item as ei2', 'ei2.id', 'ei.enum_item_id_main') // LEFT JOIN
+            .orderBy('e.id')
+            .orderBy('ei.descr')
         return result
     }
 
-    @tran
-    static async assertIAUserId(conn: any, username: string): Promise<number> {
-        // Check or insert batch
-        let user_id: number | null = null
-        if (username) {
-            let [batches] = await conn.query('SELECT id FROM ia_user WHERE username = ?', [username])
-            if (batches.length > 0) {
-                user_id = batches[0].id
-            } else {
-                const [batchResult] = await conn.query('INSERT INTO ia_user (username) VALUES (?)', [username])
-                user_id = batchResult.insertId
-            }
-        }
-        return user_id as number
+    static async assertIAUserId(username: string): Promise<number> {
+        const user = await knex('ia_user').select('id').where({ username }).first()
+        if (user) return user.id
+        const [result] = await knex('ia_user').insert({
+            username
+        }).returning("*")
+        return result.id as number
     }
 
 }

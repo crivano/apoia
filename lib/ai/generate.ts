@@ -132,7 +132,7 @@ export async function streamContent(definition: PromptDefinitionType, data: Prom
 export async function evaluate(definition: PromptDefinitionType, data: PromptDataType, evaluation_id: number, evaluation_descr: string | null):
     Promise<boolean> {
     const user = await assertCurrentUser()
-    const user_id = await Dao.assertIAUserId(null, user.name)
+    const user_id = await Dao.assertIAUserId(user.name)
 
     if (!user_id) throw new Error('Unauthorized')
 
