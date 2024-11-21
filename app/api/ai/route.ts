@@ -11,18 +11,18 @@ export const maxDuration = 60
 async function getPromptDefinition(kind: string, promptSlug?: string, promptId?: number): Promise<PromptDefinitionType> {
     let prompt: IAPrompt | undefined = undefined
     if (promptId) {
-        prompt = await Dao.retrievePromptById(null, promptId)
+        prompt = await Dao.retrievePromptById(promptId)
         if (!prompt)
             throw new Error(`Prompt not found: ${promptId}`)
     } else if (kind && promptSlug) {
-        const prompts = await Dao.retrievePromptsByKindAndSlug(null, kind, promptSlug)
+        const prompts = await Dao.retrievePromptsByKindAndSlug(kind, promptSlug)
         if (prompts.length === 0)
             throw new Error(`Prompt not found: ${kind}/${promptSlug}`)
         let found = prompts.find(p => p.is_official)
         if (!found)
             found = prompts[0]
         if (found)
-            prompt = await Dao.retrievePromptById(null, found.id)
+            prompt = await Dao.retrievePromptById(found.id)
     }
 
     const definition: PromptDefinitionType =

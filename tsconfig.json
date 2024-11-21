@@ -24,10 +24,10 @@
         "name": "next"
       }
     ],
-    "strictNullChecks": true,
+    "strictNullChecks": false,
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./*"]
+      "@/*": [ "./*" ]
     }
   },
   "include": [
@@ -36,6 +36,8 @@
     "**/*.ts",
     "**/*.tsx" ],
   "exclude": [
-    "node_modules"
+    "node_modules",
+    "migrations/*.ts"
   ]
 }
+

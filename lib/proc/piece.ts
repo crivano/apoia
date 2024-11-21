@@ -17,7 +17,7 @@ const obterTextoDeHtml = async (buffer: ArrayBuffer, documentId: number) => {
     const html = decoder.decode(buffer)
     const htmlWithBlockQuote = addBlockQuote(html)
     const texto = await html2md(htmlWithBlockQuote)
-    Dao.updateDocumentContent(null, documentId, 1, texto)
+    Dao.updateDocumentContent(documentId, 1, texto)
     return texto
 }
 
@@ -53,7 +53,7 @@ const ocrPdfSemLimite = async (buffer: ArrayBuffer, documentId: number) => {
 }
 
 const atualizarConteudoDeDocumento = async (documentId: number, contentSource: number, content: string) => {
-    Dao.updateDocumentContent(null, documentId, contentSource, content)
+    Dao.updateDocumentContent(documentId, contentSource, content)
     return content
 }
 
@@ -94,10 +94,10 @@ const obterTipoDePecaPelaDescricao = (descr: string) => {
 }
 
 export const obterDocumentoGravado = async (dossier_id: number, numeroDoProcesso: string, idDaPeca: string, descrDaPeca: string, username: string, password: string): Promise<IADocument> => {
-    const document_id = await Dao.assertIADocumentId(null, dossier_id, idDaPeca, descrDaPeca)
+    const document_id = await Dao.assertIADocumentId(dossier_id, idDaPeca, descrDaPeca)
 
     // verificar se a peça já foi gravada no banco
-    const document = await Dao.retrieveDocument(null, document_id)
+    const document = await Dao.retrieveDocument(document_id)
     if (!document) throw new Error(`Documento ${idDaPeca} não encontrado`)
     return document
 }

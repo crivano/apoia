@@ -15,13 +15,13 @@ function calcSha256(messages: any): string {
 }
 
 export async function retrieveFromCache(sha256: string, model: string, prompt: string, attempt: number | null): Promise<IAGenerated | undefined> {
-    const cached = await Dao.retrieveIAGeneration(null, { sha256, model, prompt, attempt })
+    const cached = await Dao.retrieveIAGeneration({ sha256, model, prompt, attempt })
     if (cached) return cached
     return undefined
 }
 
 export async function saveToCache(sha256: string, model: string, prompt: string, generated: string, attempt: number | null): Promise<number | undefined> {
-    const inserted = await Dao.insertIAGeneration(null, { sha256, model, prompt, generation: generated, attempt })
+    const inserted = await Dao.insertIAGeneration({ sha256, model, prompt, generation: generated, attempt })
     if (!inserted) return undefined
     return inserted.id
 }
@@ -132,7 +132,7 @@ export async function streamContent(definition: PromptDefinitionType, data: Prom
 export async function evaluate(definition: PromptDefinitionType, data: PromptDataType, evaluation_id: number, evaluation_descr: string | null):
     Promise<boolean> {
     const user = await assertCurrentUser()
-    const user_id = await Dao.assertIAUserId(null, user.name)
+    const user_id = await Dao.assertIAUserId(user.name)
 
     if (!user_id) throw new Error('Unauthorized')
 
@@ -146,7 +146,7 @@ export async function evaluate(definition: PromptDefinitionType, data: PromptDat
     const cached = await retrieveFromCache(sha256, model, definition.kind, null)
     if (!cached) throw new Error('Generation not found')
 
-    await Dao.evaluateIAGeneration(null, user_id, cached.id, evaluation_id, evaluation_descr)
+    await Dao.evaluateIAGeneration(user_id, cached.id, evaluation_id, evaluation_descr)
 
     return true
 }

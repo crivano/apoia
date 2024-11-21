@@ -5,8 +5,8 @@ import { Dao } from '@/lib/db/mysql'
 export default async function New({ params }: { params: { kind: string } }) {
     const { kind } = params
 
-    const models = await Dao.retrieveModels(null)
-    const testsets = await Dao.retrieveOfficialTestsetsIdsAndNamesByKind(null, kind)
+    const models = await Dao.retrieveModels()
+    const testsets = await Dao.retrieveOfficialTestsetsIdsAndNamesByKind(kind)
 
     return (<Container fluid={false}>
         <h1 className="mt-5">Nova Coleção de Testes</h1>

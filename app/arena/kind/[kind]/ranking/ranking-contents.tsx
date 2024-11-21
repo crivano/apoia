@@ -5,9 +5,9 @@ import { Dao } from '@/lib/db/mysql'
 
 export default async function RankingContents(props: { kind: string }) {
     const { kind } = props
-    const models = await Dao.retrieveModels(null)
-    const prompts = await Dao.retrievePromptsIdsAndNamesByKind(null, kind)
-    const testsets = await Dao.retrieveOfficialTestsetsIdsAndNamesByKind(null, kind)
+    const models = await Dao.retrieveModels()
+    const prompts = await Dao.retrievePromptsIdsAndNamesByKind(kind)
+    const testsets = await Dao.retrieveOfficialTestsetsIdsAndNamesByKind(kind)
 
     const promptsWithLatestAndOfficial = updateWithLatestAndOfficial(prompts)
 

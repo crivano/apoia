@@ -54,7 +54,7 @@ export default function PrefsForm(params) {
                                     <Frm.Select label="Modelo Padrão" name="model" options={[{ id: '', name: '[Selecionar Automaticamente Baseado no Prompt]' }, ...enumSortById(Model).map(e => ({ id: e.value.name, name: e.value.name }))]} />
                                 </div>
                                 {enumSortById(ModelProvider).map((provider) => (
-                                    <div className="row mb-2">
+                                    <div className="row mb-2" key={provider.value.name}>
                                         <Frm.Input label={`${provider.value.name}: Chave da API`} name={`env['${provider.value.apiKey}']`} />
                                     </div>))}
                                 {/* <div className="row mb-3">

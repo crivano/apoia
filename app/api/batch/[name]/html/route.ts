@@ -45,12 +45,12 @@ const preprocessAgrupamento = (text: string) => {
 export async function GET(req: Request, { params }: { params: { name: string } }) {
     const { searchParams } = new URL(req.url)
     const ungrouped = searchParams.get('ungrouped') === 'true'
-    const batch_id = await Dao.assertIABatchId(null, params.name)
-    const enum_id = await Dao.assertIAEnumId(null, Plugin.TRIAGEM)
+    const batch_id = await Dao.assertIABatchId(params.name)
+    const enum_id = await Dao.assertIAEnumId(Plugin.TRIAGEM)
 
     let html = ''
 
-    const items = await Dao.retrieveByBatchIdAndEnumId(null, batch_id, enum_id)
+    const items = await Dao.retrieveByBatchIdAndEnumId(batch_id, enum_id)
 
     console.log('items', items.length)
 
@@ -79,10 +79,10 @@ export async function GET(req: Request, { params }: { params: { name: string } }
 
     html += `<h1>${params.name}</h1>`
 
-    const palavrasChave = await Dao.retrieveCountByBatchIdAndEnumId(null, batch_id, await Dao.assertIAEnumId(null, Plugin.PALAVRAS_CHAVE))
+    const palavrasChave = await Dao.retrieveCountByBatchIdAndEnumId(batch_id, await Dao.assertIAEnumId(Plugin.PALAVRAS_CHAVE))
     const palavrasChaveJson = computeScaledKeywords(palavrasChave, 100)
 
-    const normas = await Dao.retrieveCountByBatchIdAndEnumId(null, batch_id, await Dao.assertIAEnumId(null, Plugin.NORMAS))
+    const normas = await Dao.retrieveCountByBatchIdAndEnumId(batch_id, await Dao.assertIAEnumId(Plugin.NORMAS))
     const normasJson = computeScaledKeywords(normas, 100)
 
     // [['foo', 120], ['bar', 6]]
@@ -131,7 +131,7 @@ export async function GET(req: Request, { params }: { params: { name: string } }
     html += `</table>`
     html += `</div>`
 
-    const enumItens = await Dao.retrieveEnumItems(null)
+    const enumItens = await Dao.retrieveEnumItems()
     const enumMap = enumItens.reduce((acc, ei) => {
         acc[ei.enum_descr] = acc[ei.enum_descr] || []
         acc[ei.enum_descr].push({ descr: ei.enum_item_descr, descr_main: ei.enum_item_descr_main, hidden: ei.enum_item_hidden })
@@ -159,7 +159,7 @@ export async function GET(req: Request, { params }: { params: { name: string } }
             if (nomeDaClasse && item.dossier_filing_at) html += `<br/>`
             html += `Ajuizado em ${formatBrazilianDate(item.dossier_filing_at)}`
             html += `</div>`
-            const generations = await Dao.retrieveGenerationByBatchDossierId(null, item.batch_dossier_id)
+            const generations = await Dao.retrieveGenerationByBatchDossierId(item.batch_dossier_id)
             for (const g of generations) {
                 let text = g.generation
                 if (g.descr === P.RESUMO) {
