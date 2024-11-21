@@ -57,7 +57,7 @@ export class Dao {
             base_id: base_prompt_id,
             kind, name, slug, model_id, testset_id, content: JSON.stringify(content), created_by
         }).returning('id')
-        const record = await knex('ia_prompt').select<mysqlTypes.IAPrompt>('*').where({ id: result }).first()
+        const record = await knex('ia_prompt').select<mysqlTypes.IAPrompt>('*').where({ id: result[0] }).first()
         return record
     }
 

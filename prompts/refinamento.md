@@ -27,4 +27,4 @@ Certifique-se de:
 - Formatar sua resposta em MarkDown, mantendo todas as características da formatação original
 - Não repita as instruções na resposta
 - Não inclua crases triplas para informar que se trata de Markdown na resposta
-- Responda apenas com o testo refinado e mais nada
+- Responda apenas com o texto refinado e mais nada
