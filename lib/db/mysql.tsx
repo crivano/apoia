@@ -3,63 +3,6 @@ import { slugify } from "../utils/utils"
 import * as mysqlTypes from "./mysql-types"
 import knex from './knex'
 
-const mysql = require("mysql2/promise")
-
-const pool = process.env.MYSQL_HOST && mysql.createPool({
-    connectionLimit: 10,
-    host: process.env.MYSQL_HOST,
-    port: process.env.MYSQL_PORT,
-    user: process.env.MYSQL_USER,
-    password: process.env.MYSQL_PASSWORD,
-    database: process.env.MYSQL_DATABASE,
-    debug: false
-})
-
-const getConnection = async () => {
-    return await pool.getConnection()
-}
-
-function con(target: any, propertyKey: string, descriptor: PropertyDescriptor) {
-    const original = descriptor.value;
-
-    descriptor.value = async function (...args: any[]) {
-        if (!pool) return undefined
-        const conn = await getConnection()
-        if (args.length > 0 && args[0] === null) args[0] = conn
-        try {
-            const result = await original.apply(this, args);
-            return result
-        } catch (error) {
-            console.error(`*** Dao error on ${propertyKey}:`, error?.message)
-            throw new Error(`Dao error on ${propertyKey}: ${error?.message}`)
-        } finally {
-            await conn.release()
-        }
-    }
-}
-
-function tran(target: any, propertyKey: string, descriptor: PropertyDescriptor) {
-    const original = descriptor.value;
-
-    descriptor.value = async function (...args: any[]) {
-        if (!pool) return undefined
-        const conn = await getConnection()
-        await conn.beginTransaction()
-        if (args.length > 0 && args[0] === null) args[0] = conn
-        try {
-            const result = await original.apply(this, args);
-            await conn.commit()
-            return result
-        } catch (error) {
-            await conn.rollback()
-            console.error(`*** Dao error on ${propertyKey}:`, error?.message)
-            throw new Error(`Dao error on ${propertyKey}: ${error?.message}`)
-        } finally {
-            await conn.release()
-        }
-    }
-}
-
 export class Dao {
     static async insertIATestset(data: mysqlTypes.IATestsetToInsert): Promise<mysqlTypes.IATestset | undefined> {
         const { base_testset_id, kind, name, model_id, content } = data
@@ -106,7 +49,6 @@ export class Dao {
     }
 
 
-    @tran
     static async insertIAPrompt(conn: any, data: mysqlTypes.IAPromptToInsert): Promise<mysqlTypes.IAPrompt | undefined> {
         const { base_prompt_id, kind, name, model_id, testset_id, content } = data
         const slug = slugify(name)
@@ -177,83 +119,111 @@ export class Dao {
         return records
     }
 
-    @con
     static async retrievePromptsByKind(conn: any, kind: string): Promise<{ slug: string, name: string, versions: number, created_at: Date, modified_at: Date, official_at: Date, created_id: number, modified_id: number, official_id: number }[]> {
-        const [result] = await conn.query(`
-            WITH t1 AS (
-            SELECT
-                slug,
-                MIN(created_at) AS created_at,
-                MIN(created_id) AS created_id,
-                MIN(modified_at) AS modified_at,
-                MIN(modified_id) AS modified_id,
-                MIN(name) AS name,
-                COUNT(*) AS versions
-            FROM (
-                SELECT
-                    slug,
-                    FIRST_VALUE(created_at) OVER (PARTITION BY slug ORDER BY created_at) AS created_at,
-                    FIRST_VALUE(id) OVER (PARTITION BY slug ORDER BY created_at) AS created_id,
-                    FIRST_VALUE(created_at) OVER (PARTITION BY slug ORDER BY created_at DESC) AS modified_at,
-                    FIRST_VALUE(id) OVER (PARTITION BY slug ORDER BY created_at DESC) AS modified_id,
-                    FIRST_VALUE(name) OVER (PARTITION BY slug ORDER BY created_at DESC) AS name
-                FROM ia_prompt
-                WHERE kind = 'ementa'
-            ) p
-            GROUP BY slug
-            ORDER BY slug
-        ),
-        t2 AS (
-            SELECT
-                t1.*,
-                o.id AS official_id,
-                o.created_at AS official_at
-            FROM t1
-            LEFT JOIN ia_prompt o ON t1.slug = o.slug AND o.is_official
-        )
-        SELECT t2.* FROM t2;
-        `, [kind])
+        // Consulta interna que utiliza funções de janela
+        const innerQuery = knex('ia_prompt')
+            .select([
+                'slug',
+                knex.raw(`FIRST_VALUE(created_at) OVER (PARTITION BY slug ORDER BY created_at) AS created_at`),
+                knex.raw(`FIRST_VALUE(id) OVER (PARTITION BY slug ORDER BY created_at) AS created_id`),
+                knex.raw(`FIRST_VALUE(created_at) OVER (PARTITION BY slug ORDER BY created_at DESC) AS modified_at`),
+                knex.raw(`FIRST_VALUE(id) OVER (PARTITION BY slug ORDER BY created_at DESC) AS modified_id`),
+                knex.raw(`FIRST_VALUE(name) OVER (PARTITION BY slug ORDER BY created_at DESC) AS name`)
+            ])
+            .where('kind', kind);
+
+        // Definição da CTE t1
+        const t1Query = knex
+            .select([
+                'slug',
+                knex.raw('MIN(created_at) AS created_at'),
+                knex.raw('MIN(created_id) AS created_id'),
+                knex.raw('MIN(modified_at) AS modified_at'),
+                knex.raw('MIN(modified_id) AS modified_id'),
+                knex.raw('MIN(name) AS name'),
+                knex.raw('COUNT(*) AS versions')
+            ])
+            .from({p: innerQuery} as any)
+            .groupBy('slug')
+            .orderBy('slug');
+
+        // Definição da CTE t2 que depende de t1
+        const t2Query = knex
+            .select([
+                't1.*',
+                knex.raw('o.id AS official_id'),
+                knex.raw('o.created_at AS official_at')
+            ])
+            .from('t1')
+            .leftJoin({ o: 'ia_prompt' }, function () {
+                this.on('t1.slug', '=', 'o.slug').andOn('o.is_official', '=', knex.raw('?', [true]));
+            });
+
+        // Consulta final que utiliza as CTEs t1 e t2
+        const finalQuery = knex
+            .with('t1', t1Query)
+            .with('t2', t2Query)
+            .select('t2.*')
+            .from('t2');
+
+        // Exibe a consulta SQL gerada
+        console.log('***prompts', finalQuery.toString());
+        const result = await finalQuery
         if (!result || result.length === 0) return []
         const records = result.map((record: any) => ({ ...record }))
         return records
     }
 
-    @con
     static async retrieveTestsetsByKind(conn: any, kind: string): Promise<{ slug: string, name: string, versions: number, created: Date, modified: Date }[]> {
-        const [result] = await conn.query(`
-            WITH t1 AS (
-            SELECT
-                slug,
-                MIN(created_at) AS created_at,
-                MIN(created_id) AS created_id,
-                MIN(modified_at) AS modified_at,
-                MIN(modified_id) AS modified_id,
-                MIN(name) AS name,
-                COUNT(*) AS versions
-            FROM (
-                SELECT
-                    slug,
-                    FIRST_VALUE(created_at) OVER (PARTITION BY slug ORDER BY created_at) AS created_at,
-                    FIRST_VALUE(id) OVER (PARTITION BY slug ORDER BY created_at) AS created_id,
-                    FIRST_VALUE(created_at) OVER (PARTITION BY slug ORDER BY created_at DESC) AS modified_at,
-                    FIRST_VALUE(id) OVER (PARTITION BY slug ORDER BY created_at DESC) AS modified_id,
-                    FIRST_VALUE(name) OVER (PARTITION BY slug ORDER BY created_at DESC) AS name
-                FROM ia_testset
-                WHERE kind = ?
-            ) p
-            GROUP BY slug
-            ORDER BY slug
-        ),
-        t2 AS (
-            SELECT
-                t1.*,
-                o.id AS official_id,
-                o.created_at AS official_at
-            FROM t1
-            LEFT JOIN ia_testset o ON t1.slug = o.slug AND o.is_official = 1
-        )
-        SELECT t2.* FROM t2;
-        `, [kind])
+        // Consulta interna que utiliza funções de janela
+        const innerQuery = knex('ia_testset')
+            .select([
+                'slug',
+                knex.raw(`FIRST_VALUE(created_at) OVER (PARTITION BY slug ORDER BY created_at) AS created_at`),
+                knex.raw(`FIRST_VALUE(id) OVER (PARTITION BY slug ORDER BY created_at) AS created_id`),
+                knex.raw(`FIRST_VALUE(created_at) OVER (PARTITION BY slug ORDER BY created_at DESC) AS modified_at`),
+                knex.raw(`FIRST_VALUE(id) OVER (PARTITION BY slug ORDER BY created_at DESC) AS modified_id`),
+                knex.raw(`FIRST_VALUE(name) OVER (PARTITION BY slug ORDER BY created_at DESC) AS name`)
+            ])
+            .where('kind', kind)
+
+        // Definição da CTE t1
+        const t1Query = knex
+            .select([
+                'slug',
+                knex.raw('MIN(created_at) AS created_at'),
+                knex.raw('MIN(created_id) AS created_id'),
+                knex.raw('MIN(modified_at) AS modified_at'),
+                knex.raw('MIN(modified_id) AS modified_id'),
+                knex.raw('MIN(name) AS name'),
+                knex.raw('COUNT(*) AS versions')
+            ])
+            .from({p: innerQuery} as any)
+            .groupBy('slug')
+            .orderBy('slug')
+
+        // Definição da CTE t2 que depende de t1
+        const t2Query = knex
+            .select([
+                't1.*',
+                knex.raw('o.id AS official_id'),
+                knex.raw('o.created_at AS official_at')
+            ])
+            .from('t1')
+            .leftJoin({ o: 'ia_testset' }, function () {
+                this.on('t1.slug', '=', 'o.slug').andOn('o.is_official', '=', knex.raw('?', [true]))
+            })
+
+        // Consulta final que utiliza as CTEs t1 e t2
+        const finalQuery = knex
+            .with('t1', t1Query)
+            .with('t2', t2Query)
+            .select('t2.*')
+            .from('t2');
+
+        // Ou para ver a consulta SQL gerada:
+        console.log('***testsets', finalQuery.toString());
+        const result = await finalQuery
         if (!result || result.length === 0) return []
         const records = result.map((record: any) => ({ ...record }))
         return records
