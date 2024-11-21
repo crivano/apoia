@@ -21,7 +21,7 @@ export default async function UserMenu() {
     const user = session.user
     return (
         <ul className="navbar-nav me-1 mb-2x mb-lg-0x">
-            {(process.env.ACCESS_ARENA || '').split(';').includes(user.name) || user?.roles?.includes('apoia-role-arena') &&
+            {((process.env.ACCESS_ARENA || '').split(';').includes(user.name) || user?.roles?.includes('apoia-role-arena')) &&
                 (<NavItem>
                     <NavigationLink href="/arena" text="Arena" />
                 </NavItem>)}
