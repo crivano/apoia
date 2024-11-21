@@ -180,26 +180,38 @@ export class Dao {
     @con
     static async retrievePromptsByKind(conn: any, kind: string): Promise<{ slug: string, name: string, versions: number, created_at: Date, modified_at: Date, official_at: Date, created_id: number, modified_id: number, official_id: number }[]> {
         const [result] = await conn.query(`
-            WITH t1 AS
-            (SELECT slug, min(created_at) created_at, min(created_id) created_id, min(modified_at) modified_at, min(modified_id) modified_id, min(name) name, count(*) versions
+            WITH t1 AS (
+            SELECT
+                slug,
+                MIN(created_at) AS created_at,
+                MIN(created_id) AS created_id,
+                MIN(modified_at) AS modified_at,
+                MIN(modified_id) AS modified_id,
+                MIN(name) AS name,
+                COUNT(*) AS versions
             FROM (
-                SELECT 
-                slug, 
-                FIRST_VALUE(created_at) OVER first AS created_at,
-                FIRST_VALUE(id) OVER first AS created_id,
-                FIRST_VALUE(created_at) OVER last AS modified_at,
-                FIRST_VALUE(id) OVER last AS modified_id,
-                FIRST_VALUE(name) OVER last AS name
+                SELECT
+                    slug,
+                    FIRST_VALUE(created_at) OVER (PARTITION BY slug ORDER BY created_at) AS created_at,
+                    FIRST_VALUE(id) OVER (PARTITION BY slug ORDER BY created_at) AS created_id,
+                    FIRST_VALUE(created_at) OVER (PARTITION BY slug ORDER BY created_at DESC) AS modified_at,
+                    FIRST_VALUE(id) OVER (PARTITION BY slug ORDER BY created_at DESC) AS modified_id,
+                    FIRST_VALUE(name) OVER (PARTITION BY slug ORDER BY created_at DESC) AS name
                 FROM ia_prompt
-                WHERE kind = ?
-                WINDOW first as (PARTITION BY slug ORDER BY created_at), last as (PARTITION BY slug ORDER BY created_at desc)
+                WHERE kind = 'ementa'
             ) p
             GROUP BY slug
-            ORDER BY slug),
-            t2 AS
-            (SELECT t1.*, o.id official_id, o.created_at official_at
-            FROM t1 LEFT JOIN ia_prompt o ON t1.slug = o.slug AND o.is_official = 1)
-            SELECT t2.* from t2;
+            ORDER BY slug
+        ),
+        t2 AS (
+            SELECT
+                t1.*,
+                o.id AS official_id,
+                o.created_at AS official_at
+            FROM t1
+            LEFT JOIN ia_prompt o ON t1.slug = o.slug AND o.is_official
+        )
+        SELECT t2.* FROM t2;
         `, [kind])
         if (!result || result.length === 0) return []
         const records = result.map((record: any) => ({ ...record }))
@@ -209,26 +221,38 @@ export class Dao {
     @con
     static async retrieveTestsetsByKind(conn: any, kind: string): Promise<{ slug: string, name: string, versions: number, created: Date, modified: Date }[]> {
         const [result] = await conn.query(`
-            WITH t1 AS
-            (SELECT slug, min(created_at) created_at, min(created_id) created_id, min(modified_at) modified_at, min(modified_id) modified_id, min(name) name, count(*) versions
+            WITH t1 AS (
+            SELECT
+                slug,
+                MIN(created_at) AS created_at,
+                MIN(created_id) AS created_id,
+                MIN(modified_at) AS modified_at,
+                MIN(modified_id) AS modified_id,
+                MIN(name) AS name,
+                COUNT(*) AS versions
             FROM (
-                SELECT 
-                slug, 
-                FIRST_VALUE(created_at) OVER first AS created_at,
-                FIRST_VALUE(id) OVER first AS created_id,
-                FIRST_VALUE(created_at) OVER last AS modified_at,
-                FIRST_VALUE(id) OVER last AS modified_id,
-                FIRST_VALUE(name) OVER last AS name
+                SELECT
+                    slug,
+                    FIRST_VALUE(created_at) OVER (PARTITION BY slug ORDER BY created_at) AS created_at,
+                    FIRST_VALUE(id) OVER (PARTITION BY slug ORDER BY created_at) AS created_id,
+                    FIRST_VALUE(created_at) OVER (PARTITION BY slug ORDER BY created_at DESC) AS modified_at,
+                    FIRST_VALUE(id) OVER (PARTITION BY slug ORDER BY created_at DESC) AS modified_id,
+                    FIRST_VALUE(name) OVER (PARTITION BY slug ORDER BY created_at DESC) AS name
                 FROM ia_testset
                 WHERE kind = ?
-                WINDOW first as (PARTITION BY slug ORDER BY created_at), last as (PARTITION BY slug ORDER BY created_at desc)
             ) p
             GROUP BY slug
-            ORDER BY slug),
-            t2 AS
-            (SELECT t1.*, o.id official_id, o.created_at official_at
-            FROM t1 LEFT JOIN ia_testset o ON t1.slug = o.slug AND o.is_official = 1)
-            SELECT t2.* from t2;
+            ORDER BY slug
+        ),
+        t2 AS (
+            SELECT
+                t1.*,
+                o.id AS official_id,
+                o.created_at AS official_at
+            FROM t1
+            LEFT JOIN ia_testset o ON t1.slug = o.slug AND o.is_official = 1
+        )
+        SELECT t2.* FROM t2;
         `, [kind])
         if (!result || result.length === 0) return []
         const records = result.map((record: any) => ({ ...record }))
@@ -533,7 +557,7 @@ export class Dao {
 
 
     static async assertIADocumentId(dossier_id: number, code: string, assigned_category: string | null): Promise<number> {
-        let document = await knex('ia_document').select<mysqlTypes.IADocument[]>('id, assigned_category').where({ code }).first()
+        let document = await knex('ia_document').select<mysqlTypes.IADocument[]>('id', 'assigned_category').where({ code }).first()
         if (document) {
             if (assigned_category && document.assigned_category !== assigned_category) {
                 await knex('ia_document').update({ assigned_category }).where({ id: document.id })
@@ -574,7 +598,7 @@ export class Dao {
 
     static async retrieveDocument(document_id: number): Promise<mysqlTypes.IADocument | undefined> {
         const result = await knex('ia_document').select<mysqlTypes.IADocument>('*').where({
-            document_id
+            id: document_id
         }).first()
         return result
     }
