@@ -1,7 +1,7 @@
 import Fetcher from '../../../lib/utils/fetcher'
 import * as jose from 'jose'
 import { NextResponse } from 'next/server'
-import { autenticar } from '../../../lib/mni'
+import { autenticar } from '../../../lib/interop/mni'
 import { encrypt } from '@/lib/utils/crypt'
 import { buildJweToken } from '@/lib/utils/jwt'
 

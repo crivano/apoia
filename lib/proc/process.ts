@@ -8,7 +8,7 @@ import { decrypt } from '../utils/crypt'
 import { Dao } from '../db/mysql'
 import { IADocument } from '../db/mysql-types'
 import { inferirCategoriaDaPeca } from '../category'
-import { consultarProcesso } from '../mni'
+import { consultarProcesso } from '../interop/mni'
 import { obterConteudoDaPeca, obterDocumentoGravado } from './piece'
 import { faObjectUngroup } from '@fortawesome/free-solid-svg-icons'
 import { assertNivelDeSigilo, verificarNivelDeSigilo } from './sigilo'
@@ -31,6 +31,7 @@ export type PecaType = {
 
 export type DadosDoProcessoType = {
     pecas: PecaType[]
+    sigilo?: number
     combinacao?: CombinacaoValida
     ajuizamento?: Date
     codigoDaClasse?: number

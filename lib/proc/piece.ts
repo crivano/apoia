@@ -6,7 +6,7 @@ import { T } from './combinacoes'
 import { addBlockQuote } from '../utils/utils'
 import { Dao } from '../db/mysql'
 import { IADocument, IADocumentContentSource } from '../db/mysql-types'
-import { obterPeca } from '../mni'
+import { obterPeca } from '../interop/mni'
 
 import pLimit from 'p-limit'
 import { assertNivelDeSigilo, verificarNivelDeSigilo } from './sigilo'

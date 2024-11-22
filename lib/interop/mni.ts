@@ -6,6 +6,7 @@ import { systems } from '@/lib/utils/env'
 import { assertCurrentUser } from '@/lib/user'
 
 import pLimit from 'p-limit'
+import { ObterPecaType } from './interop'
 
 const limit = pLimit(process.env.MNI_LIMIT ? parseInt(process.env.MNI_LIMIT) : 1)
 
@@ -81,10 +82,10 @@ export const consultarProcesso = async (numero, username, password) => {
     return pConsultarProcesso
 }
 
-export const obterPeca = async (numeroDoProcesso, idDaPeca, username: string, password: string) =>
+export const obterPeca = async (numeroDoProcesso, idDaPeca, username: string, password: string): Promise<ObterPecaType> =>
     limit(() => obterPecaSemLimite(numeroDoProcesso, idDaPeca, username, password))
 
-export const obterPecaSemLimite = async (numeroDoProcesso, idDaPeca, username: string, password: string) => {
+export const obterPecaSemLimite = async (numeroDoProcesso, idDaPeca, username: string, password: string): Promise<ObterPecaType> => {
     const client = await getClient(undefined)
     const user = await assertCurrentUser()
     const system = systems.find(s => s.system === user.image.system)
