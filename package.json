@@ -8,7 +8,6 @@
         "start": "next start -p 8081",
         "lint": "next lint",
         "knex": "ts-node -P tsconfig.knex.json node_modules/knex/bin/cli.js"
-
     },
     "dependencies": {
         "@ai-sdk/anthropic": "^0.0.51",
@@ -56,6 +55,7 @@
         "partial-json": "^0.1.7",
         "pdfjs-dist": "^3.11.174",
         "pdfmake": "^0.2.10",
+        "pg": "^8.13.1",
         "react": "^18.3.1",
         "react-bootstrap": "^2.10.2",
         "react-dom": "^18.3.1",

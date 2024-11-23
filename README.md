@@ -87,14 +87,32 @@ Uma encriptação a mais é realizada na senha a partir da chave abaixo:
 PWD_SECRET=SUBSTITUIR_POR_UM_UUID_ALEATORIO
 ```
 
-Para que a ApoIA possa gerar relatórios de triagem e para que possa fazer o cache dos textos gerados por IA, é necessário conectá-la ao MySQL. Se nenhuma destas funcionalidades for importante, basta omitir os parâmetros abaixo que a ApoIA, ainda que limitada, funcionará.
+Para que a ApoIA possa gerar relatórios de triagem e para que possa fazer o cache dos textos gerados por IA, é necessário conectá-la ao MySQL ou ao PostgreSQL. Se nenhuma destas funcionalidades for importante, basta omitir os parâmetros abaixo que a ApoIA, ainda que limitada, funcionará.
+
+Para conectar ao MySQL, utilize propriedades como as descritas abaixo:
 
 ```properties
-MYSQL_HOST=localhost
-MYSQL_PORT=3306
-MYSQL_USER=root
-MYSQL_PASSWORD=SUBSTITUIR_PELA_SENHA_DO_MYSQL
-MYSQL_DATABASE=apoia
+DB_CLIENT=mysql2
+DB_HOST=localhost
+DB_PORT=3306
+DB_USER=root
+DB_PASSWORD=SUBSTITUIR_PELA_SENHA_DO_MYSQL
+DB_DATABASE=apoia
+DB_POOL=2
+DB_SSL=
+```
+
+Para conectar ao PostgreSQL, utilize siga o padrão abaixo:
+
+```properties
+DB_CLIENT=pg
+DB_HOST=localhost
+DB_PORT=5432
+DB_USER=postgres
+DB_PASSWORD=SUBSTITUIR_PELA_SENHA_DO_POSTGRESQL
+DB_DATABASE=apoia
+DB_POOL=2
+DB_SSL=
 ```
 
 Se desejar que a ApoIA, ao clicar sobre o número de um processo, abra o sistema processual, use a configuração abaixo:

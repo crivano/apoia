@@ -18,12 +18,10 @@ export default async function Home() {
 
     const records = await Dao.retrieveCountersByPromptKinds()
     const promptKinds = Object.entries(internalPrompts).map(([kind, prompt]) => ({ kind, prompts: 0, testsets: 0 }))
-    records.forEach(record => {
-        promptKinds.forEach(promptKind => {
-            if (!records.find(r => r.kind === promptKind.kind)) {
-                records.push(promptKind)
-            }
-        })
+    promptKinds.forEach(promptKind => {
+        if (!records.find(r => r.kind === promptKind.kind)) {
+            records.push(promptKind)
+        }
     })
     records.sort((a, b) => a.kind.localeCompare(b.kind))
 

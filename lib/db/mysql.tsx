@@ -8,10 +8,10 @@ export class Dao {
         const { base_testset_id, kind, name, model_id, content } = data
         const slug = slugify(name)
         const created_by = (await getCurrentUser())?.id || null
-        const [id] = await knex('ia_testset').insert({
+        const [insertedid] = await knex('ia_testset').insert({
             base_id: base_testset_id, kind, name, slug, model_id, content, created_by
-        })
-        const inserted = await knex.select().from<mysqlTypes.IATestset>('ia_testset').where({ id }).first()
+        }).returning('id')
+        const inserted = await knex.select().from<mysqlTypes.IATestset>('ia_testset').where({ id: insertedid.id }).first()
         return inserted
     }
 
@@ -21,14 +21,16 @@ export class Dao {
             const testset = await Dao.retrieveTestsetById(id)
             if (!testset) throw new Error('Testset not found')
             const { kind, slug } = testset
-            const queryRemoveOthers = trx('ia_testset').update({
+            await trx('ia_testset').update({
                 is_official: 0
             }).where({
                 kind,
                 slug,
                 id
             })
-            await Promise.all([queryRemoveOthers, Dao.removeOfficialTestset(id)])
+            await trx('ia_testset').update<mysqlTypes.IAPrompt>({
+                is_official: 1
+            }).where({ id })
             await trx.commit()
             return true
         } catch (error) {
@@ -39,7 +41,7 @@ export class Dao {
     }
 
     static async removeOfficialTestset(id: number): Promise<boolean> {
-        await knex('ia_testset').update({ is_official: 1 }).where({ id })
+        await knex('ia_testset').update({ is_official: 0 }).where({ id })
         return true
     }
 
@@ -53,11 +55,11 @@ export class Dao {
         const { base_prompt_id, kind, name, model_id, testset_id, content } = data
         const slug = slugify(name)
         const created_by = (await getCurrentUser())?.id || null
-        const result = await knex('ia_prompt').insert<mysqlTypes.IAPrompt>({
+        const [result] = await knex('ia_prompt').insert<mysqlTypes.IAPrompt>({
             base_id: base_prompt_id,
             kind, name, slug, model_id, testset_id, content: JSON.stringify(content), created_by
         }).returning('id')
-        const record = await knex('ia_prompt').select<mysqlTypes.IAPrompt>('*').where({ id: result[0] }).first()
+        const record = await knex('ia_prompt').select<mysqlTypes.IAPrompt>('*').where({ id: result.id }).first()
         return record
     }
 
@@ -85,7 +87,7 @@ export class Dao {
     static async removeOfficialPrompt(id: number): Promise<boolean> {
         const updates = await knex('ia_prompt').update({
             is_official: 0
-        }).where({ id }).returning("*")
+        }).where({ id }).returning('*')
         return updates.length > 0
     }
 
@@ -96,7 +98,7 @@ export class Dao {
     }
 
     static async retrieveCountersByPromptKinds(): Promise<{ kind: string, prompts: number, testsets: number }[]> {
-        const result = await knex('ia_prompt as p')
+        const sql = knex('ia_prompt as p')
             .select(
                 'k.kind',  // Select 'kind' from the union of both tables
                 knex.raw('COUNT(DISTINCT p.slug) as prompts'),  // Count distinct slugs in ia_prompt
@@ -113,6 +115,8 @@ export class Dao {
             )
             .leftJoin('ia_testset as t', 't.kind', '=', 'p.kind')
             .groupBy('k.kind');  // Group by 'kind' from the union
+        console.log('***counters', sql.toString());
+        const result = await sql
 
         if (!result || result.length === 0) return []
         const records = result.map((record: any) => ({ ...record }))
@@ -143,7 +147,7 @@ export class Dao {
                 knex.raw('MIN(name) AS name'),
                 knex.raw('COUNT(*) AS versions')
             ])
-            .from({p: innerQuery} as any)
+            .from({ p: innerQuery } as any)
             .groupBy('slug')
             .orderBy('slug');
 
@@ -198,7 +202,7 @@ export class Dao {
                 knex.raw('MIN(name) AS name'),
                 knex.raw('COUNT(*) AS versions')
             ])
-            .from({p: innerQuery} as any)
+            .from({ p: innerQuery } as any)
             .groupBy('slug')
             .orderBy('slug')
 
@@ -449,7 +453,7 @@ export class Dao {
     }
 
     static async retrieveGenerationByBatchDossierId(batch_dossier_id: number): Promise<mysqlTypes.AIBatchDossierGeneration[]> {
-        const result = knex('apoia.ia_batch_dossier_item as bdi')
+        const result = knex('ia_batch_dossier_item as bdi')
             .select<mysqlTypes.AIBatchDossierGeneration[]>(
                 'bdi.descr',
                 'g.generation',
@@ -467,11 +471,11 @@ export class Dao {
 
     static async insertIAGeneration(data: mysqlTypes.IAGeneration): Promise<mysqlTypes.IAGenerated | undefined> {
         const { model, prompt, sha256, generation, attempt } = data
-        const [id] = await knex('ia_generation').insert({
+        const [inserted] = await knex('ia_generation').insert({
             model,
             prompt, sha256, generation, attempt
-        }).returning('*')
-        const result = await knex('ia_generation').select<mysqlTypes.IAGenerated>('*').where({ id }).first()
+        }).returning('id')
+        const result = await knex('ia_generation').select<mysqlTypes.IAGenerated>('*').where('id', inserted.id).first()
         return result
     }
 
@@ -492,8 +496,8 @@ export class Dao {
         if (item) {
             return item.id
         } else {
-            const [result] = await knex('ia_system').returning('id').insert({ code })
-            return result
+            const [result] = await knex('ia_system').insert({ code }).returning('id')
+            return result.id
         }
     }
 
@@ -504,8 +508,8 @@ export class Dao {
         if (bach) {
             return bach.id
         }
-        const [created] = await knex('ia_bach').insert({ name: batchName })
-        return created
+        const [created] = await knex('ia_bach').insert({ name: batchName }).returning('id')
+        return created.id
     }
 
     static async assertIADossierId(code: string, system_id: number, class_code: number, filing_at: Date): Promise<number> {
@@ -522,7 +526,7 @@ export class Dao {
             class_code,
             filing_at
         }).returning('id')
-        return dossierResult
+        return dossierResult.id
     }
 
 
@@ -538,8 +542,8 @@ export class Dao {
             code,
             dossier_id,
             assigned_category
-        }).returning('*')
-        return result
+        }).returning('id')
+        return result.id
     }
 
     static async updateDocumentContent(document_id: number, content_source_id: number, content: string) {
@@ -567,9 +571,7 @@ export class Dao {
     }
 
     static async retrieveDocument(document_id: number): Promise<mysqlTypes.IADocument | undefined> {
-        const result = await knex('ia_document').select<mysqlTypes.IADocument>('*').where({
-            id: document_id
-        }).first()
+        const result = await knex('ia_document').select<mysqlTypes.IADocument>('*').where('id', document_id).first()
         return result
     }
 
@@ -583,10 +585,10 @@ export class Dao {
             return document.id as number
         }
 
-        const [id] = await knex('ia_batch_dossier').insert({
+        const [inserted] = await knex('ia_batch_dossier').insert({
             batch_id, dossier_id
         }).returning('id')
-        return id as number
+        return inserted.id as number
     }
 
     static async deleteIABatchDossierId(batch_id: number, dossier_id: number): Promise<undefined> {
@@ -595,12 +597,12 @@ export class Dao {
 
     static async insertIABatchDossierItem(data: mysqlTypes.IABatchDossierItem): Promise<mysqlTypes.IABatchDossierItem | undefined> {
         const { batch_dossier_id, document_id, generation_id, descr, seq } = data
-        const [id] = await knex('ia_batch_dossier_item').insert({
+        const [inserted] = await knex('ia_batch_dossier_item').insert({
             batch_dossier_id,
             document_id, generation_id, descr, seq
-        }).returning('*')
+        }).returning('id')
 
-        const result = await knex('ia_batch_dossier_item').select<mysqlTypes.IABatchDossierItem>('*').where({ id }).first()
+        const result = await knex('ia_batch_dossier_item').select<mysqlTypes.IABatchDossierItem>('*').where('id', inserted.id).first()
         return result
     }
 
@@ -609,7 +611,7 @@ export class Dao {
         if (iaEnum) return iaEnum.id
         const [result] = await knex('ia_enum').insert({
             descr,
-        }).returning("*")
+        }).returning("id")
         return result.id as number
     }
 
@@ -618,7 +620,7 @@ export class Dao {
         if (iaEnum) return iaEnum.id
         const [result] = await knex('ia_enum').insert({
             descr, enum_id
-        }).returning("*")
+        }).returning("id")
         return result.id as number
     }
 
@@ -653,7 +655,7 @@ export class Dao {
         if (user) return user.id
         const [result] = await knex('ia_user').insert({
             username
-        }).returning("*")
+        }).returning('id')
         return result.id as number
     }
 
