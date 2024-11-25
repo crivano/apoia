@@ -1,0 +1,97 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: apoia
+  labels:
+    app: apoia
+    part-of: pdpj-apoia
+spec:
+  selector:
+    matchLabels:
+      app: apoia
+      part-of: pdpj-apoia
+  template:
+    metadata:
+      labels:
+        app: apoia
+        part-of: pdpj-apoia
+    spec:
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchLabels:
+                  app: apoia
+                  part-of: pdpj-apoia
+              topologyKey: kubernetes.io/hostname
+      containers:
+      - name: apoia
+        image: registry.cnj.jus.br/pdpj/apoia:latest
+        imagePullPolicy: Always
+        env:
+        - name: TZ
+          value: America/Sao_Paulo
+        ports:
+        - containerPort: 80
+          name: http
+        livenessProbe:
+          httpGet:
+            path: /
+            port: http
+          failureThreshold: 6
+          initialDelaySeconds: 10
+          periodSeconds: 30
+          timeoutSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /
+            port: http
+          failureThreshold: 3
+          initialDelaySeconds: 10
+          periodSeconds: 30
+          timeoutSeconds: 10
+        startupProbe:
+          httpGet:
+            path: /
+            port: http
+          failureThreshold: 20
+          periodSeconds: 30
+          timeoutSeconds: 10
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "50m"
+          limits:
+            memory: "2Gi"
+            cpu: "1000m"
+        volumeMounts:
+        - name: apoia-config
+          mountPath: /app
+          readOnly: true
+      imagePullSecrets:
+      - name: registry-cnj
+      volumes:
+      - name: apoia-config
+        configMap:
+          name: apoia-config
+...
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: apoia
+  labels:
+    app: apoia
+    part-of: pdpj-apoia
+spec:
+  ports:
+  - name: http
+    port: 80
+  selector:
+    app: apoia
+    part-of: pdpj-apoia 
+    
+...
