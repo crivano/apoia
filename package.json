@@ -36,6 +36,7 @@
         "canvas": "^2.11.2",
         "cryptr": "^6.3.0",
         "diff-match-patch": "^1.0.5",
+        "eureka-js-client": "^4.5.0",
         "html-to-pdfmake": "^2.5.9",
         "http": "^0.0.1-security",
         "ia": "^0.0.1-beta",
