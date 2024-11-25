@@ -8,7 +8,7 @@ services:
     depends_on:
       - apoiamysql
     ports:
-      - "8080:3000"
+      - "8080:80"
     env_file:
       - .env.local
     networks:

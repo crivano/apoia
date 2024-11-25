@@ -35,4 +35,10 @@ data:
     KEYCLOAK_ID=apoia
     KEYCLOAK_SECRET=***SUBSTITUIR_POR_UMA_SENHA_SEGURA***
     KEYCLOAK_ISSUER=http://127.0.0.1:8082/realms/apoiarealm
+    
+    APP_CODE=ApoIA
+    APP_HOST=https://apoia.pdpj.jus.br
+    APP_PORT=80
+    APP_REGISTRY_HOST=https://discovery.prd.cnj.cloud/eureka
+    APP_REGISTRY_PORT=80
 ...
