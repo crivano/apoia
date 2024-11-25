@@ -2,21 +2,21 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: apoia-config
+  name: configuracao-web-config
   labels:
-    app: apoia
-    part-of: pdpj-apoia
+    app: configuracao-web
+    part-of: pdpj-configuracao-web
 data:
   env.js: |
     (function (window) {
       window.__env = window.__env || {};
       window.__env.production = false;
-      window.__env.nome = "ApoIA";
-      window.__env.descricao = "Descrição do ApoIA";
-      window.__env.apiUrl = "https://gateway.stg.cloud.pje.jus.br/apoia/api/v1", //<-Backend
+      window.__env.nome = "Configuração Web";
+      window.__env.descricao = "Configuração Web - Front-End do Módulo de Configuração";
+      window.__env.apiUrl = "https://gateway.stg.cloud.pje.jus.br/configuracao/api/v1", //<-Backend
       window.__env.ssoUrl = "https://sso.stg.cloud.pje.jus.br/auth/",
-      window.__env.realm = "pdpj",
-      window.__env.clientId = "apoia-client-id",
-      window.__env.redirectUri = "http://apoia.stg.pdpj.jus.br"
+      window.__env.realm = "pje",
+      window.__env.clientId = "configuracao-web-client-id",
+      window.__env.redirectUri = "http://configuracao.stg.pdpj.jus.br"
     }(this));
 ...
