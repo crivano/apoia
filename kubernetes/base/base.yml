@@ -1,0 +1,96 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: configuracao-web
+  labels:
+    app: configuracao-web
+    part-of: pdpj-configuracao-web
+spec:
+  selector:
+    matchLabels:
+      app: configuracao-web
+      part-of: pdpj-configuracao-web
+  template:
+    metadata:
+      labels:
+        app: configuracao-web
+        part-of: pdpj-configuracao-web
+    spec:
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchLabels:
+                  app: configuracao-web
+                  part-of: pdpj-configuracao-web
+              topologyKey: kubernetes.io/hostname
+      containers:
+      - name: configuracao-web
+        image: registry.cnj.jus.br/pdpj/configuracao-web:latest
+        imagePullPolicy: Always
+        env:
+        - name: TZ
+          value: America/Sao_Paulo
+        ports:
+        - containerPort: 80
+          name: http
+        livenessProbe:
+          httpGet:
+            path: /
+            port: http
+          failureThreshold: 6
+          initialDelaySeconds: 10
+          periodSeconds: 30
+          timeoutSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /
+            port: http
+          failureThreshold: 3
+          initialDelaySeconds: 10
+          periodSeconds: 30
+          timeoutSeconds: 10
+        startupProbe:
+          httpGet:
+            path: /
+            port: http
+          failureThreshold: 20
+          periodSeconds: 30
+          timeoutSeconds: 10
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "50m"
+          limits:
+            memory: "2Gi"
+            cpu: "1000m"
+        volumeMounts:
+        - name: configuracao-web-config
+          mountPath: /usr/share/nginx/html/assets/config
+          readOnly: true
+      imagePullSecrets:
+      - name: registry-cnj
+      volumes:
+      - name: configuracao-web-config
+        configMap:
+          name: configuracao-web-config
+...
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: configuracao-web
+  labels:
+    app: configuracao-web
+    part-of: pdpj-configuracao-web
+spec:
+  ports:
+  - name: http
+    port: 80
+  selector:
+    app: configuracao-web
+    part-of: pdpj-configuracao-web
+...
