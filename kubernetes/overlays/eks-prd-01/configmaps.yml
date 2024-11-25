@@ -2,29 +2,37 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: configuracao-web-config
+  name: apoia-config
   labels:
-    app: configuracao-web
-    part-of: pdpj-configuracao-web
+    app: apoia
+    part-of: pdpj-apoia
 data:
-  config.json: |
-    {
-      "name": "local",
-      "production": true,
-      "api": {},
-      "authentication": {}
-    }
+  .env.local: |
+    NEXTAUTH_URL_INTERNAL=http://localhost:8081
+    NEXTAUTH_URL=http://localhost:8081
+    NEXTAUTH_SECRET=***SUBSTITUIR_POR_UMA_SENHA_SEGURA***
 
-  env.js: |
-    (function (window) {
-      window.__env = window.__env || {};
-      window.__env.production = true;
-      window.__env.nome = "Configuração Web";
-      window.__env.descricao = "Configuração Web - Front-End do Módulo de Configuração";
-      window.__env.apiUrl = "https://gateway.cloud.pje.jus.br/configuracao/api/v1",
-      window.__env.ssoUrl = "https://sso.cloud.pje.jus.br/auth/",
-      window.__env.realm = "pje",
-      window.__env.clientId = "configuracao-web-client-id",
-      window.__env.redirectUri = "https://configuracao.pdpj.jus.br"
-    }(this));
+    JWT_SECRET=***SUBSTITUIR_POR_UMA_SENHA_SEGURA***
+    JWT_ISSUER=apoia.trf2.jus.br
+    JWT_AUDIENCE=apoia.trf2.jus.br
+
+    PWD_SECRET=***SUBSTITUIR_POR_UMA_SENHA_SEGURA***
+
+    COMPLETE_ANALYSIS_LIMIT=10000
+
+    CONFIDENTIALITY_LEVEL_MAX=0
+
+    VERCEL="1"
+    VERCEL_ENV="production"
+
+    DB_CLIENT=pg
+    DB_HOST=localhost
+    DB_PORT=5432
+    DB_USER=postgres
+    DB_PASSWORD=***SUBSTITUIR_POR_UMA_SENHA_SEGURA***
+    DB_DATABASE=apoia
+
+    KEYCLOAK_ID=apoia
+    KEYCLOAK_SECRET=***SUBSTITUIR_POR_UMA_SENHA_SEGURA***
+    KEYCLOAK_ISSUER=http://127.0.0.1:8082/realms/apoiarealm
 ...
