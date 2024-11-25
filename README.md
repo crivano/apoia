@@ -4,7 +4,7 @@
 
 ApoIA é uma ferramenta de inteligência artificial generativa originalmente desenvolvida para auxiliar na triagem de acervos. Ela analisa documentos de processos e gera resumos das principais peças e gera um relatório sobre acervo.
 
-A ApoIA também pode ser utilizada para realizar uma Análise Processual on-line, a partir da informação do número do processo.
+A ApoIA também pode ser utilizada para realizar uma Síntese do Processo on-line, a partir da informação do número do processo.
 
 Outros recursos disponíveis são a geração de ementas conforme Resolução 156/2024 do CNJ e a revisão de textos por inteligência artificial.
 

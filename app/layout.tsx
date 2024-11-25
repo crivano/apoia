@@ -47,7 +47,7 @@ export default function RootLayout({
                         </button>
                         <div className="collapse navbar-collapse" id="navbarSupportedContent">
                             <NavItem>
-                                <NavigationLink href="/" text="Análise Processual" />
+                                <NavigationLink href="/" text="Síntese" />
                             </NavItem>
                             <NavItem>
                                 <NavigationLink href="/revision" text="Revisão de Texto" />

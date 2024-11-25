@@ -24,7 +24,7 @@ export default function ProcessNumberForm() {
         <>
             <div className="row justify-content-center">
                 <div className="col-12">
-                    <h4 className="text-center mt-5 mb-2">Análise Processual </h4>
+                    <h4 className="text-center mt-5 mb-2">Síntese do Processo </h4>
                 </div>
                 <div className="col col-12 col-md-6">
                     <form>
