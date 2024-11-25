@@ -2,20 +2,20 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: configuracao-web
+  name: apoia
   labels:
-    app: configuracao-web
-    part-of: pdpj-configuracao-web
+    app: apoia
+    part-of: pdpj-apoia
 spec:
   selector:
     matchLabels:
-      app: configuracao-web
-      part-of: pdpj-configuracao-web
+      app: apoia
+      part-of: pdpj-apoia
   template:
     metadata:
       labels:
-        app: configuracao-web
-        part-of: pdpj-configuracao-web
+        app: apoia
+        part-of: pdpj-apoia
     spec:
       affinity:
         podAntiAffinity:
@@ -24,12 +24,12 @@ spec:
             podAffinityTerm:
               labelSelector:
                 matchLabels:
-                  app: configuracao-web
-                  part-of: pdpj-configuracao-web
+                  app: apoia
+                  part-of: pdpj-apoia
               topologyKey: kubernetes.io/hostname
       containers:
-      - name: configuracao-web
-        image: registry.cnj.jus.br/pdpj/configuracao-web:latest
+      - name: apoia
+        image: registry.cnj.jus.br/pdpj/apoia:latest
         imagePullPolicy: Always
         env:
         - name: TZ
@@ -68,29 +68,30 @@ spec:
             memory: "2Gi"
             cpu: "1000m"
         volumeMounts:
-        - name: configuracao-web-config
-          mountPath: /usr/share/nginx/html/assets/config
+        - name: apoia-config
+          mountPath: /app
           readOnly: true
       imagePullSecrets:
       - name: registry-cnj
       volumes:
-      - name: configuracao-web-config
+      - name: apoia-config
         configMap:
-          name: configuracao-web-config
+          name: apoia-config
 ...
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: configuracao-web
+  name: apoia
   labels:
-    app: configuracao-web
-    part-of: pdpj-configuracao-web
+    app: apoia
+    part-of: pdpj-apoia
 spec:
   ports:
   - name: http
     port: 80
   selector:
-    app: configuracao-web
-    part-of: pdpj-configuracao-web
+    app: apoia
+    part-of: pdpj-apoia 
+    
 ...
