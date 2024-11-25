@@ -2,10 +2,10 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: configuracao-web
+  name: apoia
   annotations:
     kubernetes.io/ingress.class: alb
-    alb.ingress.kubernetes.io/group.name: pdpj-configuracao-web
+    alb.ingress.kubernetes.io/group.name: pdpj-apoia
     alb.ingress.kubernetes.io/group.order: "20"
     alb.ingress.kubernetes.io/healthcheck-path: /
     alb.ingress.kubernetes.io/healthcheck-port: http
@@ -17,21 +17,21 @@ metadata:
     alb.ingress.kubernetes.io/ssl-redirect: "443"
     alb.ingress.kubernetes.io/target-type: ip
   labels:
-    app: configuracao-web
-    part-of: pdpj-configuracao-web
+    app: apoia
+    part-of: pdpj-apoia
 spec:
   tls:
   - hosts:
-    - configuracao-web.pdpj.jus.br
+    - apoia.pdpj.jus.br
   rules:
-  - host: configuracao-web.pdpj.jus.br
+  - host: apoia.pdpj.jus.br
     http:
       paths:
       - path: /
         pathType: Prefix
         backend:
           service:
-            name: configuracao-web
+            name: apoia
             port:
               name: http
 ...

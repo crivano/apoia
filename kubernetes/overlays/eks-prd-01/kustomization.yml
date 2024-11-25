@@ -9,5 +9,5 @@ resources:
 
 replicas:
 - count: 2
-  name: configuracao-web
+  name: apoia
 ...
