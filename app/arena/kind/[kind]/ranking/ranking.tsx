@@ -10,6 +10,7 @@ import { IARankingType, IATestset } from '@/lib/db/mysql-types'
 import { useEffect } from 'react'
 import TableRecords from '@/components/table-records'
 import Link from 'next/link'
+import { intOrUndefined } from '@/lib/utils/utils'
 
 const Frm = new FormHelper()
 
@@ -18,7 +19,7 @@ function RankingTable({ kind, testsetId, promptId, modelId }) {
 
     useEffect(() => {
         const asyncSetData = async () => {
-            const ranking = await loadRanking(kind, testsetId, promptId, modelId)
+            const ranking = await loadRanking(kind, intOrUndefined(testsetId), intOrUndefined(promptId), intOrUndefined(modelId))
             setRecords(ranking as IARankingType[])
         }
         asyncSetData()

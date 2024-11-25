@@ -20,7 +20,7 @@ const authOptions = {
         }
       }
       token = { roles, ...token, ...user };
-      console.log("[jwt callback] token " + JSON.stringify(token));
+      // console.log("[jwt callback] token " + JSON.stringify(token));
       return token;
     },
     async session({ session, token, user }) {

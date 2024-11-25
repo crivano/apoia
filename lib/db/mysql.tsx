@@ -339,7 +339,7 @@ export class Dao {
     }
 
     static async retrieveRanking(kind: string, testset_id?: number, prompt_id?: number, model_id?: number): Promise<mysqlTypes.IARankingType[]> {
-        const result = await knex('ia_test as s')
+        const sql = knex('ia_test as s')
             .select<Array<mysqlTypes.IARankingType>>(
                 's.testset_id',
                 't.name as testset_name',
@@ -355,28 +355,18 @@ export class Dao {
             .innerJoin('ia_prompt as p', 's.prompt_id', 'p.id')
             .innerJoin('ia_testset as t', function () {
                 this.on('s.testset_id', '=', 't.id')
-                    .andOn('t.kind', '=', kind);
             })
             .where(function () {
-                if (testset_id) {
+                this.where('t.kind', '=', kind)
+                if (testset_id)
                     this.where('s.testset_id', '=', testset_id)
-                } else {
-                    this.whereNull('s.testset_id')
-                }
-                if (prompt_id) {
+                if (prompt_id)
                     this.where('s.prompt_id', '=', prompt_id)
-                } else {
-
-                    this.whereNull('s.prompt_id')
-                }
-                if (model_id) {
-
+                if (model_id)
                     this.where('s.model_id', '=', model_id)
-                } else {
-                    this.whereNull('s.model_id');
-                }
             })
             .orderBy('s.score', 'desc')
+        const result = await sql
         return result
     }
 
@@ -405,7 +395,7 @@ export class Dao {
             sha256,
         })
         if (attempt) {
-            sql.where(attempt)
+            sql.where({ attempt })
         } else {
             sql.whereNull('attempt')
         }

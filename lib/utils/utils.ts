@@ -120,3 +120,10 @@ export const removeEmptyKeys = (payload: any) => {
         }
     })
 }
+
+export const intOrUndefined = (v: string | number | undefined): number | undefined => {
+  if (typeof v === 'string') {
+    return parseInt(v)
+  }
+  return v
+}
