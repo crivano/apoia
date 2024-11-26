@@ -40,13 +40,22 @@ export default function TestBuilder({ kind, testset, prompt, model }: { kind: st
         const reader = response.body?.getReader()
 
         if (reader) {
+            const chunks: Uint8Array[] = []
+            // const decoder = new TextDecoder('utf-8')
             while (true) {
                 const { done, value } = await reader.read()
                 if (done) {
                     setComplete(true)
                     break
                 }
-                setCurrent(prev => prev + new TextDecoder().decode(value))
+                chunks.push(value)
+                try {
+                    const text = Buffer.concat(chunks).toString("utf-8")
+                    setCurrent(text)
+                }
+                catch (e) {
+                    console.log(e.message)
+                }
             }
         }
     }
