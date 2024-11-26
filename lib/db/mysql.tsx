@@ -3,6 +3,10 @@ import { slugify } from "../utils/utils"
 import * as mysqlTypes from "./mysql-types"
 import knex from './knex'
 
+function getId(returning: number | {id: number}): number {
+    return typeof returning === 'number' ? returning : returning.id
+}
+
 export class Dao {
     static async insertIATestset(data: mysqlTypes.IATestsetToInsert): Promise<mysqlTypes.IATestset | undefined> {
         const { base_testset_id, kind, name, model_id, content } = data
@@ -11,7 +15,7 @@ export class Dao {
         const [insertedid] = await knex('ia_testset').insert({
             base_id: base_testset_id, kind, name, slug, model_id, content, created_by
         }).returning('id')
-        const inserted = await knex.select().from<mysqlTypes.IATestset>('ia_testset').where({ id: insertedid.id }).first()
+        const inserted = await knex.select().from<mysqlTypes.IATestset>('ia_testset').where({ id: getId(insertedid) }).first()
         return inserted
     }
 
@@ -60,7 +64,7 @@ export class Dao {
             base_id: base_prompt_id,
             kind, name, slug, model_id, testset_id, content: JSON.stringify(content), created_by
         }).returning('id')
-        const record = await knex('ia_prompt').select<mysqlTypes.IAPrompt>('*').where({ id: result.id }).first()
+        const record = await knex('ia_prompt').select<mysqlTypes.IAPrompt>('*').where({ id: getId(result) }).first()
         return record
     }
 
@@ -484,7 +488,7 @@ export class Dao {
             model,
             prompt, sha256, generation, attempt
         }).returning('id')
-        const result = await knex('ia_generation').select<mysqlTypes.IAGenerated>('*').where('id', inserted.id).first()
+        const result = await knex('ia_generation').select<mysqlTypes.IAGenerated>('*').where('id', getId(inserted)).first()
         return result
     }
 
@@ -508,7 +512,7 @@ export class Dao {
             return item.id
         } else {
             const [result] = await knex('ia_system').insert({ code }).returning('id')
-            return result.id
+            return getId(result)
         }
     }
 
@@ -521,7 +525,7 @@ export class Dao {
             return bach.id
         }
         const [created] = await knex('ia_bach').insert({ name: batchName }).returning('id')
-        return created.id
+        return getId(created)
     }
 
     static async assertIADossierId(code: string, system_id: number, class_code: number, filing_at: Date): Promise<number> {
@@ -539,7 +543,7 @@ export class Dao {
             class_code,
             filing_at
         }).returning('id')
-        return dossierResult.id
+        return getId(dossierResult)
     }
 
 
@@ -557,7 +561,7 @@ export class Dao {
             dossier_id,
             assigned_category
         }).returning('id')
-        return result.id
+        return getId(result)
     }
 
     static async updateDocumentContent(document_id: number, content_source_id: number, content: string) {
@@ -607,7 +611,7 @@ export class Dao {
         const [inserted] = await knex('ia_batch_dossier').insert({
             batch_id, dossier_id
         }).returning('id')
-        return inserted.id as number
+        return getId(inserted)
     }
 
     static async deleteIABatchDossierId(batch_id: number, dossier_id: number): Promise<undefined> {
@@ -623,7 +627,7 @@ export class Dao {
             document_id, generation_id, descr, seq
         }).returning('id')
 
-        const result = await knex('ia_batch_dossier_item').select<mysqlTypes.IABatchDossierItem>('*').where('id', inserted.id).first()
+        const result = await knex('ia_batch_dossier_item').select<mysqlTypes.IABatchDossierItem>('*').where('id', getId(inserted)).first()
         return result
     }
 
@@ -634,7 +638,7 @@ export class Dao {
         const [result] = await knex('ia_enum').insert({
             descr,
         }).returning("id")
-        return result.id as number
+        return getId(result)
     }
 
     static async assertIAEnumItemId(descr: string, enum_id: number): Promise<number> {
@@ -644,7 +648,7 @@ export class Dao {
         const [result] = await knex('ia_enum').insert({
             descr, enum_id
         }).returning("id")
-        return result.id as number
+        return getId(result)
     }
 
     static async assertIABatchDossierEnumItemId(batch_dossier_id: number, enum_item_id: number): Promise<number> {
@@ -655,7 +659,7 @@ export class Dao {
         const [result] = await knex('ia_batch_dossier_enum_item').insert({
             batch_dossier_id, enum_item_id
         }).returning("id")
-        return result.id as number
+        return getId(result)
     }
 
     static async retrieveEnumItems(): Promise<mysqlTypes.IAEnumItem[]> {
@@ -682,7 +686,7 @@ export class Dao {
         const [result] = await knex('ia_user').insert({
             username
         }).returning('id')
-        return result.id as number
+        return getId(result)
     }
 
 }
