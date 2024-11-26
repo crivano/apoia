@@ -39,6 +39,6 @@ data:
     APP_CODE=ApoIA
     APP_HOST=https://apoia.pdpj.jus.br
     APP_PORT=80
-    APP_REGISTRY_HOST=https://discovery.prd.cnj.cloud/eureka
+    APP_REGISTRY_HOST=discovery.prd.cnj.cloud/eureka
     APP_REGISTRY_PORT=80
 ...
