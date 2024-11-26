@@ -21,7 +21,7 @@ const client = new Eureka({
     eureka: {
         host: process.env.APP_REGISTRY_HOST,
         port: process.env.APP_REGISTRY_PORT,
-        //servicePath: '/eureka/apps/',
+        servicePath: '/eureka/apps/',
     },
 })
 
