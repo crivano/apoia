@@ -1,9 +1,8 @@
 import Fetcher from '../../../lib/utils/fetcher'
-import * as jose from 'jose'
 import { NextResponse } from 'next/server'
-import { autenticar } from '../../../lib/interop/mni'
 import { encrypt } from '@/lib/utils/crypt'
 import { buildJweToken } from '@/lib/utils/jwt'
+import { getInterop } from '@/lib/interop/interop'
 
 /**
  * @swagger
@@ -46,7 +45,7 @@ import { buildJweToken } from '@/lib/utils/jwt'
 export async function POST(request: Request) {
     try {
         const body = await request.json()
-        const autenticado = await autenticar(body.system, body.email, body.password)
+        const autenticado = await getInterop(body.email, body.password).autenticar(body.system)
 
         if (!autenticado)
             throw new Error('Usuário ou senha inválidos')

@@ -6,10 +6,10 @@ import { T } from './combinacoes'
 import { addBlockQuote } from '../utils/utils'
 import { Dao } from '../db/mysql'
 import { IADocument, IADocumentContentSource } from '../db/mysql-types'
-import { obterPeca } from '../interop/mni'
 
 import pLimit from 'p-limit'
 import { assertNivelDeSigilo, verificarNivelDeSigilo } from './sigilo'
+import { getInterop } from '../interop/interop'
 const limit = pLimit(process.env.OCR_LIMIT ? parseInt(process.env.OCR_LIMIT) : 1)
 
 const obterTextoDeHtml = async (buffer: ArrayBuffer, documentId: number) => {
@@ -114,7 +114,7 @@ export const obterConteudoDaPeca = async (dossier_id: number, numeroDoProcesso: 
         return document.content
     }
 
-    const { buffer, contentType } = await obterPeca(numeroDoProcesso, idDaPeca, username, password)
+    const { buffer, contentType } = await getInterop(username, password).obterPeca(numeroDoProcesso, idDaPeca)
 
     switch (contentType) {
         case 'text/html': {

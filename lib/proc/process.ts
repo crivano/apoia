@@ -8,10 +8,10 @@ import { decrypt } from '../utils/crypt'
 import { Dao } from '../db/mysql'
 import { IADocument } from '../db/mysql-types'
 import { inferirCategoriaDaPeca } from '../category'
-import { consultarProcesso } from '../interop/mni'
 import { obterConteudoDaPeca, obterDocumentoGravado } from './piece'
 import { faObjectUngroup } from '@fortawesome/free-solid-svg-icons'
 import { assertNivelDeSigilo, verificarNivelDeSigilo } from './sigilo'
+import { getInterop } from '../interop/interop'
 
 export type PecaType = {
     id: string
@@ -104,72 +104,16 @@ export const obterDadosDoProcesso = async (numeroDoProcesso: string, pUser: Prom
         const username = user?.email
         const password = decrypt(user?.image.password)
 
-        const respQuery = await consultarProcesso(numeroDoProcesso, username, password)
-        if (!respQuery[0].sucesso)
-            throw new Error(`${respQuery[0].mensagem}`)
-        const dadosBasicos = respQuery[0].processo.dadosBasicos
-        if (verificarNivelDeSigilo())
-            assertNivelDeSigilo(dadosBasicos.sigilo)
-        const dataAjuizamento = dadosBasicos.attributes.dataAjuizamento
-        // console.log('dadosBasicos', dadosBasicos)
-        const nomeOrgaoJulgador = dadosBasicos.orgaoJulgador.attributes.nomeOrgao
-        const ajuizamento = parseYYYYMMDDHHMMSS(dataAjuizamento)
-        // ajuizamentoDate.setTime(ajuizamentoDate.getTime() - ajuizamentoDate.getTimezoneOffset() * 60 * 1000)
-        const codigoDaClasse = parseInt(dadosBasicos.attributes.classeProcessual)
-
-        // grava os dados do processo no banco
-        const system_id = await Dao.assertSystemId(user.image.system)
-        const dossier_id = await Dao.assertIADossierId(numeroDoProcesso, system_id, codigoDaClasse, ajuizamento)
-
-        const documentos = respQuery[0].processo.documento
-        // console.log('documentos', JSON.stringify(documentos, null, 2))
-        for (const doc of documentos) {
-            // if (!Object.values(T).includes(doc.attributes.descricao)) continue
-            pecas.unshift({
-                id: doc.attributes.idDocumento,
-                numeroDoEvento: doc.attributes.movimento,
-                descr: doc.attributes.descricao,
-                tipoDoConteudo: doc.attributes.mimetype,
-                sigilo: doc.attributes.nivelSigilo,
-                pConteudo: undefined,
-                conteudo: undefined,
-                pDocumento: undefined,
-                documento: undefined,
-                categoria: undefined,
-                rotulo: doc.outroParametro?.find(p => p?.attributes?.nome === 'rotulo')?.attributes.valor,
-                dataHora: parseYYYYMMDDHHMMSS(doc.attributes.dataHora),
-            })
-        }
-
-        const parseRotulo = (rotulo: string) => {
-            const match = rotulo.match(/^([A-Z]+)(\d+)$/)
-            if (match) {
-                return { letters: match[1], number: parseInt(match[2], 10) }
-            }
-            return { letters: '', number: 0 }
-        }
-
-        pecas.sort((a, b) => {
-            let i = parseInt(a.numeroDoEvento) - parseInt(b.numeroDoEvento)
-            if (i !== 0) return i
-            if (a.rotulo && b.rotulo) {
-                const ap = parseRotulo(a.rotulo)
-                const bp = parseRotulo(b.rotulo)
-                if (ap.letters === bp.letters) {
-                    i = ap.number - bp.number
-                    if (i !== 0) return i
-                }
-            }
-            if (a.dataHora && b.dataHora) {
-                i = a.dataHora.getTime() - b.dataHora.getTime()
-                if (i !== 0) return i
-            }
-            return a.id.localeCompare(b.id)
-        })
+        const dadosDoProcesso = await getInterop(username, password).consultarProcesso(numeroDoProcesso)
+        pecas = [...dadosDoProcesso.pecas]
 
         // for (const peca of pecas) {
         //     console.log('peca', peca.id, peca.numeroDoEvento, peca.descr, peca.rotulo)
         // }
+
+        // grava os dados do processo no banco
+        const system_id = await Dao.assertSystemId(user.image.system)
+        const dossier_id = await Dao.assertIADossierId(numeroDoProcesso, system_id, dadosDoProcesso.codigoDaClasse, dadosDoProcesso.ajuizamento)
 
         if (completo) {
             for (const peca of pecas)
@@ -178,7 +122,7 @@ export const obterDadosDoProcesso = async (numeroDoProcesso: string, pUser: Prom
                     peca.conteudo = 'Peça sigilosa, conteúdo não acessado.'
                 }
             const pecasComConteudo = await iniciarObtencaoDeConteudo(dossier_id, numeroDoProcesso, pecas, username, password)
-            return { pecas: pecasComConteudo, combinacao: { tipos: [], produtos: [infoDeProduto(P.ANALISE_COMPLETA)] }, ajuizamento, codigoDaClasse, numeroDoProcesso, nomeOrgaoJulgador }
+            return { ...dadosDoProcesso, pecas: pecasComConteudo, combinacao: { tipos: [], produtos: [infoDeProduto(P.ANALISE_COMPLETA)] } }
         }
 
         if (idDaPeca) {
@@ -186,7 +130,7 @@ export const obterDadosDoProcesso = async (numeroDoProcesso: string, pUser: Prom
             if (pecas.length === 0)
                 throw new Error(`Peça ${idDaPeca} não encontrada`)
             const pecasComConteudo = await iniciarObtencaoDeConteudo(dossier_id, numeroDoProcesso, pecas, username, password)
-            return { pecas: pecasComConteudo, ajuizamento, codigoDaClasse, numeroDoProcesso, nomeOrgaoJulgador }
+            return { ...dadosDoProcesso, pecas: pecasComConteudo }
         }
 
         // Localiza pecas with descricao == 'OUTROS' e busca no banco de dados se já foram inferidas por IA
@@ -250,10 +194,10 @@ export const obterDadosDoProcesso = async (numeroDoProcesso: string, pUser: Prom
                         assertNivelDeSigilo(peca.sigilo, `${peca.descr} (${peca.id})`)
 
                 const pecasComConteudo = await iniciarObtencaoDeConteudo(dossier_id, numeroDoProcesso, pecasSelecionadas, username, password)
-                return { pecas: pecasComConteudo, combinacao: comb, ajuizamento, codigoDaClasse, numeroDoProcesso, nomeOrgaoJulgador }
+                return { ...dadosDoProcesso, pecas: pecasComConteudo, combinacao: comb }
             }
         }
-        return { pecas: [] as PecaType[], ajuizamento, codigoDaClasse, numeroDoProcesso, nomeOrgaoJulgador }
+        return { ...dadosDoProcesso, pecas: [] as PecaType[] }
     } catch (error) {
         if (error?.message === 'NEXT_REDIRECT') throw error
         errorMsg = error.message

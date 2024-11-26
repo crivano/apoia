@@ -1,4 +1,3 @@
-'use server'
 import { createHash } from 'node:crypto'
 
 import * as soap from 'soap'
@@ -6,7 +5,10 @@ import { systems } from '@/lib/utils/env'
 import { assertCurrentUser } from '@/lib/user'
 
 import pLimit from 'p-limit'
-import { ObterPecaType } from './interop'
+import { Interop, ObterPecaType } from './interop'
+import { DadosDoProcessoType, PecaType } from '../proc/process'
+import { parseYYYYMMDDHHMMSS } from '../utils/utils'
+import { assertNivelDeSigilo, verificarNivelDeSigilo } from '../proc/sigilo'
 
 const limit = pLimit(process.env.MNI_LIMIT ? parseInt(process.env.MNI_LIMIT) : 1)
 
@@ -41,51 +43,51 @@ const criarHash = (senha: string) => {
     return hash;
 }
 
-export const autenticar = async (system: string, username: string, password: string) => {
-    const client = await getClient(system)
-    const currentSystem = systems.find(s => s.system === system)
-    if (!currentSystem) {
-        throw new Error(`Client for system ${system} not found`)
-    }
-    if (currentSystem.hashable) {
-        password = criarHash(password)
-    }
-    const res = await client.consultarProcessoAsync({
-        idConsultante: username,
-        senhaConsultante: password,
-        numeroProcesso: '00000000000000000000',
-        movimentos: false,
-        incluirCabecalho: false,
-        incluirDocumentos: false
-    })
-    return res[0].mensagem.includes(currentSystem.validation)
-}
+// export const autenticar = async (system: string, username: string, password: string) => {
+//     const client = await getClient(system)
+//     const currentSystem = systems.find(s => s.system === system)
+//     if (!currentSystem) {
+//         throw new Error(`Client for system ${system} not found`)
+//     }
+//     if (currentSystem.hashable) {
+//         password = criarHash(password)
+//     }
+//     const res = await client.consultarProcessoAsync({
+//         idConsultante: username,
+//         senhaConsultante: password,
+//         numeroProcesso: '00000000000000000000',
+//         movimentos: false,
+//         incluirCabecalho: false,
+//         incluirDocumentos: false
+//     })
+//     return res[0].mensagem.includes(currentSystem.validation)
+// }
 
-export const consultarProcesso = async (numero, username, password) => {
-    const client = await getClient(undefined)
-    // throw an error if the number is invalid
-    if (!numero.match(/^\d{20}$/))
-        throw new Error('Número de processo inválido')
-    const user = await assertCurrentUser()
-    const system = systems.find(s => s.system === user.image.system)
-    if (system?.hashable) {
-        password = criarHash(password)
-    }
-    const pConsultarProcesso = client.consultarProcessoAsync({
-        idConsultante: username,
-        senhaConsultante: password,
-        numeroProcesso: numero,
-        movimentos: true,
-        incluirCabecalho: true,
-        incluirDocumentos: true
-    })
-    return pConsultarProcesso
-}
+// export const consultarProcesso = async (numero, username, password) => {
+//     const client = await getClient(undefined)
+//     // throw an error if the number is invalid
+//     if (!numero.match(/^\d{20}$/))
+//         throw new Error('Número de processo inválido')
+//     const user = await assertCurrentUser()
+//     const system = systems.find(s => s.system === user.image.system)
+//     if (system?.hashable) {
+//         password = criarHash(password)
+//     }
+//     const pConsultarProcesso = client.consultarProcessoAsync({
+//         idConsultante: username,
+//         senhaConsultante: password,
+//         numeroProcesso: numero,
+//         movimentos: true,
+//         incluirCabecalho: true,
+//         incluirDocumentos: true
+//     })
+//     return pConsultarProcesso
+// }
 
-export const obterPeca = async (numeroDoProcesso, idDaPeca, username: string, password: string): Promise<ObterPecaType> =>
-    limit(() => obterPecaSemLimite(numeroDoProcesso, idDaPeca, username, password))
+// export const obterPeca = async (numeroDoProcesso, idDaPeca, username: string, password: string): Promise<ObterPecaType> =>
+//     limit(() => obterPecaSemLimite(numeroDoProcesso, idDaPeca, username, password))
 
-export const obterPecaSemLimite = async (numeroDoProcesso, idDaPeca, username: string, password: string): Promise<ObterPecaType> => {
+const obterPecaSemLimite = async (numeroDoProcesso, idDaPeca, username: string, password: string): Promise<ObterPecaType> => {
     const client = await getClient(undefined)
     const user = await assertCurrentUser()
     const system = systems.find(s => s.system === user.image.system)
@@ -106,6 +108,120 @@ export const obterPecaSemLimite = async (numeroDoProcesso, idDaPeca, username: s
     const ab = b.buffer.slice(b.byteOffset, b.byteOffset + b.byteLength)
     const resultado = { buffer: ab, contentType: respPeca[0].processo.documento[0].attributes.mimetype }
     return resultado
+}
+
+export class InteropMNI implements Interop {
+    private username: string
+    private password: string
+
+    constructor(username: string, password: string) {
+        this.username = username
+        this.password = password
+    }
+
+    public autenticar = async (system: string): Promise<boolean> => {
+        const client = await getClient(system)
+        const currentSystem = systems.find(s => s.system === system)
+        if (!currentSystem) {
+            throw new Error(`Client for system ${system} not found`)
+        }
+        if (currentSystem.hashable) {
+            this.password = criarHash(this.password)
+        }
+        const res = await client.consultarProcessoAsync({
+            idConsultante: this.username,
+            senhaConsultante: this.password,
+            numeroProcesso: '00000000000000000000',
+            movimentos: false,
+            incluirCabecalho: false,
+            incluirDocumentos: false
+        })
+        return res[0].mensagem.includes(currentSystem.validation)
+    }
+
+    public consultarProcesso = async (numeroDoProcesso: string): Promise<DadosDoProcessoType> => {
+        const client = await getClient(undefined)
+        // throw an error if the number is invalid
+        if (!numeroDoProcesso.match(/^\d{20}$/))
+            throw new Error('Número de processo inválido')
+        const user = await assertCurrentUser()
+        const system = systems.find(s => s.system === user.image.system)
+        let senhaConsultante = this.password
+        if (system?.hashable) {
+            senhaConsultante = criarHash(this.password)
+        }
+        const pConsultarProcesso = client.consultarProcessoAsync({
+            idConsultante: this.username,
+            senhaConsultante,
+            numeroProcesso: numeroDoProcesso,
+            movimentos: true,
+            incluirCabecalho: true,
+            incluirDocumentos: true
+        })
+        const respQuery = await pConsultarProcesso
+        if (!respQuery[0].sucesso)
+            throw new Error(`${respQuery[0].mensagem}`)
+        const dadosBasicos = respQuery[0].processo.dadosBasicos
+        if (verificarNivelDeSigilo())
+            assertNivelDeSigilo(dadosBasicos.sigilo)
+        const dataAjuizamento = dadosBasicos.attributes.dataAjuizamento
+        // console.log('dadosBasicos', dadosBasicos)
+        const nomeOrgaoJulgador = dadosBasicos.orgaoJulgador.attributes.nomeOrgao
+        const ajuizamento = parseYYYYMMDDHHMMSS(dataAjuizamento)
+        // ajuizamentoDate.setTime(ajuizamentoDate.getTime() - ajuizamentoDate.getTimezoneOffset() * 60 * 1000)
+        const codigoDaClasse = parseInt(dadosBasicos.attributes.classeProcessual)
+
+        let pecas: PecaType[] = []
+        const documentos = respQuery[0].processo.documento
+        // console.log('documentos', JSON.stringify(documentos, null, 2))
+        for (const doc of documentos) {
+            // if (!Object.values(T).includes(doc.attributes.descricao)) continue
+            pecas.unshift({
+                id: doc.attributes.idDocumento,
+                numeroDoEvento: doc.attributes.movimento,
+                descr: doc.attributes.descricao,
+                tipoDoConteudo: doc.attributes.mimetype,
+                sigilo: doc.attributes.nivelSigilo,
+                pConteudo: undefined,
+                conteudo: undefined,
+                pDocumento: undefined,
+                documento: undefined,
+                categoria: undefined,
+                rotulo: doc.outroParametro?.find(p => p?.attributes?.nome === 'rotulo')?.attributes.valor,
+                dataHora: parseYYYYMMDDHHMMSS(doc.attributes.dataHora),
+            })
+        }
+
+        const parseRotulo = (rotulo: string) => {
+            const match = rotulo.match(/^([A-Z]+)(\d+)$/)
+            if (match) {
+                return { letters: match[1], number: parseInt(match[2], 10) }
+            }
+            return { letters: '', number: 0 }
+        }
+
+        pecas.sort((a, b) => {
+            let i = parseInt(a.numeroDoEvento) - parseInt(b.numeroDoEvento)
+            if (i !== 0) return i
+            if (a.rotulo && b.rotulo) {
+                const ap = parseRotulo(a.rotulo)
+                const bp = parseRotulo(b.rotulo)
+                if (ap.letters === bp.letters) {
+                    i = ap.number - bp.number
+                    if (i !== 0) return i
+                }
+            }
+            if (a.dataHora && b.dataHora) {
+                i = a.dataHora.getTime() - b.dataHora.getTime()
+                if (i !== 0) return i
+            }
+            return a.id.localeCompare(b.id)
+        })
+        return { numeroDoProcesso, ajuizamento, codigoDaClasse, nomeOrgaoJulgador, pecas }
+    }
+
+    public obterPeca = async (numeroDoProcesso, idDaPeca): Promise<ObterPecaType> =>
+        limit(() => obterPecaSemLimite(numeroDoProcesso, idDaPeca, this.username, this.password))
 }
 
 
