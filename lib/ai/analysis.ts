@@ -152,7 +152,7 @@ export async function analyze(batchName: string | undefined, dossierNumber: stri
 
 export async function getPiecesWithContent(dadosDoProcesso: DadosDoProcessoType, dossierNumber: string): Promise<TextoType[]> {
     let pecasComConteudo: TextoType[] = []
-    for (const peca of dadosDoProcesso.pecas) {
+    for (const peca of dadosDoProcesso.pecasSelecionadas) {
         if (peca.pConteudo === undefined && peca.conteudo === undefined) {
             // console.log('peca', peca)
             throw new Error(`Conteúdo não encontrado no processo ${dossierNumber}, peça ${peca.id}, rótulo ${peca.rotulo}`)

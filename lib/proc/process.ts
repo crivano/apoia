@@ -31,6 +31,7 @@ export type PecaType = {
 
 export type DadosDoProcessoType = {
     pecas: PecaType[]
+    pecasSelecionadas?: PecaType[]
     sigilo?: number
     combinacao?: CombinacaoValida
     ajuizamento?: Date
@@ -49,7 +50,7 @@ const selecionarPecas = (pecas: PecaType[], descricoes: string[]) => {
 
     for (const peca of pecasRelevantes) {
         if (peca.descr === descricoes[idxDescricao]) {
-            pecasSelecionadas = [...pecasSelecionadas, peca]
+            pecasSelecionadas.push(peca)
             idxDescricao++
             if (idxDescricao >= descricoes.length) break
         }
@@ -122,7 +123,7 @@ export const obterDadosDoProcesso = async (numeroDoProcesso: string, pUser: Prom
                     peca.conteudo = 'Peça sigilosa, conteúdo não acessado.'
                 }
             const pecasComConteudo = await iniciarObtencaoDeConteudo(dossier_id, numeroDoProcesso, pecas, username, password)
-            return { ...dadosDoProcesso, pecas: pecasComConteudo, combinacao: { tipos: [], produtos: [infoDeProduto(P.ANALISE_COMPLETA)] } }
+            return { ...dadosDoProcesso, pecasSelecionadas: pecasComConteudo, combinacao: { tipos: [], produtos: [infoDeProduto(P.ANALISE_COMPLETA)] } }
         }
 
         if (idDaPeca) {
@@ -130,7 +131,7 @@ export const obterDadosDoProcesso = async (numeroDoProcesso: string, pUser: Prom
             if (pecas.length === 0)
                 throw new Error(`Peça ${idDaPeca} não encontrada`)
             const pecasComConteudo = await iniciarObtencaoDeConteudo(dossier_id, numeroDoProcesso, pecas, username, password)
-            return { ...dadosDoProcesso, pecas: pecasComConteudo }
+            return { ...dadosDoProcesso, pecasSelecionadas: pecasComConteudo }
         }
 
         // Localiza pecas with descricao == 'OUTROS' e busca no banco de dados se já foram inferidas por IA
@@ -194,10 +195,10 @@ export const obterDadosDoProcesso = async (numeroDoProcesso: string, pUser: Prom
                         assertNivelDeSigilo(peca.sigilo, `${peca.descr} (${peca.id})`)
 
                 const pecasComConteudo = await iniciarObtencaoDeConteudo(dossier_id, numeroDoProcesso, pecasSelecionadas, username, password)
-                return { ...dadosDoProcesso, pecas: pecasComConteudo, combinacao: comb }
+                return { ...dadosDoProcesso, pecasSelecionadas: pecasComConteudo, combinacao: comb }
             }
         }
-        return { ...dadosDoProcesso, pecas: [] as PecaType[] }
+        return { ...dadosDoProcesso, pecas: [] as PecaType[], pecasSelecionadas: [] as PecaType[] }
     } catch (error) {
         if (error?.message === 'NEXT_REDIRECT') throw error
         errorMsg = error.message

@@ -1,9 +1,9 @@
 const ErrorMsg = async ({ pDadosDoProcesso }) => {
-    const pecas = await pDadosDoProcesso
-    if (pecas && !pecas.errorMsg)
+    const dadosDoProcesso = await pDadosDoProcesso
+    if (dadosDoProcesso && !dadosDoProcesso.errorMsg)
         return ''
 
-    return (<div className="alert alert-danger">{pecas.errorMsg}</div>)
+    return (<div className="alert alert-danger">{dadosDoProcesso.errorMsg}</div>)
 }
 
 export default ErrorMsg
