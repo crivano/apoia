@@ -8,8 +8,8 @@ metadata:
     part-of: pdpj-apoia
 data:
   .env.local: |
-    NEXTAUTH_URL_INTERNAL=http://localhost:8081
-    NEXTAUTH_URL=http://localhost:8081
+    NEXTAUTH_URL_INTERNAL=http://localhost:80
+    NEXTAUTH_URL=http://apoia.stg.pdpj.jus.br
     NEXTAUTH_SECRET=***SUBSTITUIR_POR_UMA_SENHA_SEGURA***
 
     JWT_SECRET=***SUBSTITUIR_POR_UMA_SENHA_SEGURA***
@@ -34,7 +34,7 @@ data:
 
     KEYCLOAK_ID=apoia
     KEYCLOAK_SECRET=***SUBSTITUIR_POR_UMA_SENHA_SEGURA***
-    KEYCLOAK_ISSUER=http://127.0.0.1:8082/realms/apoiarealm
+    KEYCLOAK_ISSUER=https://sso.cloud.pje.jus.br/realms/pdpj
         
     APP_CODE=ApoIA
     APP_HOST=https://apoia.stg.pdpj.jus.br

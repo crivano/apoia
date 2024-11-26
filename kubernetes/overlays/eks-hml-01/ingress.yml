@@ -22,9 +22,9 @@ metadata:
 spec:
   tls:
   - hosts:
-    - configuracao.stg.pdpj.jus.br
+    - apoia.stg.pdpj.jus.br
   rules:
-  - host: configuracao.stg.pdpj.jus.br
+  - host: apoia.stg.pdpj.jus.br
     http:
       paths:
       - path: /
