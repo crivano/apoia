@@ -8,22 +8,22 @@ metadata:
     part-of: pdpj-apoia
 data:
   .env.local: |
-    #NEXTAUTH_URL_INTERNAL=http://localhost:80
-    #NEXTAUTH_URL=http://apoia.stg.pdpj.jus.br
-    #NEXTAUTH_SECRET=***SUBSTITUIR_POR_UMA_SENHA_SEGURA***
+    NEXTAUTH_URL_INTERNAL=http://localhost:80
+    NEXTAUTH_URL=http://apoia.stg.pdpj.jus.br
+    NEXTAUTH_SECRET=***SUBSTITUIR_POR_UMA_SENHA_SEGURA***
 
-    #JWT_SECRET=***SUBSTITUIR_POR_UMA_SENHA_SEGURA***
-    #JWT_ISSUER=apoia.trf2.jus.br
-    #JWT_AUDIENCE=apoia.trf2.jus.br
+    JWT_SECRET=***SUBSTITUIR_POR_UMA_SENHA_SEGURA***
+    JWT_ISSUER=apoia.trf2.jus.br
+    JWT_AUDIENCE=apoia.trf2.jus.br
 
-    #PWD_SECRET=***SUBSTITUIR_POR_UMA_SENHA_SEGURA***
+    PWD_SECRET=***SUBSTITUIR_POR_UMA_SENHA_SEGURA***
 
-    #COMPLETE_ANALYSIS_LIMIT=10000
+    COMPLETE_ANALYSIS_LIMIT=10000
 
-    #CONFIDENTIALITY_LEVEL_MAX=0
+    CONFIDENTIALITY_LEVEL_MAX=0
 
-    #VERCEL="1"
-    #VERCEL_ENV="production"
+    VERCEL="1"
+    VERCEL_ENV="development"
 
     #DB_CLIENT=pg
     #DB_HOST=localhost
