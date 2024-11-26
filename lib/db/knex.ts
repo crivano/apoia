@@ -1,6 +1,6 @@
-import Knex from 'knex';
-import knexConfig from '../../knexfile';
+import Knex from 'knex'
+import knexConfig from '../../knexfile'
 
-const db = Knex(knexConfig);
+const db = process.env.DB_CLIENT ? Knex(knexConfig) : undefined
 
-export default db;
+export default db

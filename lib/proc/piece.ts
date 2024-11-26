@@ -98,7 +98,7 @@ export const obterDocumentoGravado = async (dossier_id: number, numeroDoProcesso
 
     // verificar se a peça já foi gravada no banco
     const document = await Dao.retrieveDocument(document_id)
-    if (!document) throw new Error(`Documento ${idDaPeca} não encontrado`)
+    // if (!document) throw new Error(`Documento ${idDaPeca} não encontrado`)
     return document
 }
 
@@ -108,7 +108,7 @@ export const obterConteudoDaPeca = async (dossier_id: number, numeroDoProcesso: 
         assertNivelDeSigilo(sigiloDaPeca, `${descrDaPeca} (${idDaPeca})`)
 
     const document = await obterDocumentoGravado(dossier_id, numeroDoProcesso, idDaPeca, descrDaPeca, username, password)
-    const document_id = document.id
+    const document_id = document ? document.id : undefined
     if (document && document.content) {
         console.log('Retrieving from cache, content of type', document.content_source_id)
         return document.content

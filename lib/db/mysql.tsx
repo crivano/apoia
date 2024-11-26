@@ -46,6 +46,7 @@ export class Dao {
     }
 
     static async retrieveTestsetById(id: number): Promise<mysqlTypes.IATestset | undefined> {
+        if (!knex) return
         const result = await knex.select().from<mysqlTypes.IATestset>('ia_testset').where({ id }).first()
         return result
     }
@@ -98,6 +99,7 @@ export class Dao {
     }
 
     static async retrieveCountersByPromptKinds(): Promise<{ kind: string, prompts: number, testsets: number }[]> {
+        if (!knex) return
         const sql = knex('ia_prompt as p')
             .select(
                 'k.kind',  // Select 'kind' from the union of both tables
@@ -124,6 +126,7 @@ export class Dao {
     }
 
     static async retrievePromptsByKind(conn: any, kind: string): Promise<{ slug: string, name: string, versions: number, created_at: Date, modified_at: Date, official_at: Date, created_id: number, modified_id: number, official_id: number }[]> {
+        if (!knex) return
         // Consulta interna que utiliza funções de janela
         const innerQuery = knex('ia_prompt')
             .select([
@@ -179,6 +182,7 @@ export class Dao {
     }
 
     static async retrieveTestsetsByKind(conn: any, kind: string): Promise<{ slug: string, name: string, versions: number, created: Date, modified: Date }[]> {
+        if (!knex) return
         // Consulta interna que utiliza funções de janela
         const innerQuery = knex('ia_testset')
             .select([
@@ -234,6 +238,7 @@ export class Dao {
     }
 
     static async retrievePromptsIdsAndNamesByKind(kind: string): Promise<mysqlTypes.SelectableItemWithLatestAndOfficial[]> {
+        if (!knex) return
         const result = await knex('ia_prompt')
             .select('id', 'name', 'slug', 'created_at', 'is_official')
             .where('kind', kind)
@@ -248,6 +253,7 @@ export class Dao {
     }
 
     static async retrieveOfficialPromptsIdsAndNamesByKind(kind: string): Promise<{ id: string, name: string }[]> {
+        if (!knex) return
         const result = await knex('ia_prompt').select<Array<mysqlTypes.IAPrompt>>('id', 'name').where({
             kind, is_official: 1
         })
@@ -257,6 +263,7 @@ export class Dao {
     }
 
     static async retrieveOfficialTestsetsIdsAndNamesByKind(kind: string): Promise<{ id: string, name: string }[]> {
+        if (!knex) return
         const result = await knex('ia_testset').select<Array<mysqlTypes.IATestset>>('id', 'name').where({
             kind, is_official: 1
         })
@@ -266,6 +273,7 @@ export class Dao {
     }
 
     static async retrieveModels(): Promise<{ id: string, name: string }[]> {
+        if (!knex) return
         const result = await knex('ia_model').select<Array<mysqlTypes.IAModel>>('id', 'name')
         if (!result || result.length === 0) return []
         const records = result.map((record: any) => ({ ...record }))
@@ -273,11 +281,13 @@ export class Dao {
     }
 
     static async retrieveModelById(id: number): Promise<mysqlTypes.IAModel | undefined> {
+        if (!knex) return
         const result = await knex('ia_model').select<Array<mysqlTypes.IAModel>>('*').where({ id }).first()
         return result
     }
 
     static async retrievePromptsByKindAndSlug(kind: string, slug: string): Promise<mysqlTypes.PromptByKind[]> {
+        if (!knex) return
         const result = await knex('ia_prompt as p')
             .select<Array<mysqlTypes.PromptByKind>>(
                 'p.id',
@@ -314,6 +324,7 @@ export class Dao {
     }
 
     static async retrieveTestsetsByKindAndSlug(kind: string, slug: string): Promise<{ id: number, testset_id: number, model_id: number, kind: string, name: string, slug: string, content: any, created_by: number, created_at: Date, is_official: boolean, testset_slug: string, testset_name: string, model_name: string, user_username: string, score: number }[]> {
+        if (!knex) return
         const result = await knex('ia_testset as p')
             .select(
                 'p.id',
@@ -339,6 +350,7 @@ export class Dao {
     }
 
     static async retrieveRanking(kind: string, testset_id?: number, prompt_id?: number, model_id?: number): Promise<mysqlTypes.IARankingType[]> {
+        if (!knex) return
         const sql = knex('ia_test as s')
             .select<Array<mysqlTypes.IARankingType>>(
                 's.testset_id',
@@ -371,6 +383,7 @@ export class Dao {
     }
 
     static async insertIATest(test: mysqlTypes.IATest) {
+        if (!knex) return
         await knex('ia_test').insert({
             testset_id: test.testset_id,
             prompt_id: test.prompt_id,
@@ -381,6 +394,7 @@ export class Dao {
     }
 
     static async retrieveTestByTestsetIdPromptIdAndModelId(testset_id: number, prompt_id: number, model_id: number): Promise<mysqlTypes.IATest | undefined> {
+        if (!knex) return
         const result = await knex('ia_test').select<mysqlTypes.IATest>('*').where({
             testset_id, prompt_id, model_id
         }).first()
@@ -388,6 +402,7 @@ export class Dao {
     }
 
     static async retrieveIAGeneration(data: mysqlTypes.IAGeneration): Promise<mysqlTypes.IAGenerated | undefined> {
+        if (!knex) return
         const { model, prompt, sha256, attempt } = data
         const sql = knex('ia_generation').select<mysqlTypes.IAGenerated>('*').whereNull('evaluation_id').where({
             model,
@@ -404,6 +419,7 @@ export class Dao {
     }
 
     static async retrieveByBatchIdAndEnumId(batch_id: number, enum_id: number): Promise<mysqlTypes.AIBatchIdAndEnumId[]> {
+        if (!knex) return
         const result = await knex('ia_batch as b')
             .select<mysqlTypes.AIBatchIdAndEnumId[]>(
                 'd.code as dossier_code',
@@ -428,6 +444,7 @@ export class Dao {
     }
 
     static async retrieveCountByBatchIdAndEnumId(batch_id: number, enum_id: number): Promise<mysqlTypes.AICountByBatchIdAndEnumId[]> {
+        if (!knex) return
         const result = await knex('ia_batch as b')
             .select<mysqlTypes.AICountByBatchIdAndEnumId[]>('ei.descr as enum_item_descr', 'ei.hidden', knex.raw('count(distinct bd.id) as count'))
             .join('ia_batch_dossier as bd', 'bd.batch_id', '=', 'b.id')
@@ -443,6 +460,7 @@ export class Dao {
     }
 
     static async retrieveGenerationByBatchDossierId(batch_dossier_id: number): Promise<mysqlTypes.AIBatchDossierGeneration[]> {
+        if (!knex) return
         const result = knex('ia_batch_dossier_item as bdi')
             .select<mysqlTypes.AIBatchDossierGeneration[]>(
                 'bdi.descr',
@@ -460,6 +478,7 @@ export class Dao {
     }
 
     static async insertIAGeneration(data: mysqlTypes.IAGeneration): Promise<mysqlTypes.IAGenerated | undefined> {
+        if (!knex) return
         const { model, prompt, sha256, generation, attempt } = data
         const [inserted] = await knex('ia_generation').insert({
             model,
@@ -470,6 +489,7 @@ export class Dao {
     }
 
     static async evaluateIAGeneration(user_id: number, generation_id: number, evaluation_id: number, evaluation_descr: string | null): Promise<boolean | undefined> {
+        if (!knex) return
         await knex('ia_generation').update({
             evaluation_user_id: user_id,
             evaluation_id,
@@ -479,6 +499,7 @@ export class Dao {
     }
 
     static async assertSystemId(code?: string): Promise<number> {
+        if (!knex) return
         if (!code) {
             return 0
         }
@@ -492,6 +513,7 @@ export class Dao {
     }
 
     static async assertIABatchId(batchName: string): Promise<number> {
+        if (!knex) return
         const bach = await knex('ia_bach').select('id').where({
             name: batchName
         }).first()
@@ -503,6 +525,7 @@ export class Dao {
     }
 
     static async assertIADossierId(code: string, system_id: number, class_code: number, filing_at: Date): Promise<number> {
+        if (!knex) return
         const result = await knex('ia_dossier').select('id').where({
             code,
             system_id
@@ -521,6 +544,7 @@ export class Dao {
 
 
     static async assertIADocumentId(dossier_id: number, code: string, assigned_category: string | null): Promise<number> {
+        if (!knex) return
         let document = await knex('ia_document').select<mysqlTypes.IADocument[]>('id', 'assigned_category').where({ code }).first()
         if (document) {
             if (assigned_category && document.assigned_category !== assigned_category) {
@@ -537,6 +561,7 @@ export class Dao {
     }
 
     static async updateDocumentContent(document_id: number, content_source_id: number, content: string) {
+        if (!knex) return
         await knex('ia_document').update({
             content_source_id,
             content
@@ -544,6 +569,7 @@ export class Dao {
     }
 
     static async updateDocumentCategory(document_id: number, assigned_category: string | null, predicted_category: string | null) {
+        if (!knex) return
         await knex('ia_document').update({
             assigned_category,
             predicted_category,
@@ -551,6 +577,7 @@ export class Dao {
     }
 
     static async verifyIfDossierHasDocumentsWithPredictedCategories(dossierCode: string): Promise<boolean> {
+        if (!knex) return
         const result = await knex('ia_dossier as p')
             .join('ia_document as d', 'p.id', '=', 'd.dossier_id')
             .where({ 'p.code': dossierCode })
@@ -561,11 +588,13 @@ export class Dao {
     }
 
     static async retrieveDocument(document_id: number): Promise<mysqlTypes.IADocument | undefined> {
+        if (!knex) return
         const result = await knex('ia_document').select<mysqlTypes.IADocument>('*').where('id', document_id).first()
         return result
     }
 
     static async assertIABatchDossierId(batch_id: number, dossier_id: number): Promise<number> {
+        if (!knex) return
         // Check or insert document
         let batch_dossier_id: number | null = null
         const document = await knex('ia_batch_dossier').select('id').where({
@@ -582,10 +611,12 @@ export class Dao {
     }
 
     static async deleteIABatchDossierId(batch_id: number, dossier_id: number): Promise<undefined> {
+        if (!knex) return
         await knex('ia_batch_dossier').delete().where({ batch_id, dossier_id })
     }
 
     static async insertIABatchDossierItem(data: mysqlTypes.IABatchDossierItem): Promise<mysqlTypes.IABatchDossierItem | undefined> {
+        if (!knex) return
         const { batch_dossier_id, document_id, generation_id, descr, seq } = data
         const [inserted] = await knex('ia_batch_dossier_item').insert({
             batch_dossier_id,
@@ -597,6 +628,7 @@ export class Dao {
     }
 
     static async assertIAEnumId(descr: string): Promise<number> {
+        if (!knex) return
         const iaEnum = await knex('ia_enum').select('id').where({ descr, }).first()
         if (iaEnum) return iaEnum.id
         const [result] = await knex('ia_enum').insert({
@@ -606,6 +638,7 @@ export class Dao {
     }
 
     static async assertIAEnumItemId(descr: string, enum_id: number): Promise<number> {
+        if (!knex) return
         const iaEnum = await knex('ia_enum').select('id').where({ descr, enum_id }).first()
         if (iaEnum) return iaEnum.id
         const [result] = await knex('ia_enum').insert({
@@ -615,6 +648,7 @@ export class Dao {
     }
 
     static async assertIABatchDossierEnumItemId(batch_dossier_id: number, enum_item_id: number): Promise<number> {
+        if (!knex) return
         // Check or insert document
         const bachItem = await knex('ia_batch_dossier_enum_item').select('id').where({ batch_dossier_id, enum_item_id }).first()
         if (bachItem) return bachItem.id
@@ -625,6 +659,7 @@ export class Dao {
     }
 
     static async retrieveEnumItems(): Promise<mysqlTypes.IAEnumItem[]> {
+        if (!knex) return
         const result = await knex('ia_enum as e')
             .select<mysqlTypes.IAEnumItem[]>(
                 'e.id as enum_id',
@@ -641,6 +676,7 @@ export class Dao {
     }
 
     static async assertIAUserId(username: string): Promise<number> {
+        if (!knex) return
         const user = await knex('ia_user').select('id').where({ username }).first()
         if (user) return user.id
         const [result] = await knex('ia_user').insert({
