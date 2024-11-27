@@ -69,14 +69,15 @@ spec:
             cpu: "1000m"
         volumeMounts:
         - name: apoia-config
-          mountPath: /app
-          readOnly: true
+          mountPath: /app/.env.local
+          subPath: env_local
       imagePullSecrets:
       - name: registry-cnj
       volumes:
       - name: apoia-config
         configMap:
           name: apoia-config
+          defaultMode: 0755
 ...
 ---
 apiVersion: v1

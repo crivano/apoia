@@ -7,7 +7,7 @@ metadata:
     app: apoia
     part-of: pdpj-apoia
 data:
-  .env.local: |
+  env_local: |
     NEXTAUTH_URL_INTERNAL=http://localhost:80
     NEXTAUTH_URL=http://apoia.stg.pdpj.jus.br
     NEXTAUTH_SECRET=***SUBSTITUIR_POR_UMA_SENHA_SEGURA***
