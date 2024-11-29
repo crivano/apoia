@@ -24,6 +24,10 @@ export const Model: ModelType = {
         { id: 4, name: 'gemini-1.5-pro-002', provider: ModelProvider.GOOGLE },
     LLAMA_3_2_90B_TEXT_PREVIEW:
         { id: 5, name: 'llama-3.2-90b-text-preview', provider: ModelProvider.GROQ },
+    LLAMA_3_1_70B_VERSATILE:
+        { id: 6, name: 'llama-3.1-70b-versatile', provider: ModelProvider.GROQ },
+    GPT_4_O_2024_11_20:
+        { id: 7, name: 'gpt-4o-2024-11-20', provider: ModelProvider.OPENAI },
 }
 
 export const ModelArray: ModelValeuType[] = [
@@ -32,6 +36,8 @@ export const ModelArray: ModelValeuType[] = [
     { id: 3, name: 'gpt-4o-mini-2024-07-18', provider: ModelProvider.OPENAI },
     { id: 4, name: 'gemini-1.5-pro-002', provider: ModelProvider.GOOGLE },
     { id: 5, name: 'llama-3.2-90b-text-preview', provider: ModelProvider.GROQ },
+    { id: 6, name: 'llama-3.1-70b-versatile', provider: ModelProvider.GROQ },
+    { id: 7, name: 'gpt-4o-2024-11-20', provider: ModelProvider.OPENAI },
 ]
 
 export function enumSortById(e: EnumOfObjectsType): any[] {
