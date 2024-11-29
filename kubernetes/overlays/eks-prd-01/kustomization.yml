@@ -8,6 +8,6 @@ resources:
 - ingress.yml
 
 replicas:
-- count: 2
+- count: 1
   name: apoia
 ...
