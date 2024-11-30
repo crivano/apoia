@@ -45,7 +45,7 @@ spec:
             path: /actuator/health/liveness
             port: http
           failureThreshold: 6
-          initialDelaySeconds: 10
+          initialDelaySeconds: 60
           periodSeconds: 30
           timeoutSeconds: 10
         readinessProbe:
@@ -59,7 +59,8 @@ spec:
         startupProbe:
           tcpSocket:
             port: http
-          failureThreshold: 3
+          initialDelaySeconds: 10  
+          failureThreshold: 5
           periodSeconds: 30
           timeoutSeconds: 10
         resources:
@@ -67,7 +68,7 @@ spec:
             memory: "512Mi"
             cpu: "100m"
           limits:
-            memory: "1536Mi"
+            memory: "2Gi"
             cpu: "1000m"
         volumeMounts:
         - name: apoia-config
