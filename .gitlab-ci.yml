@@ -2,33 +2,33 @@
 ## Stages
 stages:
 #  - analyse
-  #- package
-  - prepare
+  - package
   - build
+  - prepare
   - release
   - deploy
 
 ## Stage: Package
-#mvn-build:
-#  stage: package
-#  interruptible: true
-#  image:
-#    name: maven:3-eclipse-temurin-11-alpine
-#    entrypoint: [ "" ]
-#  variables:
-#    MAVEN_CLI_OPTS: "--settings .m2/settings.xml --batch-mode "
-#    MAVEN_OPTS: "-Dmaven.repo.local=.m2/repository -DskipTests"
-#  cache:
-#    key: "${CI_PROJECT_ID}-maven-${CI_COMMIT_REF_SLUG}"
-#    paths: [ ".m2/repository" ]
-#  artifacts:
-#    paths: [ "target/*.jar" ]
-#  script:
-#    - mvn $MAVEN_CLI_OPTS $MAVEN_OPTS package
-#  rules:
-#    - if: '$CI_COMMIT_BRANCH == "develop"'
-#    - if: '$CI_COMMIT_BRANCH == "master"'
-#    - if: $CI_COMMIT_TAG
+mvn-build:
+  stage: package
+  interruptible: true
+  image:
+    name: node:20
+    entrypoint: [ "" ]
+  variables:
+    MAVEN_CLI_OPTS: "--settings .m2/settings.xml --batch-mode "
+    MAVEN_OPTS: "-Dmaven.repo.local=.m2/repository -DskipTests"
+  cache:
+    key: "${CI_PROJECT_ID}-maven-${CI_COMMIT_REF_SLUG}"
+    paths: [ ".m2/repository" ]
+  artifacts:
+    paths: [ "target/*.jar" ]
+  script:
+    - mvn $MAVEN_CLI_OPTS $MAVEN_OPTS package
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "develop"'
+    - if: '$CI_COMMIT_BRANCH == "master"'
+    - if: $CI_COMMIT_TAG
 
 #
 ## Stage: build
