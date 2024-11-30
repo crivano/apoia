@@ -42,6 +42,7 @@ RUN \
 
 # Production image, copy all the files and run next
 FROM base AS runner
+USER root
 WORKDIR /app
 
 ENV NODE_ENV=production
