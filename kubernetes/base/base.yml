@@ -38,7 +38,7 @@ spec:
         - secretRef:
             name: apoia-envs-secret
         ports:
-        - containerPort: 8080
+        - containerPort: 3000
           name: http
         livenessProbe:
           httpGet:
