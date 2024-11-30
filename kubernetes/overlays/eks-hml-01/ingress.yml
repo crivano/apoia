@@ -1,37 +1,111 @@
----
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: apoia
   annotations:
-    kubernetes.io/ingress.class: alb
-    alb.ingress.kubernetes.io/group.name: pdpj-apoia
-    alb.ingress.kubernetes.io/group.order: "20"
-    alb.ingress.kubernetes.io/healthcheck-path: /
-    alb.ingress.kubernetes.io/healthcheck-port: http
+    alb.ingress.kubernetes.io/healthcheck-path: /actuator/health/readiness
     alb.ingress.kubernetes.io/healthcheck-interval-seconds: "60"
     alb.ingress.kubernetes.io/healthcheck-timeout-seconds: "10"
-    alb.ingress.kubernetes.io/unhealthy-threshold-count: "3"
+    alb.ingress.kubernetes.io/healthcheck-port: http
     alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}, {"HTTPS": 443}]'
     alb.ingress.kubernetes.io/scheme: internet-facing
     alb.ingress.kubernetes.io/ssl-redirect: "443"
+    alb.ingress.kubernetes.io/group.name: pdpj-apoia
     alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/load-balancer-attributes: "access_logs.s3.enabled=true,access_logs.s3.bucket=cnj-logs-access,access_logs.s3.prefix=pdpj-oxossiproxy"
   labels:
     app: apoia
     part-of: pdpj-apoia
 spec:
+  ingressClassName: alb
   tls:
-  - hosts:
-    - apoia.stg.pdpj.jus.br
+    - hosts:
+        - apoia.stg.pdpj.jus.br
   rules:
-  - host: apoia.stg.pdpj.jus.br
-    http:
-      paths:
-      - path: /
-        pathType: Prefix
-        backend:
-          service:
-            name: apoia
-            port:
-              name: http
-...
+    - host: apoia.stg.pdpj.jus.br
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: apoia
+                port:
+                  name: http
+          - path: /api/v1
+            pathType: Prefix
+            backend:
+              service:
+                name: apoia
+                port:
+                  name: http
+          - path: /app
+            pathType: Prefix
+            backend:
+              service:
+                name: apoia
+                port:
+                  name: http
+          - path: /img
+            pathType: Prefix
+            backend:
+              service:
+                name: apoia
+                port:
+                  name: http
+          - path: /docs
+            pathType: Prefix
+            backend:
+              service:
+                name: apoia
+                port:
+                  name: http
+          - path: /css
+            pathType: Prefix
+            backend:
+              service:
+                name: apoia
+                port:
+                  name: http
+          - path: /js
+            pathType: Prefix
+            backend:
+              service:
+                name: apoia
+                port:
+                  name: http
+          - path: /pdpj/info
+            pathType: Prefix
+            backend:
+              service:
+                name: apoia
+                port:
+                  name: http
+          - path: /actuator/health
+            pathType: Prefix
+            backend:
+              service:
+                name: apoia
+                port:
+                  name: http
+          - path: /actuator/health/liveness
+            pathType: Prefix
+            backend:
+              service:
+                name: apoia
+                port:
+                  name: http
+          - path: /actuator/health/readiness
+            pathType: Prefix
+            backend:
+              service:
+                name: apoia
+                port:
+                  name: http
+          - path: /swagger-ui.html
+            pathType: Prefix
+            backend:
+              service:
+                name: apoia
+                port:
+                  name: http

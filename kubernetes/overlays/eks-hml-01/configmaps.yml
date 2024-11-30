@@ -1,51 +1,94 @@
----
 apiVersion: v1
 kind: ConfigMap
 metadata:
   name: apoia-config
   labels:
     app: apoia
-    part-of: pdpj-apoia
 data:
-  NEXTAUTH_URL_INTERNAL: "http://localhost:80"
-  NEXTAUTH_URL: "http://apoia.stg.pdpj.jus.br"
-  NEXTAUTH_SECRET: "38cf653d63e9265d60a65210abdb16eb3fc367a3ef6966363fc71b3f7eb04ae6"
+  application.yaml: |
+    spring:
+      application:
+        name: apoia
+      jackson:
+        time-zone: Brazil/East
+        locale: pt-BR
+    server:
+      port: 8080
 
-  JWT_SECRET: "2200696394cecfae947b3d34d033e2ccf0a7c799a45d302746dfc42b80de49b4"
-  JWT_ISSUER: "apoia.trf2.jus.br"
-  JWT_AUDIENCE: "apoia.trf2.jus.br"
+    datasource:
+      url: jdbc:postgresql://postgres.comum-homologacao/pdpj_apoia
+      username: ${SPRING_DATASOURCE_USERNAME}
+      password: ${SPRING_DATASOURCE_PASSWORD}
+      hikari:
+        pool-name: ApoiaHCP_HML
+        connection-timeout: 5000
+        maximum-pool-size: 15
+        idle-timeout: 10000 # Tempo máximo em milissegundos que uma conexão pode ficar ociosa
+        minimum-idle: 3 # Número mínimo de conexões em estado "idle"    
+    jpa:
+      generate-ddl: false
+      show-sql: false
+      hibernate:
+        ddl-auto: none ### update, create, create-drop
+      properties:
+        hibernate:
+          default_schema: apoia
+          format_sql: true
+        org:
+          hibernate:
+            envers:
+              default_schema: audit
+    flyway:
+      url: ${spring.datasource.url}
+      user: ${SPRING_FLYWAY_USER}
+      password: ${SPRING_FLYWAY_PASSWORD}
+      schemas: apoia
+      enabled: false
 
-  PWD_SECRET: "48527e3177fa95640dd6eaf"
+    ## Eureka
+    eureka:
+      client:
+        #serviceUrl:
+        #  defaultZone: https://discovery.stg.cloud.pje.jus.br/eureka
+        enabled: false
+      #instance:
+      #  healthCheckUrlPath: /actuator/health
+      #  statusPageUrlPath: /actuator/info
+      #  homePageUrl: https://gateway.stg.cloud.pje.jus.br/apoia # <- url-base na marketplace
+      #  metadataMap:
+      #    pdpj: true # <- para ativar na marketplace
 
-  COMPLETE_ANALYSIS_LIMIT: "10000"
+    ## PDPJ
+    pdpj:
+      appName: apoia
+      nomeServico: ApoIA
+      descricao: Inteligência Artificial Generativa
+      iconePequenoUrl: https://apoia.stg.pdpj.jus.br/apoia-logo.svg
+      iconeGrandeUrl: https://apoia.stg.pdpj.jus.br/apoia-logo.svg
+      frontendUrl: https://apoia.stg.pdpj.jus.br
+      gatewayUrl: https://apoia.stg.pdpj.jus.br
+      swaggerUrl: https://apoia.stg.pdpj.jus.br/swagger-ui.html
+      documentacaoUsuarioUrl: null
+      documentacaoTecnicaUrl: null
 
-  CONFIDENTIALITY_LEVEL_MAX: "0"
+    # configurações do actuator
+    management:
+      health:
+        probes:
+          enabled: true
+      endpoints:
+        web:
+          exposure:
+            include: health,info
+      metrics:
+        export:
+          prometheus:
+            enabled: 'true'
+      endpoint:
+        health:
+          show-details: always
 
-  VERCEL: "1"
-  VERCEL_ENV: "development"
-
-  DB_CLIENT: "pg"
-  DB_HOST: "pdpj-hml.ctcsx6sb8kvu.sa-east-1.rds.amazonaws.com"
-  DB_PORT: "5432"
-  DB_USER: "usuario_pdpj_apoia"
-  DB_PASSWORD: "Mover-para-o-sealSecret"
-  DB_DATABASE: "pdpj_apoia"
-
-  #KEYCLOAK_ID: "apoia"
-  #KEYCLOAK_SECRET: "***SUBSTITUIR_POR_UMA_SENHA_SEGURA***"
-  #KEYCLOAK_ISSUER: "https://sso.cloud.pje.jus.br/realms/pdpj"
-    
-  APP_CODE: "ApoIA"
-  APP_HOST: "apoia.stg.pdpj.jus.br"
-  APP_PORT: "80"
-  APP_REGISTRY_HOST: "discovery.stg.cloud.pje.jus.br/eureka"
-  APP_REGISTRY_PORT: "8761"
-
-  SYSTEMS: "TRF2,JFRJ,JFES"
-  TRF2_MNI_WSDL_URL: "https://eproc-ws.trf2.jus.br/eproc/wsdl.php?srv=intercomunicacao2.2"
-  TRF2_MNI_ENDPOINT_URL: "https://eproc-ws.trf2.jus.br/eproc/ws/controlador_ws.php?srv=intercomunicacao2.2"
-  JFRJ_MNI_WSDL_URL: "https://eproc-ws.jfrj.jus.br/eproc/wsdl.php?srv=intercomunicacao2.2"
-  JFRJ_MNI_ENDPOINT_URL: "https://eproc-ws.jfrj.jus.br/eproc/ws/controlador_ws.php?srv=intercomunicacao2.2"
-  JFES_MNI_WSDL_URL: "https://eproc-ws.jfes.jus.br/eproc/wsdl.php?srv=intercomunicacao2.2"
-  JFES_MNI_ENDPOINT_URL: "https://eproc-ws.jfes.jus.br/eproc/ws/controlador_ws.php?srv=intercomunicacao2.2"
-...
+    # opções de log
+    logging:
+      level:
+        br.jus.pdpj: INFO
