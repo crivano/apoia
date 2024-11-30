@@ -10,23 +10,23 @@ stages:
 
 #
 ## stage: package
-npm-build:
-  stage: package
-  interruptible: true
-  image:
-    name: node:20-alpine
-    entrypoint: [ "" ]
-  cache:
-    key: "${CI_PROJECT_ID}-nodejs"
-    paths:
-      - node_modules/
-  artifacts:
-    paths:
-      - dist/apoia/
-  before_script:
-    - npm install
-  script:
-    - npm run build:dist
+#npm-build:
+#  stage: package
+#  interruptible: true
+#  image:
+#    name: node:20-alpine
+#    entrypoint: [ "" ]
+#  cache:
+#    key: "${CI_PROJECT_ID}-nodejs"
+#    paths:
+#      - node_modules/
+#  artifacts:
+#    paths:
+#      - dist/apoia/
+#  before_script:
+#    - npm install
+#  script:
+#    - npm run build:dist
 
 #
 ## Stage: build
