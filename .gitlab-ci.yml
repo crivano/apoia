@@ -2,7 +2,7 @@
 ## Stages
 stages:
 #  - analyse
-  - package
+#  - package
   - prepare
   - build
   - release
