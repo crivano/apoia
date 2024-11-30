@@ -1,9 +1,5 @@
 FROM node:20 AS base
 USER root
-WORKDIR /app/
-COPY . /app
-RUN npm install
-RUN npm run build:dist
 
 # Install dependencies only when needed
 FROM base AS deps
