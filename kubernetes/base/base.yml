@@ -30,12 +30,6 @@ spec:
         env:
           - name: TZ
             value: America/Sao_Paulo
-          - name: EUREKA_INSTANCE_PREFERIPADDRESS
-            value: "true"
-          - name: JAVA_OPTS
-            value: "-Xms512M -Xmx1536M -XX:+UseG1GC -Duser.timezone=America/Sao_Paulo -Djava.security.egd=file:/dev/./urandom"
-          - name: SPRING_CONFIG_LOCATION
-            value: "./config/"
         envFrom:
         - secretRef:
             name: apoia-db-secret
@@ -46,8 +40,6 @@ spec:
         ports:
         - containerPort: 8080
           name: http
-        - containerPort: 9990
-          name: actuator
         livenessProbe:
           httpGet:
             path: /actuator/health/liveness
@@ -100,7 +92,5 @@ spec:
   ports:
     - name: http
       port: 8080
-    - name: actuator
-      port: 9990
   selector:
     app: pdpj-apoia
