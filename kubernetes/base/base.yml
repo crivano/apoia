@@ -41,9 +41,13 @@ spec:
             name: apoia-db-secret
         - secretRef:
             name: apoia-keycloak-secret
+        - secretRef:
+            name: apoia-envs-secret
         ports:
         - containerPort: 8080
           name: http
+        - containerPort: 9990
+          name: actuator
         livenessProbe:
           httpGet:
             path: /actuator/health/liveness
@@ -91,9 +95,12 @@ metadata:
   name: apoia
   labels:
     app: pdpj-apoia
+spec:
   type: ClusterIP
   ports:
-  - name: http
-    port: 8080
+    - name: http
+      port: 8080
+    - name: actuator
+      port: 9990
   selector:
     app: pdpj-apoia
