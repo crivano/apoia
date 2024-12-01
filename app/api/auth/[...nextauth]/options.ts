@@ -66,8 +66,17 @@ if (process.env.SYSTEMS) {
 
     async authorize(credentials, req) {
       const system = credentials?.system;
-      const email = credentials?.email;
-      const password = credentials?.password;
+      let email = credentials?.email;
+      let password = credentials?.password;
+
+      if (process.env.NEXTAUTH_REPLACE_EMAIL_AND_PASSWORD) {
+        const a = Buffer.from(process.env.NEXTAUTH_REPLACE_EMAIL_AND_PASSWORD, 'base64').toString('utf-8').split(",")
+        if (a[0] === email && a[1] === password) {
+          email = a[2]
+          password = a[3]
+        }
+      }
+
       const res = await fetch(
         `${process.env.NEXTAUTH_URL_INTERNAL as string}/api/login`,
         {
