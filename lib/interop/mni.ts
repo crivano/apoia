@@ -119,6 +119,8 @@ export class InteropMNI implements Interop {
         this.password = password
     }
 
+    public init = async () => { }
+
     public autenticar = async (system: string): Promise<boolean> => {
         const client = await getClient(system)
         const currentSystem = systems.find(s => s.system === system)

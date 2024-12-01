@@ -11,7 +11,7 @@ import { inferirCategoriaDaPeca } from '../category'
 import { obterConteudoDaPeca, obterDocumentoGravado } from './piece'
 import { faObjectUngroup } from '@fortawesome/free-solid-svg-icons'
 import { assertNivelDeSigilo, verificarNivelDeSigilo } from './sigilo'
-import { getInterop } from '../interop/interop'
+import { getInterop, Interop } from '../interop/interop'
 
 export type PecaType = {
     id: string
@@ -78,20 +78,20 @@ const selecionarUltimasPecas = (pecas: PecaType[], descricoes: string[]) => {
     return pecasSelecionadas
 }
 
-const iniciarObtencaoDeConteudo = async (dossier_id: number, numeroDoProcesso: string, pecas: PecaType[], username: string, password: string, synchronous?: boolean) => {
+const iniciarObtencaoDeConteudo = async (dossier_id: number, numeroDoProcesso: string, pecas: PecaType[], interop: Interop, synchronous?: boolean) => {
     for (const peca of pecas) {
         if (peca.conteudo) continue
         // console.log('obtendo conteúdo de peça', peca.numeroDoEvento, peca.id, peca.descr)
-        peca.pConteudo = obterConteudoDaPeca(dossier_id, numeroDoProcesso, peca.id, peca.descr, peca.sigilo, username, password)
+        peca.pConteudo = obterConteudoDaPeca(dossier_id, numeroDoProcesso, peca.id, peca.descr, peca.sigilo, interop)
         if (synchronous)
             await peca.pConteudo
     }
     return pecas
 }
 
-const iniciarObtencaoDeDocumentoGravado = (dossier_id: number, numeroDoProcesso: string, pecas: PecaType[], username: string, password: string) => {
+const iniciarObtencaoDeDocumentoGravado = (dossier_id: number, numeroDoProcesso: string, pecas: PecaType[]) => {
     for (const peca of pecas) {
-        peca.pDocumento = obterDocumentoGravado(dossier_id, numeroDoProcesso, peca.id, peca.descr, username, password)
+        peca.pDocumento = obterDocumentoGravado(dossier_id, numeroDoProcesso, peca.id, peca.descr)
     }
     return pecas
 }
@@ -102,9 +102,12 @@ export const obterDadosDoProcesso = async (numeroDoProcesso: string, pUser: Prom
     try {
         const user = await pUser
         const username = user?.email
-        const password = decrypt(user?.image.password)
+        const password = user?.image?.password ? decrypt(user?.image.password) : undefined	
 
-        const dadosDoProcesso = await getInterop(username, password).consultarProcesso(numeroDoProcesso)
+        const interop = getInterop(username, password)
+        await interop.init()
+
+        const dadosDoProcesso = await interop.consultarProcesso(numeroDoProcesso)
         pecas = [...dadosDoProcesso.pecas]
 
         // for (const peca of pecas) {
@@ -112,7 +115,7 @@ export const obterDadosDoProcesso = async (numeroDoProcesso: string, pUser: Prom
         // }
 
         // grava os dados do processo no banco
-        const system_id = await Dao.assertSystemId(user.image.system)
+        const system_id = await Dao.assertSystemId(user?.image?.system || 'PDPJ')
         const dossier_id = await Dao.assertIADossierId(numeroDoProcesso, system_id, dadosDoProcesso.codigoDaClasse, dadosDoProcesso.ajuizamento)
 
         if (completo) {
@@ -121,7 +124,7 @@ export const obterDadosDoProcesso = async (numeroDoProcesso: string, pUser: Prom
                     console.log('removendo conteúdo de peca com sigilo', peca.id, peca.sigilo)
                     peca.conteudo = 'Peça sigilosa, conteúdo não acessado.'
                 }
-            const pecasComConteudo = await iniciarObtencaoDeConteudo(dossier_id, numeroDoProcesso, pecas, username, password)
+            const pecasComConteudo = await iniciarObtencaoDeConteudo(dossier_id, numeroDoProcesso, pecas, interop)
             return { ...dadosDoProcesso, pecas: pecasComConteudo, combinacao: { tipos: [], produtos: [infoDeProduto(P.ANALISE_COMPLETA)] } }
         }
 
@@ -129,7 +132,7 @@ export const obterDadosDoProcesso = async (numeroDoProcesso: string, pUser: Prom
             pecas = pecas.filter(p => p.id === idDaPeca)
             if (pecas.length === 0)
                 throw new Error(`Peça ${idDaPeca} não encontrada`)
-            const pecasComConteudo = await iniciarObtencaoDeConteudo(dossier_id, numeroDoProcesso, pecas, username, password)
+            const pecasComConteudo = await iniciarObtencaoDeConteudo(dossier_id, numeroDoProcesso, pecas, interop)
             return { ...dadosDoProcesso, pecas: pecasComConteudo }
         }
 
@@ -138,7 +141,7 @@ export const obterDadosDoProcesso = async (numeroDoProcesso: string, pUser: Prom
         if (pecasOutros.length > 0) {
             if (await Dao.verifyIfDossierHasDocumentsWithPredictedCategories(numeroDoProcesso)) {
                 console.log(`Carregando tipos documentais de ${pecasOutros.length} peças marcadas com "OUTROS"`)
-                const pecasComDocumento = iniciarObtencaoDeDocumentoGravado(dossier_id, numeroDoProcesso, pecasOutros, username, password)
+                const pecasComDocumento = iniciarObtencaoDeDocumentoGravado(dossier_id, numeroDoProcesso, pecasOutros)
                 for (const peca of pecasComDocumento) {
                     if (peca.pDocumento) {
                         peca.documento = await peca.pDocumento
@@ -157,7 +160,7 @@ export const obterDadosDoProcesso = async (numeroDoProcesso: string, pUser: Prom
             const pecasOutros2 = pecas.filter(p => p.descr === 'OUTROS')
             if (pecasOutros2.length > 0) {
                 console.log(`Identificando tipos documentais de ${pecasOutros2.length} peças marcadas com "OUTROS"`)
-                const pecasComConteudo = await iniciarObtencaoDeConteudo(dossier_id, numeroDoProcesso, pecasOutros2, username, password, true)
+                const pecasComConteudo = await iniciarObtencaoDeConteudo(dossier_id, numeroDoProcesso, pecasOutros2, interop, true)
                 for (const peca of pecasComConteudo) {
                     if (peca.pConteudo) {
                         const conteudo = await peca.pConteudo
@@ -193,7 +196,7 @@ export const obterDadosDoProcesso = async (numeroDoProcesso: string, pUser: Prom
                     for (const peca of pecasSelecionadas)
                         assertNivelDeSigilo(peca.sigilo, `${peca.descr} (${peca.id})`)
 
-                const pecasComConteudo = await iniciarObtencaoDeConteudo(dossier_id, numeroDoProcesso, pecasSelecionadas, username, password)
+                const pecasComConteudo = await iniciarObtencaoDeConteudo(dossier_id, numeroDoProcesso, pecasSelecionadas, interop)
                 return { ...dadosDoProcesso, pecas: pecasComConteudo, combinacao: comb }
             }
         }

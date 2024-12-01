@@ -82,7 +82,6 @@ export const slugify = (str) => {
   return str;
 }
 
-
 export const parseYYYYMMDDHHMMSS = (dataAjuizamento: any) => {
   let dt = new Date(
     dataAjuizamento.slice(0, 4),

@@ -9,7 +9,7 @@ import { IADocument, IADocumentContentSource } from '../db/mysql-types'
 
 import pLimit from 'p-limit'
 import { assertNivelDeSigilo, verificarNivelDeSigilo } from './sigilo'
-import { getInterop } from '../interop/interop'
+import { getInterop, Interop } from '../interop/interop'
 const limit = pLimit(process.env.OCR_LIMIT ? parseInt(process.env.OCR_LIMIT) : 1)
 
 const obterTextoDeHtml = async (buffer: ArrayBuffer, documentId: number) => {
@@ -93,7 +93,7 @@ const obterTipoDePecaPelaDescricao = (descr: string) => {
     return null
 }
 
-export const obterDocumentoGravado = async (dossier_id: number, numeroDoProcesso: string, idDaPeca: string, descrDaPeca: string, username: string, password: string): Promise<IADocument> => {
+export const obterDocumentoGravado = async (dossier_id: number, numeroDoProcesso: string, idDaPeca: string, descrDaPeca: string): Promise<IADocument> => {
     const document_id = await Dao.assertIADocumentId(dossier_id, idDaPeca, descrDaPeca)
 
     // verificar se a peça já foi gravada no banco
@@ -103,18 +103,18 @@ export const obterDocumentoGravado = async (dossier_id: number, numeroDoProcesso
 }
 
 
-export const obterConteudoDaPeca = async (dossier_id: number, numeroDoProcesso: string, idDaPeca: string, descrDaPeca: string, sigiloDaPeca: string, username: string, password: string) => {
+export const obterConteudoDaPeca = async (dossier_id: number, numeroDoProcesso: string, idDaPeca: string, descrDaPeca: string, sigiloDaPeca: string, interop: Interop) => {
     if (verificarNivelDeSigilo())
         assertNivelDeSigilo(sigiloDaPeca, `${descrDaPeca} (${idDaPeca})`)
 
-    const document = await obterDocumentoGravado(dossier_id, numeroDoProcesso, idDaPeca, descrDaPeca, username, password)
+    const document = await obterDocumentoGravado(dossier_id, numeroDoProcesso, idDaPeca, descrDaPeca)
     const document_id = document ? document.id : undefined
     if (document && document.content) {
         console.log('Retrieving from cache, content of type', document.content_source_id)
         return document.content
     }
 
-    const { buffer, contentType } = await getInterop(username, password).obterPeca(numeroDoProcesso, idDaPeca)
+    const { buffer, contentType } = await interop.obterPeca(numeroDoProcesso, idDaPeca)
 
     switch (contentType) {
         case 'text/html': {
