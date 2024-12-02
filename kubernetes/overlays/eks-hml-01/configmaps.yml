@@ -9,13 +9,13 @@ metadata:
 data:
   NEXTAUTH_URL_INTERNAL: "http://localhost:80"
   NEXTAUTH_URL: "http://apoia.stg.pdpj.jus.br"
-  NEXTAUTH_SECRET: "38cf653d63e9265d60a65210abdb16eb3fc367a3ef6966363fc71b3f7eb04ae6"
+  NEXTAUTH_SECRET: ${NEXTAUTH_SECRET}
 
-  JWT_SECRET: "2200696394cecfae947b3d34d033e2ccf0a7c799a45d302746dfc42b80de49b4"
+  JWT_SECRET: ${JWT_SECRET}
   JWT_ISSUER: "apoia.trf2.jus.br"
   JWT_AUDIENCE: "apoia.trf2.jus.br"
 
-  PWD_SECRET: "48527e3177fa95640dd6eaf"
+  PWD_SECRET: ${PWD_SECRET}
 
   COMPLETE_ANALYSIS_LIMIT: "10000"
 
@@ -25,10 +25,10 @@ data:
   VERCEL_ENV: "development"
 
   DB_CLIENT: "pg"
-  DB_HOST: "pdpj-hml.ctcsx6sb8kvu.sa-east-1.rds.amazonaws.com"
+  DB_HOST: ${$DB_HOST}
   DB_PORT: "5432"
-  DB_USER: "usuario_pdpj_apoia"
-  DB_PASSWORD: "Mover-para-o-sealSecret"
+  DB_USER: "pdpj_apoia"
+  DB_PASSWORD: ${DB_PASSWORD}
   DB_DATABASE: "pdpj_apoia"
 
   #KEYCLOAK_ID: "apoia"
@@ -39,7 +39,7 @@ data:
   APP_HOST: "apoia.stg.pdpj.jus.br"
   APP_PORT: "80"
   APP_REGISTRY_HOST: "discovery.stg.cloud.pje.jus.br/eureka"
-  APP_REGISTRY_PORT: "8761"
+  #APP_REGISTRY_PORT: "8761"
 
   SYSTEMS: "TRF2,JFRJ,JFES"
   TRF2_MNI_WSDL_URL: "https://eproc-ws.trf2.jus.br/eproc/wsdl.php?srv=intercomunicacao2.2"
