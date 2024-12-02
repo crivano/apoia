@@ -8,22 +8,23 @@ metadata:
     alb.ingress.kubernetes.io/ssl-redirect: "443"
     alb.ingress.kubernetes.io/group.name: pdpj-apoia
     alb.ingress.kubernetes.io/target-type: ip
-    alb.ingress.kubernetes.io/group.order: '10'
+    #alb.ingress.kubernetes.io/load-balancer-attributes: "access_logs.s3.enabled=true,access_logs.s3.bucket=cnj-logs-access,access_logs.s3.prefix=pdpj-apoia"
   labels:
-    app: pdpj-apoia
+    app: apoia
     part-of: pdpj-apoia
 spec:
+  ingressClassName: alb
   tls:
-  - hosts:
-    - apoia.stg.pdpj.jus.br
+    - hosts:
+        - apoia.stg.pdpj.jus.br
   rules:
-  - host: apoia.stg.pdpj.jus.br
-    http:
-      paths:
-      - path: /
-        pathType: Prefix
-        backend:
-          service:
-            name: apoia
-            port:
-              name: http
+    - host: apoia.stg.pdpj.jus.br
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: apoia
+                port:
+                  name: http
