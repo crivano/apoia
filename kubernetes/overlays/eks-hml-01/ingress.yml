@@ -3,16 +3,12 @@ kind: Ingress
 metadata:
   name: apoia
   annotations:
-    alb.ingress.kubernetes.io/healthcheck-path: /
-    alb.ingress.kubernetes.io/healthcheck-interval-seconds: "60"
-    alb.ingress.kubernetes.io/healthcheck-timeout-seconds: "10"
-    alb.ingress.kubernetes.io/healthcheck-port: http
     alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}, {"HTTPS": 443}]'
     alb.ingress.kubernetes.io/scheme: internet-facing
     alb.ingress.kubernetes.io/ssl-redirect: "443"
     alb.ingress.kubernetes.io/group.name: pdpj-apoia
     alb.ingress.kubernetes.io/target-type: ip
-    alb.ingress.kubernetes.io/load-balancer-attributes: "access_logs.s3.enabled=true,access_logs.s3.bucket=cnj-logs-access,access_logs.s3.prefix=pdpj-apoia"
+    alb.ingress.kubernetes.io/group.order: '10'
   labels:
     app: pdpj-apoia
     part-of: pdpj-apoia
