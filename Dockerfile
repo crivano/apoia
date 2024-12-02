@@ -1,4 +1,5 @@
 FROM node:20 AS base
+USER root
 
 # Install dependencies only when needed
 FROM base AS deps
@@ -19,6 +20,7 @@ RUN \
 
 # Rebuild the source code only when needed
 FROM base AS builder
+USER root
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
@@ -40,6 +42,7 @@ RUN \
 
 # Production image, copy all the files and run next
 FROM base AS runner
+USER root
 WORKDIR /app
 
 ENV NODE_ENV=production
@@ -60,11 +63,12 @@ RUN chown nextjs:nodejs .next
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
-USER nextjs
+#USER nextjs
+USER root
 
-EXPOSE 3000
+EXPOSE 80
 
-ENV PORT=3000
+ENV PORT=80
 
 # server.js is created by next build from the standalone output
 # https://nextjs.org/docs/pages/api-reference/next-config-js/output

@@ -34,40 +34,39 @@ spec:
         - secretRef:
             name: apoia-db-secret
         - secretRef:
-            name: apoia-keycloak-secret
-        - secretRef:
             name: apoia-envs-secret
         ports:
         - containerPort: 8080
           name: http
-        livenessProbe:
-          httpGet:
-            path: /actuator/health/liveness
-            port: http
-          failureThreshold: 6
-          initialDelaySeconds: 10
-          periodSeconds: 30
-          timeoutSeconds: 10
-        readinessProbe:
-          httpGet:
-            path: /actuator/health/readiness
-            port: http
-          failureThreshold: 3
-          initialDelaySeconds: 10
-          periodSeconds: 30
-          timeoutSeconds: 10
-        startupProbe:
-          tcpSocket:
-            port: http
-          failureThreshold: 3
-          periodSeconds: 30
-          timeoutSeconds: 10
+        #livenessProbe:
+        #  httpGet:
+        #    path: /actuator/health/liveness
+        #    port: http
+        #  failureThreshold: 6
+        #  initialDelaySeconds: 60
+        #  periodSeconds: 30
+        #  timeoutSeconds: 10
+        #readinessProbe:
+        #  httpGet:
+        #    path: /actuator/health/readiness
+        #    port: http
+        #  failureThreshold: 3
+        #  initialDelaySeconds: 10
+        #  periodSeconds: 30
+        #  timeoutSeconds: 10
+        #startupProbe:
+        #  tcpSocket:
+        #    port: http
+        #  initialDelaySeconds: 10  
+        #  failureThreshold: 5
+        #  periodSeconds: 30
+        #  timeoutSeconds: 10
         resources:
           requests:
             memory: "512Mi"
             cpu: "100m"
           limits:
-            memory: "1536Mi"
+            memory: "2Gi"
             cpu: "1000m"
         volumeMounts:
         - name: apoia-config
