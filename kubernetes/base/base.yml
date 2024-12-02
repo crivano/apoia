@@ -34,8 +34,6 @@ spec:
         - secretRef:
             name: apoia-db-secret
         - secretRef:
-            name: apoia-keycloak-secret
-        - secretRef:
             name: apoia-envs-secret
         ports:
         - containerPort: 8080
