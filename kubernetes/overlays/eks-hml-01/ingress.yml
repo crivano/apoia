@@ -17,18 +17,17 @@ metadata:
     app: apoia
     part-of: pdpj-apoia
 spec:
-  ingressClassName: alb
   tls:
-    - hosts:
-        - apoia.stg.pdpj.jus.br
+  - hosts:
+    - apoia.stg.pdpj.jus.br
   rules:
-    - host: apoia.stg.pdpj.jus.br
-      http:
-        paths:
-          - path: /
-            pathType: Prefix
-            backend:
-              service:
-                name: apoia
-                port:
-                  name: http
+  - host: apoia.stg.pdpj.jus.br
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: apoia
+            port:
+              name: http
