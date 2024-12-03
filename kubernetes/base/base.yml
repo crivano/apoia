@@ -36,7 +36,7 @@ spec:
         - secretRef:
             name: apoia-envs-secret
         ports:
-        - containerPort: 8080
+        - containerPort: 80
           name: http
         #livenessProbe:
         #  httpGet:
@@ -90,6 +90,6 @@ spec:
   type: ClusterIP
   ports:
     - name: http
-      port: 8080
+      port: 80
   selector:
     app: pdpj-apoia
