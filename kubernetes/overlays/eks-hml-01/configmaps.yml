@@ -44,15 +44,3 @@ data:
   JFRJ_MNI_ENDPOINT_URL: "https://eproc-ws.jfrj.jus.br/eproc/ws/controlador_ws.php?srv=intercomunicacao2.2"
   JFES_MNI_WSDL_URL: "https://eproc-ws.jfes.jus.br/eproc/wsdl.php?srv=intercomunicacao2.2"
   JFES_MNI_ENDPOINT_URL: "https://eproc-ws.jfes.jus.br/eproc/ws/controlador_ws.php?srv=intercomunicacao2.2"
-
-  ## PDPJ
-  pdpj:
-    nomeServico: ApoIA
-    descricao: Inteligência Artificial Generativa
-    iconePequenoUrl: https://apoia.stg.pdpj.jus.br/apoia-logo.svg
-    iconeGrandeUrl: https://apoia.stg.pdpj.jus.br/apoia-logo.svg
-    frontendUrl: https://apoia.stg.pdpj.jus.br
-    gatewayUrl: https://apoia.stg.pdpj.jus.br
-    swaggerUrl: https://apoia.stg.pdpj.jus.br/api-doc
-    documentacaoUsuarioUrl: null
-    documentacaoTecnicaUrl: null
