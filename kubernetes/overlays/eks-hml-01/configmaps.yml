@@ -29,7 +29,7 @@ data:
   
   KEYCLOAK_ID: "apoia"
   KEYCLOAK_SECRET: ${KEYCLOAK_CREDENTIALS_SECRET}
-  KEYCLOAK_ISSUER: "https://sso.stg.cloud.pje.jus.br/auth/realms/pje"
+  KEYCLOAK_ISSUER: "https://sso.stg.cloud.pje.jus.br/auth/realms/apoiarealm"
   
   APP_CODE: "ApoIA"
   APP_HOST: "apoia.stg.pdpj.jus.br"
