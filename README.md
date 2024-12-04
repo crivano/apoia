@@ -19,7 +19,7 @@ Clique [aqui](https://docs.google.com/presentation/d/1XTmGNOI3O3yaBOEXa5A3ViVHlC
 **Interface com  o Usuário**: Informação do número do processo, apresentação dos resultados em tempo real, processamento de relatórios.
 
 ## Arquitetura
-
+- Nodejs 20 LTS
 - Desenvolvido em TypeScript, NextJS e Vercel AI SDK
 - Compatível com ChatGPT, Claude, Gemini, Llama, etc
 - MySQL para gerar relatórios de triagem e armazenar respostas de IA (opcional)
@@ -54,9 +54,10 @@ MODEL=gpt-4o-2024-08-06
 Forneça a chave da API. Informe a chave de API relativa ao modelo selecionado. As outras não serão utilizadas.
 
 ```properties
-OPENAI_API_KEY=CHAVE_DE_API_OPENAI
+OPENAI_API_KEY=CHAVE_DE_API_OPENAI (opcional)
 ANTHROPIC_API_KEY=CHAVE_DE_API_ANTHROPIC (opcional)
 GOOGLE_API_KEY=CHAVE_DE_API_GOOGLE (opcional)
+GROQ_API_KEY=CHAVE_DE_API_GROQ (opcional)
 ```
 
 Sugerimos que a ApoIA não tenha acesso a documentos sigilosos. Isso pode ser obtido aplicando a propriedade abaixo:
@@ -87,7 +88,10 @@ Uma encriptação a mais é realizada na senha a partir da chave abaixo:
 PWD_SECRET=SUBSTITUIR_POR_UM_UUID_ALEATORIO
 ```
 
-Para que a ApoIA possa gerar relatórios de triagem e para que possa fazer o cache dos textos gerados por IA, é necessário conectá-la ao MySQL ou ao PostgreSQL. Se nenhuma destas funcionalidades for importante, basta omitir os parâmetros abaixo que a ApoIA, ainda que limitada, funcionará.
+## Inicialização do banco de dados
+
+Para criar o esquema `apoia`, execute os comandos encontrados nos arquivos `mysql/migration` para MySQL e `postgres/migration` para postgres
+
 
 Para conectar ao MySQL, utilize propriedades como as descritas abaixo:
 
@@ -115,15 +119,14 @@ DB_POOL=2
 DB_SSL=
 ```
 
+> O nome do host e da porta pode variar caso esteja executando a partir de sua máquina, como desenvolvimento a fim de fazer debug, ou caso esteja rodando a aplicação a partir de containers
+
 Se desejar que a ApoIA, ao clicar sobre o número de um processo, abra o sistema processual, use a configuração abaixo:
 
 ```properties
 NAVIGATE_TO_PROCESS_URL=https://balcaojush.jfrj.jus.br/balcaojus/#/processo/{numero}?avisos=0
 ```
 
-## Inicialização do MySQL
-
-Para criar o esquema `apoia`, execute os comandos encontrados no arquivo `migration-001.sql`
 
 ## Executando a ApoIA em Modo de Desenvolvimento
 
