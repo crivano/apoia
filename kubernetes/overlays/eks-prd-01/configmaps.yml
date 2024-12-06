@@ -16,12 +16,13 @@ data:
   JWT_AUDIENCE: "apoia.trf2.jus.br"
 
   PWD_SECRET: ${PWD_SECRET}
+
   COMPLETE_ANALYSIS_LIMIT: "10000"
 
   CONFIDENTIALITY_LEVEL_MAX: "0"
 
   VERCEL: "1"
-  VERCEL_ENV: "production"
+  VERCEL_ENV: "development"
 
   DB_CLIENT: "pg"
   DB_HOST: ${$DB_HOST}
@@ -47,4 +48,3 @@ data:
   JFRJ_MNI_ENDPOINT_URL: "https://eproc-ws.jfrj.jus.br/eproc/ws/controlador_ws.php?srv=intercomunicacao2.2"
   JFES_MNI_WSDL_URL: "https://eproc-ws.jfes.jus.br/eproc/wsdl.php?srv=intercomunicacao2.2"
   JFES_MNI_ENDPOINT_URL: "https://eproc-ws.jfes.jus.br/eproc/ws/controlador_ws.php?srv=intercomunicacao2.2"
-...
