@@ -31,14 +31,14 @@ export default function Revison() {
         <div className="mb-3">
             <h2 className="mt-3">Geração de Ementa</h2>
             <PromptConfig kind="ementa" setPromptConfig={setPromptConfig} />
-            <div className="row mb-3 mt-3">
+            {/* <div className="row mb-3 mt-3">
                 <div className="col">
                     <div className="form-group">
                         <label>Órgão Julgador</label>
                         <input type="text" id="key" name="key" placeholder="" autoFocus={true} className="form-control" onChange={(e: React.ChangeEvent<HTMLInputElement>) => orgaoJulgadorChanged(e.target.value)} value={orgaoJulgador} autoComplete='' />
                     </div>
                 </div>
-            </div>
+            </div> */}
             <div className="form-group"><label>Voto </label></div>
             <div className="alert alert-secondary mb-1 p-0">
                 <Suspense fallback={null}>
@@ -49,13 +49,15 @@ export default function Revison() {
                 <div className="text-muted">Cole o texto do voto na caixa acima e clique em &quot;Gerar Ementa&quot;.</div>
             </>}
             {hidden && <>
-                <Button disabled={!markdown || !orgaoJulgador} className="mt-3" onClick={() => setHidden(false)}>Gerar Ementa</Button>
+                {/* <Button disabled={!markdown || !orgaoJulgador} className="mt-3" onClick={() => setHidden(false)}>Gerar Ementa</Button> */}
+                <Button disabled={!markdown} className="mt-3" onClick={() => setHidden(false)}>Gerar Ementa</Button>
             </>}
             {!hidden && markdown && <>
                 <h2 className="mt-3">Ementa</h2>
                 <AiContent
                     definition={getInternalPrompt('ementa')}
-                    data={{ textos: [{ descr: 'EXTRATO DE ATA', slug: 'extrato-de-ata', texto: `ÓRGÃO JULGADOR: ${orgaoJulgador}\nTIPO DE DECISÁO: UNÂMINE` }, { descr: 'Voto', slug: 'voto', texto: markdown }] }}
+                    // data={{ textos: [{ descr: 'EXTRATO DE ATA', slug: 'extrato-de-ata', texto: `ÓRGÃO JULGADOR: ${orgaoJulgador}\nTIPO DE DECISÁO: UNÂMINE` }, { descr: 'Voto', slug: 'voto', texto: markdown }] }}
+                    data={{ textos: [{ descr: 'Voto', slug: 'voto', texto: markdown }] }}
                     options={{ cacheControl: true }} config={promptConfig} />
             </>}
         </div>

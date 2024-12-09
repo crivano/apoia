@@ -9,7 +9,7 @@ export const preferredRegion = 'home'
 export const dynamic = 'force-dynamic'
 
 export default async function Home() {
-  await assertCurrentUser()
+  // await assertCurrentUser()
   const prefs = getPrefs()
 
   let initialState: PrefsCookieType = EMPTY_PREFS_COOKIE
