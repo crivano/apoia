@@ -50,11 +50,16 @@ export default function Table({ records, spec, linkToAdd, linkToBack, pageSize, 
     table.getState().pagination.pageSize = pageSize || 5
 
     useEffect(() => {
+        if (selectedIds)
+            table.setRowSelection(selectedIds ? selectedIds.reduce((acc, value) => ({ ...acc, [value]: true }), {}) : {})
+    }, [selectedIds])
+
+    useEffect(() => {
         if (onSelectdIdsChanged) {
             const selected = Object.keys(rowSelection).reduce((acc, value) => rowSelection[value] ? [...acc, value] : acc, [] as string[])
             onSelectdIdsChanged(selected)
         }
-    }, [rowSelection]); // Escuta mudanças de `rowSelection`
+    }, [rowSelection])
 
     return (
         <div>

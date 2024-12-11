@@ -1,5 +1,3 @@
-'use server'
-
 import { decrypt } from '../utils/crypt'
 import { Dao } from '../db/mysql'
 import { IADocument } from '../db/mysql-types'
@@ -58,7 +56,7 @@ const selecionarPecas = (pecas: PecaType[], descricoes: string[]) => {
     return pecasSelecionadas
 }
 
-const selecionarUltimasPecas = (pecas: PecaType[], descricoes: string[]) => {
+export const selecionarUltimasPecas = (pecas: PecaType[], descricoes: string[]) => {
     const pecasRelevantes = pecas.filter(p => descricoes.includes(p.descr))
 
     // Seleciona as peças de acordo com o tipo de peça, pegando sempre a última peça de cada tipo

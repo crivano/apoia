@@ -4,7 +4,7 @@ import { maiusculasEMinusculas } from "@/lib/utils/utils";
 import { faEdit, faSave } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
-import { useRef, useState } from "react"
+import { use, useEffect, useRef, useState } from "react"
 import TableRecords from '@/components/table-records'
 import { DadosDoProcessoType } from "@/lib/proc/process";
 import { Button } from "react-bootstrap";
@@ -16,10 +16,38 @@ const Frm = new FormHelper()
 
 function ChoosePiecesForm({ dadosDoProcesso, onSave }: { dadosDoProcesso: DadosDoProcessoType, onSave: (kind: TipoDeSinteseEnum, pieces: string[]) => void }) {
     const [tipoDeSintese, setTipoDeSintese] = useState(dadosDoProcesso.tipoDeSintese)
-    const [selectedIds, onSelectdIdsChanged] = useState(dadosDoProcesso.pecasSelecionadas.map(p => p.id) as string[])
+    const [selectedIds, setSelectedIds] = useState(dadosDoProcesso.pecasSelecionadas.map(p => p.id) as string[])
     const tipos = TiposDeSinteseValido.map(tipo => ({ id: tipo.id, name: tipo.nome }))
 
-    Frm.update({ tipoDeSintese, selectedIds }, (d) => { setTipoDeSintese(d.tipoDeSintese); onSelectdIdsChanged(d.selectedIds) }, EMPTY_FORM_STATE)
+    const canonicalPieces = (pieces: string[]) => pieces.sort((a, b) => a.localeCompare(b)).join(',')
+
+    const onSelectedIdsChanged = (ids: string[]) => {
+        if (canonicalPieces(ids) !== canonicalPieces(selectedIds))
+            setSelectedIds(ids)
+    }
+
+    Frm.update({ tipoDeSintese, selectedIds }, (d) => { setTipoDeSintese(d.tipoDeSintese); setSelectedIds(d.selectedIds) }, EMPTY_FORM_STATE)
+
+    const updateSelectedPieces = async () => {
+        const res = await fetch('/api/select-pieces', {
+            method: 'post',
+            body: JSON.stringify({
+                kind: tipoDeSintese,
+                pieces: dadosDoProcesso.pecas.map(p => ({ id: p.id, descr: p.descr }))
+            }),
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+            },
+            cache: 'no-store'
+        })
+        const data = await res.json()
+        setSelectedIds(data.selectedIds)
+    }
+
+    useEffect(() => {
+        updateSelectedPieces()
+    }, [tipoDeSintese])
 
     return <div className="mb-5">
         <div className="alert alert-warning pt-0">
@@ -28,7 +56,7 @@ function ChoosePiecesForm({ dadosDoProcesso, onSave }: { dadosDoProcesso: DadosD
                 <Frm.Button onClick={() => onSave(tipoDeSintese, selectedIds)} variant="primary"><FontAwesomeIcon icon={faSave} /></Frm.Button>
             </div>
             <div className="row">
-                <TableRecords records={[...dadosDoProcesso.pecas].reverse()} spec="ChoosePieces" pageSize={10} selectedIds={selectedIds} onSelectdIdsChanged={onSelectdIdsChanged} />
+                <TableRecords records={[...dadosDoProcesso.pecas].reverse()} spec="ChoosePieces" pageSize={10} selectedIds={selectedIds} onSelectdIdsChanged={onSelectedIdsChanged} />
             </div>
         </div>
     </div>
