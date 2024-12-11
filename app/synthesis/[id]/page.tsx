@@ -27,8 +27,6 @@ export default async function ShowProcess({ params, searchParams }) {
         return (
             <div id="printDiv">
                 <ProcessTitle id={id} />
-                <p>selected kind: {kind}</p>
-                <p>selected pieces: {pieces}</p>
                 <Container fluid={false}>
                     <Suspense fallback={loading()}><ProcessServerContents id={id} kind={kind} pieces={pieces} /></Suspense>
                 </Container>

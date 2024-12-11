@@ -13,23 +13,25 @@ import { ListaDeProdutos } from './lista-produtos'
 export const maxDuration = 60 // seconds
 export const dynamic = 'force-dynamic'
 
+const canonicalPieces = (pieces: string[]) => pieces.sort((a, b) => a.localeCompare(b)).join(',')
+
 export async function ChoosePiecesServer({ pDadosDoProcesso }) {
     const dadosDoProcesso = await pDadosDoProcesso
     // console.log('dadosDoProcesso', dadosDoProcesso)
     if (!dadosDoProcesso || dadosDoProcesso.errorMsg)
         return ''
 
-    return <ChoosePieces dadosDoProcesso={dadosDoProcesso} />
+    return <ChoosePieces dadosDoProcesso={dadosDoProcesso} key={`${dadosDoProcesso.tipoDeSintese}:${canonicalPieces(dadosDoProcesso.pecasSelecionadas.map(p => p.id))}`} />
 }
 
-export default async function ShowProcess({id, kind, pieces}) {
+export default async function ShowProcess({ id, kind, pieces }) {
     noStore()
 
     const pUser = assertCurrentUser()
 
     id = (id?.toString() || '').replace(/[^0-9]/g, '')
 
-    const pDadosDoProcesso = obterDadosDoProcesso({numeroDoProcesso: id, pUser, kind, pieces})
+    const pDadosDoProcesso = obterDadosDoProcesso({ numeroDoProcesso: id, pUser, kind, pieces })
 
     return (
         <div className="row juia main-show-row mb-3">
@@ -41,8 +43,9 @@ export default async function ShowProcess({id, kind, pieces}) {
                     <ErrorMsg pDadosDoProcesso={pDadosDoProcesso} />
                 </Suspense>
                 <Suspense fallback=''>
-                    <ChoosePiecesServer pDadosDoProcesso={ pDadosDoProcesso} />
+                    <ChoosePiecesServer pDadosDoProcesso={pDadosDoProcesso} />
                 </Suspense>
+                <div className="mb-4"></div>
                 <Suspense fallback={<>{ProdutoLoading()}{ProdutoLoading()}{ProdutoLoading()}</>}>
                     <ListaDeProdutos pDadosDoProcesso={pDadosDoProcesso} kind={kind} pieces={pieces} />
                 </Suspense>

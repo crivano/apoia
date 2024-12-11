@@ -86,15 +86,17 @@ export interface TCombinacaoValida {
     produtos: (P | ProdutoCompleto)[]
 }
 
-export enum TipoDeSintese {
-    RESUMOS_QUESTAO_CENTRAL_PONTOS_CONTROVERTIDOS = 1,
-    RESUMOS_ANALISE,
-    RESUMOS,
+export type TipoDeSinteseType = {
+    nome: string,
+    tipos: T[][],
+    produtos: P[],
+    sort: number
 }
 
-export const TipoDeSinteseMap: Record<TipoDeSintese, any> = {
-    [TipoDeSintese.RESUMOS_QUESTAO_CENTRAL_PONTOS_CONTROVERTIDOS]: {
-        nome: 'Resumos das principais peças, questão central e pontos controvertidos',
+export const TipoDeSinteseMap: Record<string, TipoDeSinteseType> = {
+    RESUMOS_TRIAGEM: {
+        sort: 1,
+        nome: 'Resumos e triagem',
         tipos: [
             [T.SENTENCA, T.APELACAO, T.CONTRARRAZOES],
             [T.SENTENCA, T.RECURSO_INOMINADO],
@@ -103,8 +105,9 @@ export const TipoDeSinteseMap: Record<TipoDeSintese, any> = {
         ],
         produtos: [P.RESUMOS, P.RESUMO]
     },
-    [TipoDeSintese.RESUMOS_ANALISE]: {
-        nome: 'Resumos das principais peças e análise',
+    RESUMOS_ANALISE: {
+        sort: 2,
+        nome: 'Resumos e análise',
         tipos: [
             [T.SENTENCA, T.APELACAO, T.CONTRARRAZOES],
             [T.SENTENCA, T.RECURSO_INOMINADO],
@@ -113,7 +116,8 @@ export const TipoDeSinteseMap: Record<TipoDeSintese, any> = {
         ],
         produtos: [P.RESUMOS, P.ANALISE]
     },
-    [TipoDeSintese.RESUMOS]: {
+    RESUMOS: {
+        sort: 3,
         nome: 'Resumos das principais peças',
         tipos: [
             [T.PETICAO_INICIAL],
@@ -122,8 +126,10 @@ export const TipoDeSinteseMap: Record<TipoDeSintese, any> = {
     },
 }
 
+export type TipoDeSinteseEnum = keyof typeof TipoDeSinteseMap;
+
 export interface TipoDeSinteseValido {
-    id: TipoDeSintese,
+    id: TipoDeSinteseEnum,
     nome: string,
     tipos: T[][],
     produtos: InfoDeProduto[]

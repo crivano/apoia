@@ -1,6 +1,6 @@
 import { getInternalPrompt } from "@/lib/ai/prompt"
 import { maiusculasEMinusculas, slugify } from "../utils/utils"
-import { CombinacaoValida, InfoDeProduto, P, ProdutoCompleto, ProdutosValidos, TCombinacoesValidas, TipoDeSintese, TipoDeSinteseMap, TipoDeSinteseValido } from "./combinacoes"
+import { CombinacaoValida, InfoDeProduto, P, ProdutoCompleto, ProdutosValidos, TCombinacoesValidas, TipoDeSinteseMap, TipoDeSinteseValido } from "./combinacoes"
 
 export const infoDeProduto = (produto: P | ProdutoCompleto): InfoDeProduto => {
     let ip: InfoDeProduto
@@ -25,5 +25,5 @@ export const CombinacoesValidas: CombinacaoValida[] = TCombinacoesValidas.map(tc
 }))
 
 export const TiposDeSinteseValido: TipoDeSinteseValido[] =
-    Object.values(TipoDeSintese).filter(value => Number.isInteger(value)).map(ts => ({ id: ts, ...TipoDeSinteseMap[ts], produtos: TipoDeSinteseMap[ts].produtos.map(p => infoDeProduto(p)) }))
+    Object.keys(TipoDeSinteseMap).map(ts => ({ id: ts, ...TipoDeSinteseMap[ts], produtos: TipoDeSinteseMap[ts].produtos.map(p => infoDeProduto(p)) })).sort((a, b) => a.sort - b.sort)
 

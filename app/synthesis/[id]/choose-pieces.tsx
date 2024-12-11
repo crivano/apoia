@@ -8,18 +8,16 @@ import { useRef, useState } from "react"
 import TableRecords from '@/components/table-records'
 import { DadosDoProcessoType } from "@/lib/proc/process";
 import { Button } from "react-bootstrap";
-import { TipoDeSintese, TipoDeSinteseMap } from "@/lib/proc/combinacoes";
+import { TipoDeSinteseEnum, TipoDeSinteseMap } from "@/lib/proc/combinacoes";
 import { EMPTY_FORM_STATE, FormHelper } from "@/lib/ui/form-support";
+import { TiposDeSinteseValido } from "@/lib/proc/info-de-produto";
 
 const Frm = new FormHelper()
 
-function ChoosePiecesForm({ dadosDoProcesso, onSave }: { dadosDoProcesso: DadosDoProcessoType, onSave: (kind: TipoDeSintese, pieces: string[]) => void }) {
-    const [tipoDeSintese, setTipoDeSintese] = useState(TipoDeSintese.RESUMOS_QUESTAO_CENTRAL_PONTOS_CONTROVERTIDOS)
+function ChoosePiecesForm({ dadosDoProcesso, onSave }: { dadosDoProcesso: DadosDoProcessoType, onSave: (kind: TipoDeSinteseEnum, pieces: string[]) => void }) {
+    const [tipoDeSintese, setTipoDeSintese] = useState(dadosDoProcesso.tipoDeSintese)
     const [selectedIds, onSelectdIdsChanged] = useState(dadosDoProcesso.pecasSelecionadas.map(p => p.id) as string[])
-    const tipos = Object.values(TipoDeSintese).filter(value => Number.isInteger(value)).map(tipo => ({
-        id: tipo,
-        name: TipoDeSinteseMap[tipo].nome
-    }))
+    const tipos = TiposDeSinteseValido.map(tipo => ({ id: tipo.id, name: tipo.nome }))
 
     Frm.update({ tipoDeSintese, selectedIds }, (d) => { setTipoDeSintese(d.tipoDeSintese); onSelectdIdsChanged(d.selectedIds) }, EMPTY_FORM_STATE)
 
@@ -36,28 +34,45 @@ function ChoosePiecesForm({ dadosDoProcesso, onSave }: { dadosDoProcesso: DadosD
     </div>
 }
 
+export const ChoosePiecesLoading = () => {
+    return <div className="placeholder-glow">
+        <div className="row justify-content-center">
+            <div className="col-4"><div className="placeholder w-100"></div></div>
+        </div>
+    </div>
+}
+
+
 export default function ChoosePieces({ dadosDoProcesso }) {
     const pathname = usePathname(); // let's get the pathname to make the component reusable - could be used anywhere in the project
     const router = useRouter();
-    const currentSearchParams = useSearchParams();
-
+    const currentSearchParams = useSearchParams()
     const [editing, setEditing] = useState(false)
+    const [reloading, setReloading] = useState(false)
     const ref = useRef(null)
 
     const handleClick = (e) => {
     }
 
-    const onSave = (kind: TipoDeSintese, pieces: string[]) => {
+    const onSave = (kind: TipoDeSinteseEnum, pieces: string[]) => {
         setEditing(false)
         const updatedSearchParams = new URLSearchParams(currentSearchParams.toString())
+        const original = updatedSearchParams.toString()
         updatedSearchParams.set("pieces", (pieces || [] as string[]).join(','))
-        updatedSearchParams.set("kind", kind.toString())
+        updatedSearchParams.set("kind", kind)
+        const current = updatedSearchParams.toString()
+        if (original === current) return
+        setReloading(true)
         router.push(pathname + "?" + updatedSearchParams.toString())
+    }
+
+    if (reloading) {
+        return ChoosePiecesLoading()
     }
 
     if (!editing) {
         const l = dadosDoProcesso.pecasSelecionadas.map(p => maiusculasEMinusculas(p.descr))
-        let s = `Peças: `
+        let s = `Tipo: ${TipoDeSinteseMap[dadosDoProcesso.tipoDeSintese]?.nome} - Peças: `
         if (l.length === 0)
             s += 'Nenhuma peça selecionada'
         else if (l.length === 1) {

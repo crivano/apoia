@@ -7,7 +7,7 @@ import { inferirCategoriaDaPeca } from '../category'
 import { obterConteudoDaPeca, obterDocumentoGravado } from './piece'
 import { assertNivelDeSigilo, verificarNivelDeSigilo } from './sigilo'
 import { getInterop } from '../interop/interop'
-import { CombinacaoValida, P, ProdutoCompleto, TipoDeSintese, TipoDeSinteseMap } from './combinacoes'
+import { CombinacaoValida, P, ProdutoCompleto, TipoDeSinteseEnum, TipoDeSinteseMap } from './combinacoes'
 import { CombinacoesValidas, infoDeProduto, TiposDeSinteseValido } from './info-de-produto'
 
 export type PecaType = {
@@ -31,7 +31,7 @@ export type DadosDoProcessoType = {
     pecasSelecionadas?: PecaType[]
     sigilo?: number
     combinacao?: CombinacaoValida
-    tipoDeSintese?: TipoDeSintese
+    tipoDeSintese?: TipoDeSinteseEnum
     produtos?: (P | ProdutoCompleto)[]
     ajuizamento?: Date
     codigoDaClasse?: number
@@ -101,7 +101,7 @@ export type ObterDadosDoProcessoType = {
     pUser: Promise<any>, idDaPeca?: string
     identificarPecas?: boolean
     completo?: boolean
-    kind?: string
+    kind?: TipoDeSinteseEnum
     pieces?: string[]
 }
 
@@ -196,7 +196,7 @@ export const obterDadosDoProcesso = async ({ numeroDoProcesso, pUser, idDaPeca, 
 
         let pecasSelecionadas: PecaType[] | null = null
         let combinacaoSelecionada: CombinacaoValida | null = null
-        let tipoDeSinteseSelecionado: TipoDeSintese | null = null
+        let tipoDeSinteseSelecionado: TipoDeSinteseEnum | null = null
 
         // Localiza uma combinação válida de peças
         // for (const comb of CombinacoesValidas) {
@@ -222,7 +222,7 @@ export const obterDadosDoProcesso = async ({ numeroDoProcesso, pUser, idDaPeca, 
         // Se for especificado o tipo de síntese, substitui 
         if (kind === '0') kind = undefined
         if (kind) {
-            tipoDeSinteseSelecionado = TipoDeSintese[kind]
+            tipoDeSinteseSelecionado = kind
             if (tipoDeSinteseSelecionado === undefined)
                 throw new Error(`Tipo de síntese ${kind} não reconhecido`)
         }

@@ -15,7 +15,6 @@ const Subtitulo = async ({ pDadosDoProcesso }) => {
         {ajuizamento
             ? <div className="text-center">{`Ajuizado em ${formatBrazilianDate(ajuizamento)}`}</div>
             : ''}
-        <div className="mb-4"></div>
     </>
     )
 }
