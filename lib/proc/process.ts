@@ -1,17 +1,14 @@
 'use server'
 
-import { pdfToText } from '../pdf/pdf'
-import { html2md } from '../utils/html2md'
-import { T, CombinacoesValidas, CombinacaoValida, P, infoDeProduto } from './combinacoes'
-import { parseYYYYMMDDHHMMSS, formatBrazilianDateTime, addBlockQuote } from '../utils/utils'
 import { decrypt } from '../utils/crypt'
 import { Dao } from '../db/mysql'
 import { IADocument } from '../db/mysql-types'
 import { inferirCategoriaDaPeca } from '../category'
 import { obterConteudoDaPeca, obterDocumentoGravado } from './piece'
-import { faObjectUngroup } from '@fortawesome/free-solid-svg-icons'
 import { assertNivelDeSigilo, verificarNivelDeSigilo } from './sigilo'
 import { getInterop } from '../interop/interop'
+import { CombinacaoValida, P, ProdutoCompleto, TipoDeSintese, TipoDeSinteseMap } from './combinacoes'
+import { CombinacoesValidas, infoDeProduto, TiposDeSinteseValido } from './info-de-produto'
 
 export type PecaType = {
     id: string
@@ -34,6 +31,8 @@ export type DadosDoProcessoType = {
     pecasSelecionadas?: PecaType[]
     sigilo?: number
     combinacao?: CombinacaoValida
+    tipoDeSintese?: TipoDeSintese
+    produtos?: (P | ProdutoCompleto)[]
     ajuizamento?: Date
     codigoDaClasse?: number
     numeroDoProcesso?: string
@@ -97,7 +96,16 @@ const iniciarObtencaoDeDocumentoGravado = (dossier_id: number, numeroDoProcesso:
     return pecas
 }
 
-export const obterDadosDoProcesso = async (numeroDoProcesso: string, pUser: Promise<any>, idDaPeca?: string, identificarPecas?: boolean, completo?: boolean): Promise<DadosDoProcessoType> => {
+export type ObterDadosDoProcessoType = {
+    numeroDoProcesso: string
+    pUser: Promise<any>, idDaPeca?: string
+    identificarPecas?: boolean
+    completo?: boolean
+    kind?: string
+    pieces?: string[]
+}
+
+export const obterDadosDoProcesso = async ({ numeroDoProcesso, pUser, idDaPeca, identificarPecas, completo, kind, pieces }: ObterDadosDoProcessoType): Promise<DadosDoProcessoType> => {
     let pecas: PecaType[] = []
     let errorMsg = undefined
     try {
@@ -123,7 +131,7 @@ export const obterDadosDoProcesso = async (numeroDoProcesso: string, pUser: Prom
                     peca.conteudo = 'Peça sigilosa, conteúdo não acessado.'
                 }
             const pecasComConteudo = await iniciarObtencaoDeConteudo(dossier_id, numeroDoProcesso, pecas, username, password)
-            return { ...dadosDoProcesso, pecasSelecionadas: pecasComConteudo, combinacao: { tipos: [], produtos: [infoDeProduto(P.ANALISE_COMPLETA)] } }
+            return { ...dadosDoProcesso, pecasSelecionadas: pecasComConteudo, combinacao: { tipos: [], produtos: [infoDeProduto(P.ANALISE_COMPLETA)] }, produtos: [infoDeProduto(P.ANALISE_COMPLETA)] }
         }
 
         if (idDaPeca) {
@@ -153,7 +161,6 @@ export const obterDadosDoProcesso = async (numeroDoProcesso: string, pUser: Prom
         }
 
         if (identificarPecas === true) {
-
             // Localiza pecas with descricao == 'OUTROS' e usa IA para determinar quais são os tipos destas peças
             const pecasOutros2 = pecas.filter(p => p.descr === 'OUTROS')
             if (pecasOutros2.length > 0) {
@@ -187,16 +194,55 @@ export const obterDadosDoProcesso = async (numeroDoProcesso: string, pUser: Prom
             console.log('Identificação concluída')
         }
 
-        for (const comb of CombinacoesValidas) {
-            const pecasSelecionadas = selecionarPecas(pecas, comb.tipos)
-            if (pecasSelecionadas !== null) {
-                if (verificarNivelDeSigilo())
-                    for (const peca of pecasSelecionadas)
-                        assertNivelDeSigilo(peca.sigilo, `${peca.descr} (${peca.id})`)
+        let pecasSelecionadas: PecaType[] | null = null
+        let combinacaoSelecionada: CombinacaoValida | null = null
+        let tipoDeSinteseSelecionado: TipoDeSintese | null = null
 
-                const pecasComConteudo = await iniciarObtencaoDeConteudo(dossier_id, numeroDoProcesso, pecasSelecionadas, username, password)
-                return { ...dadosDoProcesso, pecasSelecionadas: pecasComConteudo, combinacao: comb }
+        // Localiza uma combinação válida de peças
+        // for (const comb of CombinacoesValidas) {
+        //     pecasSelecionadas = selecionarPecas(pecas, comb.tipos)
+        //     if (pecasSelecionadas !== null) {
+        //         combinacaoSelecionada = comb
+        //         break
+        //     }
+        // }
+
+        // Localiza um tipo de síntese válido
+        for (const tipoDeSintese of TiposDeSinteseValido) {
+            for (const tipos of tipoDeSintese.tipos) {
+                pecasSelecionadas = selecionarPecas(pecas, tipos.map(t => t.toString()))
+                if (pecasSelecionadas !== null) {
+                    tipoDeSinteseSelecionado = tipoDeSintese.id
+                    break
+                }
             }
+            if (pecasSelecionadas !== null) break
+        }
+
+        // Se for especificado o tipo de síntese, substitui 
+        if (kind === '0') kind = undefined
+        if (kind) {
+            tipoDeSinteseSelecionado = TipoDeSintese[kind]
+            if (tipoDeSinteseSelecionado === undefined)
+                throw new Error(`Tipo de síntese ${kind} não reconhecido`)
+        }
+
+        // Se forem especificadas as peças desejadas, substitui a lista de peças selecionadas
+        if (pieces) {
+            pecasSelecionadas = pecas.filter(p => pieces.includes(p.id))
+        }
+
+        console.log('tipo de síntese', `${tipoDeSinteseSelecionado}`)
+        console.log('peças selecionadas', pecasSelecionadas?.map(p => p.id))
+        console.log('produtos', TipoDeSinteseMap[`${tipoDeSinteseSelecionado}`]?.produtos )
+
+        if (pecasSelecionadas !== null) {
+            if (verificarNivelDeSigilo())
+                for (const peca of pecasSelecionadas)
+                    assertNivelDeSigilo(peca.sigilo, `${peca.descr} (${peca.id})`)
+
+            const pecasComConteudo = await iniciarObtencaoDeConteudo(dossier_id, numeroDoProcesso, pecasSelecionadas, username, password)
+            return { ...dadosDoProcesso, pecasSelecionadas: pecasComConteudo, combinacao: combinacaoSelecionada, tipoDeSintese: tipoDeSinteseSelecionado, produtos: TipoDeSinteseMap[tipoDeSinteseSelecionado]?.produtos }
         }
         return { ...dadosDoProcesso, pecas: [] as PecaType[], pecasSelecionadas: [] as PecaType[] }
     } catch (error) {

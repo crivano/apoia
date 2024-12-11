@@ -35,7 +35,7 @@ export async function POST(req: Request, { params }: { params: { name: string, n
     const pUser = getCurrentUser()
     if (!await pUser) return Response.json({ errormsg: 'Unauthorized' }, { status: 401 })
 
-    const dadosDoProcesso = await obterDadosDoProcesso(number, pUser, undefined, true)
+    const dadosDoProcesso = await obterDadosDoProcesso({numeroDoProcesso: number, pUser, identificarPecas:true})
     if (dadosDoProcesso.errorMsg) throw new Error(dadosDoProcesso.errorMsg)
 
     return Response.json({ status: 'OK', dadosDoProcesso })

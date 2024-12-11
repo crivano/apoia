@@ -3,16 +3,11 @@
 import { CoreTool, streamText, StreamTextResult, LanguageModel, streamObject, StreamObjectResult, DeepPartial, CoreMessage } from 'ai'
 import { IAGenerated } from '../db/mysql-types'
 import { Dao } from '../db/mysql'
-import { SHA256 } from 'crypto-js'
-import { canonicalize } from 'json-canonicalize'
 import { assertCurrentUser } from '../user'
 import { PromptDataType, PromptDefinitionType, PromptExecutionResultsType, PromptOptionsType } from '@/lib/ai/prompt-types'
 import { getModel } from './model'
 import { promptExecuteBuilder, waitForTexts } from './prompt'
-
-function calcSha256(messages: any): string {
-    return SHA256(canonicalize(messages)).toString()
-}
+import { calcSha256 } from '../utils/hash'
 
 export async function retrieveFromCache(sha256: string, model: string, prompt: string, attempt: number | null): Promise<IAGenerated | undefined> {
     const cached = await Dao.retrieveIAGeneration({ sha256, model, prompt, attempt })
@@ -86,7 +81,7 @@ export async function streamContent(definition: PromptDefinitionType, data: Prom
         }
     }
 
-    writeResponseToFile(definition, messages, "antes de executar")
+    // writeResponseToFile(definition, messages, "antes de executar")
     // if (1 == 1) throw new Error('Interrupted')
 
     if (!structuredOutputs) {

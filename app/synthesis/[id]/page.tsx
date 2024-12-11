@@ -4,11 +4,14 @@ import Fetcher from '@/lib/utils/fetcher'
 import { Suspense } from 'react'
 import ProcessTitle from './process-title'
 import { Container } from 'react-bootstrap'
+import { useSearchParams } from 'next/navigation'
 
 export const maxDuration = 60 // seconds
 export const dynamic = 'force-dynamic'
 
-export default async function ShowProcess({ params }) {
+export default async function ShowProcess({ params, searchParams }) {
+    const kind = searchParams?.kind
+    const pieces = searchParams?.pieces
     // await assertCurrentUser()
     const id: string = (params?.id?.toString() || '').replace(/[^0-9]/g, '') as string
 
@@ -24,8 +27,10 @@ export default async function ShowProcess({ params }) {
         return (
             <div id="printDiv">
                 <ProcessTitle id={id} />
+                <p>selected kind: {kind}</p>
+                <p>selected pieces: {pieces}</p>
                 <Container fluid={false}>
-                    <Suspense fallback={loading()}><ProcessServerContents id={id} /></Suspense>
+                    <Suspense fallback={loading()}><ProcessServerContents id={id} kind={kind} pieces={pieces} /></Suspense>
                 </Container>
             </div>)
     } catch (error) {

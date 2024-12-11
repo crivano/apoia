@@ -1,6 +1,3 @@
-import { getInternalPrompt } from "@/lib/ai/prompt"
-import { maiusculasEMinusculas, slugify } from "../utils/utils"
-
 // Enum com os tipos de peças
 export enum T {
     TEXTO = 'TEXTO',
@@ -89,6 +86,49 @@ export interface TCombinacaoValida {
     produtos: (P | ProdutoCompleto)[]
 }
 
+export enum TipoDeSintese {
+    RESUMOS_QUESTAO_CENTRAL_PONTOS_CONTROVERTIDOS = 1,
+    RESUMOS_ANALISE,
+    RESUMOS,
+}
+
+export const TipoDeSinteseMap: Record<TipoDeSintese, any> = {
+    [TipoDeSintese.RESUMOS_QUESTAO_CENTRAL_PONTOS_CONTROVERTIDOS]: {
+        nome: 'Resumos das principais peças, questão central e pontos controvertidos',
+        tipos: [
+            [T.SENTENCA, T.APELACAO, T.CONTRARRAZOES],
+            [T.SENTENCA, T.RECURSO_INOMINADO],
+            [T.PETICAO_INICIAL, T.CONTESTACAO],
+            [T.PETICAO_INICIAL, T.INFORMACAO_EM_MANDADO_DE_SEGURANCA]
+        ],
+        produtos: [P.RESUMOS, P.RESUMO]
+    },
+    [TipoDeSintese.RESUMOS_ANALISE]: {
+        nome: 'Resumos das principais peças e análise',
+        tipos: [
+            [T.SENTENCA, T.APELACAO, T.CONTRARRAZOES],
+            [T.SENTENCA, T.RECURSO_INOMINADO],
+            [T.PETICAO_INICIAL, T.CONTESTACAO],
+            [T.PETICAO_INICIAL, T.INFORMACAO_EM_MANDADO_DE_SEGURANCA]
+        ],
+        produtos: [P.RESUMOS, P.ANALISE]
+    },
+    [TipoDeSintese.RESUMOS]: {
+        nome: 'Resumos das principais peças',
+        tipos: [
+            [T.PETICAO_INICIAL],
+        ],
+        produtos: [P.RESUMOS]
+    },
+}
+
+export interface TipoDeSinteseValido {
+    id: TipoDeSintese,
+    nome: string,
+    tipos: T[][],
+    produtos: InfoDeProduto[]
+}
+
 export const TCombinacoesValidas: TCombinacaoValida[] = [
     { tipos: [T.EXTRATO_DE_ATA, T.RELATORIO, T.VOTO], produtos: [P.RESUMOS, PC(P.ACORDAO, [T.EXTRATO_DE_ATA, T.VOTO])] },
     // { tipos: [T.RELATORIO, T.VOTO], produtos: [P.RESUMOS, PC(P.REVISAO, T.VOTO), PC(P.REFINAMENTO, T.VOTO), PC(P.ACORDAO, T.VOTO)] },
@@ -113,24 +153,3 @@ export interface InfoDeProduto {
     plugins: Plugin[]
 }
 
-export const infoDeProduto = (produto: P | ProdutoCompleto): InfoDeProduto => {
-    let ip: InfoDeProduto
-    if (typeof produto === 'object') {
-        const complex = produto as any as ProdutoCompleto
-        const tipos = Array.isArray(complex.dados) ? complex.dados : [complex.dados]
-        ip = { produto: produto.produto, dados: tipos, ...ProdutosValidos[produto.produto] }
-    } else
-        ip = { produto, dados: [], ...ProdutosValidos[produto] }
-
-    // Caso o produto seja um resumo de peça, vamos tentar localizar o melhor prompt e trocar o título
-    if (ip.produto === P.RESUMO_PECA) {
-        ip.titulo = maiusculasEMinusculas(ip.dados[0])
-        const definition = getInternalPrompt(`resumo-${slugify(ip.dados[0])}`)
-        ip.prompt = definition.kind
-    }
-    return ip
-}
-
-export const CombinacoesValidas: CombinacaoValida[] = TCombinacoesValidas.map(tc => ({
-    tipos: tc.tipos, produtos: tc.produtos.map(p => infoDeProduto(p))
-}))

@@ -18,7 +18,7 @@ export default async function ShowProcess(params) {
 
     const id = (params?.id?.toString() || '').replace(/[^0-9]/g, '')
 
-    const pDadosDoProcesso = obterDadosDoProcesso(id, pUser)
+    const pDadosDoProcesso = obterDadosDoProcesso({numeroDoProcesso:id, pUser})
 
     return (
         <div className="row juia main-show-row mb-3">

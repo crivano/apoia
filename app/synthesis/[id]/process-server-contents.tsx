@@ -7,18 +7,29 @@ import { obterDadosDoProcesso } from '@/lib/proc/process'
 import PrintServerContents from './print-server-contents'
 import ErrorMsg from './error-msg'
 import Subtitulo, { SubtituloLoading } from './subtitulo'
+import ChoosePieces from './choose-pieces'
+import { ListaDeProdutos } from './lista-produtos'
 
 export const maxDuration = 60 // seconds
 export const dynamic = 'force-dynamic'
 
-export default async function ShowProcess(params) {
+export async function ChoosePiecesServer({ pDadosDoProcesso }) {
+    const dadosDoProcesso = await pDadosDoProcesso
+    // console.log('dadosDoProcesso', dadosDoProcesso)
+    if (!dadosDoProcesso || dadosDoProcesso.errorMsg)
+        return ''
+
+    return <ChoosePieces dadosDoProcesso={dadosDoProcesso} />
+}
+
+export default async function ShowProcess({id, kind, pieces}) {
     noStore()
 
     const pUser = assertCurrentUser()
 
-    const id = (params?.id?.toString() || '').replace(/[^0-9]/g, '')
+    id = (id?.toString() || '').replace(/[^0-9]/g, '')
 
-    const pDadosDoProcesso = obterDadosDoProcesso(id, pUser)
+    const pDadosDoProcesso = obterDadosDoProcesso({numeroDoProcesso: id, pUser, kind, pieces})
 
     return (
         <div className="row juia main-show-row mb-3">
@@ -29,9 +40,12 @@ export default async function ShowProcess(params) {
                 <Suspense fallback=''>
                     <ErrorMsg pDadosDoProcesso={pDadosDoProcesso} />
                 </Suspense>
-                {/* <Suspense fallback={<>{ProdutoLoading()}{ProdutoLoading()}{ProdutoLoading()}</>}>
-                    <ListaDeProdutos pDadosDoProcesso={pDadosDoProcesso} />
-                </Suspense> */}
+                <Suspense fallback=''>
+                    <ChoosePiecesServer pDadosDoProcesso={ pDadosDoProcesso} />
+                </Suspense>
+                <Suspense fallback={<>{ProdutoLoading()}{ProdutoLoading()}{ProdutoLoading()}</>}>
+                    <ListaDeProdutos pDadosDoProcesso={pDadosDoProcesso} kind={kind} pieces={pieces} />
+                </Suspense>
                 <Suspense fallback=''>
                     <PrintServerContents pDadosDoProcesso={pDadosDoProcesso} numeroDoProcesso={id} />
                 </Suspense>

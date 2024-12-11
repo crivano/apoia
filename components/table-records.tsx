@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 import {
     flexRender,
@@ -9,7 +9,8 @@ import {
     getSortedRowModel,
     getFilteredRowModel,
     getPaginationRowModel,
-    useReactTable
+    useReactTable,
+    RowSelectionState
 } from '@tanstack/react-table'
 import { Table as BTable, Pagination, Form } from 'react-bootstrap'
 import tableSpecs from '@/lib/ui/table-specs'
@@ -21,27 +22,39 @@ import { usePathname } from "next/navigation"
 
 
 
-export default function Table({ records, spec, linkToAdd, linkToBack, pageSize }: { records: any[], spec: string, linkToAdd?: string, linkToBack?: string, pageSize?: number }) {
+export default function Table({ records, spec, linkToAdd, linkToBack, pageSize, selectedIds, onSelectdIdsChanged }: {
+    records: any[], spec: string, linkToAdd?: string, linkToBack?: string, pageSize?: number,
+    selectedIds?: string[], onSelectdIdsChanged?: (ids: string[]) => void
+}) {
     const [sorting, setSorting] = useState([])
     const [globalFilter, setGlobalFilter] = useState('')
     const pathname = usePathname()
     const { columns, thead, tr } = tableSpecs(pathname)[spec]
-
-
-    // const records: [{ id: string, date: Date, category_name: string, description: string, explanation: string, value: string }] = props.records
+    const [rowSelection, setRowSelection] = useState<RowSelectionState>(selectedIds ? selectedIds.reduce((acc, value) => ({ ...acc, [value]: true }), {}) : {})
 
     const table = useReactTable({
         data: records,
         columns,
-        state: { sorting, globalFilter },
+        state: { sorting, globalFilter, rowSelection },
+        enableRowSelection: true,
+        enableMultiRowSelection: true,
+        onRowSelectionChange: setRowSelection, //hoist up the row selection state to your own scope
         onSortingChange: setSorting,
         onGlobalFilterChange: setGlobalFilter,
         getCoreRowModel: getCoreRowModel(),
         getSortedRowModel: getSortedRowModel(),
         getFilteredRowModel: getFilteredRowModel(),
-        getPaginationRowModel: getPaginationRowModel()
+        getPaginationRowModel: getPaginationRowModel(),
+        getRowId: row => row.id,
     })
     table.getState().pagination.pageSize = pageSize || 5
+
+    useEffect(() => {
+        if (onSelectdIdsChanged) {
+            const selected = Object.keys(rowSelection).reduce((acc, value) => rowSelection[value] ? [...acc, value] : acc, [] as string[])
+            onSelectdIdsChanged(selected)
+        }
+    }, [rowSelection]); // Escuta mudanças de `rowSelection`
 
     return (
         <div>
@@ -80,18 +93,18 @@ export default function Table({ records, spec, linkToAdd, linkToBack, pageSize }
                 </tbody>
             </table>
             <div className="row">
-                <div className="col col-auto">
+                <div className="col col-auto mb-0">
                     {linkToBack &&
                         <Link href={`${pathname}/${linkToBack}`} className="btn btn-light bt d-print-none">Voltar</Link>
                     }
                 </div>
-                <div className="col col-auto ms-auto">
+                <div className="col col-auto ms-auto mb-0">
                     {linkToAdd &&
                         <Link href={`${pathname}/${linkToAdd}`} className="btn btn-light bt float-end d-print-none"><FontAwesomeIcon icon={faAdd} /></Link>
                     }
                 </div>
-                <div className="col col-auto">
-                    <Pagination>
+                <div className="col col-auto mb-0">
+                    <Pagination className='mb-0'>
                         <Pagination.Prev onClick={() => table.previousPage()}
                             disabled={!table.getCanPreviousPage()} />
                         <Pagination.Item> {table.getState().pagination.pageIndex + 1} of{' '}

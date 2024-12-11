@@ -28,7 +28,7 @@ export async function summarize(dossierNumber: string, pieceNumber: string): Pro
     const pUser = assertCurrentUser()
 
     // Obter peças
-    const pDadosDoProcesso = obterDadosDoProcesso(dossierNumber, pUser, pieceNumber)
+    const pDadosDoProcesso = obterDadosDoProcesso({ numeroDoProcesso: dossierNumber, pUser, idDaPeca: pieceNumber })
     const dadosDoProcesso: DadosDoProcessoType = await pDadosDoProcesso
     if (dadosDoProcesso.errorMsg) throw new Error(dadosDoProcesso.errorMsg)
 
@@ -53,16 +53,16 @@ export async function summarize(dossierNumber: string, pieceNumber: string): Pro
     return { dossierData: dadosDoProcesso, generatedContent: req }
 }
 
-export function buildRequests(combinacao: CombinacaoValida, pecasComConteudo: TextoType[]): GeneratedContent[] {
+export function buildRequests(produtos: InfoDeProduto[], pecasComConteudo: TextoType[]): GeneratedContent[] {
     const requests: GeneratedContent[] = []
 
     // Add product IARequests
-    for (const produto of combinacao.produtos) {
+    for (const produto of produtos) {
         // Add resume for each piece
         if (produto.produto === P.RESUMOS) {
             for (const peca of pecasComConteudo) {
                 const definition = getInternalPrompt(`resumo-${peca.slug}`)
-                const data: PromptDataType = { textos: pecasComConteudo }
+                const data: PromptDataType = { textos: [peca] }
                 requests.push({ documentCode: peca.id || null, documentDescr: peca.descr, data, title: peca.descr, promptSlug: definition.kind })
             }
             continue
@@ -100,7 +100,7 @@ export async function analyze(batchName: string | undefined, dossierNumber: stri
         const pUser = assertCurrentUser()
 
         // Obter peças
-        const pDadosDoProcesso = obterDadosDoProcesso(dossierNumber, pUser, undefined, undefined, complete)
+        const pDadosDoProcesso = obterDadosDoProcesso({ numeroDoProcesso: dossierNumber, pUser, completo: complete })
         const dadosDoProcesso = await pDadosDoProcesso
         if (dadosDoProcesso.errorMsg) throw new Error(dadosDoProcesso.errorMsg)
         if (!dadosDoProcesso?.combinacao) throw new Error(`${dossierNumber}: Nenhuma combinacao válida`)
@@ -123,7 +123,7 @@ export async function analyze(batchName: string | undefined, dossierNumber: stri
 
         // console.log('pecasComConteudo', pecasComConteudo)
 
-        const requests: GeneratedContent[] = buildRequests(dadosDoProcesso.combinacao, pecasComConteudo)
+        const requests: GeneratedContent[] = buildRequests(produtos, pecasComConteudo)
 
         // Retrieve from cache or generate
         for (const req of requests) {

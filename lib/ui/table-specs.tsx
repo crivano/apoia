@@ -2,9 +2,34 @@ import { formatDate } from "@/lib/utils/utils"
 import { faCheck } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import Link from 'next/link'
+import { Form } from "react-bootstrap"
 
 const tableSpecs = (pathname: string) => {
     return {
+        ChoosePieces: {
+            columns: [
+                {
+                    id: 'select-col',
+                    header: ({ table }) => (
+                        <Form.Check
+                            checked={table.getIsAllRowsSelected()}
+                            // indeterminate={table.getIsSomeRowsSelected()}
+                            onChange={table.getToggleAllRowsSelectedHandler()} //or getToggleAllPageRowsSelectedHandler
+                        />
+                    ),
+                    cell: ({ row }) => (
+                        <Form.Check
+                            checked={row.getIsSelected()}
+                            // disabled={!row.getCanSelect()}
+                            onChange={row.getToggleSelectedHandler()}
+                        />
+                    ),
+                },
+                { header: 'Evento', accessorKey: 'numeroDoEvento', enableSorting: true },
+                { header: 'Rótulo', accessorKey: 'rotulo', enableSorting: true },
+                { header: 'Tipo', accessorKey: 'descr', enableSorting: true, cell: data => <span>{data.row.original.descr.toUpperCase()}</span> },
+            ],
+        },
         CountersByPromptKinds: {
             columns: [
                 { header: 'Tipo', accessorKey: 'kind', enableSorting: true, cell: data => <Link href={`${pathname}/kind/${data.row.original.kind}`}>{data.row.original.kind.toUpperCase()}</Link> },
