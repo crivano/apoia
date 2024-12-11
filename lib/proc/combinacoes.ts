@@ -81,11 +81,6 @@ export const PC = (p: P, d?: T | T[]): ProdutoCompleto => {
     return { produto: p, dados: d ? [d as T] : [] }
 }
 
-export interface TCombinacaoValida {
-    tipos: T[],
-    produtos: (P | ProdutoCompleto)[]
-}
-
 export type TipoDeSinteseType = {
     nome: string,
     tipos: T[][],
@@ -124,6 +119,14 @@ export const TipoDeSinteseMap: Record<string, TipoDeSinteseType> = {
         ],
         produtos: [P.RESUMOS]
     },
+    // RESUMOS_ACORDAO: {
+    //     sort: 4,
+    //     nome: 'Resumos e acórdão',
+    //     tipos: [
+    //         [T.EXTRATO_DE_ATA, T.RELATORIO, T.VOTO],
+    //     ],
+    //     produtos: [P.RESUMOS, PC(P.ACORDAO, [T.EXTRATO_DE_ATA, T.VOTO])]
+    // },
 }
 
 export type TipoDeSinteseEnum = keyof typeof TipoDeSinteseMap;
@@ -132,22 +135,6 @@ export interface TipoDeSinteseValido {
     id: TipoDeSinteseEnum,
     nome: string,
     tipos: T[][],
-    produtos: InfoDeProduto[]
-}
-
-export const TCombinacoesValidas: TCombinacaoValida[] = [
-    { tipos: [T.EXTRATO_DE_ATA, T.RELATORIO, T.VOTO], produtos: [P.RESUMOS, PC(P.ACORDAO, [T.EXTRATO_DE_ATA, T.VOTO])] },
-    // { tipos: [T.RELATORIO, T.VOTO], produtos: [P.RESUMOS, PC(P.REVISAO, T.VOTO), PC(P.REFINAMENTO, T.VOTO), PC(P.ACORDAO, T.VOTO)] },
-    { tipos: [T.SENTENCA, T.APELACAO, T.CONTRARRAZOES], produtos: [P.RESUMOS, P.RESUMO] },
-    { tipos: [T.SENTENCA, T.RECURSO_INOMINADO], produtos: [P.RESUMOS, P.RESUMO] },
-    // { tipos: [T.SENTENCA, T.APELACAO, T.CONTRARRAZOES], produtos: [P.RELATORIO] },
-    { tipos: [T.PETICAO_INICIAL, T.CONTESTACAO], produtos: [P.RESUMOS, P.RESUMO] },
-    { tipos: [T.PETICAO_INICIAL, T.INFORMACAO_EM_MANDADO_DE_SEGURANCA], produtos: [P.RESUMOS, P.RESUMO] },
-    { tipos: [T.PETICAO_INICIAL], produtos: [P.RESUMOS] },
-]
-
-export interface CombinacaoValida {
-    tipos: T[],
     produtos: InfoDeProduto[]
 }
 

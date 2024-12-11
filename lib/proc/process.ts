@@ -7,8 +7,8 @@ import { inferirCategoriaDaPeca } from '../category'
 import { obterConteudoDaPeca, obterDocumentoGravado } from './piece'
 import { assertNivelDeSigilo, verificarNivelDeSigilo } from './sigilo'
 import { getInterop } from '../interop/interop'
-import { CombinacaoValida, P, ProdutoCompleto, TipoDeSinteseEnum, TipoDeSinteseMap } from './combinacoes'
-import { CombinacoesValidas, infoDeProduto, TiposDeSinteseValido } from './info-de-produto'
+import { P, ProdutoCompleto, TipoDeSinteseEnum, TipoDeSinteseMap } from './combinacoes'
+import { infoDeProduto, TiposDeSinteseValido } from './info-de-produto'
 
 export type PecaType = {
     id: string
@@ -30,7 +30,6 @@ export type DadosDoProcessoType = {
     pecas: PecaType[]
     pecasSelecionadas?: PecaType[]
     sigilo?: number
-    combinacao?: CombinacaoValida
     tipoDeSintese?: TipoDeSinteseEnum
     produtos?: (P | ProdutoCompleto)[]
     ajuizamento?: Date
@@ -131,7 +130,7 @@ export const obterDadosDoProcesso = async ({ numeroDoProcesso, pUser, idDaPeca, 
                     peca.conteudo = 'Peça sigilosa, conteúdo não acessado.'
                 }
             const pecasComConteudo = await iniciarObtencaoDeConteudo(dossier_id, numeroDoProcesso, pecas, username, password)
-            return { ...dadosDoProcesso, pecasSelecionadas: pecasComConteudo, combinacao: { tipos: [], produtos: [infoDeProduto(P.ANALISE_COMPLETA)] }, produtos: [infoDeProduto(P.ANALISE_COMPLETA)] }
+            return { ...dadosDoProcesso, pecasSelecionadas: pecasComConteudo, produtos: [infoDeProduto(P.ANALISE_COMPLETA)] }
         }
 
         if (idDaPeca) {
@@ -195,17 +194,7 @@ export const obterDadosDoProcesso = async ({ numeroDoProcesso, pUser, idDaPeca, 
         }
 
         let pecasSelecionadas: PecaType[] | null = null
-        let combinacaoSelecionada: CombinacaoValida | null = null
         let tipoDeSinteseSelecionado: TipoDeSinteseEnum | null = null
-
-        // Localiza uma combinação válida de peças
-        // for (const comb of CombinacoesValidas) {
-        //     pecasSelecionadas = selecionarPecas(pecas, comb.tipos)
-        //     if (pecasSelecionadas !== null) {
-        //         combinacaoSelecionada = comb
-        //         break
-        //     }
-        // }
 
         // Localiza um tipo de síntese válido
         for (const tipoDeSintese of TiposDeSinteseValido) {
@@ -242,7 +231,7 @@ export const obterDadosDoProcesso = async ({ numeroDoProcesso, pUser, idDaPeca, 
                     assertNivelDeSigilo(peca.sigilo, `${peca.descr} (${peca.id})`)
 
             const pecasComConteudo = await iniciarObtencaoDeConteudo(dossier_id, numeroDoProcesso, pecasSelecionadas, username, password)
-            return { ...dadosDoProcesso, pecasSelecionadas: pecasComConteudo, combinacao: combinacaoSelecionada, tipoDeSintese: tipoDeSinteseSelecionado, produtos: TipoDeSinteseMap[tipoDeSinteseSelecionado]?.produtos }
+            return { ...dadosDoProcesso, pecasSelecionadas: pecasComConteudo, tipoDeSintese: tipoDeSinteseSelecionado, produtos: TipoDeSinteseMap[tipoDeSinteseSelecionado]?.produtos }
         }
         return { ...dadosDoProcesso, pecas: [] as PecaType[], pecasSelecionadas: [] as PecaType[] }
     } catch (error) {

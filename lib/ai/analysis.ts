@@ -2,7 +2,7 @@ import { getInternalPrompt } from '@/lib/ai/prompt'
 import { PromptDataType, PromptDefinitionType, TextoType } from '@/lib/ai/prompt-types'
 import { DadosDoProcessoType, obterDadosDoProcesso, PecaType } from '@/lib/proc/process'
 import { assertCurrentUser } from '@/lib/user'
-import { T, P, ProdutosValidos, Plugin, ProdutoCompleto, CombinacaoValida, InfoDeProduto, ProdutoValido } from '@/lib/proc/combinacoes'
+import { T, P, ProdutosValidos, Plugin, ProdutoCompleto, InfoDeProduto } from '@/lib/proc/combinacoes'
 import { slugify } from '@/lib/utils/utils'
 import { IAGenerated } from '@/lib/db/mysql-types'
 import { Dao } from '@/lib/db/mysql'
@@ -103,10 +103,8 @@ export async function analyze(batchName: string | undefined, dossierNumber: stri
         const pDadosDoProcesso = obterDadosDoProcesso({ numeroDoProcesso: dossierNumber, pUser, completo: complete })
         const dadosDoProcesso = await pDadosDoProcesso
         if (dadosDoProcesso.errorMsg) throw new Error(dadosDoProcesso.errorMsg)
-        if (!dadosDoProcesso?.combinacao) throw new Error(`${dossierNumber}: Nenhuma combinacao válida`)
-        const produtos = dadosDoProcesso?.combinacao?.produtos
-        // if (dadosDoProcesso?.combinacao?.produtos[0] !== P.ANALISE_TR)
-        //   throw new Error(`${numeroDoProcesso}: Combinação inválida`)
+        if (!dadosDoProcesso?.tipoDeSintese) throw new Error(`${dossierNumber}: Nenhum tipo de síntese válido`)
+        const produtos = dadosDoProcesso?.produtos
 
         let pecasComConteudo = await getPiecesWithContent(dadosDoProcesso, dossierNumber)
 
