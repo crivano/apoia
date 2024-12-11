@@ -199,7 +199,7 @@ export const obterDadosDoProcesso = async ({ numeroDoProcesso, pUser, idDaPeca, 
         // Localiza um tipo de síntese válido
         for (const tipoDeSintese of TiposDeSinteseValido) {
             for (const tipos of tipoDeSintese.tipos) {
-                pecasSelecionadas = selecionarPecas(pecas, tipos.map(t => t.toString()))
+                pecasSelecionadas = selecionarUltimasPecas(pecas, tipos.map(t => t.toString()))
                 if (pecasSelecionadas !== null) {
                     tipoDeSinteseSelecionado = tipoDeSintese.id
                     break
@@ -215,6 +215,7 @@ export const obterDadosDoProcesso = async ({ numeroDoProcesso, pUser, idDaPeca, 
             if (tipoDeSinteseSelecionado === undefined)
                 throw new Error(`Tipo de síntese ${kind} não reconhecido`)
         }
+        if (!tipoDeSinteseSelecionado) tipoDeSinteseSelecionado = 'RESUMOS'
 
         // Se forem especificadas as peças desejadas, substitui a lista de peças selecionadas
         if (pieces) {
@@ -223,17 +224,18 @@ export const obterDadosDoProcesso = async ({ numeroDoProcesso, pUser, idDaPeca, 
 
         console.log('tipo de síntese', `${tipoDeSinteseSelecionado}`)
         console.log('peças selecionadas', pecasSelecionadas?.map(p => p.id))
-        console.log('produtos', TipoDeSinteseMap[`${tipoDeSinteseSelecionado}`]?.produtos )
+        console.log('produtos', TipoDeSinteseMap[`${tipoDeSinteseSelecionado}`]?.produtos)
 
         if (pecasSelecionadas !== null) {
             if (verificarNivelDeSigilo())
                 for (const peca of pecasSelecionadas)
                     assertNivelDeSigilo(peca.sigilo, `${peca.descr} (${peca.id})`)
-
-            const pecasComConteudo = await iniciarObtencaoDeConteudo(dossier_id, numeroDoProcesso, pecasSelecionadas, username, password)
-            return { ...dadosDoProcesso, pecasSelecionadas: pecasComConteudo, tipoDeSintese: tipoDeSinteseSelecionado, produtos: TipoDeSinteseMap[tipoDeSinteseSelecionado]?.produtos }
         }
-        return { ...dadosDoProcesso, pecas: [] as PecaType[], pecasSelecionadas: [] as PecaType[] }
+        let pecasComConteudo: PecaType[] = []
+        if (pecasSelecionadas)
+            pecasComConteudo = await iniciarObtencaoDeConteudo(dossier_id, numeroDoProcesso, pecasSelecionadas, username, password)
+        return { ...dadosDoProcesso, pecasSelecionadas: pecasComConteudo, tipoDeSintese: tipoDeSinteseSelecionado, produtos: TipoDeSinteseMap[tipoDeSinteseSelecionado]?.produtos }
+        // return { ...dadosDoProcesso, pecas: [] as PecaType[], pecasSelecionadas: [] as PecaType[], tipoDeSintese: tipoDeSinteseSelecionado, produtos: TipoDeSinteseMap[tipoDeSinteseSelecionado]?.produtos }
     } catch (error) {
         if (error?.message === 'NEXT_REDIRECT') throw error
         errorMsg = error.message

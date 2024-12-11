@@ -4,18 +4,22 @@ import { Produto } from './produto'
 import { buildRequests, getPiecesWithContent } from '@/lib/ai/analysis'
 import { ResumoDePecaLoading } from '@/components/loading'
 import { getInternalPrompt } from '@/lib/ai/prompt'
+import { calcSha256 } from '@/lib/utils/hash'
+import { DadosDoProcessoType } from '@/lib/proc/process'
+import { infoDeProduto } from '@/lib/proc/info-de-produto'
 
-export const ListaDeProdutos = async ({ pDadosDoProcesso }) => {
-    const dadosDoProcesso = await pDadosDoProcesso
+export const ListaDeProdutos = async ({ pDadosDoProcesso, kind, pieces }) => {
+    const dadosDoProcesso: DadosDoProcessoType = await pDadosDoProcesso
 
     if (!dadosDoProcesso || dadosDoProcesso.errorMsg) return ''
 
-    const combinacao = dadosDoProcesso.combinacao
-    if (!combinacao || !combinacao.produtos || combinacao.produtos.length === 0) return ''
+    const tipoDeSintese = dadosDoProcesso.tipoDeSintese
+    const produtos = dadosDoProcesso.produtos
+    if (!tipoDeSintese || !produtos || produtos.length === 0) return ''
 
     const pecasComConteudo = await getPiecesWithContent(dadosDoProcesso, dadosDoProcesso.numeroDoProcesso)
 
-    const requests = buildRequests(combinacao.produtos, pecasComConteudo)
+    const requests = buildRequests(produtos.map(p => infoDeProduto(p), pecasComConteudo), pecasComConteudo)
 
     return requests.map((request) => {
         return (<div key={request.title}>

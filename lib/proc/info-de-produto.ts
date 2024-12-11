@@ -1,6 +1,6 @@
 import { getInternalPrompt } from "@/lib/ai/prompt"
 import { maiusculasEMinusculas, slugify } from "../utils/utils"
-import { InfoDeProduto, P, ProdutoCompleto, ProdutosValidos, TCombinacoesValidas, TipoDeSinteseMap, TipoDeSinteseValido } from "./combinacoes"
+import { InfoDeProduto, P, ProdutoCompleto, ProdutosValidos, TipoDeSinteseMap, TipoDeSinteseValido } from "./combinacoes"
 
 export const infoDeProduto = (produto: P | ProdutoCompleto): InfoDeProduto => {
     let ip: InfoDeProduto

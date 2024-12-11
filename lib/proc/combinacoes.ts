@@ -6,34 +6,14 @@ export enum T {
     INFORMACAO_EM_MANDADO_DE_SEGURANCA = 'INFORMAÇÃO EM MANDADO DE SEGURANÇA',
     SENTENCA = 'SENTENÇA',
     APELACAO = 'APELAÇÃO',
+    CONTRARRAZOES_AO_RECURSO_DE_APELACAO = 'CONTRARRAZÕES AO RECURSO DE APELAÇÃO',
+    RECURSO = 'RECURSO',
     RECURSO_INOMINADO = 'RECURSO INOMINADO',
     CONTRARRAZOES = 'CONTRARRAZÕES',
     RELATORIO = 'RELATÓRIO',
     EXTRATO_DE_ATA = 'EXTRATO DE ATA',
     VOTO = 'VOTO',
     ACORDAO = 'ACÓRDÃO',
-}
-
-export const Categorias = {
-    TEXTO: { descr: 'TEXTO' },
-    PETICAO_INICIAL: { descr: 'PETIÇÃO INICIAL' },
-    CONTESTACAO: { descr: 'CONTESTAÇÃO' },
-    INFORMACAO_EM_MANDADO_DE_SEGURANCA: { descr: 'INFORMAÇÃO EM MANDADO DE SEGURANÇA' },
-    SENTENCA: { descr: 'SENTENÇA' },
-    APELACAO: { descr: 'APELAÇÃO' },
-    RECURSO_INOMINADO: { descr: 'RECURSO INOMINADO' },
-    CONTRARRAZOES: { descr: 'CONTRARRAZÕES' },
-    RELATORIO: { descr: 'RELATÓRIO' },
-    EXTRATO_DE_ATA: { descr: 'EXTRATO DE ATA' },
-    VOTO: { descr: 'VOTO' },
-    ACORDAO: { descr: 'ACÓRDÃO' },
-}
-
-export const findCategoria = (descr: string) => {
-    for (const [key, value] of Object.entries(Categorias)) {
-        if (value.descr === descr) return key
-    }
-    return null
 }
 
 export enum P {
@@ -88,12 +68,20 @@ export type TipoDeSinteseType = {
     sort: number
 }
 
+// "inicial contestação sentença, embargos de declaração, sentença, apelação, contrarrazoes de apelação"
+// "agravo, contrarrazoes de agravo"
 export const TipoDeSinteseMap: Record<string, TipoDeSinteseType> = {
     RESUMOS_TRIAGEM: {
         sort: 1,
         nome: 'Resumos e triagem',
         tipos: [
+            [T.PETICAO_INICIAL, T.CONTESTACAO, T.SENTENCA, T.RECURSO, T.CONTRARRAZOES],
+            [T.PETICAO_INICIAL, T.CONTESTACAO, T.SENTENCA, T.APELACAO, T.CONTRARRAZOES_AO_RECURSO_DE_APELACAO],
+            [T.SENTENCA, T.RECURSO, T.CONTRARRAZOES],
+            [T.SENTENCA, T.APELACAO, T.CONTRARRAZOES_AO_RECURSO_DE_APELACAO],
             [T.SENTENCA, T.APELACAO, T.CONTRARRAZOES],
+            [T.SENTENCA, T.RECURSO],
+            [T.SENTENCA, T.APELACAO],
             [T.SENTENCA, T.RECURSO_INOMINADO],
             [T.PETICAO_INICIAL, T.CONTESTACAO],
             [T.PETICAO_INICIAL, T.INFORMACAO_EM_MANDADO_DE_SEGURANCA]
@@ -104,7 +92,13 @@ export const TipoDeSinteseMap: Record<string, TipoDeSinteseType> = {
         sort: 2,
         nome: 'Resumos e análise',
         tipos: [
+            [T.PETICAO_INICIAL, T.CONTESTACAO, T.SENTENCA, T.RECURSO, T.CONTRARRAZOES],
+            [T.PETICAO_INICIAL, T.CONTESTACAO, T.SENTENCA, T.APELACAO, T.CONTRARRAZOES_AO_RECURSO_DE_APELACAO],
+            [T.SENTENCA, T.RECURSO, T.CONTRARRAZOES],
+            [T.SENTENCA, T.APELACAO, T.CONTRARRAZOES_AO_RECURSO_DE_APELACAO],
             [T.SENTENCA, T.APELACAO, T.CONTRARRAZOES],
+            [T.SENTENCA, T.RECURSO],
+            [T.SENTENCA, T.APELACAO],
             [T.SENTENCA, T.RECURSO_INOMINADO],
             [T.PETICAO_INICIAL, T.CONTESTACAO],
             [T.PETICAO_INICIAL, T.INFORMACAO_EM_MANDADO_DE_SEGURANCA]

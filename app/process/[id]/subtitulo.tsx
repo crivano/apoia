@@ -1,5 +1,5 @@
-import { formatBrazilianDate } from "../../../lib/utils/utils"
-import { tua } from '../../../lib/proc/tua'
+import { formatBrazilianDate } from "@/lib/utils/utils"
+import { tua } from '@/lib/proc/tua'
 
 const Subtitulo = async ({ pDadosDoProcesso }) => {
     const dadosDoProcesso = await pDadosDoProcesso
@@ -15,7 +15,6 @@ const Subtitulo = async ({ pDadosDoProcesso }) => {
         {ajuizamento
             ? <div className="text-center">{`Ajuizado em ${formatBrazilianDate(ajuizamento)}`}</div>
             : ''}
-        <div className="mb-4"></div>
     </>
     )
 }

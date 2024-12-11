@@ -8,6 +8,7 @@ import { IAGenerated } from '@/lib/db/mysql-types'
 import { Dao } from '@/lib/db/mysql'
 import { getTriagem, getNormas, getPalavrasChave } from '@/lib/fix'
 import { generateContent } from '@/lib/ai/generate'
+import { infoDeProduto } from '../proc/info-de-produto'
 
 export type GeneratedContent = {
     id?: number,
@@ -121,7 +122,7 @@ export async function analyze(batchName: string | undefined, dossierNumber: stri
 
         // console.log('pecasComConteudo', pecasComConteudo)
 
-        const requests: GeneratedContent[] = buildRequests(produtos, pecasComConteudo)
+        const requests: GeneratedContent[] = buildRequests(produtos.map(p => infoDeProduto(p)), pecasComConteudo)
 
         // Retrieve from cache or generate
         for (const req of requests) {
