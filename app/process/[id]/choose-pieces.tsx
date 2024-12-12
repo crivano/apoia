@@ -49,14 +49,14 @@ function ChoosePiecesForm({ dadosDoProcesso, onSave }: { dadosDoProcesso: DadosD
         updateSelectedPieces()
     }, [tipoDeSintese])
 
-    return <div className="mb-5">
+    return <div className="mt-4 mb-4">
         <div className="alert alert-warning pt-0">
             <div className="row">
                 <Frm.Select label="Tipo de Síntese" name="tipoDeSintese" options={tipos} width={''} />
                 <Frm.Button onClick={() => onSave(tipoDeSintese, selectedIds)} variant="primary"><FontAwesomeIcon icon={faSave} /></Frm.Button>
             </div>
             <div className="row">
-                <TableRecords records={[...dadosDoProcesso.pecas].reverse()} spec="ChoosePieces" pageSize={10} selectedIds={selectedIds} onSelectdIdsChanged={onSelectedIdsChanged} />
+                <TableRecords records={[...dadosDoProcesso.pecas].reverse()} spec="ChoosePieces" pageSize={15} selectedIds={selectedIds} onSelectdIdsChanged={onSelectedIdsChanged} />
             </div>
         </div>
     </div>

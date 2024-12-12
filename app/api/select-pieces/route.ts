@@ -1,5 +1,5 @@
 import { TipoDeSinteseMap } from '@/lib/proc/combinacoes';
-import { PecaType, selecionarUltimasPecas } from '@/lib/proc/process';
+import { PecaType, selecionarPecasPorPadrao, selecionarUltimasPecas } from '@/lib/proc/process';
 
 export const maxDuration = 60
 // export const runtime = 'edge'
@@ -47,12 +47,7 @@ export async function POST(req: Request) {
     let pecasSelecionadas: PecaType[] | null = null
 
     // Localiza um tipo de síntese válido
-    for (const tipos of TipoDeSinteseMap[kind].tipos) {
-      pecasSelecionadas = selecionarUltimasPecas(pieces, tipos.map(t => t.toString()))
-      if (pecasSelecionadas !== null) {
-        break
-      }
-    }
+    pecasSelecionadas = selecionarPecasPorPadrao(pieces, TipoDeSinteseMap[kind].padroes)
 
     return Response.json({ status: 'OK', selectedIds: pecasSelecionadas ? pecasSelecionadas.map(p => p.id) : [] })
   } catch (error) {

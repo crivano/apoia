@@ -1,13 +1,7 @@
 import { T } from '@/lib/proc/combinacoes';
-import { DocumentPatternMatcher, Documento, EXACT, OR, ANY, SOME } from '@/lib/proc/pattern'
+import { match, Documento, EXACT, OR, ANY, SOME } from '@/lib/proc/pattern'
 
 describe('DocumentPatternMatcher', () => {
-    let matcher: DocumentPatternMatcher;
-
-    beforeEach(() => {
-        matcher = new DocumentPatternMatcher();
-    });
-
     // Helper para criar documentos rapidamente
     const criarDocumentos = (tipos: T[]): Documento[] =>
         tipos.map((tipo, index) => ({
@@ -22,9 +16,9 @@ describe('DocumentPatternMatcher', () => {
             ]);
 
             const padrao = [EXACT(T.PETICAO_INICIAL)];
-            const resultado = matcher.match(documentos, padrao);
+            const resultado = match(documentos, padrao);
 
-            expect(resultado).toEqual([documentos[0]]);
+            expect(resultado).toEqual([{ operator: padrao[0], captured: [documentos[0]] }]);
         });
 
         it('deve falhar se o documento não corresponder exatamente', () => {
@@ -33,7 +27,7 @@ describe('DocumentPatternMatcher', () => {
             ]);
 
             const padrao = [EXACT(T.PETICAO_INICIAL)];
-            const resultado = matcher.match(documentos, padrao);
+            const resultado = match(documentos, padrao);
 
             expect(resultado).toBeNull();
         });
@@ -46,9 +40,9 @@ describe('DocumentPatternMatcher', () => {
             ]);
 
             const padrao = [OR(T.DESPACHO_DECISAO, T.SENTENCA)];
-            const resultado = matcher.match(documentos, padrao);
+            const resultado = match(documentos, padrao);
 
-            expect(resultado).toEqual([documentos[0]]);
+            expect(resultado).toEqual([{ operator: padrao[0], captured: [documentos[0]] }]);
         });
 
         it('deve falhar se nenhum tipo corresponder', () => {
@@ -57,7 +51,7 @@ describe('DocumentPatternMatcher', () => {
             ]);
 
             const padrao = [OR(T.DESPACHO_DECISAO, T.SENTENCA)];
-            const resultado = matcher.match(documentos, padrao);
+            const resultado = match(documentos, padrao);
 
             expect(resultado).toBeNull();
         });
@@ -71,9 +65,9 @@ describe('DocumentPatternMatcher', () => {
             ]);
 
             const padrao = [ANY()];
-            const resultado = matcher.match(documentos, padrao);
+            const resultado = match(documentos, padrao);
 
-            expect(resultado).toEqual([]);
+            expect(resultado).toEqual([{ operator: padrao[0], captured: [] }]);
         });
 
         it('deve capturar apenas documentos específicos', () => {
@@ -88,12 +82,11 @@ describe('DocumentPatternMatcher', () => {
                 EXACT(T.PETICAO_INICIAL),
                 ANY({ capture: [T.TEXTO, T.CONTESTACAO] }),
             ];
-            const resultado = matcher.match(documentos, padrao);
+            const resultado = match(documentos, padrao);
 
             expect(resultado).toEqual([
-                documentos[0],
-                documentos[1],
-                documentos[3]
+                { operator: padrao[0], captured: [documentos[0]] },
+                { operator: padrao[1], captured: [documentos[1], documentos[3]] }
             ]);
         });
 
@@ -108,10 +101,46 @@ describe('DocumentPatternMatcher', () => {
                 EXACT(T.PETICAO_INICIAL),
                 ANY({ capture: [T.CONTESTACAO], except: [T.DESPACHO_DECISAO] }),
             ];
-            const resultado = matcher.match(documentos, padrao);
-
+            const resultado = match(documentos, padrao);
             expect(resultado).toBeNull()
         });
+    });
+
+    it('deve retornar zero documentos se necessário', () => {
+        const documentos = criarDocumentos([
+            T.PETICAO_INICIAL,
+            T.CONTESTACAO,
+        ]);
+
+        const padrao = [
+            EXACT(T.PETICAO_INICIAL),
+            ANY(),
+            EXACT(T.CONTESTACAO),
+        ];
+        const resultado = match(documentos, padrao);
+
+        expect(resultado).toEqual([
+            { operator: padrao[0], captured: [documentos[0]] },
+            { operator: padrao[1], captured: [] },
+            { operator: padrao[2], captured: [documentos[1]] }
+        ]);
+    });
+
+    it('deve retornar zero documentos se necessário e sendo o primeiro padrão', () => {
+        const documentos = criarDocumentos([
+            T.PETICAO_INICIAL
+        ]);
+
+        const padrao = [
+            ANY(),
+            EXACT(T.PETICAO_INICIAL),
+        ];
+        const resultado = match(documentos, padrao);
+
+        expect(resultado).toEqual([
+            { operator: padrao[0], captured: [] },
+            { operator: padrao[1], captured: [documentos[0]] },
+        ]);
     });
 
     it('deve representar todos os documentos entre operadores EXACT ou OR', () => {
@@ -127,7 +156,7 @@ describe('DocumentPatternMatcher', () => {
             ANY({ capture: [T.CONTESTACAO], except: [T.DESPACHO_DECISAO] }),
             EXACT(T.SENTENCA),
         ];
-        const resultado = matcher.match(documentos, padrao);
+        const resultado = match(documentos, padrao);
 
         expect(resultado).toBeNull();
     });
@@ -145,7 +174,7 @@ describe('DocumentPatternMatcher', () => {
             EXACT(T.PETICAO_INICIAL),
             ANY({ capture: [T.CONTESTACAO], except: [T.DESPACHO_DECISAO] }),
         ];
-        const resultado = matcher.match(documentos, padrao);
+        const resultado = match(documentos, padrao);
 
         expect(resultado).toBeNull();
     });
@@ -162,11 +191,11 @@ describe('DocumentPatternMatcher', () => {
                 EXACT(T.PETICAO_INICIAL),
                 SOME({ capture: [T.CONTESTACAO] })
             ];
-            const resultado = matcher.match(documentos, padrao);
+            const resultado = match(documentos, padrao);
 
             expect(resultado).toEqual([
-                documentos[0],
-                documentos[1]
+                { operator: padrao[0], captured: [documentos[0]] },
+                { operator: padrao[1], captured: [documentos[1]] }
             ]);
         });
 
@@ -182,12 +211,11 @@ describe('DocumentPatternMatcher', () => {
                 EXACT(T.PETICAO_INICIAL),
                 SOME({ capture: [T.CONTESTACAO] })
             ];
-            const resultado = matcher.match(documentos, padrao);
+            const resultado = match(documentos, padrao);
 
             expect(resultado).toEqual([
-                documentos[0],
-                documentos[1],
-                documentos[2]
+                { operator: padrao[0], captured: [documentos[0]] },
+                { operator: padrao[1], captured: [documentos[1], documentos[2]] }
             ]);
         });
 
@@ -201,7 +229,7 @@ describe('DocumentPatternMatcher', () => {
                 EXACT(T.PETICAO_INICIAL),
                 SOME({ capture: [T.CONTESTACAO] })
             ];
-            const resultado = matcher.match(documentos, padrao);
+            const resultado = match(documentos, padrao);
 
             expect(resultado).toBeNull();
         });
@@ -222,11 +250,12 @@ describe('DocumentPatternMatcher', () => {
                 EXACT(T.DESPACHO_DECISAO),
                 EXACT(T.EMBARGOS_DE_DECLARACAO)
             ];
-            const resultado = matcher.match(documentos, padrao);
+            const resultado = match(documentos, padrao);
 
             expect(resultado).toEqual([
-                documentos[3],
-                documentos[4]
+                { operator: padrao[0], captured: [] },
+                { operator: padrao[1], captured: [documentos[3]] },
+                { operator: padrao[2], captured: [documentos[4]] }
             ]);
         });
 
@@ -244,12 +273,12 @@ describe('DocumentPatternMatcher', () => {
                 ANY({ capture: [T.CONTESTACAO], except: [T.DESPACHO_DECISAO] }),
                 SOME({ capture: [T.CONTESTACAO, T.TEXTO] })
             ];
-            const resultado = matcher.match(documentos, padrao);
+            const resultado = match(documentos, padrao);
 
             expect(resultado).toEqual([
-                documentos[0],
-                documentos[2],
-                documentos[4]
+                { operator: padrao[0], captured: [documentos[0]] },
+                { operator: padrao[1], captured: [documentos[2]] },
+                { operator: padrao[2], captured: [documentos[4]] }
             ]);
         });
     });
@@ -264,7 +293,7 @@ describe('DocumentPatternMatcher', () => {
                 EXACT(T.PETICAO_INICIAL),
                 EXACT(T.DESPACHO_DECISAO)
             ];
-            const resultado = matcher.match(documentos, padrao);
+            const resultado = match(documentos, padrao);
 
             expect(resultado).toBeNull();
         });
@@ -280,7 +309,7 @@ describe('DocumentPatternMatcher', () => {
                 EXACT(T.PETICAO_INICIAL),
                 EXACT(T.DESPACHO_DECISAO)
             ];
-            const resultado = matcher.match(documentos, padrao);
+            const resultado = match(documentos, padrao);
 
             expect(resultado).toBeNull();
         });
@@ -402,12 +431,6 @@ describe('DocumentPatternMatcher', () => {
             });
         });
         describe('Pattern Matching Behavior', () => {
-            let matcher: DocumentPatternMatcher;
-
-            beforeEach(() => {
-                matcher = new DocumentPatternMatcher();
-            });
-
             describe('ANY Operator Processing', () => {
                 it("shouldn't capture if capture is not defined", () => {
                     const docs = criarDocumentos([
@@ -417,9 +440,11 @@ describe('DocumentPatternMatcher', () => {
                     ]);
 
                     const pattern = [ANY()];
-                    const result = matcher.match(docs, pattern);
+                    const result = match(docs, pattern);
 
-                    expect(result).toEqual([]);
+                    expect(result).toEqual([
+                        { operator: pattern[0], captured: [] },
+                    ]);
                 });
 
                 it('should process documents in order', () => {
@@ -434,9 +459,11 @@ describe('DocumentPatternMatcher', () => {
                         T.CONTESTACAO,
                         T.DESPACHO_DECISAO]
                     })];
-                    const result = matcher.match(docs, pattern);
+                    const result = match(docs, pattern);
 
-                    expect(result).toEqual(docs);
+                    expect(result).toEqual([
+                        { operator: pattern[0], captured: docs },
+                    ]);
                 });
 
                 it('should respect capture list strictly', () => {
@@ -446,9 +473,11 @@ describe('DocumentPatternMatcher', () => {
                     ]);
 
                     const pattern = [ANY({ capture: [T.CONTESTACAO] })];
-                    const result = matcher.match(docs, pattern);
+                    const result = match(docs, pattern);
 
-                    expect(result).toEqual([docs[1]]);
+                    expect(result).toEqual([
+                        { operator: pattern[0], captured: [docs[1]] },
+                    ]);
                 });
 
                 it('should handle min/max constraints correctly', () => {
@@ -459,9 +488,11 @@ describe('DocumentPatternMatcher', () => {
                     ]);
 
                     const pattern = [ANY({ capture: [T.CONTESTACAO] })];
-                    const result = matcher.match(docs, pattern);
+                    const result = match(docs, pattern);
 
-                    expect(result).toEqual([docs[0], docs[1]]);
+                    expect(result).toEqual([
+                        { operator: pattern[0], captured: [docs[0], docs[1]] },
+                    ]);
                 });
             });
 
@@ -478,8 +509,11 @@ describe('DocumentPatternMatcher', () => {
                         ANY({ capture: [T.CONTESTACAO] })
                     ];
 
-                    const result = matcher.match(docs, pattern);
-                    expect(result).toEqual([docs[0], docs[1]]);
+                    const result = match(docs, pattern);
+                    expect(result).toEqual([
+                        { operator: pattern[0], captured: [docs[0]] },
+                        { operator: pattern[1], captured: [docs[1]] },
+                    ]);
                 });
 
                 it('should stop at first non-matching document', () => {
@@ -494,8 +528,11 @@ describe('DocumentPatternMatcher', () => {
                         ANY({ capture: [T.CONTESTACAO] })
                     ];
 
-                    const result = matcher.match(docs, pattern);
-                    expect(result).toEqual([docs[0], docs[2]]);
+                    const result = match(docs, pattern);
+                    expect(result).toEqual([
+                        { operator: pattern[0], captured: [docs[0]] },
+                        { operator: pattern[1], captured: [docs[2]] },
+                    ]);
                 });
             });
 
@@ -504,15 +541,17 @@ describe('DocumentPatternMatcher', () => {
                     const docs: Documento[] = [];
                     const pattern = [ANY()];
 
-                    const result = matcher.match(docs, pattern);
-                    expect(result).toBeNull();
+                    const result = match(docs, pattern);
+                    expect(result).toEqual([
+                        { operator: pattern[0], captured: [] },
+                    ]);
                 });
 
                 it('should handle empty pattern', () => {
                     const docs = criarDocumentos([T.PETICAO_INICIAL]);
                     const pattern = [];
 
-                    const result = matcher.match(docs, pattern);
+                    const result = match(docs, pattern);
                     expect(result).toBeNull()
                 });
 
@@ -530,9 +569,66 @@ describe('DocumentPatternMatcher', () => {
                         })
                     ];
 
-                    const result = matcher.match(docs, pattern);
+                    const result = match(docs, pattern);
                     expect(result).toBeNull()
                 });
+            });
+
+            describe('Real Situations', () => {
+                it('shoud include contrarrazões', () => {
+                    const docs = criarDocumentos([
+                        T.SENTENCA,
+                        T.APELACAO,
+                        T.CONTRARRAZOES_AO_RECURSO_DE_APELACAO,
+                        T.APELACAO,
+                        T.CONTRARRAZOES_AO_RECURSO_DE_APELACAO,
+                        T.CONTRARRAZOES_AO_RECURSO_DE_APELACAO
+                    ]);
+
+                    const pattern =
+                        [ANY(), EXACT(T.SENTENCA), ANY(), EXACT(T.APELACAO), ANY({ capture: [T.CONTRARRAZOES, T.CONTRARRAZOES_AO_RECURSO_DE_APELACAO] }), OR(T.CONTRARRAZOES, T.CONTRARRAZOES_AO_RECURSO_DE_APELACAO), ANY()]
+
+                    const result = match(docs, pattern);
+                    expect(result).toEqual([
+                        { operator: pattern[0], captured: [] },
+                        { operator: pattern[1], captured: [docs[0]] },
+                        { operator: pattern[2], captured: [] },
+                        { operator: pattern[3], captured: [docs[3]] },
+                        { operator: pattern[4], captured: [docs[4]] },
+                        { operator: pattern[5], captured: [docs[5]] },
+                        { operator: pattern[6], captured: [] },
+                    ]);
+                });
+
+                it('shoud include sentença', () => {
+                    const docs = criarDocumentos([
+                        T.PETICAO_INICIAL,
+                        T.TEXTO,
+                        T.TEXTO,
+                        T.CONTESTACAO,
+                        T.TEXTO,
+                        T.TEXTO,
+                        T.SENTENCA,
+                        T.TEXTO,
+                        T.TEXTO,
+                    ]);
+
+                    const pattern =
+                    [ANY(), EXACT(T.PETICAO_INICIAL), ANY({ capture: [T.CONTESTACAO, T.INFORMACAO_EM_MANDADO_DE_SEGURANCA] }), OR(T.CONTESTACAO, T.INFORMACAO_EM_MANDADO_DE_SEGURANCA), ANY(), EXACT(T.SENTENCA), ANY()]
+
+                    const result = match(docs, pattern);
+                    expect(result).toEqual([
+                        { operator: pattern[0], captured: [] },
+                        { operator: pattern[1], captured: [docs[0]] },
+                        { operator: pattern[2], captured: [] },
+                        { operator: pattern[3], captured: [docs[3]] },
+                        { operator: pattern[4], captured: [] },
+                        { operator: pattern[5], captured: [docs[6]] },
+                        { operator: pattern[6], captured: [] },
+                    ]);
+                });
+
+
             });
         });
     });

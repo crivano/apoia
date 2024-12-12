@@ -1,3 +1,5 @@
+import { ANY, EXACT, MatchOperator, OR } from "./pattern"
+
 // Enum com os tipos de peças
 export enum T {
     TEXTO = 'TEXTO',
@@ -66,7 +68,8 @@ export const PC = (p: P, d?: T | T[]): ProdutoCompleto => {
 
 export type TipoDeSinteseType = {
     nome: string,
-    tipos: T[][],
+    // tipos: T[][],
+    padroes: MatchOperator[][],
     produtos: P[],
     sort: number
 }
@@ -77,43 +80,64 @@ export const TipoDeSinteseMap: Record<string, TipoDeSinteseType> = {
     RESUMOS_TRIAGEM: {
         sort: 1,
         nome: 'Resumos e triagem',
-        tipos: [
-            [T.PETICAO_INICIAL, T.CONTESTACAO, T.SENTENCA, T.RECURSO, T.CONTRARRAZOES],
-            [T.PETICAO_INICIAL, T.CONTESTACAO, T.SENTENCA, T.APELACAO, T.CONTRARRAZOES_AO_RECURSO_DE_APELACAO],
-            [T.SENTENCA, T.RECURSO, T.CONTRARRAZOES],
-            [T.SENTENCA, T.APELACAO, T.CONTRARRAZOES_AO_RECURSO_DE_APELACAO],
-            [T.SENTENCA, T.APELACAO, T.CONTRARRAZOES],
-            [T.SENTENCA, T.RECURSO],
-            [T.SENTENCA, T.APELACAO],
-            [T.SENTENCA, T.RECURSO_INOMINADO],
-            [T.PETICAO_INICIAL, T.CONTESTACAO],
-            [T.PETICAO_INICIAL, T.INFORMACAO_EM_MANDADO_DE_SEGURANCA]
+        padroes: [
+            [ANY(), EXACT(T.SENTENCA), ANY(), EXACT(T.RECURSO), ANY(), OR(T.CONTRARRAZOES), ANY()],
+            [ANY(), EXACT(T.SENTENCA), ANY(), EXACT(T.APELACAO), ANY({ capture: [T.CONTRARRAZOES, T.CONTRARRAZOES_AO_RECURSO_DE_APELACAO] }), OR(T.CONTRARRAZOES, T.CONTRARRAZOES_AO_RECURSO_DE_APELACAO), ANY()],
+            [ANY(), EXACT(T.SENTENCA), ANY(), OR(T.APELACAO, T.RECURSO, T.RECURSO_INOMINADO), ANY()],
+            [ANY(), EXACT(T.PETICAO_INICIAL), ANY({ capture: [T.CONTESTACAO, T.INFORMACAO_EM_MANDADO_DE_SEGURANCA] }), OR(T.CONTESTACAO, T.INFORMACAO_EM_MANDADO_DE_SEGURANCA), ANY(), EXACT(T.SENTENCA), ANY()],
+            [ANY(), EXACT(T.PETICAO_INICIAL), ANY({ capture: [T.CONTESTACAO, T.INFORMACAO_EM_MANDADO_DE_SEGURANCA] }), OR(T.CONTESTACAO, T.INFORMACAO_EM_MANDADO_DE_SEGURANCA), ANY()]
         ],
+        // tipos: [
+        //     [T.PETICAO_INICIAL, T.CONTESTACAO, T.SENTENCA, T.RECURSO, T.CONTRARRAZOES],
+        //     [T.PETICAO_INICIAL, T.CONTESTACAO, T.SENTENCA, T.APELACAO, T.CONTRARRAZOES_AO_RECURSO_DE_APELACAO],
+        //     [T.SENTENCA, T.RECURSO, T.CONTRARRAZOES],
+        //     [T.SENTENCA, T.APELACAO, T.CONTRARRAZOES_AO_RECURSO_DE_APELACAO],
+        //     [T.SENTENCA, T.APELACAO, T.CONTRARRAZOES],
+        //     [T.SENTENCA, T.RECURSO],
+        //     [T.SENTENCA, T.APELACAO],
+        //     [T.SENTENCA, T.RECURSO_INOMINADO],
+        //     [T.PETICAO_INICIAL, T.CONTESTACAO],
+        //     [T.PETICAO_INICIAL, T.INFORMACAO_EM_MANDADO_DE_SEGURANCA]
+        // ],
         produtos: [P.RESUMOS, P.RESUMO]
     },
     RESUMOS_ANALISE: {
         sort: 2,
         nome: 'Resumos e análise',
-        tipos: [
-            [T.PETICAO_INICIAL, T.CONTESTACAO, T.SENTENCA, T.RECURSO, T.CONTRARRAZOES],
-            [T.PETICAO_INICIAL, T.CONTESTACAO, T.SENTENCA, T.APELACAO, T.CONTRARRAZOES_AO_RECURSO_DE_APELACAO],
-            [T.SENTENCA, T.RECURSO, T.CONTRARRAZOES],
-            [T.SENTENCA, T.APELACAO, T.CONTRARRAZOES_AO_RECURSO_DE_APELACAO],
-            [T.SENTENCA, T.APELACAO, T.CONTRARRAZOES],
-            [T.SENTENCA, T.RECURSO],
-            [T.SENTENCA, T.APELACAO],
-            [T.SENTENCA, T.RECURSO_INOMINADO],
-            [T.PETICAO_INICIAL, T.CONTESTACAO],
-            [T.PETICAO_INICIAL, T.INFORMACAO_EM_MANDADO_DE_SEGURANCA]
+        padroes: [
+            [ANY(), EXACT(T.SENTENCA), ANY(), EXACT(T.RECURSO), ANY(), OR(T.CONTRARRAZOES), ANY()],
+            [ANY(), EXACT(T.SENTENCA), ANY(), EXACT(T.APELACAO), ANY({ capture: [T.CONTRARRAZOES, T.CONTRARRAZOES_AO_RECURSO_DE_APELACAO] }), OR(T.CONTRARRAZOES, T.CONTRARRAZOES_AO_RECURSO_DE_APELACAO), ANY()],
+            [ANY(), EXACT(T.SENTENCA), ANY(), OR(T.APELACAO, T.RECURSO, T.RECURSO_INOMINADO), ANY()],
+            [ANY(), EXACT(T.PETICAO_INICIAL), ANY({ capture: [T.CONTESTACAO, T.INFORMACAO_EM_MANDADO_DE_SEGURANCA] }), OR(T.CONTESTACAO, T.INFORMACAO_EM_MANDADO_DE_SEGURANCA), ANY(), EXACT(T.SENTENCA), ANY()],
+            [ANY(), EXACT(T.PETICAO_INICIAL), ANY({ capture: [T.CONTESTACAO, T.INFORMACAO_EM_MANDADO_DE_SEGURANCA] }), OR(T.CONTESTACAO, T.INFORMACAO_EM_MANDADO_DE_SEGURANCA), ANY()]
         ],
+        // tipos: [
+        //     [T.PETICAO_INICIAL, T.CONTESTACAO, T.SENTENCA, T.RECURSO, T.CONTRARRAZOES],
+        //     [T.PETICAO_INICIAL, T.CONTESTACAO, T.SENTENCA, T.APELACAO, T.CONTRARRAZOES_AO_RECURSO_DE_APELACAO],
+        //     [T.SENTENCA, T.RECURSO, T.CONTRARRAZOES],
+        //     [T.SENTENCA, T.APELACAO, T.CONTRARRAZOES_AO_RECURSO_DE_APELACAO],
+        //     [T.SENTENCA, T.APELACAO, T.CONTRARRAZOES],
+        //     [T.SENTENCA, T.RECURSO],
+        //     [T.SENTENCA, T.APELACAO],
+        //     [T.SENTENCA, T.RECURSO_INOMINADO],
+        //     [T.PETICAO_INICIAL, T.CONTESTACAO],
+        //     [T.PETICAO_INICIAL, T.INFORMACAO_EM_MANDADO_DE_SEGURANCA]
+        // ],
         produtos: [P.RESUMOS, P.ANALISE]
     },
     RESUMOS: {
         sort: 3,
         nome: 'Resumos das principais peças',
-        tipos: [
-            [T.PETICAO_INICIAL],
+        padroes: [
+            [ANY(), EXACT(T.SENTENCA), ANY(), EXACT(T.RECURSO), ANY(), OR(T.CONTRARRAZOES), ANY()],
+            [ANY(), EXACT(T.SENTENCA), ANY(), EXACT(T.APELACAO), ANY(), OR(T.CONTRARRAZOES, T.CONTRARRAZOES_AO_RECURSO_DE_APELACAO), ANY()],
+            [ANY(), EXACT(T.SENTENCA), ANY(), OR(T.APELACAO, T.RECURSO, T.RECURSO_INOMINADO), ANY()],
+            [ANY(), EXACT(T.PETICAO_INICIAL), ANY({ capture: [T.CONTESTACAO, T.INFORMACAO_EM_MANDADO_DE_SEGURANCA] }), OR(T.CONTESTACAO, T.INFORMACAO_EM_MANDADO_DE_SEGURANCA), ANY()],
+            [ANY(), EXACT(T.PETICAO_INICIAL), ANY({ capture: [T.CONTESTACAO, T.INFORMACAO_EM_MANDADO_DE_SEGURANCA] }), ANY()]
         ],
+        // tipos: [
+        //     [T.PETICAO_INICIAL],
+        // ],
         produtos: [P.RESUMOS]
     },
     // RESUMOS_ACORDAO: {
@@ -131,7 +155,7 @@ export type TipoDeSinteseEnum = keyof typeof TipoDeSinteseMap;
 export interface TipoDeSinteseValido {
     id: TipoDeSinteseEnum,
     nome: string,
-    tipos: T[][],
+    padroes: MatchOperator[][],
     produtos: InfoDeProduto[]
 }
 

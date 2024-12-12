@@ -5,8 +5,9 @@ import { inferirCategoriaDaPeca } from '../category'
 import { obterConteudoDaPeca, obterDocumentoGravado } from './piece'
 import { assertNivelDeSigilo, verificarNivelDeSigilo } from './sigilo'
 import { getInterop } from '../interop/interop'
-import { P, ProdutoCompleto, TipoDeSinteseEnum, TipoDeSinteseMap } from './combinacoes'
+import { P, ProdutoCompleto, T, TipoDeSinteseEnum, TipoDeSinteseMap } from './combinacoes'
 import { infoDeProduto, TiposDeSinteseValido } from './info-de-produto'
+import { Documento, match, MatchOperator, MatchResult } from './pattern'
 
 export type PecaType = {
     id: string
@@ -72,6 +73,67 @@ export const selecionarUltimasPecas = (pecas: PecaType[], descricoes: string[]) 
     }
     if (pecasSelecionadas.length !== descricoes.length)
         return null
+    return pecasSelecionadas
+}
+
+export const selecionarPecasPorPadrao = (pecas: PecaType[], padroes: MatchOperator[][]) => {
+    const ps: Documento[] = pecas.map(p => ({ id: p.id, tipo: p.descr as T }))
+
+    // Cria um índice de peças por id
+    const indexById = {}
+    for (let i = 0; i < ps.length; i++) {
+        indexById[ps[i].id] = i
+    }
+
+    // Cria um índice de matches possíveis
+    const matches: MatchResult[] = []
+    for (const padrao of padroes) {
+        const m = match(ps, padrao)
+        if (m !== null && m.length > 0)
+            matches.push(m)
+    }
+    if (matches.length === 0) return null
+
+    // Seleciona o match cuja última peça em uma operação de EXACT ou OR é a mais recente
+    let matchSelecionado: MatchResult | null = null
+    let idxUltimaPecaRelevanteDoMatchSelecionado = -1
+    for (const m of matches) {
+        // Encontra a última operação do tipo EXACT ou OR com peças capturadas
+        let idx = m.length - 1
+        while (idx >= 0 && !((m[idx].operator.type === 'ANY' || m[idx].operator.type === 'SOME') && m[idx].captured.length)) idx--
+        if (idx < 0) continue
+
+        // Encontra a última peça capturada
+        const ultimaPecaRelevante = m[idx].captured[m[idx].captured.length - 1]
+        const idxUltimaPecaRelevante = indexById[ultimaPecaRelevante.id]
+        if (idxUltimaPecaRelevante > idxUltimaPecaRelevanteDoMatchSelecionado) {
+            matchSelecionado = m
+            idxUltimaPecaRelevanteDoMatchSelecionado = idxUltimaPecaRelevante
+        }
+    }
+
+    // Se não encontrou, seleciona o match cuja última peça é a mais recente
+    if (matchSelecionado === null) {
+        for (const m of matches) {
+            // Encontra a última operação do tipo EXACT ou OR
+            let idx = m.length - 1
+            while (idx >= 0 && m[idx].captured.length === 0) idx--
+            if (idx < 0) continue
+
+            // Encontra a última peça capturada
+            const ultimaPecaRelevante = m[idx].captured[m[idx].captured.length - 1]
+            const idxUltimaPecaRelevante = indexById[ultimaPecaRelevante.id]
+            if (idxUltimaPecaRelevante > idxUltimaPecaRelevanteDoMatchSelecionado) {
+                matchSelecionado = m
+                idxUltimaPecaRelevanteDoMatchSelecionado = idxUltimaPecaRelevante
+            }
+        }
+    }
+
+    // Flattern the match and map back to PecaType
+    const pecasSelecionadas = matchSelecionado.map(m => m.captured).flat().map(d => pecas[indexById[d.id]])
+
+    if (pecasSelecionadas.length === 0) return null
     return pecasSelecionadas
 }
 
@@ -196,12 +258,10 @@ export const obterDadosDoProcesso = async ({ numeroDoProcesso, pUser, idDaPeca, 
 
         // Localiza um tipo de síntese válido
         for (const tipoDeSintese of TiposDeSinteseValido) {
-            for (const tipos of tipoDeSintese.tipos) {
-                pecasSelecionadas = selecionarUltimasPecas(pecas, tipos.map(t => t.toString()))
-                if (pecasSelecionadas !== null) {
-                    tipoDeSinteseSelecionado = tipoDeSintese.id
-                    break
-                }
+            pecasSelecionadas = selecionarPecasPorPadrao(pecas, tipoDeSintese.padroes)
+            if (pecasSelecionadas !== null) {
+                tipoDeSinteseSelecionado = tipoDeSintese.id
+                break
             }
             if (pecasSelecionadas !== null) break
         }
