@@ -1,38 +1,28 @@
-// Definição dos tipos de peças processuais
-export enum TipoDocumento {
-  PETICAO_INICIAL = 'PETICAO_INICIAL',
-  DECISAO = 'DECISAO',
-  SENTENCA = 'SENTENCA',
-  COMPROVANTE_RESIDENCIA = 'COMPROVANTE_RESIDENCIA',
-  CONTESTACAO = 'CONTESTACAO',
-  EMBARGO = 'EMBARGO',
-  AGRAVO = 'AGRAVO'
-}
+import { T } from "./combinacoes";
 
 // Interface para documentos do processo
 export interface Documento {
   id: string;
-  tipo: TipoDocumento;
+  tipo: T;
 }
 
 export interface MatchOptions {
-  capture?: TipoDocumento[];
-  except?: TipoDocumento[];
+  capture?: T[];
+  except?: T[];
 }
 
 // Tipos de operadores
 export type MatchOperator =
-  | { type: 'EXACT'; docType: TipoDocumento }
-  | { type: 'OR'; docTypes: TipoDocumento[] }
+  | { type: 'EXACT'; docType: T }
+  | { type: 'OR'; docTypes: T[] }
   | { type: 'ANY'; options?: MatchOptions }
   | { type: 'SOME'; options?: MatchOptions };
 
-export const T = {
-  EXACT: (docType: TipoDocumento) => ({ type: 'EXACT' as const, docType }),
-  OR: (...docTypes: TipoDocumento[]) => ({ type: 'OR' as const, docTypes }),
-  ANY: (options?: MatchOptions) => ({ type: 'ANY' as const, options }),
-  SOME: (options?: MatchOptions) => ({ type: 'SOME' as const, options }),
-};
+export const EXACT = (docType: T) => ({ type: 'EXACT' as const, docType })
+export const OR = (...docTypes: T[]) => ({ type: 'OR' as const, docTypes })
+export const ANY = (options?: MatchOptions) => ({ type: 'ANY' as const, options })
+export const SOME = (options?: MatchOptions) => ({ type: 'SOME' as const, options })
+
 
 export class DocumentPatternMatcher {
   match(documents: Documento[], pattern: MatchOperator[]): Documento[] | null {
