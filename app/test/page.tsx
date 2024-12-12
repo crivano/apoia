@@ -1,7 +1,7 @@
 import { Container } from 'react-bootstrap'
 import TestPage from './TestPage'
 import fs from 'fs'
-import { TestFileType } from './test';
+import { TestFileType } from './testfiletype';
 
 export default async function Revison() {
     const directoryPath = process.env.TESTS_PATH as string

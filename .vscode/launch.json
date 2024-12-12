@@ -2,6 +2,12 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "Jest",
+            "type": "node-terminal",
+            "request": "launch",
+            "command": "npm test"
+        },
+        {
             "name": "Next.js: debug server-side",
             "type": "node-terminal",
             "request": "launch",
@@ -18,8 +24,12 @@
             "type": "node",
             "request": "launch",
             "program": "${workspaceFolder}/node_modules/.bin/next",
-            "runtimeArgs": [ "--inspect" ],
-            "skipFiles": [ "<node_internals>/**" ],
+            "runtimeArgs": [
+                "--inspect"
+            ],
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
             "serverReadyAction": {
                 "action": "debugWithEdge",
                 "killOnServerStop": true,

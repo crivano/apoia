@@ -5,7 +5,7 @@ import { Suspense, useState, useEffect } from 'react'
 import AiContent from '../../components/ai-content'
 import { P } from '@/lib/proc/combinacoes'
 import { Button, Container, Form } from 'react-bootstrap'
-import { TestFileType } from './test'
+import { TestFileType } from './testfiletype'
 import { get } from 'http'
 import { TextoType } from '@/lib/ai/prompt-types'
 
