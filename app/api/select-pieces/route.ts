@@ -24,6 +24,7 @@ export const maxDuration = 60
  *               type: array
  *               items:
  *                 type: object
+ *                 properties:
  *                   id: 
  *                     type: string
  *                   descr: 

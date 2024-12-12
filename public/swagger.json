@@ -289,6 +289,55 @@
         }
       }
     },
+    "/api/select-pieces": {
+      "post": {
+        "description": "Seleciona as peças que serão utilizadas na síntese",
+        "tags": [
+          "process"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "schema": {
+              "properties": {
+                "pieces": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string"
+                      },
+                      "descr": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "required": true,
+                  "description": "Lista completa de peças do processo"
+                },
+                "kind": {
+                  "type": "string",
+                  "required": true,
+                  "description": "Tipo de síntese a ser realizada"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK, processo analisado e resultado armazenado no banco de dados"
+          }
+        }
+      }
+    },
     "/api/signin": {
       "post": {
         "description": "Autentica o usuário",
