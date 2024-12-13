@@ -78,7 +78,7 @@ export class InteropPDPJ implements Interop {
 
         const ajuizamento = new Date(processo.dataHoraAjuizamento)
         const nomeOrgaoJulgador = processo.tribunal.nome
-        const codigoDaClasse = parseInt(processo.classe.codigo)
+        const codigoDaClasse = processo.classe[0]?.codigo || 0
 
         let pecas: PecaType[] = []
         const documentos = processo.documentos
