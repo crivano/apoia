@@ -3,7 +3,7 @@ const ErrorMsg = async ({ pDadosDoProcesso }) => {
     if (dadosDoProcesso && !dadosDoProcesso.errorMsg)
         return ''
 
-    return (<div className="alert alert-danger">{dadosDoProcesso.errorMsg}</div>)
+    return (<div className="alert alert-danger mt-4">{dadosDoProcesso.errorMsg}</div>)
 }
 
 export default ErrorMsg

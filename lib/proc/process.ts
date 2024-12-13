@@ -296,7 +296,7 @@ export const obterDadosDoProcesso = async ({ numeroDoProcesso, pUser, idDaPeca, 
         // return { ...dadosDoProcesso, pecas: [] as PecaType[], pecasSelecionadas: [] as PecaType[], tipoDeSintese: tipoDeSinteseSelecionado, produtos: TipoDeSinteseMap[tipoDeSinteseSelecionado]?.produtos }
     } catch (error) {
         if (error?.message === 'NEXT_REDIRECT') throw error
-        errorMsg = error.message
+        errorMsg = `${error.message} - ${error.stack}`
         return { pecas, errorMsg }
     }
 }
