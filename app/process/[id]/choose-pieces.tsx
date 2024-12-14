@@ -60,7 +60,9 @@ function ChoosePiecesForm({ dadosDoProcesso, onSave, onClose }: { dadosDoProcess
                 }
             </div>
             <div className="row">
-                <TableRecords records={[...dadosDoProcesso.pecas].reverse()} spec="ChoosePieces" pageSize={15} selectedIds={selectedIds} onSelectdIdsChanged={onSelectedIdsChanged} />
+                <div className="col-12">
+                    <TableRecords records={[...dadosDoProcesso.pecas].reverse()} spec="ChoosePieces" pageSize={15} selectedIds={selectedIds} onSelectdIdsChanged={onSelectedIdsChanged} />
+                </div>
             </div>
         </div>
     </div>
