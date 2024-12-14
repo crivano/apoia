@@ -7,7 +7,7 @@ import { headers } from "next/headers"
 import { verify } from 'crypto'
 import { verifyJweToken } from './utils/jwt'
 
-export const getCurrentUser = async (): Promise<{ id?: number, name: string, email: string, image: { password: string, system: string } } | undefined> => {
+export const getCurrentUser = async (): Promise<{ id?: number, name: string, email: string, image: { password: string, system: string }, accessToken?: string } | undefined> => {
     const headersList = headers()
     const authorization = headersList.get("authorization")
     if (authorization) {

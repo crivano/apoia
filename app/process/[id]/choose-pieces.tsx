@@ -1,7 +1,7 @@
 'use client'
 
 import { maiusculasEMinusculas } from "@/lib/utils/utils";
-import { faEdit, faSave } from "@fortawesome/free-solid-svg-icons";
+import { faClose, faEdit, faSave } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { use, useEffect, useRef, useState } from "react"
@@ -14,9 +14,10 @@ import { TiposDeSinteseValido } from "@/lib/proc/info-de-produto";
 
 const Frm = new FormHelper()
 
-function ChoosePiecesForm({ dadosDoProcesso, onSave }: { dadosDoProcesso: DadosDoProcessoType, onSave: (kind: TipoDeSinteseEnum, pieces: string[]) => void }) {
+function ChoosePiecesForm({ dadosDoProcesso, onSave, onClose }: { dadosDoProcesso: DadosDoProcessoType, onSave: (kind: TipoDeSinteseEnum, pieces: string[]) => void, onClose: () => void }) {
+    const originalPieces: string[] = dadosDoProcesso.pecasSelecionadas.map(p => p.id)
     const [tipoDeSintese, setTipoDeSintese] = useState(dadosDoProcesso.tipoDeSintese)
-    const [selectedIds, setSelectedIds] = useState(dadosDoProcesso.pecasSelecionadas.map(p => p.id) as string[])
+    const [selectedIds, setSelectedIds] = useState(originalPieces)
     const tipos = TiposDeSinteseValido.map(tipo => ({ id: tipo.id, name: tipo.nome }))
 
     const canonicalPieces = (pieces: string[]) => pieces.sort((a, b) => a.localeCompare(b)).join(',')
@@ -53,7 +54,10 @@ function ChoosePiecesForm({ dadosDoProcesso, onSave }: { dadosDoProcesso: DadosD
         <div className="alert alert-warning pt-0">
             <div className="row">
                 <Frm.Select label="Tipo de Síntese" name="tipoDeSintese" options={tipos} width={''} />
-                <Frm.Button onClick={() => onSave(tipoDeSintese, selectedIds)} variant="primary"><FontAwesomeIcon icon={faSave} /></Frm.Button>
+                {canonicalPieces(originalPieces) !== canonicalPieces(selectedIds) || tipoDeSintese !== dadosDoProcesso.tipoDeSintese
+                    ? <Frm.Button onClick={() => onSave(tipoDeSintese, selectedIds)} variant="primary"><FontAwesomeIcon icon={faSave} /></Frm.Button>
+                    : <Frm.Button onClick={() => onClose()} variant="secondary"><FontAwesomeIcon icon={faClose} /></Frm.Button>
+                }
             </div>
             <div className="row">
                 <TableRecords records={[...dadosDoProcesso.pecas].reverse()} spec="ChoosePieces" pageSize={15} selectedIds={selectedIds} onSelectdIdsChanged={onSelectedIdsChanged} />
@@ -94,6 +98,10 @@ export default function ChoosePieces({ dadosDoProcesso }) {
         router.push(pathname + "?" + updatedSearchParams.toString())
     }
 
+    const onClose = () => {
+        setEditing(false)
+    }
+
     if (reloading) {
         return ChoosePiecesLoading()
     }
@@ -114,5 +122,5 @@ export default function ChoosePieces({ dadosDoProcesso }) {
         return <p className="text-muted text-center h-print">{s} - <FontAwesomeIcon onClick={() => { setEditing(true) }} icon={faEdit} /></p>
 
     }
-    return <ChoosePiecesForm onSave={onSave} dadosDoProcesso={dadosDoProcesso} />
+    return <ChoosePiecesForm onSave={onSave} onClose={onClose} dadosDoProcesso={dadosDoProcesso} />
 }

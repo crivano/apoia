@@ -19,7 +19,7 @@ const authOptions = {
           roles = (decodedToken?.realm_access as any)?.roles;
         }
       }
-      token = { roles, ...token, ...user };
+      token = { roles, accessToken: account?.access_token, ...token, ...user };
       // console.log("[jwt callback] token " + JSON.stringify(token));
       return token;
     },

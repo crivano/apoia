@@ -28,6 +28,7 @@ const tableSpecs = (pathname: string) => {
                 { header: 'Evento', accessorKey: 'numeroDoEvento', enableSorting: true },
                 { header: 'Rótulo', accessorKey: 'rotulo', enableSorting: true },
                 { header: 'Tipo', accessorKey: 'descr', enableSorting: true, cell: data => <span>{data.row.original.descr.toUpperCase()}</span> },
+                { header: 'Sigilo', accessorKey: 'sigilo', enableSorting: true, cell: data => <span>{data.row.original.sigilo}</span> },
             ],
         },
         CountersByPromptKinds: {
