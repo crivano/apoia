@@ -33,6 +33,7 @@ export enum P {
     ACORDAO = 'Acórdão',
     REVISAO = 'Revisão',
     REFINAMENTO = 'Refinamento',
+    PEDIDOS = 'Pedidos',
 }
 
 export enum Plugin {
@@ -57,6 +58,7 @@ export const ProdutosValidos = {
     [P.ACORDAO]: { titulo: P.ACORDAO, prompt: 'acordao', plugins: [] },
     [P.REVISAO]: { titulo: P.REVISAO, prompt: 'revisao', plugins: [] },
     [P.REFINAMENTO]: { titulo: P.REFINAMENTO, prompt: 'refinamento', plugins: [] },
+    [P.PEDIDOS]: { titulo: P.PEDIDOS, prompt: 'pedidos-de-peticao-inicial', plugins: [] },
 }
 
 export interface ProdutoCompleto { produto: P, dados: T[] }
@@ -70,7 +72,7 @@ export type TipoDeSinteseType = {
     nome: string,
     // tipos: T[][],
     padroes: MatchOperator[][],
-    produtos: P[],
+    produtos: (P | ProdutoCompleto)[],
     sort: number
 }
 
@@ -87,18 +89,6 @@ export const TipoDeSinteseMap: Record<string, TipoDeSinteseType> = {
             [ANY(), EXACT(T.PETICAO_INICIAL), ANY({ capture: [T.CONTESTACAO, T.INFORMACAO_EM_MANDADO_DE_SEGURANCA] }), OR(T.CONTESTACAO, T.INFORMACAO_EM_MANDADO_DE_SEGURANCA), ANY(), EXACT(T.SENTENCA), ANY()],
             [ANY(), EXACT(T.PETICAO_INICIAL), ANY({ capture: [T.CONTESTACAO, T.INFORMACAO_EM_MANDADO_DE_SEGURANCA] }), OR(T.CONTESTACAO, T.INFORMACAO_EM_MANDADO_DE_SEGURANCA), ANY()]
         ],
-        // tipos: [
-        //     [T.PETICAO_INICIAL, T.CONTESTACAO, T.SENTENCA, T.RECURSO, T.CONTRARRAZOES],
-        //     [T.PETICAO_INICIAL, T.CONTESTACAO, T.SENTENCA, T.APELACAO, T.CONTRARRAZOES_AO_RECURSO_DE_APELACAO],
-        //     [T.SENTENCA, T.RECURSO, T.CONTRARRAZOES],
-        //     [T.SENTENCA, T.APELACAO, T.CONTRARRAZOES_AO_RECURSO_DE_APELACAO],
-        //     [T.SENTENCA, T.APELACAO, T.CONTRARRAZOES],
-        //     [T.SENTENCA, T.RECURSO],
-        //     [T.SENTENCA, T.APELACAO],
-        //     [T.SENTENCA, T.RECURSO_INOMINADO],
-        //     [T.PETICAO_INICIAL, T.CONTESTACAO],
-        //     [T.PETICAO_INICIAL, T.INFORMACAO_EM_MANDADO_DE_SEGURANCA]
-        // ],
         produtos: [P.RESUMOS, P.RESUMO]
     },
     RESUMOS_ANALISE: {
@@ -111,18 +101,6 @@ export const TipoDeSinteseMap: Record<string, TipoDeSinteseType> = {
             [ANY(), EXACT(T.PETICAO_INICIAL), ANY({ capture: [T.CONTESTACAO, T.INFORMACAO_EM_MANDADO_DE_SEGURANCA] }), OR(T.CONTESTACAO, T.INFORMACAO_EM_MANDADO_DE_SEGURANCA), ANY(), EXACT(T.SENTENCA), ANY()],
             [ANY(), EXACT(T.PETICAO_INICIAL), ANY({ capture: [T.CONTESTACAO, T.INFORMACAO_EM_MANDADO_DE_SEGURANCA] }), OR(T.CONTESTACAO, T.INFORMACAO_EM_MANDADO_DE_SEGURANCA), ANY()]
         ],
-        // tipos: [
-        //     [T.PETICAO_INICIAL, T.CONTESTACAO, T.SENTENCA, T.RECURSO, T.CONTRARRAZOES],
-        //     [T.PETICAO_INICIAL, T.CONTESTACAO, T.SENTENCA, T.APELACAO, T.CONTRARRAZOES_AO_RECURSO_DE_APELACAO],
-        //     [T.SENTENCA, T.RECURSO, T.CONTRARRAZOES],
-        //     [T.SENTENCA, T.APELACAO, T.CONTRARRAZOES_AO_RECURSO_DE_APELACAO],
-        //     [T.SENTENCA, T.APELACAO, T.CONTRARRAZOES],
-        //     [T.SENTENCA, T.RECURSO],
-        //     [T.SENTENCA, T.APELACAO],
-        //     [T.SENTENCA, T.RECURSO_INOMINADO],
-        //     [T.PETICAO_INICIAL, T.CONTESTACAO],
-        //     [T.PETICAO_INICIAL, T.INFORMACAO_EM_MANDADO_DE_SEGURANCA]
-        // ],
         produtos: [P.RESUMOS, P.ANALISE]
     },
     RESUMOS: {
@@ -139,6 +117,14 @@ export const TipoDeSinteseMap: Record<string, TipoDeSinteseType> = {
         //     [T.PETICAO_INICIAL],
         // ],
         produtos: [P.RESUMOS]
+    },
+    PEDIDOS: {
+        sort: 4,
+        nome: 'Pedidos',
+        padroes: [
+            [ANY(), EXACT(T.PETICAO_INICIAL), ANY()],
+        ],
+        produtos: [P.RESUMOS, P.PEDIDOS]
     },
     // RESUMOS_ACORDAO: {
     //     sort: 4,
