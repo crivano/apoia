@@ -1,7 +1,8 @@
-import { analyze, GeneratedContent } from '@/lib/ai/analysis'
+import { analyze } from '@/lib/ai/analysis'
 import fetcher from '@/lib/utils/fetcher'
 import { NextResponse } from 'next/server'
 import { filterText } from '@/lib/ui/preprocess'
+import { GeneratedContent } from '@/lib/ai/prompt-types'
 
 export const maxDuration = 60
 // export const runtime = 'edge'

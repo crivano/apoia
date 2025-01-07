@@ -8,7 +8,7 @@ import PrintServerContents from './print-server-contents'
 import ErrorMsg from './error-msg'
 import Subtitulo, { SubtituloLoading } from './subtitulo'
 import ChoosePieces from './choose-pieces'
-import { ListaDeProdutos } from './lista-produtos'
+import { ListaDeProdutosServer } from './lista-produtos-server'
 
 export const maxDuration = 60 // seconds
 export const dynamic = 'force-dynamic'
@@ -47,7 +47,7 @@ export default async function ShowProcess({ id, kind, pieces }) {
                 </Suspense>
                 <div className="mb-4"></div>
                 <Suspense fallback={<>{ProdutoLoading()}{ProdutoLoading()}{ProdutoLoading()}</>}>
-                    <ListaDeProdutos pDadosDoProcesso={pDadosDoProcesso} kind={kind} pieces={pieces} />
+                    <ListaDeProdutosServer pDadosDoProcesso={pDadosDoProcesso} kind={kind} pieces={pieces} />
                 </Suspense>
                 <Suspense fallback=''>
                     <PrintServerContents pDadosDoProcesso={pDadosDoProcesso} numeroDoProcesso={id} />

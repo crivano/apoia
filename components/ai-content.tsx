@@ -6,7 +6,7 @@ import { evaluate } from '../lib/ai/generate'
 import { preprocess, Visualization, VisualizationEnum } from '@/lib/ui/preprocess'
 import { ResumoDePecaLoading } from '@/components/loading'
 import { InfoDeProduto, P } from '@/lib/proc/combinacoes'
-import { PromptConfigType, PromptDataType, PromptDefinitionType, PromptOptionsType, TextoType } from '@/lib/ai/prompt-types'
+import { ContentType, PromptConfigType, PromptDataType, PromptDefinitionType, PromptOptionsType, TextoType } from '@/lib/ai/prompt-types'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faThumbsDown } from '@fortawesome/free-regular-svg-icons'
 import { faRefresh } from '@fortawesome/free-solid-svg-icons'
@@ -34,7 +34,7 @@ export const spinner = (s: string, complete: boolean): string => {
     return s
 }
 
-export default function AiContent(params: { definition: PromptDefinitionType, data: PromptDataType, options?: PromptOptionsType, config?: PromptConfigType }) {
+export default function AiContent(params: { definition: PromptDefinitionType, data: PromptDataType, options?: PromptOptionsType, config?: PromptConfigType, onReady?: (content: ContentType) => void }) {
     const [current, setCurrent] = useState('')
     const [complete, setComplete] = useState(false)
     const [errormsg, setErrormsg] = useState('')
@@ -76,6 +76,17 @@ export default function AiContent(params: { definition: PromptDefinitionType, da
                 const { done, value } = await reader.read()
                 if (done) {
                     setComplete(true)
+                    const text = Buffer.concat(chunks).toString("utf-8")
+                    let json: any = undefined
+                    try {
+                        json = JSON.parse(text)
+                    } catch (e) { }
+                    if (params.onReady)
+                        params.onReady({
+                            raw: text,
+                            formated: preprocess(text, params.definition, params.data, complete, visualizationId),
+                            json
+                        })
                     break
                 }
                 chunks.push(value)

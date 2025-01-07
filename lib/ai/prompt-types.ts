@@ -1,4 +1,6 @@
 import { CoreMessage } from "ai";
+import { IAGenerated } from "../db/mysql-types";
+import { P, Plugin, T } from "../proc/combinacoes";
 
 // A ideia aqui é que existe uma definição de prompt (PromptDefinitionType) que pode vir do banco de dados ou 
 // de um arquivo markdown.
@@ -71,3 +73,29 @@ export type PromptExecutionResultsType = {
     model?: string
     generationId?: number
 }
+
+// Tipo que representa o resultado da execução de um prompt pelo componente AiContent
+export type ContentType = {
+    raw: string
+    formated: string
+    json: any
+}
+
+
+export type GeneratedContent = {
+    id?: number,
+    documentCode: string | null, // identificador da peça no Eproc
+    documentDescr: string | null, // descrição da peça no Eproc
+    // infoDeProduto: InfoDeProduto
+    title: string,
+    produto: P,
+    promptSlug: string,
+    internalPrompt: PromptDefinitionType,
+    data: PromptDataType,
+    plugins?: Plugin[],
+    sha256?: string,
+    result?: Promise<IAGenerated | undefined>,
+    generated?: string,
+    peca?: T,
+}
+

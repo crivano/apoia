@@ -4,7 +4,7 @@ import { PromptDataType, PromptDefinitionType, TextoType } from '../ai/prompt-ty
 import { diff, diffAndCollapse as diffAndCompact } from './mddiff'
 import { format as libFormat } from '../ai/format'
 
-const converter = new showdown.Converter()
+const converter = new showdown.Converter({ tables: true })
 
 export const enum VisualizationEnum {
     DIFF,

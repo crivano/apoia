@@ -33,6 +33,7 @@ Opções para "verba":
 - SALARIO
 - DANO_MORAL
 - OUTRA
+- NENHUMA
 
 Sua resposta deve sempre ser formatada em JSON, conforme o padrão abaixo:
 

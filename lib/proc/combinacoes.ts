@@ -34,6 +34,7 @@ export enum P {
     REVISAO = 'Revisão',
     REFINAMENTO = 'Refinamento',
     PEDIDOS = 'Pedidos',
+    INDICE = 'Índice',
 }
 
 export enum Plugin {
@@ -59,6 +60,7 @@ export const ProdutosValidos = {
     [P.REVISAO]: { titulo: P.REVISAO, prompt: 'revisao', plugins: [] },
     [P.REFINAMENTO]: { titulo: P.REFINAMENTO, prompt: 'refinamento', plugins: [] },
     [P.PEDIDOS]: { titulo: P.PEDIDOS, prompt: 'pedidos-de-peticao-inicial', plugins: [] },
+    [P.INDICE]: { titulo: P.INDICE, prompt: 'indice', plugins: [] },
 }
 
 export interface ProdutoCompleto { produto: P, dados: T[] }
@@ -126,6 +128,18 @@ export const TipoDeSinteseMap: Record<string, TipoDeSinteseType> = {
         ],
         produtos: [P.RESUMOS, P.PEDIDOS]
     },
+    INDICE: {
+        sort: 4,
+        nome: 'Índice',
+        padroes: [
+            [ANY({ capture: [] })],
+        ],
+        // tipos: [
+        //     [T.PETICAO_INICIAL],
+        // ],
+        produtos: [P.INDICE]
+    },
+
     // RESUMOS_ACORDAO: {
     //     sort: 4,
     //     nome: 'Resumos e acórdão',

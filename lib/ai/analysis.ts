@@ -1,5 +1,5 @@
 import { getInternalPrompt } from '@/lib/ai/prompt'
-import { PromptDataType, PromptDefinitionType, TextoType } from '@/lib/ai/prompt-types'
+import { GeneratedContent, PromptDataType, PromptDefinitionType, TextoType } from '@/lib/ai/prompt-types'
 import { DadosDoProcessoType, obterDadosDoProcesso, PecaType } from '@/lib/proc/process'
 import { assertCurrentUser } from '@/lib/user'
 import { T, P, ProdutosValidos, Plugin, ProdutoCompleto, InfoDeProduto } from '@/lib/proc/combinacoes'
@@ -9,21 +9,6 @@ import { Dao } from '@/lib/db/mysql'
 import { getTriagem, getNormas, getPalavrasChave } from '@/lib/fix'
 import { generateContent } from '@/lib/ai/generate'
 import { infoDeProduto } from '../proc/info-de-produto'
-
-export type GeneratedContent = {
-    id?: number,
-    documentCode: string | null, // identificador da peça no Eproc
-    documentDescr: string | null, // descrição da peça no Eproc
-    // infoDeProduto: InfoDeProduto
-    title: string,
-    promptSlug: string,
-    data: PromptDataType,
-    plugins?: Plugin[],
-    sha256?: string,
-    result?: Promise<IAGenerated | undefined>,
-    generated?: string,
-    peca?: T,
-}
 
 export async function summarize(dossierNumber: string, pieceNumber: string): Promise<{ dossierData: any, generatedContent: GeneratedContent }> {
     const pUser = assertCurrentUser()
@@ -42,7 +27,7 @@ export async function summarize(dossierNumber: string, pieceNumber: string): Pro
     const data: PromptDataType = { textos: [{ descr: peca.descr, slug: peca.slug, pTexto: peca.pTexto }] }
     const infoDeProduto: InfoDeProduto = { produto: P.RESUMO_PECA, titulo: peca.descr, dados: [peca.descr as T], prompt: definition.kind, plugins: [] }
     const req: GeneratedContent = {
-        documentCode: peca.id || null, documentDescr: peca.descr, data, title: peca.descr, promptSlug: definition.kind
+        documentCode: peca.id || null, documentDescr: peca.descr, data, title: peca.descr, produto: infoDeProduto.produto, promptSlug: definition.kind, internalPrompt: definition
     }
 
     // Retrieve from cache or generate
@@ -64,7 +49,7 @@ export function buildRequests(produtos: InfoDeProduto[], pecasComConteudo: Texto
             for (const peca of pecasComConteudo) {
                 const definition = getInternalPrompt(`resumo-${peca.slug}`)
                 const data: PromptDataType = { textos: [peca] }
-                requests.push({ documentCode: peca.id || null, documentDescr: peca.descr, data, title: peca.descr, promptSlug: definition.kind })
+                requests.push({ documentCode: peca.id || null, documentDescr: peca.descr, data, title: peca.descr, produto: produto.produto, promptSlug: definition.kind, internalPrompt: definition })
             }
             continue
         }
@@ -90,7 +75,7 @@ export function buildRequests(produtos: InfoDeProduto[], pecasComConteudo: Texto
 
         // const infoDeProduto = { ...produto }
 
-        requests.push({ documentCode: null, documentDescr: null, data, promptSlug: definition.kind, title: produtoValido.titulo, plugins: produtoValido.plugins })
+        requests.push({ documentCode: null, documentDescr: null, data, produto: produtoSimples, promptSlug: definition.kind, internalPrompt: definition, title: produtoValido.titulo, plugins: produtoValido.plugins })
     }
     return requests
 }

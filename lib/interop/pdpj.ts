@@ -120,7 +120,7 @@ export class InteropPDPJ implements Interop {
                 dataHora: new Date(doc.dataHoraJuntada),
             })
         }
-        console.log('pecas', pecas)
+        // console.log('pecas', pecas)
         return { numeroDoProcesso, ajuizamento, codigoDaClasse, nomeOrgaoJulgador, pecas }
     }
 

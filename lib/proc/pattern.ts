@@ -80,7 +80,7 @@ function matchFromIndex(
         const currentDoc = documents[currentIdx]
         if (operator.options?.except?.includes(currentDoc.tipo)) return null
 
-        if (operator.options?.capture && operator.options.capture.includes(currentDoc.tipo))
+        if (operator.options?.capture && (operator.options.capture.length === 0 || operator.options.capture.includes(currentDoc.tipo)))
           captured.unshift(currentDoc)
 
         const matchPrevious = matchFromIndex(
@@ -105,7 +105,7 @@ function matchFromIndex(
         const currentDoc = documents[currentIdx];
         if (operator.options?.except?.includes(currentDoc.tipo)) break
 
-        if (operator.options?.capture && operator.options.capture.includes(currentDoc.tipo))
+        if (operator.options?.capture && (operator.options.capture.length === 0 || operator.options.capture.includes(currentDoc.tipo)))
           captured.unshift(currentDoc)
 
         if (captured.length) {
