@@ -26,7 +26,7 @@ const preprocessAgrupamento = (text: string) => {
 /**
  * @swagger
  * 
- * /api/batch/{name}/html:
+ * /api/v1/batch/{name}/html:
  *   get:
  *     description: Obtem um relatório em HTML para um lote de processos
  *     tags:

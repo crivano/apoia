@@ -10,7 +10,7 @@ export const maxDuration = 60
 /**
  * @swagger
  * 
- * /api/process/{number}/analysis:
+ * /api/v1/process/{number}/analysis:
  *   get:
  *     description: Analisa um processo judicial, produzindo resumo das principais peças e gerando o conteúdo dos produtos pertinentes
  *     tags:

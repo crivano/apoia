@@ -1,6 +1,6 @@
-import { streamContent } from '../../../lib/ai/generate'
+import { streamContent } from '../../../../lib/ai/generate'
 import { NextResponse } from 'next/server'
-import Fetcher from '../../../lib/utils/fetcher'
+import Fetcher from '../../../../lib/utils/fetcher'
 import { PromptDefinitionType, PromptOptionsType } from '@/lib/ai/prompt-types'
 import { getInternalPrompt, promptDefinitionFromDefinitionAndOptions } from '@/lib/ai/prompt'
 import { Dao } from '@/lib/db/mysql'

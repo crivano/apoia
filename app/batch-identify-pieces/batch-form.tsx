@@ -40,7 +40,7 @@ export default function ProcessNumberForm(params) {
         // do the job
         try {
 
-            const result = await Fetcher.post(`/api/identify-pieces/${encodeURIComponent(number)}`)
+            const result = await Fetcher.post(`/api/v1/identify-pieces/${encodeURIComponent(number)}`)
             // if (result?.status === 'OK')
             readyItems.unshift(number)
         } catch (e) {

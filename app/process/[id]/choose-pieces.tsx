@@ -30,7 +30,7 @@ function ChoosePiecesForm({ dadosDoProcesso, onSave, onClose }: { dadosDoProcess
     Frm.update({ tipoDeSintese, selectedIds }, (d) => { setTipoDeSintese(d.tipoDeSintese); setSelectedIds(d.selectedIds) }, EMPTY_FORM_STATE)
 
     const updateSelectedPieces = async () => {
-        const res = await fetch('/api/select-pieces', {
+        const res = await fetch('/api/v1/select-pieces', {
             method: 'post',
             body: JSON.stringify({
                 kind: tipoDeSintese,

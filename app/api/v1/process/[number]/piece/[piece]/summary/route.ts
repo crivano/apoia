@@ -9,7 +9,7 @@ export const maxDuration = 60
 /**
  * @swagger
  * 
- * /api/process/{number}/piece/{piece}/summary:
+ * /api/v1/process/{number}/piece/{piece}/summary:
  *   get:
  *     description: Resume uma peça processual
  *     tags:

@@ -8,13 +8,11 @@ export const maxDuration = 60
 /**
  * @swagger
  * 
- * /api/select-pieces:
+ * /api/v1/select-pieces:
  *   post:
  *     description: Seleciona as peças que serão utilizadas na síntese
  *     tags:
  *       - process
- *     security:
- *       - BearerAuth: []
  *     parameters:
  *       - in: body
  *         name: body
@@ -37,7 +35,7 @@ export const maxDuration = 60
  *               description: Tipo de síntese a ser realizada
  *     responses:
  *       200:
- *         description: OK, processo analisado e resultado armazenado no banco de dados
+ *         description: OK, peças selecionadas
  */
 export async function POST(req: Request) {
   try {

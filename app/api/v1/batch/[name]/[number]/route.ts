@@ -1,6 +1,5 @@
-import { getCurrentUser } from '@/lib/user'
+import { getCurrentUser, assertCurrentUser } from '../../../../../../lib/user'
 import { analyze } from '@/lib/ai/analysis'
-import { obterDadosDoProcesso } from '@/lib/proc/process'
 
 export const maxDuration = 60
 // export const runtime = 'edge'
@@ -9,14 +8,17 @@ export const maxDuration = 60
 /**
  * @swagger
  * 
- * /api/identify-pieces/{number}:
+ * /api/v1/batch/{name}/{number}:
  *   post:
- *     description: Utiliza IA para identificar o tipo das peças que estão marcadas como "OUTROS"
+ *     description: Seleciona a combinação de peças e produtos para um processo e gera os resumos e o conteúdo de cada produto
  *     tags:
  *       - batch
  *     security:
  *       - BearerAuth: []
  *     parameters:
+ *       - in: path
+ *         name: name
+ *         required: true
  *       - in: path
  *         name: number 
  *         required: true
@@ -31,16 +33,16 @@ export const maxDuration = 60
  */
 export async function POST(req: Request, { params }: { params: { name: string, number: string } }) {
   const { name, number } = params
+  const url = new URL(req.url)
+  const complete: boolean = url.searchParams.get('complete') === 'true'
   try {
-    const pUser = getCurrentUser()
-    if (!await pUser) return Response.json({ errormsg: 'Unauthorized' }, { status: 401 })
+    const user = await getCurrentUser()
+    if (!user) return Response.json({ errormsg: 'Unauthorized' }, { status: 401 })
 
-    const dadosDoProcesso = await obterDadosDoProcesso({numeroDoProcesso: number, pUser, identificarPecas:true})
-    if (dadosDoProcesso.errorMsg) throw new Error(dadosDoProcesso.errorMsg)
-
-    return Response.json({ status: 'OK', dadosDoProcesso })
+    const msg = await analyze(name, number, complete)
+    return Response.json({ status: 'OK', msg })
   } catch (error) {
-    console.error('Erro identificando peças', error)
+    console.error('Erro analisando', error)
     return Response.json({ errormsg: error.message }, { status: 500 })
   }
 }

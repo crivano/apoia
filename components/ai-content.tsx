@@ -63,7 +63,7 @@ export default function AiContent(params: { definition: PromptDefinitionType, da
             promptSlug: params.config?.prompt_slug,
             extra: params.config?.extra
         }
-        const response = await fetch('/api/ai', {
+        const response = await fetch('/api/v1/ai', {
             method: 'POST',
             body: JSON.stringify(payload)
         })

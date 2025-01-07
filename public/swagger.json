@@ -25,7 +25,7 @@
     }
   },
   "paths": {
-    "/api/batch/{name}/{number}": {
+    "/api/v1/batch/{name}/{number}": {
       "post": {
         "description": "Seleciona a combinação de peças e produtos para um processo e gera os resumos e o conteúdo de cada produto",
         "tags": [
@@ -63,7 +63,7 @@
         }
       }
     },
-    "/api/batch/{name}/html": {
+    "/api/v1/batch/{name}/html": {
       "get": {
         "description": "Obtem um relatório em HTML para um lote de processos",
         "tags": [
@@ -89,7 +89,7 @@
         }
       }
     },
-    "/api/identify-pieces/{number}": {
+    "/api/v1/identify-pieces/{number}": {
       "post": {
         "description": "Utiliza IA para identificar o tipo das peças que estão marcadas como \"OUTROS\"",
         "tags": [
@@ -122,7 +122,7 @@
         }
       }
     },
-    "/api/process/{number}/analysis": {
+    "/api/v1/process/{number}/analysis": {
       "get": {
         "description": "Analisa um processo judicial, produzindo resumo das principais peças e gerando o conteúdo dos produtos pertinentes",
         "tags": [
@@ -204,7 +204,7 @@
         }
       }
     },
-    "/api/process/{number}/piece/{piece}/summary": {
+    "/api/v1/process/{number}/piece/{piece}/summary": {
       "get": {
         "description": "Resume uma peça processual",
         "tags": [
@@ -289,7 +289,7 @@
         }
       }
     },
-    "/api/select-pieces": {
+    "/api/v1/select-pieces": {
       "post": {
         "description": "Seleciona as peças que serão utilizadas na síntese",
         "tags": [
@@ -338,7 +338,7 @@
         }
       }
     },
-    "/api/signin": {
+    "/api/v1/signin": {
       "post": {
         "description": "Autentica o usuário",
         "tags": [

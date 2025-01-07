@@ -1,5 +1,6 @@
-import { getCurrentUser, assertCurrentUser } from '../../../../../lib/user'
+import { getCurrentUser } from '@/lib/user'
 import { analyze } from '@/lib/ai/analysis'
+import { obterDadosDoProcesso } from '@/lib/proc/process'
 
 export const maxDuration = 60
 // export const runtime = 'edge'
@@ -8,17 +9,14 @@ export const maxDuration = 60
 /**
  * @swagger
  * 
- * /api/batch/{name}/{number}:
+ * /api/v1/identify-pieces/{number}:
  *   post:
- *     description: Seleciona a combinação de peças e produtos para um processo e gera os resumos e o conteúdo de cada produto
+ *     description: Utiliza IA para identificar o tipo das peças que estão marcadas como "OUTROS"
  *     tags:
  *       - batch
  *     security:
  *       - BearerAuth: []
  *     parameters:
- *       - in: path
- *         name: name
- *         required: true
  *       - in: path
  *         name: number 
  *         required: true
@@ -33,16 +31,16 @@ export const maxDuration = 60
  */
 export async function POST(req: Request, { params }: { params: { name: string, number: string } }) {
   const { name, number } = params
-  const url = new URL(req.url)
-  const complete: boolean = url.searchParams.get('complete') === 'true'
   try {
-    const user = await getCurrentUser()
-    if (!user) return Response.json({ errormsg: 'Unauthorized' }, { status: 401 })
+    const pUser = getCurrentUser()
+    if (!await pUser) return Response.json({ errormsg: 'Unauthorized' }, { status: 401 })
 
-    const msg = await analyze(name, number, complete)
-    return Response.json({ status: 'OK', msg })
+    const dadosDoProcesso = await obterDadosDoProcesso({numeroDoProcesso: number, pUser, identificarPecas:true})
+    if (dadosDoProcesso.errorMsg) throw new Error(dadosDoProcesso.errorMsg)
+
+    return Response.json({ status: 'OK', dadosDoProcesso })
   } catch (error) {
-    console.error('Erro analisando', error)
+    console.error('Erro identificando peças', error)
     return Response.json({ errormsg: error.message }, { status: 500 })
   }
 }

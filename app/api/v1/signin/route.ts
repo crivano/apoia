@@ -1,4 +1,4 @@
-import Fetcher from '../../../lib/utils/fetcher'
+import Fetcher from '../../../../lib/utils/fetcher'
 import { NextResponse } from 'next/server'
 import { encrypt } from '@/lib/utils/crypt'
 import { buildJweToken } from '@/lib/utils/jwt'
@@ -7,7 +7,7 @@ import { getInterop } from '@/lib/interop/interop'
 /**
  * @swagger
  * 
- * /api/signin:
+ * /api/v1/signin:
  *   post:
  *     description: Autentica o usuário
  *     tags:

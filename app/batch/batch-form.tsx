@@ -42,7 +42,7 @@ export default function ProcessNumberForm(params) {
         // do the job
         try {
 
-            const result = await Fetcher.post(`/api/batch/${encodeURIComponent(batchName)}/${encodeURIComponent(number)}?complete=${complete ? 'true' : 'false'}`)
+            const result = await Fetcher.post(`/api/v1/batch/${encodeURIComponent(batchName)}/${encodeURIComponent(number)}?complete=${complete ? 'true' : 'false'}`)
             // if (result?.status === 'OK')
             readyItems.unshift(number)
         } catch (e) {
