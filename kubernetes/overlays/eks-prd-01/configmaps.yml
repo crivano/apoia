@@ -8,13 +8,13 @@ metadata:
 data:
   NEXTAUTH_URL_INTERNAL: "http://localhost:80"
   NEXTAUTH_URL: "http://apoia.pdpj.jus.br"
-  NEXTAUTH_SECRET: ${NEXTAUTH_SECRET}
+  ###NEXTAUTH_SECRET: ${NEXTAUTH_SECRET}
 
-  JWT_SECRET: ${JWT_SECRET}
+  ###JWT_SECRET: ${JWT_SECRET}
   JWT_ISSUER: "apoia.trf2.jus.br"
   JWT_AUDIENCE: "apoia.trf2.jus.br"
 
-  PWD_SECRET: ${PWD_SECRET}
+  ###PWD_SECRET: ${PWD_SECRET}
 
   COMPLETE_ANALYSIS_LIMIT: "10000"
   CONFIDENTIALITY_LEVEL_MAX: "0"
@@ -22,13 +22,13 @@ data:
   VERCEL_ENV: "development"
 
   DB_CLIENT: "pg"
-  DB_HOST: ${DB_HOST}
+  DB_HOST: "postgres.comum"
   DB_PORT: "5432"
-  DB_USER: "pdpj_apoia"
-  DB_PASSWORD: ${DB_PASSWORD}
+  ###DB_USER: ${DB_USER}
+  ###DB_PASSWORD: ${DB_PASSWORD}
   DB_DATABASE: "pdpj_apoia"
 
-  KEYCLOAK_CREDENTIALS_SECRET: ${KEYCLOAK_CREDENTIALS_SECRET}
+  ###KEYCLOAK_CREDENTIALS_SECRET: ${KEYCLOAK_CREDENTIALS_SECRET}
   KEYCLOAK_ISSUER: "https://sso.cloud.pje.jus.br/auth/realms/pje"
 
   APP_CODE: "ApoIA"
