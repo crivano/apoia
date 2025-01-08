@@ -28,7 +28,7 @@ data:
   DB_DATABASE: "pdpj_apoia"
 
   KEYCLOAK_CREDENTIALS_SECRET: ${KEYCLOAK_CREDENTIALS_SECRET}
-  KEYCLOAK_ISSUER: "https://sso.cloud.pje.jus.br/realms/pdpj"
+  KEYCLOAK_ISSUER: "https://sso.stg.cloud.pje.jus.br/auth/realms/pje"
   
   APP_CODE: "ApoIA"
   APP_HOST: "apoia.stg.pdpj.jus.br"
