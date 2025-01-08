@@ -101,9 +101,9 @@ if (process.env.SYSTEMS) {
 
 if (process.env.KEYCLOAK_RESOURCE) {
   authOptions.providers.push(KeycloakProvider({
-    clientId: 'apoia',
+    clientId: KEYCLOAK_RESOURCE,
     clientSecret: process.env.KEYCLOAK_CREDENTIALS_SECRET as string,
-    issuer: process.env.KEYCLOAK_RESOURCE,
+    issuer: process.env.KEYCLOAK_ISSUER,
   }));
 }
 
