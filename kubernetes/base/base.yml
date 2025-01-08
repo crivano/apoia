@@ -1,21 +1,18 @@
----
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: apoia
   labels:
-    app: apoia
-    part-of: pdpj-apoia
+    app: pdpj-apoia
 spec:
+  replicas: 1
   selector:
     matchLabels:
-      app: apoia
-      part-of: pdpj-apoia
+      app: pdpj-apoia
   template:
     metadata:
       labels:
-        app: apoia
-        part-of: pdpj-apoia
+        app: pdpj-apoia
     spec:
       affinity:
         podAntiAffinity:
@@ -24,70 +21,77 @@ spec:
             podAffinityTerm:
               labelSelector:
                 matchLabels:
-                  app: apoia
-                  part-of: pdpj-apoia
+                  app: pdpj-apoia
               topologyKey: kubernetes.io/hostname
       containers:
       - name: apoia
         image: registry.cnj.jus.br/pdpj/apoia:latest
         imagePullPolicy: Always
         env:
-        - name: TZ
-          value: America/Sao_Paulo
+          - name: TZ
+            value: America/Sao_Paulo
         envFrom:
-          - configMapRef:
-              name: apoia-config
+        - secretRef:
+            name: apoia-db-secret
+        - secretRef:
+            name: apoia-envs-secret
+        - secretRef:
+            name: apoia-keycloak-secret
         ports:
         - containerPort: 80
           name: http
-        livenessProbe:
-          httpGet:
-            path: /
-            port: http
-          failureThreshold: 6
-          initialDelaySeconds: 10
-          periodSeconds: 30
-          timeoutSeconds: 10
-        readinessProbe:
-          httpGet:
-            path: /
-            port: http
-          failureThreshold: 3
-          initialDelaySeconds: 10
-          periodSeconds: 30
-          timeoutSeconds: 10
-        startupProbe:
-          httpGet:
-            path: /
-            port: http
-          failureThreshold: 20
-          periodSeconds: 30
-          timeoutSeconds: 10
+        #livenessProbe:
+        #  httpGet:
+        #    path: /actuator/health/liveness
+        #    port: http
+        #  failureThreshold: 6
+        #  initialDelaySeconds: 60
+        #  periodSeconds: 30
+        #  timeoutSeconds: 10
+        #readinessProbe:
+        #  httpGet:
+        #    path: /actuator/health/readiness
+        #    port: http
+        #  failureThreshold: 3
+        #  initialDelaySeconds: 10
+        #  periodSeconds: 30
+        #  timeoutSeconds: 10
+        #startupProbe:
+        #  tcpSocket:
+        #    port: http
+        #  initialDelaySeconds: 10  
+        #  failureThreshold: 5
+        #  periodSeconds: 30
+        #  timeoutSeconds: 10
         resources:
           requests:
-            memory: "128Mi"
-            cpu: "50m"
+            memory: "512Mi"
+            cpu: "100m"
           limits:
             memory: "2Gi"
             cpu: "1000m"
-
+        volumeMounts:
+        - name: apoia-config
+          mountPath: /app/config/
+          readOnly: true
       imagePullSecrets:
       - name: registry-cnj
-...
+      volumes:
+      - name: apoia-config
+        configMap:
+          name: apoia-config
+
 ---
 apiVersion: v1
 kind: Service
 metadata:
   name: apoia
   labels:
-    app: apoia
-    part-of: pdpj-apoia
+    app: pdpj-apoia
 spec:
+  type: ClusterIP
   ports:
-  - name: http
-    port: 80
+    - name: http
+      port: 80
   selector:
-    app: apoia
-    part-of: pdpj-apoia 
-    
-...
+    app: pdpj-apoia

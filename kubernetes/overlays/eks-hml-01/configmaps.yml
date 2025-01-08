@@ -1,4 +1,3 @@
----
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -9,35 +8,39 @@ metadata:
 data:
   NEXTAUTH_URL_INTERNAL: "http://localhost:80"
   NEXTAUTH_URL: "http://apoia.stg.pdpj.jus.br"
-  NEXTAUTH_SECRET: "***SUBSTITUIR_POR_UMA_SENHA_SEGURA***"
+  NEXTAUTH_SECRET: ${NEXTAUTH_SECRET}
 
-  JWT_SECRET: "***SUBSTITUIR_POR_UMA_SENHA_SEGURA***"
+  JWT_SECRET: ${JWT_SECRET}
   JWT_ISSUER: "apoia.trf2.jus.br"
   JWT_AUDIENCE: "apoia.trf2.jus.br"
-
-  PWD_SECRET: "***SUBSTITUIR_POR_UMA_SENHA_SEGURA***"
-
+  PWD_SECRET: ${PWD_SECRET}
+  
   COMPLETE_ANALYSIS_LIMIT: "10000"
-
   CONFIDENTIALITY_LEVEL_MAX: "0"
-
   VERCEL: "1"
   VERCEL_ENV: "development"
-
-  #DB_CLIENT: "pg"
-  #DB_HOST: "localhost"
-  #DB_PORT: "5432"
-  #DB_USER: "postgres"
-  #DB_PASSWORD: "***SUBSTITUIR_POR_UMA_SENHA_SEGURA***"
-  #DB_DATABASE: "apoia"
-
-  #KEYCLOAK_ID: "apoia"
-  #KEYCLOAK_SECRET: "***SUBSTITUIR_POR_UMA_SENHA_SEGURA***"
-  #KEYCLOAK_ISSUER: "https://sso.cloud.pje.jus.br/realms/pdpj"
-    
+  
+  DB_CLIENT: "pg"
+  DB_HOST: ${DB_HOST}
+  DB_PORT: "5432"
+  DB_USER: "pdpj_apoia"
+  DB_PASSWORD: ${DB_PASSWORD}
+  DB_DATABASE: "pdpj_apoia"
+  
+  KEYCLOAK_ID: "apoia"
+  KEYCLOAK_SECRET: ${KEYCLOAK_CREDENTIALS_SECRET}
+  KEYCLOAK_ISSUER: "https://sso.stg.cloud.pje.jus.br/auth/realms/apoiarealm"
+  
   APP_CODE: "ApoIA"
   APP_HOST: "apoia.stg.pdpj.jus.br"
   APP_PORT: "80"
   APP_REGISTRY_HOST: "discovery.stg.cloud.pje.jus.br/eureka"
-  APP_REGISTRY_PORT: "8761"
-...
+  # APP_REGISTRY_PORT: "8761"
+  
+  SYSTEMS: "TRF2,JFRJ,JFES"
+  TRF2_MNI_WSDL_URL: "https://eproc-ws.trf2.jus.br/eproc/wsdl.php?srv=intercomunicacao2.2"
+  TRF2_MNI_ENDPOINT_URL: "https://eproc-ws.trf2.jus.br/eproc/ws/controlador_ws.php?srv=intercomunicacao2.2"
+  JFRJ_MNI_WSDL_URL: "https://eproc-ws.jfrj.jus.br/eproc/wsdl.php?srv=intercomunicacao2.2"
+  JFRJ_MNI_ENDPOINT_URL: "https://eproc-ws.jfrj.jus.br/eproc/ws/controlador_ws.php?srv=intercomunicacao2.2"
+  JFES_MNI_WSDL_URL: "https://eproc-ws.jfes.jus.br/eproc/wsdl.php?srv=intercomunicacao2.2"
+  JFES_MNI_ENDPOINT_URL: "https://eproc-ws.jfes.jus.br/eproc/ws/controlador_ws.php?srv=intercomunicacao2.2"

@@ -5,8 +5,10 @@ const client = new Eureka({
         app: `${process.env.APP_CODE}`,
         hostName: process.env.APP_HOST,
         ipAddr: process.env.APP_HOST,
-        statusPageUrl: `http://${process.env.APP_HOST}:${process.env.APP_PORT}`,
+        homePageUrl: `http://${process.env.APP_HOST}:${process.env.APP_PORT}/`,
         vipAddress: `${process.env.APP_CODE}`,
+        statusPageUrl: `http://${process.env.APP_HOST}:${process.env.APP_PORT}/actuator/info`,
+        healthCheckUrl: `http://${process.env.APP_HOST}:${process.env.APP_PORT}/actuator/health`,
         port: {
             $: process.env.APP_PORT,
             '@enabled': 'true',
