@@ -29,7 +29,6 @@ data:
   DB_PASSWORD: ${DB_PASSWORD}
   DB_DATABASE: "pdpj_apoia"
 
-  KEYCLOAK_RESOURCE: "apoia"
   KEYCLOAK_CREDENTIALS_SECRET: ${KEYCLOAK_CREDENTIALS_SECRET}
   KEYCLOAK_ISSUER: "https://sso.cloud.pje.jus.br/realms/pdpj"
 
