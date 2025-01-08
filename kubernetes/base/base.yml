@@ -37,6 +37,8 @@ spec:
             name: apoia-envs-secret
         - secretRef:
             name: apoia-keycloak-secret
+        - configMapRef:
+            name: apoia-config
         ports:
         - containerPort: 80
           name: http
@@ -70,16 +72,16 @@ spec:
           limits:
             memory: "2Gi"
             cpu: "1000m"
-        volumeMounts:
-        - name: apoia-config
-          mountPath: /app/config/
-          readOnly: true
+        #volumeMounts:
+        #- name: apoia-config
+        #  mountPath: /app/config/
+        #  readOnly: true
       imagePullSecrets:
       - name: registry-cnj
-      volumes:
-      - name: apoia-config
-        configMap:
-          name: apoia-config
+      #volumes:
+      #- name: apoia-config
+      #  configMap:
+      #    name: apoia-config
 
 ---
 apiVersion: v1
