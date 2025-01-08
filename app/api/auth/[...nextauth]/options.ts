@@ -100,11 +100,13 @@ if (process.env.SYSTEMS) {
 }
 
 if (process.env.KEYCLOAK_ISSUER) {
+
   authOptions.providers.push(KeycloakProvider({
     clientId: 'apoia',
     clientSecret: process.env.KEYCLOAK_CREDENTIALS_SECRET as string,
     issuer: process.env.KEYCLOAK_ISSUER,
   }));
+
 }
 
 export default authOptions;
