@@ -10,7 +10,9 @@ import { IADocument, IADocumentContentSource } from '../db/mysql-types'
 import pLimit from 'p-limit'
 import { assertNivelDeSigilo, verificarNivelDeSigilo } from './sigilo'
 import { getInterop, Interop } from '../interop/interop'
-const limit = pLimit(process.env.OCR_LIMIT ? parseInt(process.env.OCR_LIMIT) : 1)
+import { envString } from '../utils/env'
+
+const limit = pLimit(envString('OCR_LIMIT') ? parseInt(envString('OCR_LIMIT')) : 1)
 
 const obterTextoSimples = async (buffer: ArrayBuffer, documentId: number) => {
     const decoder = new TextDecoder('utf-8')
@@ -41,7 +43,7 @@ export const ocrPdf = async (buffer: ArrayBuffer, documentId: number) =>
 // Método que recebe um buffer de um PDF, faz um post http para o serviço de OCR e retorna o PDF processado pelo OCR
 const ocrPdfSemLimite = async (buffer: ArrayBuffer, documentId: number) => {
     console.log('ocrPdf', buffer.byteLength)
-    const url = process.env.OCR_URL as string
+    const url = envString('OCR_URL') as string
     const formData = new FormData()
     const file = new Blob([buffer], { type: 'application/pdf' })
     formData.append('file', file)

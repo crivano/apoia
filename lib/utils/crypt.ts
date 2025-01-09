@@ -1,6 +1,7 @@
 import Cryptr from 'cryptr'
+import { envString } from './env'
 
-const cryptr = new Cryptr(process.env.PWD_SECRET as string, { encoding: 'base64' })
+const cryptr = new Cryptr(envString('PWD_SECRET') as string, { encoding: 'base64' })
 
 export const encrypt = (text: string) => cryptr.encrypt(text)
 

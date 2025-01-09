@@ -9,6 +9,7 @@ import { Dao } from '@/lib/db/mysql'
 import { getTriagem, getNormas, getPalavrasChave } from '@/lib/fix'
 import { generateContent } from '@/lib/ai/generate'
 import { infoDeProduto } from '../proc/info-de-produto'
+import { envString } from '../utils/env'
 
 export async function summarize(dossierNumber: string, pieceNumber: string): Promise<{ dossierData: any, generatedContent: GeneratedContent }> {
     const pUser = assertCurrentUser()
@@ -101,8 +102,8 @@ export async function analyze(batchName: string | undefined, dossierNumber: stri
             //         peca.slug = 'document'
             //     }
             // Limita aos primeiros N documentos, para não ficar muito caro nos testes
-            if (process.env.COMPLETE_ANALYSIS_LIMIT)
-                pecasComConteudo = pecasComConteudo.slice(0, parseInt(process.env.COMPLETE_ANALYSIS_LIMIT as string))
+            if (envString('COMPLETE_ANALYSIS_LIMIT'))
+                pecasComConteudo = pecasComConteudo.slice(0, parseInt(envString('COMPLETE_ANALYSIS_LIMIT') as string))
         }
 
         // console.log('pecasComConteudo', pecasComConteudo)

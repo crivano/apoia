@@ -8,11 +8,15 @@ import { Dao } from '@/lib/db/mysql'
 import { slugify } from '@/lib/utils/utils'
 import { ATTEMPTS, buildTest, preprocessQuestion } from '../../../../../../lib/ai/test/test-config'
 import { getInternalPrompt, promptDefinitionFromDefinitionAndOptions } from '@/lib/ai/prompt'
+import { getCurrentUser } from '@/lib/user'
 
 export const maxDuration = 60
 
 
 export async function GET(req: Request, { params }: { params: { testsetId: number, promptId: number, modelId: number } }) {
+    const user = await getCurrentUser()
+    if (!user) return Response.json({ errormsg: 'Unauthorized' }, { status: 401 })
+
   const encoder = new TextEncoder()
 
   const stream = new ReadableStream<any>({

@@ -8,6 +8,7 @@ import { PromptDataType, PromptDefinitionType, PromptExecutionResultsType, Promp
 import { getModel } from './model'
 import { promptExecuteBuilder, waitForTexts } from './prompt'
 import { calcSha256 } from '../utils/hash'
+import { envString } from '../utils/env'
 
 export async function retrieveFromCache(sha256: string, model: string, prompt: string, attempt: number | null): Promise<IAGenerated | undefined> {
     const cached = await Dao.retrieveIAGeneration({ sha256, model, prompt, attempt })
@@ -23,8 +24,8 @@ export async function saveToCache(sha256: string, model: string, prompt: string,
 
 // write response to a file for debugging
 function writeResponseToFile(definition: PromptDefinitionType, messages: CoreMessage[], text: string) {
-    const path: string = process.env.SAVE_PROMPT_RESULTS_PATH || ''
-    if (process.env.NODE_ENV === 'development' && path) {
+    const path: string = envString('SAVE_PROMPT_RESULTS_PATH') || ''
+    if (envString('NODE_ENV') === 'development' && path) {
         const fs = require('fs')
         const currentDate = new Date().toISOString().replace(/[-:]/g, '').replace('T', '-').split('.')[0]
         fs.writeFileSync(`${path}/${currentDate}-${definition.kind}.txt`, `${messages[0].content}\n\n${messages[1]?.content}\n\n---\n\n${text}`)

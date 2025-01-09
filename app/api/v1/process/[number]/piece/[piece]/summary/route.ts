@@ -2,6 +2,7 @@ import { summarize } from "@/lib/ai/analysis"
 import fetcher from "@/lib/utils/fetcher"
 import { filterText } from "@/lib/ui/preprocess"
 import { NextResponse } from "next/server"
+import { getCurrentUser } from "@/lib/user"
 
 export const maxDuration = 60
 // export const runtime = 'edge'
@@ -66,6 +67,9 @@ export const maxDuration = 60
  *                       description: Conteúdo gerado
  */
 export async function GET(req: Request, { params }: { params: { number: string, piece: string } }) {
+  const user = await getCurrentUser()
+  if (!user) return Response.json({ errormsg: 'Unauthorized' }, { status: 401 })
+
   try {
     const summary = await summarize(params.number, params.piece)
     const content = summary.generatedContent

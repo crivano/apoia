@@ -2,9 +2,10 @@ import { Container } from 'react-bootstrap'
 import TestPage from './TestPage'
 import fs from 'fs'
 import { TestFileType } from './testfiletype';
+import { envString } from '@/lib/utils/env';
 
 export default async function Revison() {
-    const directoryPath = process.env.TESTS_PATH as string
+    const directoryPath = envString('TESTS_PATH') as string
 
     const getTestFiles = () => {
         const files = fs.readdirSync(directoryPath);

@@ -1,7 +1,7 @@
 import { createHash } from 'node:crypto'
 
 import * as soap from 'soap'
-import { systems } from '@/lib/utils/env'
+import { envString, systems } from '@/lib/utils/env'
 import { assertCurrentUser } from '@/lib/user'
 
 import pLimit from 'p-limit'
@@ -10,7 +10,7 @@ import { DadosDoProcessoType, PecaType } from '../proc/process'
 import { parseYYYYMMDDHHMMSS } from '../utils/utils'
 import { assertNivelDeSigilo, verificarNivelDeSigilo } from '../proc/sigilo'
 
-const limit = pLimit(process.env.MNI_LIMIT ? parseInt(process.env.MNI_LIMIT) : 1)
+const limit = pLimit(envString('MNI_LIMIT') ? parseInt(envString('MNI_LIMIT')) : 1)
 
 const clientMap = new Map<string, soap.Client>()
 
@@ -106,7 +106,7 @@ const obterPecaSemLimite = async (numeroDoProcesso, idDaPeca, username: string, 
     const arquivo = client.lastResponseAttachments.parts[0]
     const b = arquivo.body
     const ab = b.buffer.slice(b.byteOffset, b.byteOffset + b.byteLength)
-    const resultado = { buffer: ab, contentType: respPeca[0].processo.documento[0].attributes.mimetype }
+    const resultado: ObterPecaType = { buffer: ab as ArrayBuffer, contentType: respPeca[0].processo.documento[0].attributes.mimetype }
     return resultado
 }
 

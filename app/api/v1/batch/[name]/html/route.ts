@@ -4,6 +4,7 @@ import { formatBrazilianDate, maiusculasEMinusculas, slugify } from "@/lib/utils
 import { preprocess } from "@/lib/ui/preprocess"
 import { fixText } from "@/lib/fix"
 import { tua } from "@/lib/proc/tua"
+import { getCurrentUser } from "@/lib/user"
 
 export const maxDuration = 60
 
@@ -43,6 +44,9 @@ const preprocessAgrupamento = (text: string) => {
  *         description: Relatório em HTML
  */
 export async function GET(req: Request, { params }: { params: { name: string } }) {
+    const user = await getCurrentUser()
+    if (!user) return Response.json({ errormsg: 'Unauthorized' }, { status: 401 })
+
     const { searchParams } = new URL(req.url)
     const ungrouped = searchParams.get('ungrouped') === 'true'
     const batch_id = await Dao.assertIABatchId(params.name)

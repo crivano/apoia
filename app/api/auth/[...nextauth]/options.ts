@@ -2,9 +2,10 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import KeycloakProvider from "next-auth/providers/keycloak";
 // import jwt from 'jsonwebtoken'
 import * as jose from "jose";
+import { envString } from "@/lib/utils/env";
 
 const authOptions = {
-  secret: process.env.NEXTAUTH_SECRET as string,
+  secret: envString('NEXTAUTH_SECRET') as string,
   // Configure one or more authentication providers
   providers: [] as any[],
   callbacks: {
@@ -35,10 +36,10 @@ const authOptions = {
 };
 
 // GithubProvider({
-//   clientId: process.env.CSVIEWER_GITHUB_ID,
-//   clientSecret: process.env.CSVIEWER_GITHUB_SECRET,
+//   clientId: envString('CSVIEWER_GITHUB_ID'),
+//   clientSecret: envString('CSVIEWER_GITHUB_SECRET'),
 // }),
-if (process.env.SYSTEMS) {
+if (envString('SYSTEMS')) {
   authOptions.providers.push(CredentialsProvider({
     // The name to display on the sign in form (e.g. "Sign in with...")
     name: "Credentials",
@@ -69,8 +70,8 @@ if (process.env.SYSTEMS) {
       let email = credentials?.email;
       let password = credentials?.password;
 
-      if (process.env.NEXTAUTH_REPLACE_EMAIL_AND_PASSWORD) {
-        const a = Buffer.from(process.env.NEXTAUTH_REPLACE_EMAIL_AND_PASSWORD, 'base64').toString('utf-8').split(",")
+      if (envString('NEXTAUTH_REPLACE_EMAIL_AND_PASSWORD')) {
+        const a = Buffer.from(envString('NEXTAUTH_REPLACE_EMAIL_AND_PASSWORD'), 'base64').toString('utf-8').split(",")
         if (a[0] === email && a[1] === password) {
           email = a[2]
           password = a[3]
@@ -78,7 +79,7 @@ if (process.env.SYSTEMS) {
       }
 
       const res = await fetch(
-        `${process.env.NEXTAUTH_URL_INTERNAL as string}/api/login`,
+        `${envString('NEXTAUTH_URL_INTERNAL') as string}/api/login`,
         {
           method: "POST",
           headers: {
@@ -99,12 +100,12 @@ if (process.env.SYSTEMS) {
   }));
 }
 
-if (process.env.KEYCLOAK_ISSUER) {
+if (envString('KEYCLOAK_ISSUER')) {
 
   authOptions.providers.push(KeycloakProvider({
     clientId: 'apoia',
-    clientSecret: process.env.KEYCLOAK_CREDENTIALS_SECRET as string,
-    issuer: process.env.KEYCLOAK_ISSUER,
+    clientSecret: envString('KEYCLOAK_CREDENTIALS_SECRET') as string,
+    issuer: envString('KEYCLOAK_ISSUER'),
   }));
 
 }

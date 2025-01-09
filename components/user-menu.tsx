@@ -8,6 +8,7 @@ import UserMenuSignout from './user-menu-signout'
 import { unstable_noStore as noStore } from 'next/cache'
 import { getPrefs } from '../lib/utils/prefs';
 import { NavigationLink } from './NavigationLink';
+import { envString } from '@/lib/utils/env';
 
 
 export default async function UserMenu() {
@@ -23,7 +24,7 @@ export default async function UserMenu() {
     const user = session?.user
     return (
         <ul className="navbar-nav me-1 mb-2x mb-lg-0x">
-            {((process.env.ACCESS_ARENA || '').split(';').includes(user?.name) || user?.roles?.includes('apoia-role-arena')) &&
+            {((envString('ACCESS_ARENA') || '').split(';').includes(user?.name) || user?.roles?.includes('apoia-role-arena')) &&
                 (<NavItem>
                     <NavigationLink href="/arena" text="Arena" />
                 </NavItem>)}

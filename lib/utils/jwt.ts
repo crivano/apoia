@@ -1,14 +1,15 @@
 import * as jose from 'jose'
 import { SHA256 } from 'crypto-js'
+import { envString } from './env'
 
 const buildJwt = async (system: string, name: string, password: string) => {
-  const jwtsecret = new TextEncoder().encode(process.env.JWT_SECRET)
+  const jwtsecret = new TextEncoder().encode(envString('JWT_SECRET'))
   const alg = 'HS256'
   const jwt = await new jose.SignJWT({ system, name, password })
     .setProtectedHeader({ alg })
     .setIssuedAt()
-    .setIssuer(process.env.JWT_ISSUER as string)
-    .setAudience(process.env.JWT_AUDIENCE as string)
+    .setIssuer(envString('JWT_ISSUER') as string)
+    .setAudience(envString('JWT_AUDIENCE') as string)
     .setExpirationTime('2h')
     .sign(jwtsecret)
   return jwt
@@ -29,7 +30,7 @@ async function sha256(message: string): Promise<Uint8Array> {
 }
 
 export const buildJweToken = async (claims: any) => {
-  const secret = await sha256(process.env.JWT_SECRET as string)
+  const secret = await sha256(envString('JWT_SECRET') as string)
 
   const jwt = await buildJwt(claims.system, claims.name, claims.password)
 
@@ -44,8 +45,8 @@ export const buildJweToken = async (claims: any) => {
 interface TokenClaims { name: string, password: string, system: string }
 
 export const verifyJweToken = async (token: string): Promise<TokenClaims> => {
-  const secret = await sha256(process.env.JWT_SECRET as string)
-  const jwtsecret = new TextEncoder().encode(process.env.JWT_SECRET)
+  const secret = await sha256(envString('JWT_SECRET') as string)
+  const jwtsecret = new TextEncoder().encode(envString('JWT_SECRET'))
 
   // jwe is token without the "Bearer " prefix
   const jwe = token.replace('Bearer ', '')
@@ -53,8 +54,8 @@ export const verifyJweToken = async (token: string): Promise<TokenClaims> => {
   const { plaintext: jwt } = await jose.compactDecrypt(jwe, secret)
 
   const { payload, protectedHeader } = await jose.jwtVerify(jwt, jwtsecret, {
-    issuer: process.env.JWT_ISSUER as string,
-    audience: process.env.JWT_AUDIENCE as string,
+    issuer: envString('JWT_ISSUER') as string,
+    audience: envString('JWT_AUDIENCE') as string,
   })
 
   return payload as unknown as TokenClaims

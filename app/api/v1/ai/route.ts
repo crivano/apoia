@@ -5,6 +5,7 @@ import { PromptDefinitionType, PromptOptionsType } from '@/lib/ai/prompt-types'
 import { getInternalPrompt, promptDefinitionFromDefinitionAndOptions } from '@/lib/ai/prompt'
 import { Dao } from '@/lib/db/mysql'
 import { IAPrompt } from '@/lib/db/mysql-types'
+import { getCurrentUser } from '@/lib/user'
 
 export const maxDuration = 60
 
@@ -39,6 +40,9 @@ async function getPromptDefinition(kind: string, promptSlug?: string, promptId?:
 
 export async function POST(request: Request) {
     try {
+        const user = await getCurrentUser()
+        if (!user) return Response.json({ errormsg: 'Unauthorized' }, { status: 401 })
+
         // const body = JSON.parse(JSON.stringify(request.body))
         const body = await request.json()
         // console.log('body', JSON.stringify(body))

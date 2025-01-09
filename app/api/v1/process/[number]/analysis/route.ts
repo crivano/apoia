@@ -3,6 +3,7 @@ import fetcher from '@/lib/utils/fetcher'
 import { NextResponse } from 'next/server'
 import { filterText } from '@/lib/ui/preprocess'
 import { GeneratedContent } from '@/lib/ai/prompt-types'
+import { getCurrentUser } from '@/lib/user'
 
 export const maxDuration = 60
 // export const runtime = 'edge'
@@ -65,6 +66,9 @@ export const maxDuration = 60
  *                         description: Conteúdo gerado
  */
 export async function GET(req: Request, { params }: { params: { number: string } }) {
+  const user = await getCurrentUser()
+  if (!user) return Response.json({ errormsg: 'Unauthorized' }, { status: 401 })
+
   const url = new URL(req.url)
   const complete: boolean = url.searchParams.get('complete') === 'true'
   try {

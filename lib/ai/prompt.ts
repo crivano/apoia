@@ -4,15 +4,21 @@ import { PromptDataType, PromptExecuteType, PromptExecuteParamsType, PromptDefin
 import { buildFormatter } from "@/lib/ai/format"
 
 
-export const formatText = (txt: TextoType) => {
+export const formatText = (txt: TextoType, limit?: number) => {
     let s: string = txt.descr
-    s += `:\n<${txt.slug}${txt.event ? ` event="${txt.event}"` : ''}${txt.label ? ` label="${txt.label}"` : ''}>\n${txt.texto}\n</${txt.slug}>\n\n`
+    s += `:\n<${txt.slug}${txt.event ? ` event="${txt.event}"` : ''}${txt.label ? ` label="${txt.label}"` : ''}>\n${limit ? txt.texto?.substring(0, limit) : txt.texto}\n</${txt.slug}>\n\n`
     return s
 }
 
 export const applyTextsAndVariables = (text: string, data: PromptDataType): string => {
     const allTexts = `${data.textos.reduce((acc, txt) => acc + formatText(txt), '')}`
     text = text.replace('{{textos}}', allTexts)
+
+    text = text.replace(/{{textos\.limit\((\d+)\)}}/g, (match, limit) => {
+        const limitNumber = parseInt(limit, 10)
+        const limitedTexts = data.textos.reduce((acc, txt) => acc + formatText(txt, limitNumber), '')
+        return limitedTexts
+    })
 
     text = text.replace(/{{textos\.([a-z_]+)}}/g, (match, slug) => {
         const found = data.textos.find(txt => txt.slug === slug)

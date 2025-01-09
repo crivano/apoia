@@ -3,6 +3,7 @@ import { DadosDoProcessoType, PecaType } from '../proc/process'
 import { parseYYYYMMDDHHMMSS } from '../utils/utils'
 import { assertNivelDeSigilo, verificarNivelDeSigilo } from '../proc/sigilo'
 import { getCurrentUser } from '../user'
+import { envString } from '../utils/env'
 
 const mimeTypyFromTipo = (tipo: string): string => {
     switch (tipo) {
@@ -37,15 +38,15 @@ export class InteropPDPJ implements Interop {
         }
 
         // Utiliza um token fixo, previamente configurado
-        if (process.env.DATALAKE_TOKEN) {
-            this.accessToken = process.env.DATALAKE_TOKEN
+        if (envString('DATALAKE_TOKEN')) {
+            this.accessToken = envString('DATALAKE_TOKEN')
             return
         }
 
         // Obtem um token de aplicação
-        if (process.env.DATALAKE_CLIENT_ID && process.env.DATALAKE_CLIENT_SECRET) {
+        if (envString('DATALAKE_CLIENT_ID') && envString('DATALAKE_CLIENT_SECRET')) {
             const authResp = await fetch(
-                process.env.KEYCLOAK_ISSUER + '/protocol/openid-connect/token',
+                envString('KEYCLOAK_ISSUER') + '/protocol/openid-connect/token',
                 {
                     method: 'POST',
                     headers: {
@@ -54,8 +55,8 @@ export class InteropPDPJ implements Interop {
                         'Content-Type': 'application/x-www-form-urlencoded'
                     },
                     body: new URLSearchParams({
-                        client_id: process.env.DATALAKE_CLIENT_ID,
-                        client_secret: process.env.DATALAKE_CLIENT_SECRET,
+                        client_id: envString('DATALAKE_CLIENT_ID'),
+                        client_secret: envString('DATALAKE_CLIENT_SECRET'),
                         scope: 'openid',
                         grant_type: 'client_credentials'
                     })
@@ -75,7 +76,7 @@ export class InteropPDPJ implements Interop {
 
     public consultarProcesso = async (numeroDoProcesso: string): Promise<DadosDoProcessoType> => {
         const response = await fetch(
-            process.env.DATALAKE_API_URL + `/processos/${numeroDoProcesso}`,
+            envString('DATALAKE_API_URL') + `/processos/${numeroDoProcesso}`,
             {
                 method: 'GET',
                 headers: {
@@ -126,7 +127,7 @@ export class InteropPDPJ implements Interop {
 
     public obterPeca = async (numeroDoProcesso, idDaPeca): Promise<ObterPecaType> => {
         const response = await fetch(
-            process.env.DATALAKE_API_URL + `/processos/${numeroDoProcesso}/documentos/${idDaPeca}/texto`,
+            envString('DATALAKE_API_URL') + `/processos/${numeroDoProcesso}/documentos/${idDaPeca}/texto`,
             {
                 method: 'GET',
                 headers: {

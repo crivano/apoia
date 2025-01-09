@@ -1,5 +1,6 @@
 import { redirect } from 'next/navigation'
 import { getCurrentUser } from '../user'
+import { envString } from './env'
 
 
 export default {
@@ -8,7 +9,7 @@ export default {
     authorization: async () => {
         const user = await getCurrentUser()
         const auth = {
-            'Authorization': `${process.env.XRP_API_AUTHORIZATION.replace(".", "|")}|${user?.picture?.email}|${user?.picture?.name}|${user?.picture?.cpf}`
+            'Authorization': `${envString('XRP_API_AUTHORIZATION').replace(".", "|")}|${user?.picture?.email}|${user?.picture?.name}|${user?.picture?.cpf}`
         }
         return auth
     },
@@ -21,7 +22,7 @@ export default {
         }
         if (params && params.headers)
             headers = { ...headers, ...params.headers }
-        if (url.includes(process.env.XRP_API_URL))
+        if (url.includes(envString('XRP_API_URL')))
             headers = { ...await this.authorization(), ...headers }
         try {
             const res = await fetch(`${url}`, {
@@ -67,7 +68,7 @@ export default {
         }
         if (params && params.headers)
             headers = { ...headers, ...params.headers }
-        if (url.includes(process.env.XRP_API_URL))
+        if (url.includes(envString('XRP_API_URL')))
             headers = { ...await this.authorization(), ...headers }
         try {
             const res = await fetch(`${url}`, {
