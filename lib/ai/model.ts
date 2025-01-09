@@ -8,6 +8,7 @@ import { EMPTY_PREFS_COOKIE, PrefsCookieType } from '@/lib/utils/prefs-types';
 import { EMPTY_FORM_STATE } from '../ui/form-support'
 import { enumSortById, ModelProvider } from './model-types'
 import { redirect } from 'next/navigation'
+import { envString } from '../utils/env'
 
 export function getEnvKeyByModel(model: string): string {
     if (model.startsWith('claude-')) {
@@ -37,7 +38,7 @@ export function getModel(params?: { structuredOutputs: boolean, overrideModel?: 
     if (prefs) {
         model = prefs.model
     } else {
-        model = process.env.MODEL as string
+        model = envString('MODEL') as string
     }
 
     if (params?.overrideModel) model = params.overrideModel

@@ -38,7 +38,7 @@ Sua resposta deve ser apenas um JSON válido, conforme o modelo abaixo:
 
 Leia atentamente os textos abaixo e produza o índice:
 
-{{textos}}
+{{textos.limit(2000)}}
 
 
 
