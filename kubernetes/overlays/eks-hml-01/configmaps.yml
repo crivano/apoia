@@ -36,7 +36,7 @@ data:
   APP_REGISTRY_HOST: "discovery.stg.cloud.pje.jus.br/eureka"
   # APP_REGISTRY_PORT: "8761"
 
-  DATALAKE_API_URL: https://api-processo.stg.data-lake.pdpj.jus.br/processo-api/api/v1
+  DATALAKE_API_URL: "https://api-processo.stg.data-lake.pdpj.jus.br/processo-api/api/v1"
   
   SYSTEMS: "TRF2,JFRJ,JFES"
   TRF2_MNI_WSDL_URL: "https://eproc-ws.trf2.jus.br/eproc/wsdl.php?srv=intercomunicacao2.2"
