@@ -1,30 +1,6 @@
 # PROMPT
 
-Entendido. Como não teremos acesso aos documentos anexados, vamos focar apenas nos critérios que podem ser analisados com base no texto da petição inicial.
-
-**Critérios que podem ser analisados apenas pelo texto da petição inicial:**
-
-1. **Requerimento de justiça gratuita sem justificativa ou evidências de necessidade econômica**: Podemos verificar se o pedido de justiça gratuita foi feito sem qualquer justificativa no texto.
-
-2. **Pedido padronizado de dispensa de audiência preliminar ou de conciliação**: O texto pode mostrar um pedido padrão para dispensar audiências preliminares ou de conciliação.
-
-3. **Ajuizamento em comarca distinta do domicílio das partes ou do local do fato**: Se a petição inclui os endereços das partes e menciona a comarca, podemos avaliar essa questão.
-
-4. **Petição inicial genérica sem particularização dos fatos do caso concreto**: Podemos analisar se a petição é genérica e carece de detalhes específicos.
-
-5. **Presença de causas de pedir alternativas relacionadas por hipóteses**: Podemos identificar se a petição inclui causas de pedir alternativas.
-
-6. **Pedidos vagos, hipotéticos ou alternativos sem relação lógica com a causa de pedir**: É possível avaliar a clareza e a lógica entre os pedidos e as causas apresentadas.
-
-7. **Valor da causa elevado e sem relação com as pretensões formuladas**: Se o valor da causa está indicado no texto, podemos analisar sua adequação.
-
-8. **Pedidos declaratórios sem demonstração de utilidade, necessidade e adequação**: Podemos verificar se a petição justifica adequadamente os pedidos declaratórios.
-
----
-
-**Prompt para análise:**
-
-Por favor, analise o texto da petição inicial fornecida e atribua uma nota de 1 a 5 para cada um dos critérios abaixo, onde:
+Por favor, analise o texto da petição inicial e dos documentos anexos fornecids e atribua uma nota de 1 a 5 para cada um dos critérios abaixo, onde:
 
 - **1** significa que o critério não está presente.
 - **5** significa que o critério está fortemente presente.
@@ -33,33 +9,32 @@ Apresente o resultado em formato JSON, seguindo o exemplo fornecido.
 
 **Critérios:**
 
-1. Requerimento de justiça gratuita sem justificativa ou evidências de necessidade econômica.
-2. Pedido padronizado de dispensa de audiência preliminar ou de conciliação.
-3. Ajuizamento em comarca distinta do domicílio das partes ou do local do fato.
-4. Petição inicial genérica sem particularização dos fatos do caso concreto.
-5. Presença de causas de pedir alternativas relacionadas por hipóteses.
-6. Pedidos vagos, hipotéticos ou alternativos sem relação lógica com a causa de pedir.
-7. Valor da causa elevado e sem relação com as pretensões formuladas.
-8. Pedidos declaratórios sem demonstração de utilidade, necessidade e adequação.
+1. **Requerimento de justiça gratuita sem justificativa aparente**  
+2. **Pedido padronizado de dispensa de audiência preliminar ou de conciliação**
+3. **Ajuizamento em comarca distinta do domicílio das partes ou do local do fato**
+4. **Petição inicial genérica sem particularização dos fatos do caso concreto**
+5. **Presença de causas de pedir alternativas relacionadas por hipóteses**
+6. **Pedidos vagos, hipotéticos ou alternativos, sem relação lógica com a causa de pedir**  
+7. **Propositura de ações repetitivas ou fragmentadas** (indício presente no texto ou menções a outros processos sem esclarecimentos)  
+8. **Indícios de documentos incompletos, ilegíveis ou desconexos com a narrativa**  
+9. **Procuração irregular ou sem poderes necessários** (seu conteúdo ou forma não conferem com o alegado)  
+10. **Valor da causa elevado e sem relação com as pretensões formuladas**  
+11. **Pedidos declaratórios ou alternativos sem utilidade prática, necessidade e adequação**  
+12. **Outros aspectos que indiquem abusividade** (ex.: intenção de assédio processual, ajuizamento em foro estranho sem justificativa, etc.)
 
 **Exemplo de JSON:**
 
 ```json
 {
-  "criterios": {
-    "1": 3,
-    "2": 1,
-    "3": 5,
-    "4": 4,
-    "5": 2,
-    "6": 1,
-    "7": 2,
-    "8": 5
-  }
+  "criteria": [
+    {"number":1, "score": 3, "justification", "[Exemplo de justificativa sobre análise do critério 1]"},
+    {"number":2, "score": 1, "justification", "[Exemplo de justificativa sobre análise do critério 2]"},
+    ...
+  ]
 }
 ```
 
-**Petição inicial a ser analisada:**
+**Petição inicial e documentos anexos a serem analisados:**
 
 {{textos}}
 
@@ -68,3 +43,86 @@ Apresente o resultado em formato JSON, seguindo o exemplo fornecido.
 - Certifique-se de que o JSON final contenha apenas as chaves numéricas correspondentes aos critérios, conforme o exemplo.
 - Não inclua comentários ou análises adicionais; apenas forneça o JSON com as notas.
 - Caso um critério não possa ser avaliado com base no texto fornecido, atribua a nota **1**.
+
+
+
+
+# JSON SCHEMA
+
+{
+    "type": "object",
+    "properties": {
+        "criteria": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "number": {
+                        "type": "number"
+                    },
+                    "score": {
+                        "type": "number"
+                    },
+                    "justification": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "number",
+                    "score",
+                    "justification"
+                ],
+                "additionalProperties": false
+            }
+        }
+    },
+    "required": [
+        "criteria"
+    ],
+    "additionalProperties": false
+}
+
+
+# FORMAT
+
+{% set criterion = {
+    '1': 'Requerimento de justiça gratuita sem justificativa aparente',
+    '2': 'Pedido padronizado de dispensa de audiência preliminar ou de conciliação',
+    '3': 'Ajuizamento em comarca distinta do domicílio das partes ou do local do fato',
+    '4': 'Petição inicial genérica sem particularização dos fatos do caso concreto',
+    '5': 'Presença de causas de pedir alternativas relacionadas por hipóteses',
+    '6': 'Pedidos vagos, hipotéticos ou alternativos, sem relação lógica com a causa de pedir',
+    '7': 'Propositura de ações repetitivas ou fragmentadas',
+    '8': 'Indícios de documentos incompletos, ilegíveis ou desconexos com a narrativa',
+    '9': 'Procuração irregular ou sem poderes necessários',
+    '10': 'Valor da causa elevado e sem relação com as pretensões formuladas',
+    '11': 'Pedidos declaratórios ou alternativos sem utilidade prática, necessidade e adequação',
+    '12': 'Outros aspectos que indiquem abusividade'
+} %}
+<table class="table table-striped table-info table-sm">
+<thead>
+<tr><th>#</th><th>Critério</th><th class="text-end">Nota</th><th>Justificativa</th></tr>
+</thead>
+<tbody>
+ {% set totalScore = 0 %}
+    {% for d in criteria %}
+      <tr>
+        <td>{{ loop.index }}</td>
+        <td>{{ criterion[d.number] }}</td>
+        <th class="text-end">{{ d.score }}</th>
+        <td>{{ d.justification }}</td>
+      </tr>
+      {% set totalScore = totalScore + d.score %}
+    {% endfor %}
+  </tbody>
+
+  <tfoot>
+    <tr>
+      <th colspan="2">Média das notas</th>
+      <th class="text-end">
+        {{ (totalScore / criteria.length) | round(1) }}
+      </th>
+      <th></th>
+    </tr>
+  </tfoot>
+</table>

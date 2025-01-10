@@ -34,7 +34,7 @@ export const spinner = (s: string, complete: boolean): string => {
     return s
 }
 
-export default function AiContent(params: { definition: PromptDefinitionType, data: PromptDataType, options?: PromptOptionsType, config?: PromptConfigType, onReady?: (content: ContentType) => void }) {
+export default function AiContent(params: { definition: PromptDefinitionType, data: PromptDataType, options?: PromptOptionsType, config?: PromptConfigType, onBusy?: () => void, onReady?: (content: ContentType) => void }) {
     const [current, setCurrent] = useState('')
     const [complete, setComplete] = useState(false)
     const [errormsg, setErrormsg] = useState('')
@@ -63,6 +63,9 @@ export default function AiContent(params: { definition: PromptDefinitionType, da
             promptSlug: params.config?.prompt_slug,
             extra: params.config?.extra
         }
+
+        if (params.onBusy) params.onBusy()
+
         const response = await fetch('/api/v1/ai', {
             method: 'POST',
             body: JSON.stringify(payload)

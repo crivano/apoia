@@ -25,6 +25,32 @@
     }
   },
   "paths": {
+    "/api/v1/ai": {
+      "post": {
+        "description": "Gera uma resposta a partir de diversos parâmetros de configuração de prompt e dados obtido de um processo",
+        "tags": [
+          "ai"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "description": "Parâmetros de configuração do prompt e dados"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Resposta do assistente"
+          }
+        }
+      }
+    },
     "/api/v1/batch/{name}/{number}": {
       "post": {
         "description": "Seleciona a combinação de peças e produtos para um processo e gera os resumos e o conteúdo de cada produto",
@@ -85,6 +111,32 @@
         "responses": {
           "200": {
             "description": "Relatório em HTML"
+          }
+        }
+      }
+    },
+    "/api/v1/chat": {
+      "post": {
+        "description": "Executa uma operação de chat com o modelo de linguagem padrão",
+        "tags": [
+          "ai"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "messages",
+            "required": true,
+            "description": "Mensagens do chat"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Resposta do assistente"
           }
         }
       }
@@ -295,11 +347,6 @@
         "tags": [
           "process"
         ],
-        "security": [
-          {
-            "BearerAuth": []
-          }
-        ],
         "parameters": [
           {
             "in": "body",
@@ -333,7 +380,7 @@
         ],
         "responses": {
           "200": {
-            "description": "OK, processo analisado e resultado armazenado no banco de dados"
+            "description": "OK, peças selecionadas"
           }
         }
       }

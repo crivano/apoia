@@ -38,6 +38,25 @@ async function getPromptDefinition(kind: string, promptSlug?: string, promptId?:
     return definition
 }
 
+/**
+ * @swagger
+ * 
+ * /api/v1/ai:
+ *   post:
+ *     description: Gera uma resposta a partir de diversos parâmetros de configuração de prompt e dados obtido de um processo
+ *     tags:
+ *       - ai
+ *     security:
+ *       - BearerAuth: []
+ *     parameters:
+ *       - in: body
+ *         name: body
+ *         required: true
+ *         description: Parâmetros de configuração do prompt e dados
+ *     responses:
+ *       200:
+ *         description: Resposta do assistente
+ */
 export async function POST(request: Request) {
     try {
         const user = await getCurrentUser()

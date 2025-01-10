@@ -45,16 +45,6 @@ export function buildRequests(produtos: InfoDeProduto[], pecasComConteudo: Texto
 
     // Add product IARequests
     for (const produto of produtos) {
-        // Add resume for each piece
-        if (produto.produto === P.RESUMOS) {
-            for (const peca of pecasComConteudo) {
-                const definition = getInternalPrompt(`resumo-${peca.slug}`)
-                const data: PromptDataType = { textos: [peca] }
-                requests.push({ documentCode: peca.id || null, documentDescr: peca.descr, data, title: peca.descr, produto: produto.produto, promptSlug: definition.kind, internalPrompt: definition })
-            }
-            continue
-        }
-
         let data: PromptDataType = { textos: pecasComConteudo }
 
         let produtoSimples: P | undefined = undefined
@@ -67,6 +57,16 @@ export function buildRequests(produtos: InfoDeProduto[], pecasComConteudo: Texto
             produtoSimples = complex.produto
         } else {
             produtoSimples = produto
+        }
+
+        // Add resume for each piece
+        if (produtoSimples === P.RESUMOS) {
+            for (const peca of data.textos) {
+                const definition = getInternalPrompt(`resumo-${peca.slug}`)
+                const data: PromptDataType = { textos: [peca] }
+                requests.push({ documentCode: peca.id || null, documentDescr: peca.descr, data, title: peca.descr, produto: produto.produto, promptSlug: definition.kind, internalPrompt: definition })
+            }
+            continue
         }
 
         const produtoValido = ProdutosValidos[produtoSimples]

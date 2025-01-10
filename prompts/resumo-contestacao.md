@@ -18,6 +18,8 @@ Por favor, leia com atenção a peça a seguir e resuma as informações mais im
 
 {{textos}}
 
+Se não houver conteúdo textual significativo a ser analisado, reponda apenas que não há texto a ser analisado.
+
 Antes de escrever o resumo final, organize seus pensamentos em um <scratchpad>, anotando os pontos chave que você precisa incluir, como:
 - Os argumentos jurídicos apresentados
 - O que o réu alega que o juiz deve fazer.

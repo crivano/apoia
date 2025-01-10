@@ -341,3 +341,22 @@ div.ai-content {
 .popover {
     max-width: 50% !important;
 }
+
+.chat-box div div p {
+    margin-bottom: 0.5rem;
+}
+
+.chat-content {
+    padding-top: .5em;
+    padding-bottom: .01em;
+    padding-left: .5em;
+    padding-right: .5rem
+}
+
+.chat-user {
+    background-color: rgb(14, 87, 53)
+}
+
+.chat-ai {
+    background-color: rgb(65, 71, 77)
+}

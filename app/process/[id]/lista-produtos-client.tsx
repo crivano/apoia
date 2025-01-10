@@ -9,11 +9,17 @@ import { ContentType, GeneratedContent } from '@/lib/ai/prompt-types'
 import AiContent from '@/components/ai-content'
 import { EMPTY_FORM_STATE, FormHelper } from '@/lib/ui/form-support'
 import { P } from '@/lib/proc/combinacoes'
+import Chat from './chat'
 
 const Frm = new FormHelper(true)
 
+const onBusy = (Frm: FormHelper, requests: GeneratedContent[], idx: number) => {
+    Frm.set('pending', Frm.get('pending') + 1)
+}
+
 const onReady = (Frm: FormHelper, requests: GeneratedContent[], idx: number, content: ContentType) => {
     const request = requests[idx]
+    Frm.set('pending', Frm.get('pending') - 1)
 
     // Frm.set(`flow.ready[${idx}]`, content)
     if (requests[idx].produto === P.PEDIDOS && content.json) {
@@ -26,7 +32,6 @@ function requestSlot(Frm: FormHelper, requests: GeneratedContent[], idx: number)
 
     const pedidos = Frm.get('pedidos')
     if (request.produto === P.PEDIDOS && pedidos) {
-        console.log('pedidos', pedidos)
         const tiposDeLiminar = [
             { id: 'NAO', name: 'Não' },
             { id: 'SIM', name: 'Sim' },
@@ -97,18 +102,21 @@ function requestSlot(Frm: FormHelper, requests: GeneratedContent[], idx: number)
                 </div>
             )}
         </>
+    } else if (request.produto === P.CHAT) {
+        if (Frm.get('pending') > 0) return null
+        return <Chat definition={request.internalPrompt} data={request.data} key={calcSha256(request.data)} />
     }
 
     return <div key={idx}>
         <h2>{maiusculasEMinusculas(request.title)}</h2>
         <Suspense fallback={ResumoDePecaLoading()}>
-            <AiContent definition={request.internalPrompt} data={request.data} key={calcSha256(request.data)} onReady={(content) => onReady(Frm, requests, idx, content)} />
+            <AiContent definition={request.internalPrompt} data={request.data} key={calcSha256(request.data)} onBusy={() => onBusy(Frm, requests, idx)} onReady={(content) => onReady(Frm, requests, idx, content)} />
         </Suspense>
     </div>
 }
 
 export const ListaDeProdutos = ({ dadosDoProcesso, requests }: { dadosDoProcesso: DadosDoProcessoType, requests: GeneratedContent[] }) => {
-    const [data, setData] = useState({} as any)
+    const [data, setData] = useState({ pending: 0 } as any)
 
     if (!dadosDoProcesso || dadosDoProcesso.errorMsg) return ''
 
@@ -122,6 +130,7 @@ export const ListaDeProdutos = ({ dadosDoProcesso, requests }: { dadosDoProcesso
     return <>{requests.map((request, idx) => {
         return requestSlot(Frm, requests, idx)
     })}
+
         {/* <p>{JSON.stringify(data)}</p> */}
     </>
 }

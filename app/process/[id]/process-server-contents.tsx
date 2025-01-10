@@ -34,8 +34,8 @@ export default async function ShowProcess({ id, kind, pieces }) {
     const pDadosDoProcesso = obterDadosDoProcesso({ numeroDoProcesso: id, pUser, kind, pieces })
 
     return (
-        <div className="row juia main-show-row mb-3">
-            <div className="col col-12 main-view">
+        <div className="mb-3">
+            <div className="">
                 <Suspense fallback={SubtituloLoading()}>
                     <Subtitulo pDadosDoProcesso={pDadosDoProcesso} />
                 </Suspense>

@@ -51,12 +51,13 @@ Informe o identificador do modelo de inteligência artificial que deseja utiliza
 MODEL=gpt-4o-2024-08-06
 ```
 
-Forneça a chave da API. Informe a chave de API relativa ao modelo selecionado. As outras não serão utilizadas.
+Forneça a chave da API relativa ao modelo selecionado. Caso nenhuma seja fornecida, a ApoIA vai solicitar as chaves ao usuário.
 
 ```properties
-OPENAI_API_KEY=CHAVE_DE_API_OPENAI
+OPENAI_API_KEY=CHAVE_DE_API_OPENAI (opcional)
 ANTHROPIC_API_KEY=CHAVE_DE_API_ANTHROPIC (opcional)
 GOOGLE_API_KEY=CHAVE_DE_API_GOOGLE (opcional)
+GROQ_API_KEY=CHAVE_DE_API_GROQ (opcional)
 ```
 
 Sugerimos que a ApoIA não tenha acesso a documentos sigilosos. Isso pode ser obtido aplicando a propriedade abaixo:
@@ -173,19 +174,3 @@ $ docker build -t apoiaserver .
 ```
 
 Caso deseje fazer deploy na nuvem, a ApoIA funciona perfeitamente no Vercel, basta indicar o repositório do GitHub e inserir as configurações.
-
-## Testando os Prompts
-
-A ApoIA utiliza o framework PromptFoo para realizar testes em seus prompts.
-
-Para executar o teste de um prompt específico, vá para o diretório onde se encontra o arquivo prompt.txt e execute o comando:
-
-```bash
-npx promptfoo@latest eval --env-file ../../.env.local --no-table --repeat 1 -c test.yaml
-```
-
-Para abrir a visualização dos resultados no browser, digite:
-
-```bash
-npx promptfoo@latest view
-```

@@ -35,6 +35,8 @@ export enum P {
     REFINAMENTO = 'Refinamento',
     PEDIDOS = 'Pedidos',
     INDICE = 'Índice',
+    LITIGANCIA_PREDATORIA = 'Litigância Predatória',
+    CHAT = 'Chat',
 }
 
 export enum Plugin {
@@ -61,6 +63,8 @@ export const ProdutosValidos = {
     [P.REFINAMENTO]: { titulo: P.REFINAMENTO, prompt: 'refinamento', plugins: [] },
     [P.PEDIDOS]: { titulo: P.PEDIDOS, prompt: 'pedidos-de-peticao-inicial', plugins: [] },
     [P.INDICE]: { titulo: P.INDICE, prompt: 'indice', plugins: [] },
+    [P.LITIGANCIA_PREDATORIA]: { titulo: P.LITIGANCIA_PREDATORIA, prompt: 'litigancia-predatoria', plugins: [] },
+    [P.CHAT]: { titulo: P.CHAT, prompt: 'chat', plugins: [] },
 }
 
 export interface ProdutoCompleto { produto: P, dados: T[] }
@@ -91,7 +95,7 @@ export const TipoDeSinteseMap: Record<string, TipoDeSinteseType> = {
             [ANY(), EXACT(T.PETICAO_INICIAL), ANY({ capture: [T.CONTESTACAO, T.INFORMACAO_EM_MANDADO_DE_SEGURANCA] }), OR(T.CONTESTACAO, T.INFORMACAO_EM_MANDADO_DE_SEGURANCA), ANY(), EXACT(T.SENTENCA), ANY()],
             [ANY(), EXACT(T.PETICAO_INICIAL), ANY({ capture: [T.CONTESTACAO, T.INFORMACAO_EM_MANDADO_DE_SEGURANCA] }), OR(T.CONTESTACAO, T.INFORMACAO_EM_MANDADO_DE_SEGURANCA), ANY()]
         ],
-        produtos: [P.RESUMOS, P.RESUMO]
+        produtos: [P.RESUMOS, P.RESUMO, P.CHAT]
     },
     RESUMOS_ANALISE: {
         sort: 2,
@@ -103,7 +107,7 @@ export const TipoDeSinteseMap: Record<string, TipoDeSinteseType> = {
             [ANY(), EXACT(T.PETICAO_INICIAL), ANY({ capture: [T.CONTESTACAO, T.INFORMACAO_EM_MANDADO_DE_SEGURANCA] }), OR(T.CONTESTACAO, T.INFORMACAO_EM_MANDADO_DE_SEGURANCA), ANY(), EXACT(T.SENTENCA), ANY()],
             [ANY(), EXACT(T.PETICAO_INICIAL), ANY({ capture: [T.CONTESTACAO, T.INFORMACAO_EM_MANDADO_DE_SEGURANCA] }), OR(T.CONTESTACAO, T.INFORMACAO_EM_MANDADO_DE_SEGURANCA), ANY()]
         ],
-        produtos: [P.RESUMOS, P.ANALISE]
+        produtos: [P.RESUMOS, P.ANALISE, P.CHAT]
     },
     RESUMOS: {
         sort: 3,
@@ -118,18 +122,38 @@ export const TipoDeSinteseMap: Record<string, TipoDeSinteseType> = {
         // tipos: [
         //     [T.PETICAO_INICIAL],
         // ],
-        produtos: [P.RESUMOS]
+        produtos: [P.RESUMOS, P.CHAT]
+    },
+    LITIGANCIA_PREDATORIA: {
+        sort: 4,
+        nome: 'Litigância Predatória',
+        padroes: [
+            [ANY(), EXACT(T.PETICAO_INICIAL), ANY()],
+        ],
+        produtos: [PC(P.RESUMOS, [T.PETICAO_INICIAL]), P.LITIGANCIA_PREDATORIA, P.CHAT]
     },
     PEDIDOS: {
-        sort: 4,
+        sort: 5,
         nome: 'Pedidos',
         padroes: [
             [ANY(), EXACT(T.PETICAO_INICIAL), ANY()],
         ],
-        produtos: [P.RESUMOS, P.PEDIDOS]
+        produtos: [P.RESUMOS, P.PEDIDOS, P.CHAT]
     },
+    CHAT: {
+        sort: 6,
+        nome: 'Chat',
+        padroes: [
+            [ANY({ capture: [] })],
+        ],
+        // tipos: [
+        //     [T.PETICAO_INICIAL],
+        // ],
+        produtos: [P.CHAT]
+    },
+
     INDICE: {
-        sort: 4,
+        sort: 7,
         nome: 'Índice',
         padroes: [
             [ANY({ capture: [] })],
@@ -137,7 +161,7 @@ export const TipoDeSinteseMap: Record<string, TipoDeSinteseType> = {
         // tipos: [
         //     [T.PETICAO_INICIAL],
         // ],
-        produtos: [P.INDICE]
+        produtos: [P.INDICE, P.CHAT]
     },
 
     // RESUMOS_ACORDAO: {

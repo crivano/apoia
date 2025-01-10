@@ -11,6 +11,7 @@ export const formatText = (txt: TextoType, limit?: number) => {
 }
 
 export const applyTextsAndVariables = (text: string, data: PromptDataType): string => {
+    if (!text) return ''
     const allTexts = `${data.textos.reduce((acc, txt) => acc + formatText(txt), '')}`
     text = text.replace('{{textos}}', allTexts)
 
@@ -42,7 +43,7 @@ export const waitForTexts = async (data: PromptDataType): Promise<void> => {
 export const promptExecuteBuilder = (definition: PromptDefinitionType, data: PromptDataType): PromptExecuteType => {
     const message: CoreMessage[] = []
     if (definition.systemPrompt)
-        message.push({ role: 'system', content: definition.systemPrompt })
+        message.push({ role: 'system', content: applyTextsAndVariables(definition.systemPrompt, data) })
 
     const promptContent: string = applyTextsAndVariables(definition.prompt, data)
     message.push({ role: 'user', content: promptContent })
@@ -126,6 +127,7 @@ import int_identificar_categoria_de_peca from '@/prompts/int-identificar-categor
 import litigancia_predatoria from '@/prompts/litigancia-predatoria.md'
 import pedidos_de_peticao_inicial from '@/prompts/pedidos-de-peticao-inicial.md'
 import indice from '@/prompts/indice.md'
+import chat from '@/prompts/chat.md'
 
 // Enum for the different types of prompts
 export const internalPrompts = {
@@ -149,5 +151,6 @@ export const internalPrompts = {
     litigancia_predatoria: promptDefinitionFromMarkdown('litigancia_predatoria', litigancia_predatoria),
     pedidos_de_peticao_inicial: promptDefinitionFromMarkdown('pedidos_de_peticao_inicial', pedidos_de_peticao_inicial),
     indice: promptDefinitionFromMarkdown('indice', indice),
+    chat: promptDefinitionFromMarkdown('chat', chat),
 }
 

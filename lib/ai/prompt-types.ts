@@ -20,7 +20,7 @@ import { P, Plugin, T } from "../proc/combinacoes";
 export type PromptDefinitionType = {
     kind: string
     systemPrompt?: string
-    prompt: string
+    prompt?: string
     jsonSchema?: string
     format?: string
     model?: string
