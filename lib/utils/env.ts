@@ -10,7 +10,7 @@ enum EnvPublicEnum {
     VERCEL,
     VERCEL_ENV,
     NODE_ENV,
-
+    
     DB_CLIENT,
     DB_PORT,
     DB_USER,
@@ -19,6 +19,7 @@ enum EnvPublicEnum {
     DB_POOL,
     
     KEYCLOAK_ISSUER,
+    DATALAKE_API_URL,
     
     APP_CODE,
     APP_PORT,
@@ -39,7 +40,6 @@ enum EnvPrivateEnum {
     NEXTAUTH_REPLACE_EMAIL_AND_PASSWORD,
     JWT_SECRET,
     PWD_SECRET,
-    DATALAKE_API_URL,
     DATALAKE_TOKEN,
     DATALAKE_CLIENT_ID,
     DATALAKE_CLIENT_SECRET,
