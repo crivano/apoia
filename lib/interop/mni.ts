@@ -181,6 +181,7 @@ export class InteropMNI implements Interop {
             pecas.unshift({
                 id: doc.attributes.idDocumento,
                 numeroDoEvento: doc.attributes.movimento,
+                descricaoDoEvento: '',
                 descr: doc.attributes.descricao,
                 tipoDoConteudo: doc.attributes.mimetype,
                 sigilo: doc.attributes.nivelSigilo,

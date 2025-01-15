@@ -2,23 +2,25 @@ import { T } from "./combinacoes";
 
 // Interface para documentos do processo
 export interface Documento {
-  id: string;
-  tipo: T;
+  id: string
+  tipo: T
+  numeroDoEvento: string
+  descricaoDoEvento: string
 }
 
 export interface MatchOptions {
-  capture?: T[];
-  except?: T[];
+  capture?: T[]
+  except?: T[]
 }
 
 // Tipos de operadores
 export type MatchOperator =
-  | { type: 'EXACT'; docType: T }
+  | { type: 'EXACT'; docType: T; captureAllInSameEvent?: boolean }
   | { type: 'OR'; docTypes: T[] }
   | { type: 'ANY'; options?: MatchOptions }
   | { type: 'SOME'; options?: MatchOptions };
 
-export const EXACT = (docType: T) => ({ type: 'EXACT' as const, docType })
+export const EXACT = (docType: T, captureAllInSameEvent?: boolean) => ({ type: 'EXACT' as const, docType, captureAllInSameEvent })
 export const OR = (...docTypes: T[]) => ({ type: 'OR' as const, docTypes })
 export const ANY = (options?: MatchOptions) => ({ type: 'ANY' as const, options })
 export const SOME = (options?: MatchOptions) => ({ type: 'SOME' as const, options })
@@ -37,17 +39,27 @@ function matchFromIndex(
   if (patternIdx < 0) return null
 
   const operator = pattern[patternIdx];
-  const document = docIdx >= 0 ? documents[docIdx] : { id: null, tipo: null };
-  
+  const document: Documento = docIdx >= 0 ? documents[docIdx] : { id: null, tipo: null, numeroDoEvento: null, descricaoDoEvento: null };
+
   switch (operator.type) {
     case 'EXACT':
       if (document.tipo === operator.docType) {
+        const captured: Documento[] = [document];
+        let currentIdx = docIdx;
+        if (operator.captureAllInSameEvent) {
+          while (currentIdx < documents.length) { 
+            const currentDoc = documents[currentIdx]
+            if (currentDoc.numeroDoEvento !== document.numeroDoEvento) break
+            captured.push(currentDoc)
+            currentIdx++;
+          }
+        }
         return matchFromIndex(
           documents,
           pattern,
           patternIdx - 1,
           docIdx - 1,
-          [{ operator, captured: [document] }, ...matched]
+          [{ operator, captured }, ...matched]
         );
       }
       return null;

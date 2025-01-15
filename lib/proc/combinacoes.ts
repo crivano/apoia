@@ -128,7 +128,7 @@ export const TipoDeSinteseMap: Record<string, TipoDeSinteseType> = {
         sort: 4,
         nome: 'Litigância Predatória',
         padroes: [
-            [ANY(), EXACT(T.PETICAO_INICIAL), ANY()],
+            [ANY(), EXACT(T.PETICAO_INICIAL, true), ANY()],
         ],
         produtos: [PC(P.RESUMOS, [T.PETICAO_INICIAL]), P.LITIGANCIA_PREDATORIA, P.CHAT]
     },

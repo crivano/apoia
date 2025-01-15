@@ -34,7 +34,7 @@ function ChoosePiecesForm({ dadosDoProcesso, onSave, onClose }: { dadosDoProcess
             method: 'post',
             body: JSON.stringify({
                 kind: tipoDeSintese,
-                pieces: dadosDoProcesso.pecas.map(p => ({ id: p.id, descr: p.descr }))
+                pieces: dadosDoProcesso.pecas.map(p => ({ id: p.id, descr: p.descr, numeroDoEvento: p.numeroDoEvento, descricaoDoEvento: p.descricaoDoEvento }))
             }),
             headers: {
                 'Content-Type': 'application/json',

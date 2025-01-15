@@ -109,6 +109,7 @@ export class InteropPDPJ implements Interop {
             pecas.unshift({
                 id: doc.id,
                 numeroDoEvento: doc.sequencia,
+                descricaoDoEvento: '',
                 descr: doc.tipo.nome.toUpperCase(),
                 tipoDoConteudo: mimeTypyFromTipo(doc.arquivo?.tipo),
                 sigilo: nivelDeSigiloFromNivel(doc.nivelSigilo),

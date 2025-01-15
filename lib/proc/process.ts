@@ -12,6 +12,7 @@ import { getInterop, Interop } from '../interop/interop'
 export type PecaType = {
     id: string
     numeroDoEvento: string
+    descricaoDoEvento: string
     descr: string
     tipoDoConteudo: string
     sigilo: string
@@ -77,7 +78,7 @@ export const selecionarUltimasPecas = (pecas: PecaType[], descricoes: string[]) 
 }
 
 export const selecionarPecasPorPadrao = (pecas: PecaType[], padroes: MatchOperator[][]) => {
-    const ps: Documento[] = pecas.map(p => ({ id: p.id, tipo: p.descr as T }))
+    const ps: Documento[] = pecas.map(p => ({ id: p.id, tipo: p.descr as T, numeroDoEvento: p.numeroDoEvento, descricaoDoEvento: p.descricaoDoEvento }))
 
     // Cria um índice de peças por id
     const indexById = {}
