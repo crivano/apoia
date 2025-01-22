@@ -67,6 +67,7 @@
         "sharp": "^0.33.5",
         "showdown": "^2.1.0",
         "soap": "^1.0.3",
+        "string-comparison": "^1.3.0",
         "swagger-ui-react": "^5.17.14",
         "tls": "^0.0.1",
         "turndown": "^7.2.0",

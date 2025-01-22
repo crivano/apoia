@@ -128,6 +128,7 @@ import litigancia_predatoria from '@/prompts/litigancia-predatoria.md'
 import pedidos_de_peticao_inicial from '@/prompts/pedidos-de-peticao-inicial.md'
 import indice from '@/prompts/indice.md'
 import chat from '@/prompts/chat.md'
+import relatorio_completo_criminal from '@/prompts/relatorio-completo-criminal.md'
 
 // Enum for the different types of prompts
 export const internalPrompts = {
@@ -152,5 +153,6 @@ export const internalPrompts = {
     pedidos_de_peticao_inicial: promptDefinitionFromMarkdown('pedidos_de_peticao_inicial', pedidos_de_peticao_inicial),
     indice: promptDefinitionFromMarkdown('indice', indice),
     chat: promptDefinitionFromMarkdown('chat', chat),
+    relatorio_completo_criminal: promptDefinitionFromMarkdown('relatorio_completo_criminal', relatorio_completo_criminal),
 }
 

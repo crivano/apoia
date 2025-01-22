@@ -37,6 +37,7 @@ export enum P {
     INDICE = 'Índice',
     LITIGANCIA_PREDATORIA = 'Litigância Predatória',
     CHAT = 'Chat',
+    RELATORIO_COMPLETO_CRIMINAL = 'Relatório Completo Criminal',
 }
 
 export enum Plugin {
@@ -65,6 +66,7 @@ export const ProdutosValidos = {
     [P.INDICE]: { titulo: P.INDICE, prompt: 'indice', plugins: [] },
     [P.LITIGANCIA_PREDATORIA]: { titulo: P.LITIGANCIA_PREDATORIA, prompt: 'litigancia-predatoria', plugins: [] },
     [P.CHAT]: { titulo: P.CHAT, prompt: 'chat', plugins: [] },
+    [P.RELATORIO_COMPLETO_CRIMINAL]: { titulo: P.RELATORIO_COMPLETO_CRIMINAL, prompt: 'relatorio-completo-criminal', plugins: [] },
 }
 
 export interface ProdutoCompleto { produto: P, dados: T[] }
@@ -162,6 +164,15 @@ export const TipoDeSinteseMap: Record<string, TipoDeSinteseType> = {
         //     [T.PETICAO_INICIAL],
         // ],
         produtos: [P.INDICE, P.CHAT]
+    },
+
+    RELATORIO_CRIMINAL_COMPLETO_COM_INDICE: {
+        sort: 8,
+        nome: 'Relatório Completo Criminal',
+        padroes: [
+            [ANY({ capture: [] })],
+        ],
+        produtos: [P.RELATORIO_COMPLETO_CRIMINAL, P.CHAT]
     },
 
     // RESUMOS_ACORDAO: {
