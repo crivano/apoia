@@ -29,8 +29,8 @@ Leia atentamente os textos abaixo:
 ANALISE EM DETALHE o caso jurídico fornecido TODOS OS DOCUMENTOS, INCORPORE NUANCES e forneça uma ARGUMENTAÇÃO LÓGICA.
 - Ao escrever o RELATÓRIO, assegure-se de prover uma riqueza de detalhes.
 - Quando for referenciar um documento, entre parênteses, indique o número do evento (event), o rótulo do documento (label) e, se houver, as páginas de início e término. Por exemplo: **Petição Inicial** (evento 1, OUT1, pág. 5/7).
-- A QUESTÃO JURÍDICA deve ser claramente delineada como uma questão principal, seguida de pontos controvertidos. 
 - Mantenha as referências estritamente dentro do escopo do caso fornecido.
+- Não faça um resumo, entre em detalhes e apresente as informações de forma completa.
 
 
 ## EXEMPLO E MODELO E ESTRUTURA
@@ -45,13 +45,22 @@ Formate sua resposta conforme exemplo a seguir, demarcado por <modelo>.
 - [NÚMERO DO PROCESSO]
 
 # Relatório
-[
-- Descrição geral do crime.
-- Descrição pormenorizada das condutas delituosas que são imputadas a cada denunciado.
-- Quais os fundamentos de fato e de direito que o juiz utilizou na decisão de recebimento ou rejeição da denuncia. Faça um resumo individualizado e pormenorizado em relação a cada réu.
-- Apresente as defesas de cada réu de forma detalhada.
-- Para cada peça citada, inclua a referência no formato descrito acima.
-]
+
+[Descrição geral do crime.]
+
+[Descrição do modus-operandi e como cada um dos acusados se encaixa.]
+
+[Inclua um longo parágrafo para cada acusado, não faça divisão em tópicos, seja detalhista e apresente toda a informação, inclua:
+- o nome em negrito;
+- uma descrição detalhada dos fatos relevantes e atos dos quais está sendo acusado;
+- seu papel e sua participação no crime;
+- Também informe sua relação com os outros acusados, valores e empresas envolvidas, se houver;
+- Caso referencie alguma peça processual, inclua a referência no formato descrito acima.]
+
+[Descrição dos fundamentos de fato e de direito que o juiz utilizou na decisão de recebimento ou rejeição da denuncia. Faça uma descrição individualizada e pormenorizada em relação a cada réu.]
+
+[Descrição das defesas e provas apresentadas por cada réu de forma detalhada.]
+
 
 # Problema Jurídico
 

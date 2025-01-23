@@ -287,9 +287,9 @@ export const obterDadosDoProcesso = async ({ numeroDoProcesso, pUser, idDaPeca, 
             pecasSelecionadas = pecas.filter(p => pieces.includes(p.id))
         }
 
-        console.log('tipo de síntese', `${tipoDeSinteseSelecionado}`)
-        console.log('peças selecionadas', pecasSelecionadas?.map(p => p.id))
-        console.log('produtos', TipoDeSinteseMap[`${tipoDeSinteseSelecionado}`]?.produtos)
+        // console.log('tipo de síntese', `${tipoDeSinteseSelecionado}`)
+        // console.log('peças selecionadas', pecasSelecionadas?.map(p => p.id))
+        // console.log('produtos', TipoDeSinteseMap[`${tipoDeSinteseSelecionado}`]?.produtos)
 
         if (pecasSelecionadas !== null) {
             if (verificarNivelDeSigilo())

@@ -14,6 +14,7 @@
     },
     "dependencies": {
         "@ai-sdk/anthropic": "^0.0.51",
+        "@ai-sdk/deepseek": "^0.1.2",
         "@ai-sdk/google": "^0.0.52",
         "@ai-sdk/groq": "^0.0.1",
         "@ai-sdk/openai": "^0.0.68",
