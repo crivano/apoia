@@ -6,7 +6,9 @@ describe('DocumentPatternMatcher', () => {
     const criarDocumentos = (tipos: T[]): Documento[] =>
         tipos.map((tipo, index) => ({
             id: `doc-${index + 1}`,
-            tipo
+            tipo,
+            numeroDoEvento: `${index + 1}`,
+            descricaoDoEvento: ''
         }));
 
     describe('Operador EXACT', () => {

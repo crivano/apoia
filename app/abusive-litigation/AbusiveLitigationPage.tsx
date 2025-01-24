@@ -1,17 +1,17 @@
 'use client'
 
-import dynamic from 'next/dynamic'
-import { Suspense, useState } from 'react'
+import { useState } from 'react'
 import AiContent from '../../components/ai-content'
-import { P } from '@/lib/proc/combinacoes'
-import { Button, Container } from 'react-bootstrap'
+import { Button, Toast } from 'react-bootstrap'
 import PromptConfig from '@/components/prompt-config'
-import { PromptConfigType } from '@/lib/ai/prompt-types'
-import { getInternalPrompt } from '@/lib/ai/prompt'
+import { PromptConfigType, TextoType } from '@/lib/ai/prompt-types'
+import { getInternalPrompt, getPiecesWithContent } from '@/lib/ai/prompt'
 import fetcher from '@/lib/utils/fetcher'
-import { slugify } from '@/lib/utils/utils'
-import { DadosDoProcessoType, PecaType } from '@/lib/proc/process'
-import strcomp from "string-comparison"
+import { formatBrazilianDate, slugify } from '@/lib/utils/utils'
+import { DadosDoProcessoType, PecaType } from '@/lib/proc/process-types'
+import { DocumentMatch, matchDocuments, SimilarityType } from '@/lib/utils/documentMatcher'
+import { set } from 'zod'
+import Print from '../process/[id]/print'
 
 type DadosDoProcessoAndControlType =
     DadosDoProcessoType & { missingDadosDoProcesso: boolean, missingPeticaoInicial: boolean }
@@ -28,21 +28,38 @@ const extractProcessNumbers = (text: string): string => {
     return matches ? matches.map(match => match.replace(/\D/g, '')).join(', ') : '';
 }
 
-const formatAsPercentage = (value: number) => {
+const formatSimilarity = (value: number) => {
     if (isNaN(value)) return ''
-    return `${(value * 100).toFixed(2)}%`
+    if (value === -1) return ''
+    const formated = `${(value * 100).toFixed(1)}`
+    console.log('value', value, 'formated', formated)
+    if (formated === '100.0' && value < 1) return '99.9'
+    return formated
 }
 
-export default function AbusiveLitigationPage() {
+const fixOutrosNumerosDeProcessos = (outrosNumerosDeProcessos: string, numeroDoProcesso: string): string => {
+    const outrosNumerosDeProcessosArray = outrosNumerosDeProcessos.trim().split(',').map(n => n.trim())
+    const outrosNumerosDeProcessosValidos = outrosNumerosDeProcessosArray.filter(n => n.length === 20)
+    const numerosUnicosDeProcessos = new Set(outrosNumerosDeProcessosValidos);
+    if (numerosUnicosDeProcessos.has(numeroDoProcesso)) numerosUnicosDeProcessos.delete(numeroDoProcesso)
+    return Array.from(numerosUnicosDeProcessos).join(', ')
+}
+
+export default function AbusiveLitigationPage(params: { NAVIGATE_TO_PROCESS_URL?: string }) {
+    const NAVIGATE_TO_PROCESS_URL = params.NAVIGATE_TO_PROCESS_URL
     const [outrosNumerosDeProcessos, setOutrosNumerosDeProcessos] = useState('')
     const [numeroDoProcesso, setNumeroDoProcesso] = useState('')
     const [hidden, setHidden] = useState(true)
     const [promptConfig, setPromptConfig] = useState({} as PromptConfigType)
     const [peticaoInicial, setPeticaoInicial] = useState('')
     const [processos, setProcessos] = useState([] as DadosDoProcessoAndControlType[])
-    const [similaridadeDePeticaoInicial, setSimilaridadeDePeticaoInicial] = useState({} as { [key: string]: number })
+    const [similaridade, setSimilaridade] = useState({} as { [key: string]: DocumentMatch[] })
     const [processosMap, setProcessosMap] = useState({} as { [key: string]: DadosDoProcessoAndControlType })
     const [status, setStatus] = useState('')
+    const [toast, setToast] = useState('')
+    const [tipoDeSimilaridade, setTipoDeSimilaridade] = useState(SimilarityType.JACCARD)
+    const [processoPrincipal, setProcessoPrincipal] = useState(undefined as DadosDoProcessoAndControlType)
+    const [textos, setTextos] = useState([] as TextoType[])
 
 
     const outrosNumerosDeProcessosChanged = (text) => {
@@ -52,6 +69,11 @@ export default function AbusiveLitigationPage() {
 
     const numeroDoProcessoChanged = (text) => {
         setNumeroDoProcesso(text)
+        setHidden(true)
+    }
+
+    const tipoDeSimilaridadeChanged = (text: SimilarityType) => {
+        setTipoDeSimilaridade(text)
         setHidden(true)
     }
 
@@ -82,53 +104,76 @@ export default function AbusiveLitigationPage() {
     };
 
     const localizarAPeticaoInicial = (dadosDoProcesso: DadosDoProcessoType): PecaType => {
-        return dadosDoProcesso.pecas.find(p => slugify(p.descr) === 'peticao-inicial')
+        return dadosDoProcesso.pecasSelecionadas?.find(p => slugify(p.descr) === 'peticao-inicial')
     }
 
     const obterDadosDoProcessoEConteudoDaPeticaoInicial = async (numeroDoProcesso: string, procs: DadosDoProcessoAndControlType[], procsMap: { [key: string]: DadosDoProcessoAndControlType }): Promise<DadosDoProcessoAndControlType> => {
         let dadosDoProcesso: DadosDoProcessoAndControlType = procsMap[numeroDoProcesso]
         if (!dadosDoProcesso) {
-            dadosDoProcesso = await fetcher.get(`/api/v1/process/${numeroDoProcesso}?kind=LITIGANCIA_PREDATORIA`)
-            dadosDoProcesso = { ...dadosDoProcesso, missingDadosDoProcesso: false, missingPeticaoInicial: false, numeroDoProcesso }
+            dadosDoProcesso = await fetcher.get(`/api/v1/process/${numeroDoProcesso}?kind=LITIGANCIA_PREDATORIA&selectedPiecesContent=true`)
+            dadosDoProcesso = {
+                ...dadosDoProcesso,
+                missingDadosDoProcesso: false,
+                missingPeticaoInicial: false,
+                numeroDoProcesso,
+                ajuizamento: dadosDoProcesso.ajuizamento && new Date(dadosDoProcesso.ajuizamento)
+            }
             procsMap[numeroDoProcesso] = dadosDoProcesso
             setProcessosMap({ ...procsMap })
         }
 
         if (!dadosDoProcesso) {
-            procsMap[numeroDoProcesso] = { numeroDoProcesso, pecas: [], missingDadosDoProcesso: true, missingPeticaoInicial: true }
+            procsMap[numeroDoProcesso] = { numeroDoProcesso, pecas: [], pecasSelecionadas: [], missingDadosDoProcesso: true, missingPeticaoInicial: true }
             setProcessosMap({ ...procsMap })
             return procsMap[numeroDoProcesso]
         }
 
         const peticaoInicialPeca = localizarAPeticaoInicial(dadosDoProcesso)
         const peticaoInicialId = peticaoInicialPeca?.id
-        if (dadosDoProcesso.missingPeticaoInicial !== true) {
-            if (peticaoInicialPeca && !peticaoInicialPeca.conteudo && peticaoInicialId) {
-                const peticaoInicialConteudo = await fetcher.get(`/api/v1/process/${numeroDoProcesso}/piece/${peticaoInicialId}/content`)
-                peticaoInicialPeca.conteudo = peticaoInicialConteudo.content
-            }
-            if (!peticaoInicialPeca?.conteudo) {
-                dadosDoProcesso.missingPeticaoInicial = true
-                if (!dadosDoProcesso.errorMsg) dadosDoProcesso.errorMsg = 'Petição inicial não encontrada.'
-            }
+        if (!peticaoInicialPeca?.conteudo) {
+            dadosDoProcesso.missingPeticaoInicial = true
+            if (!dadosDoProcesso.errorMsg) dadosDoProcesso.errorMsg = 'Petição inicial não encontrada.'
         }
+        // if (dadosDoProcesso.missingPeticaoInicial !== true) {
+        //     if (peticaoInicialPeca && !peticaoInicialPeca.conteudo && peticaoInicialId) {
+        //         const peticaoInicialConteudo = await fetcher.get(`/api/v1/process/${numeroDoProcesso}/piece/${peticaoInicialId}/content`)
+        //         peticaoInicialPeca.conteudo = peticaoInicialConteudo.content
+        //     }
+        // }
         setProcessosMap({ ...procsMap })
         return dadosDoProcesso
     }
 
+    const replaceMainProcess = async (numeroDoProcessoPrincipal: string) => {
+        if (status) {
+            setToast('Aguarde a conclusão antes de realizar a troca de processo principal')
+            return
+        }
+        const n = numeroDoProcesso
+        const o = outrosNumerosDeProcessos
+        setHidden(true)
+        setProcessos([])
+        setSimilaridade({})
+        setNumeroDoProcesso(numeroDoProcessoPrincipal)
+        setOutrosNumerosDeProcessos(fixOutrosNumerosDeProcessos(o + ', ' + n, numeroDoProcessoPrincipal))
+    }
+
     const resetCache = async () => {
+        setHidden(true)
         setProcessosMap({})
         setProcessos([])
-        setSimilaridadeDePeticaoInicial({})
+        setSimilaridade({})
     }
 
     const startAnalysis = async () => {
         let procs: DadosDoProcessoAndControlType[] = []
         let procsMap: { [key: string]: DadosDoProcessoAndControlType } = processosMap
-        const simMap: { [key: string]: number } = {}
+        const simMap: { [key: string]: DocumentMatch[] } = {}
 
+        setProcessoPrincipal(undefined)
         setProcessos(procs)
-        setSimilaridadeDePeticaoInicial({})
+        setSimilaridade({})
+        setHidden(false)
 
         // Obter a petição inicial do processo principal
         setStatus('Obtendo dados do processo principal...')
@@ -146,14 +191,15 @@ export default function AbusiveLitigationPage() {
             return
         }
 
-        simMap[dadosDoProcesso.numeroDoProcesso] = strcomp.cosine.similarity(peticaoInicial.conteudo, peticaoInicial.conteudo)
-        setSimilaridadeDePeticaoInicial({ ...simMap })
+        simMap[dadosDoProcesso.numeroDoProcesso] = matchDocuments(dadosDoProcesso.pecasSelecionadas, dadosDoProcesso.pecasSelecionadas, tipoDeSimilaridade)
+        setSimilaridade({ ...simMap })
+
 
         // Obter a petição inicial dos outros processos
-        const outrosNumerosDeProcessosArray = outrosNumerosDeProcessos.trim().split(',').map(n => n.trim())
-        for (const numeroDoOutroProcesso of outrosNumerosDeProcessosArray) {
+        const numerosUnicosDeProcessos = fixOutrosNumerosDeProcessos(outrosNumerosDeProcessos, numeroDoProcesso).split(',').map(n => n.trim())
+        for (const numeroDoOutroProcesso of numerosUnicosDeProcessos) {
             console.log('numeroDoOutroProcesso', numeroDoOutroProcesso)
-            setStatus(`Obtendo dados do processo ${numeroDoOutroProcesso} (${procs.length + 1}/${outrosNumerosDeProcessosArray.length})...`)
+            setStatus(`Obtendo dados do processo ${numeroDoOutroProcesso} (${procs.length + 1}/${numerosUnicosDeProcessos.length})...`)
             const dadosDoOutroProcesso = await obterDadosDoProcessoEConteudoDaPeticaoInicial(numeroDoOutroProcesso, procs, procsMap)
             if (!dadosDoOutroProcesso) {
                 setStatus(`Processo ${numeroDoOutroProcesso} não encontrado.`)
@@ -161,10 +207,8 @@ export default function AbusiveLitigationPage() {
                 setProcessos([...procs])
                 continue
             }
-            const outraPeticaoInicial = localizarAPeticaoInicial(dadosDoOutroProcesso)
-            if (peticaoInicial?.conteudo && outraPeticaoInicial?.conteudo)
-                simMap[numeroDoOutroProcesso] = strcomp.cosine.similarity(peticaoInicial.conteudo, outraPeticaoInicial.conteudo)
-            setSimilaridadeDePeticaoInicial({ ...simMap })
+            simMap[numeroDoOutroProcesso] = matchDocuments(dadosDoProcesso.pecasSelecionadas, dadosDoOutroProcesso.pecasSelecionadas, tipoDeSimilaridade)
+            setSimilaridade({ ...simMap })
             procs.push(dadosDoOutroProcesso)
             procs.sort((a, b) => {
                 const sa = simMap[a.numeroDoProcesso]
@@ -172,71 +216,96 @@ export default function AbusiveLitigationPage() {
                 if (sa === undefined && sb === undefined) return 0
                 if (sa === undefined) return 1
                 if (sb === undefined) return -1
-                return sb - sa
+                return sb[0].similarity - sa[0].similarity
             })
             setProcessos([...procs])
         }
+
+        setProcessoPrincipal(dadosDoProcesso)
+        setTextos(await getPiecesWithContent(dadosDoProcesso, numeroDoProcesso))
+
         setStatus('')
     }
 
+    const principal: DadosDoProcessoAndControlType = processosMap[numeroDoProcesso]
+
     return (
-        <div className="mb-3">
+        <div id="printDiv" className="mb-3">
             <h2 className="mt-3">Avaliação de Litigância Abusiva</h2>
-            <PromptConfig kind="litigancia-predatoria" setPromptConfig={setPromptConfig} />
-            <div className="row mb-3 mt-3">
-                <div className="col">
-                    <div className="form-group">
-                        <label>Número do Principal Processo Suspeito</label>
-                        <input type="text" id="key" name="key" placeholder="" autoFocus={true} className="form-control" onChange={(e: React.ChangeEvent<HTMLInputElement>) => numeroDoProcessoChanged(e.target.value.replace(/\D/g, ""))} value={numeroDoProcesso} autoComplete='' />
+            <div className="h-print">
+                <PromptConfig kind="litigancia-predatoria" setPromptConfig={setPromptConfig} />
+                <div className="row mb-3 mt-3">
+                    <div className="col col-6">
+                        <div className="form-group">
+                            <label>Número do Principal Processo Suspeito</label>
+                            <input type="text" id="key" name="key" placeholder="" autoFocus={true} className="form-control" onChange={(e: React.ChangeEvent<HTMLInputElement>) => numeroDoProcessoChanged(e.target.value.replace(/\D/g, ""))} value={numeroDoProcesso} autoComplete='' />
+                        </div>
+                    </div>
+                    <div className="col col-6">
+                        <div className="form-group">
+                            <label>Tipo de Similaridade</label>
+                            <select className="form-control" value={tipoDeSimilaridade} onChange={(e) => tipoDeSimilaridadeChanged(e.target.value as SimilarityType)}>
+                                {Object.keys(SimilarityType).map((key) => (
+                                    <option key={key} value={SimilarityType[key]}>{SimilarityType[key]}</option>
+                                ))}
+                            </select>
+                        </div>
                     </div>
                 </div>
+                <div className="form-group"><label>Outros Números de Processos Suspeitos</label></div>
+                <div className="alert alert-secondary mb-1 p-0">
+                    <textarea className="form-control" value={outrosNumerosDeProcessos} onChange={(e) => outrosNumerosDeProcessosChanged(preprocessInput(e.target.value))}
+                        onPaste={handlePaste} />
+                </div>
+                {hidden && <>
+                    <div className="text-muted">Informe o número do processo suspeito, a lista de outros processos a serem analisados e clique em &quot;Analisar&quot;.</div>
+                </>}
+                {hidden && <>
+                    <Button disabled={!numeroDoProcesso.trim()} className="mt-3" onClick={() => startAnalysis()}>Analisar</Button>
+                    <Button disabled={!numeroDoProcesso.trim()} className="mt-3 ms-3" variant='secondary' onClick={() => resetCache()}>Limpar o Cache</Button>
+                </>}
+                {status && <div className="mt-3 alert alert-warning">{status}</div>}
             </div>
-            <div className="form-group"><label>Outros Números de Processos Suspeitos</label></div>
-            <div className="alert alert-secondary mb-1 p-0">
-                <textarea className="form-control" value={outrosNumerosDeProcessos} onChange={(e) => outrosNumerosDeProcessosChanged(preprocessInput(e.target.value))}
-                    onPaste={handlePaste} />
-            </div>
-            {hidden && <>
-                <div className="text-muted">Informe o número do processo suspeito, a lista de outros processos a serem analisados e clique em &quot;Analisar&quot;.</div>
-            </>}
-            {hidden && <>
-                <Button disabled={!numeroDoProcesso.trim() || !outrosNumerosDeProcessos.trim()} className="mt-3" onClick={() => startAnalysis()}>Analisar</Button>
-                <Button disabled={!numeroDoProcesso.trim() || !outrosNumerosDeProcessos.trim()} className="mt-3 ms-3" variant='secondary' onClick={() => resetCache()}>Limpar o Cache</Button>
-            </>}
-            {status && <div className="mt-3 alert alert-warning">{status}</div>}
-            {!hidden && numeroDoProcesso.trim() && outrosNumerosDeProcessos.trim() && <>
-                <h2 className="mt-3">Análise</h2>
-                <AiContent
-                    definition={getInternalPrompt('litigancia-predatoria')}
-                    data={{ textos: [{ descr: 'Petição Inicial', slug: 'peticao-inicial', texto: peticaoInicial }] }}
-                    options={{ cacheControl: true }} config={promptConfig} />
-            </>}
-            {processos && processos.length > 0 && <>
-                <h2 className="mt-3">Processos</h2>
+            {!hidden && processos && processos.length > 0 && <>
+                <h2 className="mt-3">Processos Analisados</h2>
                 <table className="table table-striped table-sm">
                     <thead className="table-dark">
                         <tr>
+                            <th className="text-end">#</th>
                             <th>Número do Processo</th>
-                            <th className="text-end">Similaridade da<br/>Petição Inicial</th>
+                            <th className="text-center">Ajuizamento</th>
+                            {principal.pecasSelecionadas?.map(p => <th className="text-end">{p.rotulo.toLowerCase()}</th>)}
                             <th className="text-end">Status</th>
                         </tr>
                     </thead>
                     <tbody>
                         {processos.map((processo, index) => (
                             <tr key={index}>
-                                <td>{processo.numeroDoProcesso}</td>
-                                <td className="text-end">{formatAsPercentage(similaridadeDePeticaoInicial[processo.numeroDoProcesso])}</td>
+                                <td className="text-end" title="Clique para tornar o principal" style={{ cursor: 'pointer' }} onClick={e => replaceMainProcess(processo.numeroDoProcesso)}>{index + 1}</td>
+                                <td>{NAVIGATE_TO_PROCESS_URL ? (<a href={NAVIGATE_TO_PROCESS_URL.replace('{numero}', processo.numeroDoProcesso)} style={{ color: 'rgb(33, 37, 41)', textDecoration: 'none' }} target="_blank" title="Clique para visualizar o processo">{processo.numeroDoProcesso}</a>) : processo.numeroDoProcesso}</td>
+                                <td className="text-center">{formatBrazilianDate(processo.ajuizamento)}</td>
+                                {principal.pecasSelecionadas?.map((p, index) => <td className="text-end">{formatSimilarity(similaridade[processo.numeroDoProcesso][index].similarity)}</td>)}
                                 <td className="text-end">{processo.errorMsg?.split(' - Error:')[0]}</td>
                             </tr>
                         ))}
                     </tbody>
                 </table>
             </>}
-            {/* <div>{JSON.stringify(Object.keys(processosMap))}</div>
-            <div>{JSON.stringify(Object.keys(similaridadeDePeticaoInicial))}</div>
-            <div>{JSON.stringify(similaridadeDePeticaoInicial)}</div>
-            <div>{JSON.stringify(processos)}</div> */}
 
+            {!hidden && processoPrincipal && textos && <>
+                <h2 className="mt-3">Análise Qualitativa</h2>
+                <AiContent key={numeroDoProcesso + outrosNumerosDeProcessos}
+                    definition={getInternalPrompt('litigancia-predatoria')}
+                    data={{ textos }}
+                    options={{ cacheControl: true }} config={promptConfig} />
+            </>}
+            <Toast onClose={() => setToast('')} show={!!toast} delay={3000} bg="danger" autohide key={toast} style={{ position: 'fixed', top: 10, right: 10 }}>
+                <Toast.Header>
+                    <strong className="me-auto">Erro</strong>
+                </Toast.Header>
+                <Toast.Body>{toast}</Toast.Body>
+            </Toast>
+            <Print numeroDoProcesso={numeroDoProcesso} />
         </div>
     )
 }

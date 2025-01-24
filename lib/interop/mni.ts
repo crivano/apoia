@@ -6,7 +6,7 @@ import { assertCurrentUser } from '@/lib/user'
 
 import pLimit from 'p-limit'
 import { Interop, ObterPecaType } from './interop'
-import { DadosDoProcessoType, PecaType } from '../proc/process'
+import { DadosDoProcessoType, PecaType } from '../proc/process-types'
 import { parseYYYYMMDDHHMMSS } from '../utils/utils'
 import { assertNivelDeSigilo, verificarNivelDeSigilo } from '../proc/sigilo'
 

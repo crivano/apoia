@@ -2,7 +2,7 @@ import { CoreMessage, jsonSchema } from "ai"
 import { slugify } from "@/lib/utils/utils"
 import { PromptDataType, PromptExecuteType, PromptExecuteParamsType, PromptDefinitionType, PromptOptionsType, TextoType } from "@/lib/ai/prompt-types"
 import { buildFormatter } from "@/lib/ai/format"
-
+import { DadosDoProcessoType } from "@/lib/proc/process-types"
 
 export const formatText = (txt: TextoType, limit?: number) => {
     let s: string = txt.descr
@@ -38,6 +38,19 @@ export const waitForTexts = async (data: PromptDataType): Promise<void> => {
             delete texto.pTexto
         }
     }
+}
+
+export async function getPiecesWithContent(dadosDoProcesso: DadosDoProcessoType, dossierNumber: string): Promise<TextoType[]> {
+    let pecasComConteudo: TextoType[] = []
+    for (const peca of dadosDoProcesso.pecasSelecionadas) {
+        if (peca.pConteudo === undefined && peca.conteudo === undefined) {
+            // console.log('peca', peca)
+            throw new Error(`Conteúdo não encontrado no processo ${dossierNumber}, peça ${peca.id}, rótulo ${peca.rotulo}`)
+        }
+        const slug = await slugify(peca.descr)
+        pecasComConteudo.push({ id: peca.id, event: peca.numeroDoEvento, label: peca.rotulo, descr: peca.descr, slug, pTexto: peca.pConteudo, texto: peca.conteudo })
+    }
+    return pecasComConteudo
 }
 
 export const promptExecuteBuilder = (definition: PromptDefinitionType, data: PromptDataType): PromptExecuteType => {

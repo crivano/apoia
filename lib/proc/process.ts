@@ -8,36 +8,7 @@ import { P, ProdutoCompleto, T, TipoDeSinteseEnum, TipoDeSinteseMap } from './co
 import { infoDeProduto, TiposDeSinteseValido } from './info-de-produto'
 import { Documento, match, MatchOperator, MatchResult } from './pattern'
 import { getInterop, Interop } from '../interop/interop'
-
-export type PecaType = {
-    id: string
-    numeroDoEvento: string
-    descricaoDoEvento: string
-    descr: string
-    tipoDoConteudo: string
-    sigilo: string
-    pConteudo: Promise<string> | undefined
-    conteudo: string | undefined
-    pDocumento: Promise<IADocument> | undefined
-    documento: IADocument | undefined
-    // pCategoria: Promise<string> | undefined
-    categoria: string | undefined
-    rotulo: string | undefined
-    dataHora: Date | undefined
-}
-
-export type DadosDoProcessoType = {
-    pecas: PecaType[]
-    pecasSelecionadas?: PecaType[]
-    sigilo?: number
-    tipoDeSintese?: TipoDeSinteseEnum
-    produtos?: (P | ProdutoCompleto)[]
-    ajuizamento?: Date
-    codigoDaClasse?: number
-    numeroDoProcesso?: string
-    nomeOrgaoJulgador?: string
-    errorMsg?: string
-}
+import { DadosDoProcessoType, PecaType } from './process-types'
 
 const selecionarPecas = (pecas: PecaType[], descricoes: string[]) => {
     const pecasRelevantes = pecas.filter(p => descricoes.includes(p.descr))
@@ -156,6 +127,12 @@ const iniciarObtencaoDeDocumentoGravado = (dossier_id: number, numeroDoProcesso:
     return pecas
 }
 
+export enum CargaDeConteudoEnum {
+    SINCRONO = 'SINCRONO',
+    ASSINCRONO = 'ASSINCRONO',
+    NAO = 'NAO'
+}
+
 export type ObterDadosDoProcessoType = {
     numeroDoProcesso: string
     pUser: Promise<any>, idDaPeca?: string
@@ -163,10 +140,10 @@ export type ObterDadosDoProcessoType = {
     completo?: boolean
     kind?: TipoDeSinteseEnum
     pieces?: string[]
-    obterConteudo?: boolean
+    conteudoDasPecasSelecionadas?: CargaDeConteudoEnum
 }
 
-export const obterDadosDoProcesso = async ({ numeroDoProcesso, pUser, idDaPeca, identificarPecas, completo, kind, pieces, obterConteudo }: ObterDadosDoProcessoType): Promise<DadosDoProcessoType> => {
+export const obterDadosDoProcesso = async ({ numeroDoProcesso, pUser, idDaPeca, identificarPecas, completo, kind, pieces, conteudoDasPecasSelecionadas = CargaDeConteudoEnum.ASSINCRONO}: ObterDadosDoProcessoType): Promise<DadosDoProcessoType> => {
     let pecas: PecaType[] = []
     let errorMsg = undefined
     try {
@@ -194,7 +171,7 @@ export const obterDadosDoProcesso = async ({ numeroDoProcesso, pUser, idDaPeca, 
                     console.log('removendo conteúdo de peca com sigilo', peca.id, peca.sigilo)
                     peca.conteudo = 'Peça sigilosa, conteúdo não acessado.'
                 }
-            const pecasComConteudo = obterConteudo === false ? pecas : await iniciarObtencaoDeConteudo(dossier_id, numeroDoProcesso, pecas, interop)
+            const pecasComConteudo = conteudoDasPecasSelecionadas === CargaDeConteudoEnum.NAO ? pecas : await iniciarObtencaoDeConteudo(dossier_id, numeroDoProcesso, pecas, interop)
             return { ...dadosDoProcesso, pecasSelecionadas: pecasComConteudo, produtos: [infoDeProduto(P.ANALISE_COMPLETA)] }
         }
 
@@ -202,13 +179,13 @@ export const obterDadosDoProcesso = async ({ numeroDoProcesso, pUser, idDaPeca, 
             pecas = pecas.filter(p => p.id === idDaPeca)
             if (pecas.length === 0)
                 throw new Error(`Peça ${idDaPeca} não encontrada`)
-            const pecasComConteudo = obterConteudo === false ? pecas : await iniciarObtencaoDeConteudo(dossier_id, numeroDoProcesso, pecas, interop)
+            const pecasComConteudo = conteudoDasPecasSelecionadas === CargaDeConteudoEnum.NAO ? pecas : await iniciarObtencaoDeConteudo(dossier_id, numeroDoProcesso, pecas, interop)
             return { ...dadosDoProcesso, pecas: pecasComConteudo }
         }
 
         // Localiza pecas with descricao == 'OUTROS' e busca no banco de dados se já foram inferidas por IA
         const pecasOutros = pecas.filter(p => p.descr === 'OUTROS')
-        if (pecasOutros.length > 0 && obterConteudo !== false) {
+        if (pecasOutros.length > 0 && conteudoDasPecasSelecionadas !== CargaDeConteudoEnum.NAO) {
             if (await Dao.verifyIfDossierHasDocumentsWithPredictedCategories(numeroDoProcesso)) {
                 console.log(`Carregando tipos documentais de ${pecasOutros.length} peças marcadas com "OUTROS"`)
                 const pecasComDocumento = iniciarObtencaoDeDocumentoGravado(dossier_id, numeroDoProcesso, pecasOutros)
@@ -298,7 +275,13 @@ export const obterDadosDoProcesso = async ({ numeroDoProcesso, pUser, idDaPeca, 
         }
         let pecasComConteudo: PecaType[] = []
         if (pecasSelecionadas)
-            pecasComConteudo = obterConteudo === false ? pecasSelecionadas : await iniciarObtencaoDeConteudo(dossier_id, numeroDoProcesso, pecasSelecionadas, interop)
+            pecasComConteudo = conteudoDasPecasSelecionadas === CargaDeConteudoEnum.NAO ? pecasSelecionadas : await iniciarObtencaoDeConteudo(dossier_id, numeroDoProcesso, pecasSelecionadas, interop)
+        if (pecasComConteudo?.length > 0 && conteudoDasPecasSelecionadas === CargaDeConteudoEnum.SINCRONO) {
+            for (const peca of pecasComConteudo) {
+                peca.conteudo = await peca.pConteudo
+                delete peca.pConteudo
+            }
+        }
         return { ...dadosDoProcesso, pecasSelecionadas: pecasComConteudo, tipoDeSintese: tipoDeSinteseSelecionado, produtos: TipoDeSinteseMap[tipoDeSinteseSelecionado]?.produtos }
         // return { ...dadosDoProcesso, pecas: [] as PecaType[], pecasSelecionadas: [] as PecaType[], tipoDeSintese: tipoDeSinteseSelecionado, produtos: TipoDeSinteseMap[tipoDeSinteseSelecionado]?.produtos }
     } catch (error) {

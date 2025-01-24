@@ -4,7 +4,7 @@ import { filterText } from "@/lib/ui/preprocess"
 import { NextResponse } from "next/server"
 import { getCurrentUser } from "@/lib/user"
 import { obterConteudoDaPeca } from "@/lib/proc/piece"
-import { obterDadosDoProcesso } from "@/lib/proc/process"
+import { CargaDeConteudoEnum, obterDadosDoProcesso } from "@/lib/proc/process"
 
 export const maxDuration = 60
 // export const runtime = 'edge'
@@ -44,7 +44,11 @@ export async function GET(req: Request, { params }: { params: { number: string, 
   try {
     const url = new URL(req.url)
     const kind = url.searchParams.get('kind')
-    const dadosDoProcesso = await obterDadosDoProcesso({ numeroDoProcesso: params.number, pUser, kind, obterConteudo: false })
+    const obterConteudo = url.searchParams.get('selectedPiecesContent') === 'true'
+    const dadosDoProcesso = await obterDadosDoProcesso({
+      numeroDoProcesso: params.number, pUser, kind,
+      conteudoDasPecasSelecionadas: obterConteudo ? CargaDeConteudoEnum.SINCRONO : CargaDeConteudoEnum.NAO
+    })
     return Response.json(dadosDoProcesso)
   } catch (error) {
     const message = fetcher.processError(error)

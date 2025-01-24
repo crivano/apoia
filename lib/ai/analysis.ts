@@ -1,6 +1,6 @@
-import { getInternalPrompt } from '@/lib/ai/prompt'
+import { getInternalPrompt, getPiecesWithContent } from '@/lib/ai/prompt'
 import { GeneratedContent, PromptDataType, PromptDefinitionType, TextoType } from '@/lib/ai/prompt-types'
-import { DadosDoProcessoType, obterDadosDoProcesso, PecaType } from '@/lib/proc/process'
+import { obterDadosDoProcesso } from '@/lib/proc/process'
 import { assertCurrentUser } from '@/lib/user'
 import { T, P, ProdutosValidos, Plugin, ProdutoCompleto, InfoDeProduto } from '@/lib/proc/combinacoes'
 import { slugify } from '@/lib/utils/utils'
@@ -10,6 +10,7 @@ import { getTriagem, getNormas, getPalavrasChave } from '@/lib/fix'
 import { generateContent } from '@/lib/ai/generate'
 import { infoDeProduto } from '../proc/info-de-produto'
 import { envString } from '../utils/env'
+import { DadosDoProcessoType } from '../proc/process-types'
 
 export async function summarize(dossierNumber: string, pieceNumber: string): Promise<{ dossierData: any, generatedContent: GeneratedContent }> {
     const pUser = assertCurrentUser()
@@ -135,18 +136,6 @@ export async function analyze(batchName: string | undefined, dossierNumber: stri
     }
 }
 
-export async function getPiecesWithContent(dadosDoProcesso: DadosDoProcessoType, dossierNumber: string): Promise<TextoType[]> {
-    let pecasComConteudo: TextoType[] = []
-    for (const peca of dadosDoProcesso.pecasSelecionadas) {
-        if (peca.pConteudo === undefined && peca.conteudo === undefined) {
-            // console.log('peca', peca)
-            throw new Error(`Conteúdo não encontrado no processo ${dossierNumber}, peça ${peca.id}, rótulo ${peca.rotulo}`)
-        }
-        const slug = await slugify(peca.descr)
-        pecasComConteudo.push({ id: peca.id, event: peca.numeroDoEvento, label: peca.rotulo, descr: peca.descr, slug, pTexto: peca.pConteudo, texto: peca.conteudo })
-    }
-    return pecasComConteudo
-}
 
 // Insert into database as part of a batch
 async function storeBatchItem(systemId: number, batchName: string, dossierNumber: string, requests: GeneratedContent[], dadosDoProcesso: any) {

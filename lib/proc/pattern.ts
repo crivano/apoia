@@ -45,7 +45,7 @@ function matchFromIndex(
     case 'EXACT':
       if (document.tipo === operator.docType) {
         const captured: Documento[] = [document];
-        let currentIdx = docIdx;
+        let currentIdx = docIdx + 1;
         if (operator.captureAllInSameEvent) {
           while (currentIdx < documents.length) { 
             const currentDoc = documents[currentIdx]

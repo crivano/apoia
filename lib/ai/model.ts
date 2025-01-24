@@ -1,6 +1,7 @@
 import { createOpenAI } from '@ai-sdk/openai'
 import { createAnthropic } from '@ai-sdk/anthropic'
 import { createGoogleGenerativeAI } from '@ai-sdk/google'
+import { createDeepSeek } from '@ai-sdk/deepseek'
 import { getPrefs } from '../utils/prefs'
 import { LanguageModelV1 } from '@ai-sdk/provider'
 import { createGroq } from '@ai-sdk/groq'
@@ -19,6 +20,8 @@ export function getEnvKeyByModel(model: string): string {
         return ModelProvider.GOOGLE.apiKey
     } else if (model.startsWith('llama-')) {
         return ModelProvider.GROQ.apiKey
+    } else if (model.startsWith('deepseek-')) {
+        return ModelProvider.DEEPSEEK.apiKey
     }
     throw new Error('Invalid model')
 }
@@ -60,6 +63,10 @@ export function getModel(params?: { structuredOutputs: boolean, overrideModel?: 
     if (getEnvKeyByModel(model) === ModelProvider.GROQ.apiKey) {
         const groq = createGroq({ apiKey: apiKey })
         return { model, modelRef: groq(model, {}) }
+    }
+    if (getEnvKeyByModel(model) === ModelProvider.DEEPSEEK.apiKey) {
+        const deepseek = createDeepSeek({ apiKey: apiKey })
+        return { model, modelRef: deepseek(model, {}) }
     }
     throw new Error(`Model ${model} not found`)
 }

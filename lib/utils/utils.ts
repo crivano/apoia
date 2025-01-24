@@ -50,7 +50,7 @@ export const getNumberOfDaysInMonth = (year: number, month: number): number => {
 
 
 // Format date as YYYY-MM-DD HH:mm:ss
-export const formatDate = (date: Date): string =>
+export const formatDate = (date: Date): string => 
   date ? date.toISOString().replace('T', ' ').replace(/\..+/, '') : ''
 
 
@@ -102,6 +102,8 @@ export const formatBrazilianDateTime = (dt: Date) => {
 }
 
 export const formatBrazilianDate = (dt: Date) => {
+  console.log('dt', dt, 'type:', typeof dt)
+  if (!dt) return ''
   return dt.toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' })
 }
 

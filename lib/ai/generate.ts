@@ -60,7 +60,7 @@ export async function generateContent(definition: PromptDefinitionType, data: Pr
 
 export async function streamContent(definition: PromptDefinitionType, data: PromptDataType, results?: PromptExecutionResultsType):
 
-    Promise<StreamTextResult<Record<string, CoreTool<any, any>>> | StreamObjectResult<DeepPartial<any>, any, never> | string> {
+    Promise<StreamTextResult<Record<string, CoreTool<any, any>>, any> | StreamObjectResult<DeepPartial<any>, any, never> | string> {
     // const user = await getCurrentUser()
     // if (!user) return Response.json({ errormsg: 'Unauthorized' }, { status: 401 })
     console.log('will build prompt', definition.kind)
