@@ -6,7 +6,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { use, useEffect, useRef, useState } from "react"
 import TableRecords from '@/components/table-records'
-import { DadosDoProcessoType } from "@/lib/proc/process";
+import { DadosDoProcessoType } from "@/lib/proc/process-types";
 import { Button } from "react-bootstrap";
 import { TipoDeSinteseEnum, TipoDeSinteseMap } from "@/lib/proc/combinacoes";
 import { EMPTY_FORM_STATE, FormHelper } from "@/lib/ui/form-support";
@@ -14,13 +14,14 @@ import { TiposDeSinteseValido } from "@/lib/proc/info-de-produto";
 
 const Frm = new FormHelper()
 
+const canonicalPieces = (pieces: string[]) => pieces.sort((a, b) => a.localeCompare(b)).join(',')
+
 function ChoosePiecesForm({ dadosDoProcesso, onSave, onClose }: { dadosDoProcesso: DadosDoProcessoType, onSave: (kind: TipoDeSinteseEnum, pieces: string[]) => void, onClose: () => void }) {
     const originalPieces: string[] = dadosDoProcesso.pecasSelecionadas.map(p => p.id)
     const [tipoDeSintese, setTipoDeSintese] = useState(dadosDoProcesso.tipoDeSintese)
     const [selectedIds, setSelectedIds] = useState(originalPieces)
+    const [canonicalOriginalPieces, setCanonicalOriginalPieces] = useState(canonicalPieces(originalPieces))
     const tipos = TiposDeSinteseValido.map(tipo => ({ id: tipo.id, name: tipo.nome }))
-
-    const canonicalPieces = (pieces: string[]) => pieces.sort((a, b) => a.localeCompare(b)).join(',')
 
     const onSelectedIdsChanged = (ids: string[]) => {
         if (canonicalPieces(ids) !== canonicalPieces(selectedIds))
@@ -34,7 +35,7 @@ function ChoosePiecesForm({ dadosDoProcesso, onSave, onClose }: { dadosDoProcess
             method: 'post',
             body: JSON.stringify({
                 kind: tipoDeSintese,
-                pieces: dadosDoProcesso.pecas.map(p => ({ id: p.id, descr: p.descr, numeroDoEvento: p.numeroDoEvento, descricaoDoEvento: p.descricaoDoEvento }))
+                pieces: dadosDoProcesso.pecas.map(p => ({ id: p.id, descr: p.descr, numeroDoEvento: p.numeroDoEvento, descricaoDoEvento: p.descricaoDoEvento, sigilo: p.sigilo }))
             }),
             headers: {
                 'Content-Type': 'application/json',
@@ -44,18 +45,21 @@ function ChoosePiecesForm({ dadosDoProcesso, onSave, onClose }: { dadosDoProcess
         })
         const data = await res.json()
         setSelectedIds(data.selectedIds)
+        setCanonicalOriginalPieces(canonicalPieces(data.selectedIds))
     }
 
     useEffect(() => {
         updateSelectedPieces()
     }, [tipoDeSintese])
 
+    const alteredPieces = canonicalPieces(selectedIds) !== canonicalOriginalPieces
+
     return <div className="mt-4 mb-4">
         <div className="alert alert-warning pt-0">
             <div className="row">
                 <Frm.Select label="Tipo de Síntese" name="tipoDeSintese" options={tipos} width={''} />
-                {canonicalPieces(originalPieces) !== canonicalPieces(selectedIds) || tipoDeSintese !== dadosDoProcesso.tipoDeSintese
-                    ? <Frm.Button onClick={() => onSave(tipoDeSintese, selectedIds)} variant="primary"><FontAwesomeIcon icon={faSave} /></Frm.Button>
+                {alteredPieces || tipoDeSintese !== dadosDoProcesso.tipoDeSintese
+                    ? <Frm.Button onClick={() => onSave(tipoDeSintese, alteredPieces ? selectedIds : [])} variant="primary"><FontAwesomeIcon icon={faSave} /></Frm.Button>
                     : <Frm.Button onClick={() => onClose()} variant="secondary"><FontAwesomeIcon icon={faClose} /></Frm.Button>
                 }
             </div>
@@ -92,7 +96,10 @@ export default function ChoosePieces({ dadosDoProcesso }) {
         setEditing(false)
         const updatedSearchParams = new URLSearchParams(currentSearchParams.toString())
         const original = updatedSearchParams.toString()
-        updatedSearchParams.set("pieces", (pieces || [] as string[]).join(','))
+        if (pieces?.length > 0)
+            updatedSearchParams.set("pieces", (pieces || [] as string[]).join(','))
+        else
+            updatedSearchParams.delete("pieces")
         updatedSearchParams.set("kind", kind)
         const current = updatedSearchParams.toString()
         if (original === current) return
