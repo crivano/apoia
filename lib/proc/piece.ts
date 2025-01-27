@@ -9,7 +9,7 @@ import { IADocument, IADocumentContentSource } from '../db/mysql-types'
 
 import pLimit from 'p-limit'
 import { assertNivelDeSigilo, verificarNivelDeSigilo } from './sigilo'
-import { getInterop, Interop } from '../interop/interop'
+import { Interop } from '../interop/interop'
 import { envString } from '../utils/env'
 
 const limit = pLimit(envString('OCR_LIMIT') ? parseInt(envString('OCR_LIMIT')) : 1)
@@ -137,6 +137,12 @@ export const obterConteudoDaPeca = async (dossier_id: number, numeroDoProcesso: 
         }
         case 'image/jpeg': {
             return atualizarConteudoDeDocumento(document_id, IADocumentContentSource.IMAGE, 'Peça no formato de imagem JPEG, conteúdo não acessado.')
+        }
+        case 'image/png': {
+            return atualizarConteudoDeDocumento(document_id, IADocumentContentSource.IMAGE, 'Peça no formato de imagem PNG, conteúdo não acessado.')
+        }
+        case 'video/mp4': {
+            return atualizarConteudoDeDocumento(document_id, IADocumentContentSource.VIDEO, 'Peça no formato de vídeo X-MS-WMV, conteúdo não acessado.')
         }
         case 'video/mp4': {
             return atualizarConteudoDeDocumento(document_id, IADocumentContentSource.VIDEO, 'Peça no formato de vídeo MP4, conteúdo não acessado.')
