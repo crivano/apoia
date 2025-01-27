@@ -8,14 +8,22 @@
 import { envString } from "../utils/env"
 
 // - 5: sigilo absoluto, acessível apenas ao magistrado do órgão em que tramita, aos servidores e demais usuários por ele indicado e às partes que provocaram o incidente.
+
+export const nivelDeSigiloPermitido = (nivel: string, descrDaPeca?) => {
+    const nivelMax = parseInt(envString('CONFIDENTIALITY_LEVEL_MAX') as string)
+    const n = parseInt(nivel)
+    return n <= nivelMax
+}
+
 export const assertNivelDeSigilo = (nivel, descrDaPeca?) => {
     const nivelMax = parseInt(envString('CONFIDENTIALITY_LEVEL_MAX') as string)
-    nivel = parseInt(nivel)
-    if (nivel > nivelMax)
-        throw new Error(`Nível de sigilo '${nivel}'${descrDaPeca ? ' da peça ' + descrDaPeca : ''} maior que o máximo permitido '${nivelMax}'.`)
+    const n = parseInt(nivel)
+    if (n > nivelMax)
+        throw new Error(`Nível de sigilo '${n}'${descrDaPeca ? ' da peça ' + descrDaPeca : ''} maior que o máximo permitido '${nivelMax}'.`)
 }
 
 export const verificarNivelDeSigilo = () => {
-    return !(envString('CONFIDENTIALITY_LEVEL_MAX') === undefined || envString('CONFIDENTIALITY_LEVEL_MAX') === '')
+    // return !(envString('CONFIDENTIALITY_LEVEL_MAX') === undefined || envString('CONFIDENTIALITY_LEVEL_MAX') === '')
+    return true
 }
 

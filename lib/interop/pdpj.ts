@@ -1,5 +1,5 @@
 import { Interop, ObterPecaType } from './interop'
-import { DadosDoProcessoType, PecaType } from '../proc/process'
+import { DadosDoProcessoType, PecaType } from '../proc/process-types'
 import { parseYYYYMMDDHHMMSS } from '../utils/utils'
 import { assertNivelDeSigilo, verificarNivelDeSigilo } from '../proc/sigilo'
 import { getCurrentUser } from '../user'
@@ -31,15 +31,15 @@ export class InteropPDPJ implements Interop {
     async init() {
         const user = await getCurrentUser()
 
-        // Obter o token de acesso do usuário logado pelo keycloak
-        if (user.accessToken) {
-            this.accessToken = user.accessToken
-            return
-        }
-
         // Utiliza um token fixo, previamente configurado
         if (envString('DATALAKE_TOKEN')) {
             this.accessToken = envString('DATALAKE_TOKEN')
+            return
+        }
+
+        // Obter o token de acesso do usuário logado pelo keycloak
+        if (user.accessToken) {
+            this.accessToken = user.accessToken
             return
         }
 

@@ -1,5 +1,5 @@
 import { number } from "zod"
-import { DadosDoProcessoType } from "../proc/process"
+import { DadosDoProcessoType } from "../proc/process-types"
 import { InteropMNI } from "./mni"
 import { InteropPDPJ } from "./pdpj"
 

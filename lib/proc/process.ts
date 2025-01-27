@@ -3,7 +3,7 @@ import { Dao } from '../db/mysql'
 import { IADocument } from '../db/mysql-types'
 import { inferirCategoriaDaPeca } from '../category'
 import { obterConteudoDaPeca, obterDocumentoGravado } from './piece'
-import { assertNivelDeSigilo, verificarNivelDeSigilo } from './sigilo'
+import { assertNivelDeSigilo, nivelDeSigiloPermitido, verificarNivelDeSigilo } from './sigilo'
 import { P, ProdutoCompleto, T, TipoDeSinteseEnum, TipoDeSinteseMap } from './combinacoes'
 import { infoDeProduto, TiposDeSinteseValido } from './info-de-produto'
 import { Documento, match, MatchOperator, MatchResult } from './pattern'
@@ -49,7 +49,8 @@ export const selecionarUltimasPecas = (pecas: PecaType[], descricoes: string[]) 
 }
 
 export const selecionarPecasPorPadrao = (pecas: PecaType[], padroes: MatchOperator[][]) => {
-    const ps: Documento[] = pecas.map(p => ({ id: p.id, tipo: p.descr as T, numeroDoEvento: p.numeroDoEvento, descricaoDoEvento: p.descricaoDoEvento }))
+    const pecasAcessiveis = pecas.filter(p => nivelDeSigiloPermitido(p.sigilo))
+    let ps: Documento[] = pecasAcessiveis.map(p => ({ id: p.id, tipo: p.descr as T, numeroDoEvento: p.numeroDoEvento, descricaoDoEvento: p.descricaoDoEvento }))
 
     // Cria um índice de peças por id
     const indexById = {}
@@ -102,8 +103,10 @@ export const selecionarPecasPorPadrao = (pecas: PecaType[], padroes: MatchOperat
         }
     }
 
+    if (matchSelecionado === null) return null
+
     // Flattern the match and map back to PecaType
-    const pecasSelecionadas = matchSelecionado.map(m => m.captured).flat().map(d => pecas[indexById[d.id]])
+    const pecasSelecionadas = matchSelecionado.map(m => m.captured).flat().map(d => pecasAcessiveis[indexById[d.id]])
 
     if (pecasSelecionadas.length === 0) return null
     return pecasSelecionadas
@@ -143,7 +146,7 @@ export type ObterDadosDoProcessoType = {
     conteudoDasPecasSelecionadas?: CargaDeConteudoEnum
 }
 
-export const obterDadosDoProcesso = async ({ numeroDoProcesso, pUser, idDaPeca, identificarPecas, completo, kind, pieces, conteudoDasPecasSelecionadas = CargaDeConteudoEnum.ASSINCRONO}: ObterDadosDoProcessoType): Promise<DadosDoProcessoType> => {
+export const obterDadosDoProcesso = async ({ numeroDoProcesso, pUser, idDaPeca, identificarPecas, completo, kind, pieces, conteudoDasPecasSelecionadas = CargaDeConteudoEnum.ASSINCRONO }: ObterDadosDoProcessoType): Promise<DadosDoProcessoType> => {
     let pecas: PecaType[] = []
     let errorMsg = undefined
     try {

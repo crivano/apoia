@@ -3,7 +3,6 @@ import fetcher from "@/lib/utils/fetcher"
 import { filterText } from "@/lib/ui/preprocess"
 import { NextResponse } from "next/server"
 import { getCurrentUser } from "@/lib/user"
-import { obterConteudoDaPeca } from "@/lib/proc/piece"
 import { CargaDeConteudoEnum, obterDadosDoProcesso } from "@/lib/proc/process"
 
 export const maxDuration = 60
