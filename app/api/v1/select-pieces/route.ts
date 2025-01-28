@@ -1,5 +1,6 @@
 import { TipoDeSinteseMap } from '@/lib/proc/combinacoes';
-import { PecaType, selecionarPecasPorPadrao, selecionarUltimasPecas } from '@/lib/proc/process';
+import { selecionarPecasPorPadrao } from '@/lib/proc/process';
+import { PecaType } from '@/lib/proc/process-types';
 
 export const maxDuration = 60
 // export const runtime = 'edge'

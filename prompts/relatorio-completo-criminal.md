@@ -90,7 +90,7 @@ Formate sua resposta conforme exemplo a seguir, demarcado por <modelo>.
 - [CITE dados e informações estritamente referenciados no caso em análise, sem adicionar materiais externos.]
 
 # Índice
-- [LISTE os principais documentos do processo na ordem em que aparecem. Para cada documento, dê uma descrição e depois, entre parênteses, indique o número do evento (event), o rótulo do documento (label) e, se houver, a página onde ele inicia e termina. Por exemplo: **Petição Inicial** (evento 1, OUT1, pág. 1/22)].
+- [LISTE todos os documentos do processo na ordem em que aparecem. Para cada documento, dê uma descrição de um parágrafo, indique o número do evento (event), o rótulo do documento (label) e, se houver, a página (pages) onde ele inicia e termina. Se for apenas uma página, basta indicar a página de início. Por exemplo: **Petição Inicial** (evento 1, OUT1, pág. 1/22)].
 
 # Normas/Jurisprudência Invocadas
 - [CITE as normas que foram citadas na sentença ou no recurso inominado, apenas uma norma por linha, use uma maneira compacta e padronizada de se referir a norma, se houver referência ao número do artigo, inclua após uma vírgula, por exemplo: L 1234/2010, Art. 1º.]

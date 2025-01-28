@@ -4,12 +4,12 @@ import { Suspense, useState } from 'react'
 import { maiusculasEMinusculas } from '../../../lib/utils/utils'
 import { ResumoDePecaLoading } from '@/components/loading'
 import { calcSha256 } from '@/lib/utils/hash'
-import { DadosDoProcessoType } from '@/lib/proc/process'
 import { ContentType, GeneratedContent } from '@/lib/ai/prompt-types'
 import AiContent from '@/components/ai-content'
 import { EMPTY_FORM_STATE, FormHelper } from '@/lib/ui/form-support'
 import { P } from '@/lib/proc/combinacoes'
 import Chat from './chat'
+import { DadosDoProcessoType } from '@/lib/proc/process-types'
 
 const Frm = new FormHelper(true)
 

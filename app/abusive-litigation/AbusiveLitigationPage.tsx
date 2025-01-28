@@ -274,7 +274,7 @@ export default function AbusiveLitigationPage(params: { NAVIGATE_TO_PROCESS_URL?
                             <th className="text-end">#</th>
                             <th>Número do Processo</th>
                             <th className="text-center">Ajuizamento</th>
-                            {principal.pecasSelecionadas?.map(p => <th className="text-end">{p.rotulo.toLowerCase()}</th>)}
+                            {principal.pecasSelecionadas?.map(p => <th key={p.rotulo} className="text-end">{p.rotulo.toLowerCase()}</th>)}
                             <th className="text-end">Status</th>
                         </tr>
                     </thead>
@@ -284,7 +284,7 @@ export default function AbusiveLitigationPage(params: { NAVIGATE_TO_PROCESS_URL?
                                 <td className="text-end" title="Clique para tornar o principal" style={{ cursor: 'pointer' }} onClick={e => replaceMainProcess(processo.numeroDoProcesso)}>{index + 1}</td>
                                 <td>{NAVIGATE_TO_PROCESS_URL ? (<a href={NAVIGATE_TO_PROCESS_URL.replace('{numero}', processo.numeroDoProcesso)} style={{ color: 'rgb(33, 37, 41)', textDecoration: 'none' }} target="_blank" title="Clique para visualizar o processo">{processo.numeroDoProcesso}</a>) : processo.numeroDoProcesso}</td>
                                 <td className="text-center">{formatBrazilianDate(processo.ajuizamento)}</td>
-                                {principal.pecasSelecionadas?.map((p, index) => <td className="text-end">{formatSimilarity(similaridade[processo.numeroDoProcesso][index].similarity)}</td>)}
+                                {principal.pecasSelecionadas?.map((p, index) => <td key={p.rotulo} className="text-end">{formatSimilarity(similaridade[processo.numeroDoProcesso][index].similarity)}</td>)}
                                 <td className="text-end">{processo.errorMsg?.split(' - Error:')[0]}</td>
                             </tr>
                         ))}
