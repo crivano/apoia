@@ -42,7 +42,7 @@ export default function PrefsForm(params) {
             <div className="row justify-content-center">
                 <div className="col col-12 col-md-8 col-xxl-6">
                     <h4 className="text-center mt-3 mb-2">Modelo de Inteligência Artificial</h4>
-                    <p className="text-center">Informe suas chaves de API no formulário abaixo. Elas ficarão armazenadas no seu próprio navegador e só serão transferidas para a ApoIA no momento do uso.</p>
+                    <p className="text-center">Antes de usar a ApoIA é necessário selecionar o modelo de IA desejado e fornecer as respectivas chaves de API no formulário abaixo.</p>
                 </div>
             </div>
             <div >
@@ -51,7 +51,7 @@ export default function PrefsForm(params) {
                         <div className=" d-block mx-auto mb-3 alert-secondary alert">
                             <div >
                                 <div className="row mb-2">
-                                    <Frm.Select label="Modelo Padrão" name="model" options={[{ id: '', name: '[Selecionar Automaticamente Baseado no Prompt]' }, ...enumSortById(Model).map(e => ({ id: e.value.name, name: e.value.name }))]} />
+                                    <Frm.Select label="Modelo Padrão" name="model" options={[{ id: '', name: '[Selecionar]' }, ...enumSortById(Model).map(e => ({ id: e.value.name, name: e.value.name }))]} />
                                 </div>
                                 {enumSortById(ModelProvider).map((provider) => (
                                     <div className="row mb-2" key={provider.value.name}>
@@ -81,6 +81,11 @@ export default function PrefsForm(params) {
                         </div>
                     </div>
                 </form >
+                <div className="row justify-content-center">
+                    <div className="col col-12 col-md-8 col-xxl-6">
+                        <p>As chaves ficarão armazenadas no seu próprio navegador e só serão transferidas para a ApoIA no momento do uso.</p>
+                    </div>
+                </div>
             </div >
         </>
     )

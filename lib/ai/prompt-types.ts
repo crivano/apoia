@@ -1,6 +1,7 @@
 import { CoreMessage } from "ai";
 import { IAGenerated } from "../db/mysql-types";
 import { P, Plugin, T } from "../proc/combinacoes";
+import { PecaConteudoType } from "../proc/process-types";
 
 // A ideia aqui é que existe uma definição de prompt (PromptDefinitionType) que pode vir do banco de dados ou 
 // de um arquivo markdown.
@@ -35,7 +36,7 @@ export type TextoType = {
     label?: string
     descr: string
     slug: string
-    pTexto?: Promise<string>
+    pTexto?: Promise<PecaConteudoType>
     texto?: string
 }
 export type PromptDataType = { textos: TextoType[] }

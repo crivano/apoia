@@ -34,7 +34,9 @@ export const waitForTexts = async (data: PromptDataType): Promise<void> => {
     if (data?.textos) {
         for (const texto of data.textos) {
             if (!texto.pTexto) continue
-            texto.texto = await texto.pTexto
+            const c = await texto.pTexto
+            if (c.errorMsg) throw new Error(c.errorMsg)
+            texto.texto = c.conteudo
             delete texto.pTexto
         }
     }

@@ -15,7 +15,11 @@ export const ListaDeProdutosServer = async ({ pDadosDoProcesso, kind, pieces }) 
 
     const pecasComConteudo = await getPiecesWithContent(dadosDoProcesso, dadosDoProcesso.numeroDoProcesso)
 
-    await waitForTexts({ textos: pecasComConteudo })
+    try {
+        await waitForTexts({ textos: pecasComConteudo })
+    } catch (error) {
+        return ''
+    }
 
     const requests = buildRequests(produtos.map(p => infoDeProduto(p), pecasComConteudo), pecasComConteudo)
 

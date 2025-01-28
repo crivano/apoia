@@ -1,6 +1,10 @@
 import { IADocument } from "../db/mysql-types"
 import { P, ProdutoCompleto, TipoDeSinteseEnum } from "./combinacoes"
 
+export type PecaConteudoType = {
+    conteudo: string
+    errorMsg?: string
+}
 
 export type PecaType = {
     id: string
@@ -9,7 +13,7 @@ export type PecaType = {
     descr: string
     tipoDoConteudo: string
     sigilo: string
-    pConteudo: Promise<string> | undefined
+    pConteudo: Promise<PecaConteudoType> | undefined
     conteudo: string | undefined
     pDocumento: Promise<IADocument> | undefined
     documento: IADocument | undefined

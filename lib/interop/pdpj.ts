@@ -103,13 +103,30 @@ export class InteropPDPJ implements Interop {
 
         let pecas: PecaType[] = []
         const documentos = processo.documentos
-        // console.log('documentos', JSON.stringify(documentos, null, 2))
-        for (const doc of documentos) {
-            // if (!Object.values(T).includes(doc.attributes.descricao)) continue
-            pecas.unshift({
+
+        // Para descobrir qual o número do evento que está relacionado a cada documento é necessário
+        // ver se existe um movimento em "processo.movimentos" que tenha o "idDocumento" igual ao "id" do documento
+        // Se houver, o número do evento será igual ao "sequencia" do movimento. Se não houver,
+        // o número do evento será igual ao "sequencia" do movimento do documento anterior.
+        // A lista de documentos deve ser varrida de trás para frente, para começar pela petição incial.
+
+        // Inicialmente, vamos criar um mapa para relacionar os idDocumento com os movimentos
+        const movimentosMap: Map<string, any> = new Map()
+        for (const mov of processo.movimentos) {
+            if (mov.idDocumento)
+            movimentosMap.set(mov.idDocumento, mov)
+        }
+
+        // Agora, vamos varrer os documentos de trás para frente
+        let mov = processo.movimentos[processo.movimentos.length - 1]
+        for (let i = documentos.length - 1; i >= 0; i--) {
+            const doc = documentos[i]
+            const relatedMov = movimentosMap.get(doc.id)
+            if (relatedMov) mov = relatedMov
+            pecas.push({
                 id: doc.id,
-                numeroDoEvento: doc.sequencia,
-                descricaoDoEvento: '',
+                numeroDoEvento: mov.sequencia,
+                descricaoDoEvento: mov.descricao,
                 descr: doc.tipo.nome.toUpperCase(),
                 tipoDoConteudo: mimeTypyFromTipo(doc.arquivo?.tipo),
                 sigilo: nivelDeSigiloFromNivel(doc.nivelSigilo),
@@ -122,7 +139,6 @@ export class InteropPDPJ implements Interop {
                 dataHora: new Date(doc.dataHoraJuntada),
             })
         }
-        // console.log('pecas', pecas)
         return { numeroDoProcesso, ajuizamento, codigoDaClasse, nomeOrgaoJulgador, pecas }
     }
 

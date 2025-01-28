@@ -40,10 +40,10 @@ export default async function ShowProcess({ id, kind, pieces }) {
                     <Subtitulo pDadosDoProcesso={pDadosDoProcesso} />
                 </Suspense>
                 <Suspense fallback=''>
-                    <ErrorMsg pDadosDoProcesso={pDadosDoProcesso} />
+                    <ChoosePiecesServer pDadosDoProcesso={pDadosDoProcesso} />
                 </Suspense>
                 <Suspense fallback=''>
-                    <ChoosePiecesServer pDadosDoProcesso={pDadosDoProcesso} />
+                    <ErrorMsg pDadosDoProcesso={pDadosDoProcesso} />
                 </Suspense>
                 <div className="mb-4"></div>
                 <Suspense fallback={<>{ProdutoLoading()}{ProdutoLoading()}{ProdutoLoading()}</>}>

@@ -11,6 +11,7 @@ import pLimit from 'p-limit'
 import { assertNivelDeSigilo, verificarNivelDeSigilo } from './sigilo'
 import { Interop } from '../interop/interop'
 import { envString } from '../utils/env'
+import { PecaConteudoType } from './process-types'
 
 const limit = pLimit(envString('OCR_LIMIT') ? parseInt(envString('OCR_LIMIT')) : 1)
 
@@ -112,43 +113,47 @@ export const obterDocumentoGravado = async (dossier_id: number, numeroDoProcesso
 }
 
 
-export const obterConteudoDaPeca = async (dossier_id: number, numeroDoProcesso: string, idDaPeca: string, descrDaPeca: string, sigiloDaPeca: string, interop: Interop) => {
-    if (verificarNivelDeSigilo())
-        assertNivelDeSigilo(sigiloDaPeca, `${descrDaPeca} (${idDaPeca})`)
+export const obterConteudoDaPeca = async (dossier_id: number, numeroDoProcesso: string, idDaPeca: string, descrDaPeca: string, sigiloDaPeca: string, interop: Interop): Promise<PecaConteudoType> => {
+    try {
+        if (verificarNivelDeSigilo())
+            assertNivelDeSigilo(sigiloDaPeca, `${descrDaPeca} (${idDaPeca})`)
 
-    const document = await obterDocumentoGravado(dossier_id, numeroDoProcesso, idDaPeca, descrDaPeca)
-    const document_id = document ? document.id : undefined
-    if (document && document.content) {
-        console.log('Retrieving from cache, content of type', document.content_source_id)
-        return document.content
+        const document = await obterDocumentoGravado(dossier_id, numeroDoProcesso, idDaPeca, descrDaPeca)
+        const document_id = document ? document.id : undefined
+        if (document && document.content) {
+            console.log('Retrieving from cache, content of type', document.content_source_id)
+            return { conteudo: document.content }
+        }
+
+        const { buffer, contentType } = await interop.obterPeca(numeroDoProcesso, idDaPeca)
+
+        switch (contentType) {
+            case 'text/plain': {
+                return { conteudo: await obterTextoSimples(buffer, document_id) }
+            }
+            case 'text/html': {
+                return { conteudo: await obterTextoDeHtml(buffer, document_id) }
+            }
+            case 'application/pdf': {
+                return { conteudo: await obterTextoDePdf(buffer, document_id) }
+            }
+            case 'image/jpeg': {
+                return { conteudo: await atualizarConteudoDeDocumento(document_id, IADocumentContentSource.IMAGE, 'Peça no formato de imagem JPEG, conteúdo não acessado.') }
+            }
+            case 'image/png': {
+                return { conteudo: await atualizarConteudoDeDocumento(document_id, IADocumentContentSource.IMAGE, 'Peça no formato de imagem PNG, conteúdo não acessado.') }
+            }
+            case 'video/mp4': {
+                return { conteudo: await atualizarConteudoDeDocumento(document_id, IADocumentContentSource.VIDEO, 'Peça no formato de vídeo X-MS-WMV, conteúdo não acessado.') }
+            }
+            case 'video/mp4': {
+                return { conteudo: await atualizarConteudoDeDocumento(document_id, IADocumentContentSource.VIDEO, 'Peça no formato de vídeo MP4, conteúdo não acessado.') }
+            }
+            throw new Error(`Tipo de conteúdo não suportado: ${contentType}`)
+        }
+    } catch (error) {
+        return { conteudo: undefined, errorMsg: error}
     }
-
-    const { buffer, contentType } = await interop.obterPeca(numeroDoProcesso, idDaPeca)
-
-    switch (contentType) {
-        case 'text/plain': {
-            return obterTextoSimples(buffer, document_id)
-        }
-        case 'text/html': {
-            return obterTextoDeHtml(buffer, document_id)
-        }
-        case 'application/pdf': {
-            return obterTextoDePdf(buffer, document_id)
-        }
-        case 'image/jpeg': {
-            return atualizarConteudoDeDocumento(document_id, IADocumentContentSource.IMAGE, 'Peça no formato de imagem JPEG, conteúdo não acessado.')
-        }
-        case 'image/png': {
-            return atualizarConteudoDeDocumento(document_id, IADocumentContentSource.IMAGE, 'Peça no formato de imagem PNG, conteúdo não acessado.')
-        }
-        case 'video/mp4': {
-            return atualizarConteudoDeDocumento(document_id, IADocumentContentSource.VIDEO, 'Peça no formato de vídeo X-MS-WMV, conteúdo não acessado.')
-        }
-        case 'video/mp4': {
-            return atualizarConteudoDeDocumento(document_id, IADocumentContentSource.VIDEO, 'Peça no formato de vídeo MP4, conteúdo não acessado.')
-        }
-    }
-    throw new Error(`Tipo de conteúdo não suportado: ${contentType}`)
 }
 
 

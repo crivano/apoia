@@ -212,7 +212,9 @@ export const obterDadosDoProcesso = async ({ numeroDoProcesso, pUser, idDaPeca, 
                 const pecasComConteudo = await iniciarObtencaoDeConteudo(dossier_id, numeroDoProcesso, pecasOutros2, interop, true)
                 for (const peca of pecasComConteudo) {
                     if (peca.pConteudo) {
-                        const conteudo = await peca.pConteudo
+                        const c = await peca.pConteudo
+                        if (c.errorMsg) throw new Error(c.errorMsg)
+                        const conteudo = c.conteudo
 
                         // Localiza a categoria das peças anteriores a esta peça
                         const anteriores: string[] = []
@@ -281,7 +283,9 @@ export const obterDadosDoProcesso = async ({ numeroDoProcesso, pUser, idDaPeca, 
             pecasComConteudo = conteudoDasPecasSelecionadas === CargaDeConteudoEnum.NAO ? pecasSelecionadas : await iniciarObtencaoDeConteudo(dossier_id, numeroDoProcesso, pecasSelecionadas, interop)
         if (pecasComConteudo?.length > 0 && conteudoDasPecasSelecionadas === CargaDeConteudoEnum.SINCRONO) {
             for (const peca of pecasComConteudo) {
-                peca.conteudo = await peca.pConteudo
+                const c = await peca.pConteudo
+                if (c.errorMsg) throw new Error(c.errorMsg)
+                peca.conteudo = c.conteudo
                 delete peca.pConteudo
             }
         }
