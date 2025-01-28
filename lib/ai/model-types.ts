@@ -10,7 +10,7 @@ export const ModelProvider: ModelProviderType = {
     GOOGLE: { id: 3, name: 'Google', apiKey: 'GOOGLE_API_KEY' },
     GROQ: { id: 4, name: 'Groq', apiKey: 'GROQ_API_KEY' },
     DEEPSEEK: { id: 5, name: 'DeepSeek', apiKey: 'DEEPSEEK_API_KEY' },
-}
+} 
 
 export type ModelValeuType = EnumOfObjectsValueType & { provider: ModelProviderValueType }
 export type ModelType = { [key: string]: ModelValeuType }
