@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, FormEvent } from 'react'
+import React, { useState, FormEvent, useEffect } from 'react'
 import { unstable_noStore as noStore } from 'next/cache'
 import { Button, Form } from 'react-bootstrap';
 import { useRouter } from 'next/navigation';
@@ -14,7 +14,6 @@ export default function PrefsForm(params) {
     noStore()
     const [processing, setProcessing] = useState(false)
     const [errorMessage, setErrorMessage] = useState('')
-
     const [data, setData] = useState(params.initialState)
     const [formState, setFormState] = useState(EMPTY_FORM_STATE)
     Frm.update(data, setData, formState)
@@ -37,6 +36,46 @@ export default function PrefsForm(params) {
         router.refresh()
     }
 
+    const getAvailabeModel = () => {
+        for (const m of enumSortById(Model)) {
+            if (data.env && !!data.env[m.value.provider.apiKey])
+                return m.value.name
+        }
+        if (params.defaultModel) return params.defaultModel
+        for (const m of enumSortById(Model)) {
+            if (data.env && !!data.env[m.value.provider.apiKey])
+                return m.value.name
+        }
+        return undefined
+    }
+
+    const isDisabled = (model): boolean => {
+        console.log(model)
+        const providerApiKey = model.value.provider.apiKey
+        const enabled = params.availableApiKeys.includes(providerApiKey) || data.env && !!data.env[providerApiKey]
+
+        return !enabled
+    }
+
+    const modelOptions = enumSortById(Model)
+        .sort((a, b) => a.value.provider.id - b.value.provider.id)
+        .map(e => ({ id: e.value.name, name: e.value.name, disabled: isDisabled(e) }))
+        .sort((a, b) => a.disabled ? 1 : b.disabled ? -1 : 0)
+
+    useEffect(() => {
+        const newData = { ...data, model: getAvailabeModel() }
+        enumSortById(Model).forEach((model) => {
+            if (data.model === model.value.name && isDisabled(model)) {
+                setData(newData)
+                return
+            }
+        })
+        if (!data.model && newData.model) {
+            setData(newData)
+            return
+        }
+    }, [data])
+
     return (
         <>
             <div className="row justify-content-center">
@@ -51,7 +90,7 @@ export default function PrefsForm(params) {
                         <div className=" d-block mx-auto mb-3 alert-secondary alert">
                             <div >
                                 <div className="row mb-2">
-                                    <Frm.Select label="Modelo Padrão" name="model" options={[{ id: '', name: '[Selecionar]' }, ...enumSortById(Model).map(e => ({ id: e.value.name, name: e.value.name }))]} />
+                                    <Frm.Select label="Modelo Padrão" name="model" options={[{ id: '', name: '[Selecionar]' }, ...modelOptions]} />
                                 </div>
                                 {enumSortById(ModelProvider).map((provider) => (
                                     <div className="row mb-2" key={provider.value.name}>
@@ -70,7 +109,7 @@ export default function PrefsForm(params) {
                                         <button onClick={handleClear} className="btn btn-warning" style={{ width: '10em' }}>Limpar</button>
                                     </div>
                                     <div className="col">
-                                        <button onClick={handleClick} disabled={processing} className="btn btn-primary float-end" style={{ width: '10em' }}>{processing
+                                        <button onClick={handleClick} disabled={processing || (!data.model && !params.defaultModel)} className="btn btn-primary float-end" style={{ width: '10em' }}>{processing
                                             ? (<span className="spinner-border text-white opacity-50" style={{ width: '1em', height: '1em' }} role="status"><span className="visually-hidden">Loading...</span></span>)
                                             : 'Salvar'}</button>
 
