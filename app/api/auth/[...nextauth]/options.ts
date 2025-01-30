@@ -8,6 +8,10 @@ const authOptions = {
   secret: envString('NEXTAUTH_SECRET') as string,
   // Configure one or more authentication providers
   providers: [] as any[],
+  session: {
+    // strategy: 'jwt',
+    maxAge: 8 * 60 * 60 // 8 hours
+  },
   callbacks: {
     async jwt({ token, user, account }) {
       let roles = undefined as
