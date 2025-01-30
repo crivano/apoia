@@ -42,7 +42,7 @@ export default function PrefsForm(params) {
             <div className="row justify-content-center">
                 <div className="col col-12 col-md-8 col-xxl-6">
                     <h4 className="text-center mt-3 mb-2">Modelo de Inteligência Artificial</h4>
-                    <p className="text-center">Antes de usar a ApoIA é necessário selecionar o modelo de IA desejado e fornecer as respectivas chaves de API no formulário abaixo.</p>
+                    <p className="text-center">Antes de usar a ApoIA é necessário selecionar o modelo de IA desejado e fornecer as respectivas chaves de API no formulário abaixo. Veja a <a href="https://github.com/trf2-jus-br/apoia/wiki/Modelos-de-IA-e-Chaves-de-APIs">documentação</a>.</p>
                 </div>
             </div>
             <div >
