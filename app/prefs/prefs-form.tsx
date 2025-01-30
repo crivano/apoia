@@ -43,14 +43,13 @@ export default function PrefsForm(params) {
         }
         if (params.defaultModel) return params.defaultModel
         for (const m of enumSortById(Model)) {
-            if (data.env && !!data.env[m.value.provider.apiKey])
+            if (params.availableApiKeys.includes(m.value.provider.apiKey))
                 return m.value.name
         }
-        return undefined
+        return ''
     }
 
     const isDisabled = (model): boolean => {
-        console.log(model)
         const providerApiKey = model.value.provider.apiKey
         const enabled = params.availableApiKeys.includes(providerApiKey) || data.env && !!data.env[providerApiKey]
 
@@ -63,14 +62,15 @@ export default function PrefsForm(params) {
         .sort((a, b) => a.disabled ? 1 : b.disabled ? -1 : 0)
 
     useEffect(() => {
+        const oldData = data
         const newData = { ...data, model: getAvailabeModel() }
-        enumSortById(Model).forEach((model) => {
-            if (data.model === model.value.name && isDisabled(model)) {
+        for (const model of enumSortById(Model)) {
+            if (oldData.model === model.value.name && isDisabled(model)) {
                 setData(newData)
                 return
             }
-        })
-        if (!data.model && newData.model) {
+        }
+        if (!oldData.model && newData.model) {
             setData(newData)
             return
         }
