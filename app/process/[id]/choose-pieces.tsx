@@ -1,7 +1,7 @@
 'use client'
 
 import { maiusculasEMinusculas } from "@/lib/utils/utils";
-import { faClose, faEdit, faSave } from "@fortawesome/free-solid-svg-icons";
+import { faClose, faEdit, faRotateRight, faSave } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { use, useEffect, useRef, useState } from "react"
@@ -54,18 +54,20 @@ function ChoosePiecesForm({ dadosDoProcesso, onSave, onClose, statusDeSintese }:
 
     const alteredPieces = canonicalPieces(selectedIds) !== canonicalOriginalPieces
 
-    return <div className="mt-4 mb-4">
+    return <div className="mt-4 mb-4 h-print">
         <div className="alert alert-warning pt-0">
             <div className="row">
                 <Frm.Select label="Tipo de Síntese" name="tipoDeSintese" options={tipos} width={''} />
-                {alteredPieces || tipoDeSintese !== dadosDoProcesso.tipoDeSintese
-                    ? <Frm.Button onClick={() => onSave(tipoDeSintese, alteredPieces ? selectedIds : [])} variant="primary"><FontAwesomeIcon icon={faSave} /></Frm.Button>
-                    : <Frm.Button onClick={() => onClose()} variant="secondary"><FontAwesomeIcon icon={faClose} /></Frm.Button>
-                }
             </div>
             <div className="row">
                 <div className="col-12">
-                    <TableRecords records={[...dadosDoProcesso.pecas].reverse()} spec="ChoosePieces" pageSize={15} selectedIds={selectedIds} onSelectdIdsChanged={onSelectedIdsChanged} />
+                    <TableRecords records={[...dadosDoProcesso.pecas].reverse()} spec="ChoosePieces" pageSize={10} selectedIds={selectedIds} onSelectdIdsChanged={onSelectedIdsChanged}>
+                        <div className="col col-auto mb-0">
+                            {alteredPieces || tipoDeSintese !== dadosDoProcesso.tipoDeSintese
+                                ? <Button onClick={() => onSave(tipoDeSintese, alteredPieces ? selectedIds : [])} variant="primary"><FontAwesomeIcon icon={faRotateRight} className="me-2" />Salvar Alterações e Refazer</Button>
+                                : <Button onClick={() => onClose()} variant="secondary"><FontAwesomeIcon icon={faClose} className="me-1" />Fechar</Button>
+                            }
+                        </div></TableRecords>
                 </div>
             </div>
         </div>
@@ -81,7 +83,7 @@ export const ChoosePiecesLoading = () => {
 }
 
 
-export default function ChoosePieces({ dadosDoProcesso, statusDeSintese }: { dadosDoProcesso: DadosDoProcessoType, statusDeSintese: StatusDeSintese }) {    
+export default function ChoosePieces({ dadosDoProcesso, statusDeSintese }: { dadosDoProcesso: DadosDoProcessoType, statusDeSintese: StatusDeSintese }) {
     const pathname = usePathname(); // let's get the pathname to make the component reusable - could be used anywhere in the project
     const router = useRouter();
     const currentSearchParams = useSearchParams()
@@ -128,8 +130,7 @@ export default function ChoosePieces({ dadosDoProcesso, statusDeSintese }: { dad
         } else {
             s += l[0] + ' + ' + (l.length - 1)
         }
-        return <p className="text-muted text-center h-print">{s} - <FontAwesomeIcon onClick={() => { setEditing(true) }} icon={faEdit} /></p>
-
+        return <p className="text-muted text-center h-print">{s} - <span onClick={() => { setEditing(true) }} className="text-primary" style={{ cursor: 'pointer' }}><FontAwesomeIcon icon={faEdit} /> Alterar</span></p>
     }
     return <ChoosePiecesForm onSave={onSave} onClose={onClose} dadosDoProcesso={dadosDoProcesso} statusDeSintese={statusDeSintese} />
 }

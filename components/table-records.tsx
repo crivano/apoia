@@ -22,9 +22,9 @@ import { usePathname } from "next/navigation"
 
 
 
-export default function Table({ records, spec, linkToAdd, linkToBack, pageSize, selectedIds, onSelectdIdsChanged }: {
+export default function Table({ records, spec, linkToAdd, linkToBack, pageSize, selectedIds, onSelectdIdsChanged, children }: {
     records: any[], spec: string, linkToAdd?: string, linkToBack?: string, pageSize?: number,
-    selectedIds?: string[], onSelectdIdsChanged?: (ids: string[]) => void
+    selectedIds?: string[], onSelectdIdsChanged?: (ids: string[]) => void, children?: any
 }) {
     const [sorting, setSorting] = useState([])
     const [globalFilter, setGlobalFilter] = useState('')
@@ -99,6 +99,7 @@ export default function Table({ records, spec, linkToAdd, linkToBack, pageSize, 
                 </tbody>
             </table>
             <div className="row">
+                {children}
                 <div className="col col-auto mb-0">
                     {linkToBack &&
                         <Link href={`${pathname}/${linkToBack}`} className="btn btn-light bt d-print-none">Voltar</Link>
