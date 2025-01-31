@@ -38,6 +38,7 @@ export default function Table({ records, spec, linkToAdd, linkToBack, pageSize, 
         state: { sorting, globalFilter, rowSelection },
         enableRowSelection: true,
         enableMultiRowSelection: true,
+        autoResetPageIndex: false,
         onRowSelectionChange: setRowSelection, //hoist up the row selection state to your own scope
         onSortingChange: setSorting,
         onGlobalFilterChange: setGlobalFilter,
