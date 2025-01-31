@@ -76,18 +76,25 @@ export const PC = (p: P, d?: T | T[]): ProdutoCompleto => {
     return { produto: p, dados: d ? [d as T] : [] }
 }
 
+export enum StatusDeSintese {
+    PUBLICO,
+    EM_DESENVOLVIMENTO
+}
+
 export type TipoDeSinteseType = {
     nome: string,
     // tipos: T[][],
     padroes: MatchOperator[][],
     produtos: (P | ProdutoCompleto)[],
-    sort: number
+    sort: number,
+    status: StatusDeSintese,
 }
 
 // "inicial contestação sentença, embargos de declaração, sentença, apelação, contrarrazoes de apelação"
 // "agravo, contrarrazoes de agravo"
 export const TipoDeSinteseMap: Record<string, TipoDeSinteseType> = {
     RESUMOS_TRIAGEM: {
+        status: StatusDeSintese.PUBLICO,
         sort: 1,
         nome: 'Resumos e triagem',
         padroes: [
@@ -100,6 +107,7 @@ export const TipoDeSinteseMap: Record<string, TipoDeSinteseType> = {
         produtos: [P.RESUMOS, P.RESUMO, P.CHAT]
     },
     RESUMOS_ANALISE: {
+        status: StatusDeSintese.PUBLICO,
         sort: 2,
         nome: 'Resumos e análise',
         padroes: [
@@ -112,6 +120,7 @@ export const TipoDeSinteseMap: Record<string, TipoDeSinteseType> = {
         produtos: [P.RESUMOS, P.ANALISE, P.CHAT]
     },
     RESUMOS: {
+        status: StatusDeSintese.PUBLICO,
         sort: 3,
         nome: 'Resumos das principais peças',
         padroes: [
@@ -127,6 +136,7 @@ export const TipoDeSinteseMap: Record<string, TipoDeSinteseType> = {
         produtos: [P.RESUMOS, P.CHAT]
     },
     LITIGANCIA_PREDATORIA: {
+        status: StatusDeSintese.EM_DESENVOLVIMENTO,
         sort: 4,
         nome: 'Litigância Predatória',
         padroes: [
@@ -135,6 +145,7 @@ export const TipoDeSinteseMap: Record<string, TipoDeSinteseType> = {
         produtos: [PC(P.RESUMOS, [T.PETICAO_INICIAL]), P.LITIGANCIA_PREDATORIA, P.CHAT]
     },
     PEDIDOS: {
+        status: StatusDeSintese.EM_DESENVOLVIMENTO,
         sort: 5,
         nome: 'Pedidos',
         padroes: [
@@ -143,6 +154,7 @@ export const TipoDeSinteseMap: Record<string, TipoDeSinteseType> = {
         produtos: [P.RESUMOS, P.PEDIDOS, P.CHAT]
     },
     CHAT: {
+        status: StatusDeSintese.PUBLICO,
         sort: 6,
         nome: 'Chat',
         padroes: [
@@ -155,6 +167,7 @@ export const TipoDeSinteseMap: Record<string, TipoDeSinteseType> = {
     },
 
     INDICE: {
+        status: StatusDeSintese.EM_DESENVOLVIMENTO,
         sort: 7,
         nome: 'Índice',
         padroes: [
@@ -167,6 +180,7 @@ export const TipoDeSinteseMap: Record<string, TipoDeSinteseType> = {
     },
 
     RELATORIO_CRIMINAL_COMPLETO_COM_INDICE: {
+        status: StatusDeSintese.EM_DESENVOLVIMENTO,
         sort: 8,
         nome: 'Relatório Completo Criminal',
         padroes: [
@@ -191,7 +205,8 @@ export interface TipoDeSinteseValido {
     id: TipoDeSinteseEnum,
     nome: string,
     padroes: MatchOperator[][],
-    produtos: InfoDeProduto[]
+    produtos: InfoDeProduto[],
+    status: StatusDeSintese,
 }
 
 export interface InfoDeProduto {

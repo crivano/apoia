@@ -1,14 +1,14 @@
 'use client'
 
 import { maiusculasEMinusculas } from "@/lib/utils/utils";
-import { faClose, faEdit, faSave } from "@fortawesome/free-solid-svg-icons";
+import { faClose, faEdit, faRotateRight, faSave } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { use, useEffect, useRef, useState } from "react"
 import TableRecords from '@/components/table-records'
 import { DadosDoProcessoType } from "@/lib/proc/process-types";
 import { Button } from "react-bootstrap";
-import { TipoDeSinteseEnum, TipoDeSinteseMap } from "@/lib/proc/combinacoes";
+import { StatusDeSintese, TipoDeSinteseEnum, TipoDeSinteseMap } from "@/lib/proc/combinacoes";
 import { EMPTY_FORM_STATE, FormHelper } from "@/lib/ui/form-support";
 import { TiposDeSinteseValido } from "@/lib/proc/info-de-produto";
 
@@ -16,12 +16,12 @@ const Frm = new FormHelper()
 
 const canonicalPieces = (pieces: string[]) => pieces.sort((a, b) => a.localeCompare(b)).join(',')
 
-function ChoosePiecesForm({ dadosDoProcesso, onSave, onClose }: { dadosDoProcesso: DadosDoProcessoType, onSave: (kind: TipoDeSinteseEnum, pieces: string[]) => void, onClose: () => void }) {
+function ChoosePiecesForm({ dadosDoProcesso, onSave, onClose, statusDeSintese }: { dadosDoProcesso: DadosDoProcessoType, onSave: (kind: TipoDeSinteseEnum, pieces: string[]) => void, onClose: () => void, statusDeSintese: StatusDeSintese }) {
     const originalPieces: string[] = dadosDoProcesso.pecasSelecionadas.map(p => p.id)
     const [tipoDeSintese, setTipoDeSintese] = useState(dadosDoProcesso.tipoDeSintese)
     const [selectedIds, setSelectedIds] = useState(originalPieces)
     const [canonicalOriginalPieces, setCanonicalOriginalPieces] = useState(canonicalPieces(originalPieces))
-    const tipos = TiposDeSinteseValido.map(tipo => ({ id: tipo.id, name: tipo.nome }))
+    const tipos = TiposDeSinteseValido.filter(t => t.status <= statusDeSintese).map(tipo => ({ id: tipo.id, name: tipo.nome }))
 
     const onSelectedIdsChanged = (ids: string[]) => {
         if (canonicalPieces(ids) !== canonicalPieces(selectedIds))
@@ -54,18 +54,20 @@ function ChoosePiecesForm({ dadosDoProcesso, onSave, onClose }: { dadosDoProcess
 
     const alteredPieces = canonicalPieces(selectedIds) !== canonicalOriginalPieces
 
-    return <div className="mt-4 mb-4">
+    return <div className="mt-4 mb-4 h-print">
         <div className="alert alert-warning pt-0">
             <div className="row">
                 <Frm.Select label="Tipo de Síntese" name="tipoDeSintese" options={tipos} width={''} />
-                {alteredPieces || tipoDeSintese !== dadosDoProcesso.tipoDeSintese
-                    ? <Frm.Button onClick={() => onSave(tipoDeSintese, alteredPieces ? selectedIds : [])} variant="primary"><FontAwesomeIcon icon={faSave} /></Frm.Button>
-                    : <Frm.Button onClick={() => onClose()} variant="secondary"><FontAwesomeIcon icon={faClose} /></Frm.Button>
-                }
             </div>
             <div className="row">
                 <div className="col-12">
-                    <TableRecords records={[...dadosDoProcesso.pecas].reverse()} spec="ChoosePieces" pageSize={15} selectedIds={selectedIds} onSelectdIdsChanged={onSelectedIdsChanged} />
+                    <TableRecords records={[...dadosDoProcesso.pecas].reverse()} spec="ChoosePieces" pageSize={10} selectedIds={selectedIds} onSelectdIdsChanged={onSelectedIdsChanged}>
+                        <div className="col col-auto mb-0">
+                            {alteredPieces || tipoDeSintese !== dadosDoProcesso.tipoDeSintese
+                                ? <Button onClick={() => onSave(tipoDeSintese, alteredPieces ? selectedIds : [])} variant="primary"><FontAwesomeIcon icon={faRotateRight} className="me-2" />Salvar Alterações e Refazer</Button>
+                                : <Button onClick={() => onClose()} variant="secondary"><FontAwesomeIcon icon={faClose} className="me-1" />Fechar</Button>
+                            }
+                        </div></TableRecords>
                 </div>
             </div>
         </div>
@@ -81,7 +83,7 @@ export const ChoosePiecesLoading = () => {
 }
 
 
-export default function ChoosePieces({ dadosDoProcesso }) {
+export default function ChoosePieces({ dadosDoProcesso, statusDeSintese }: { dadosDoProcesso: DadosDoProcessoType, statusDeSintese: StatusDeSintese }) {
     const pathname = usePathname(); // let's get the pathname to make the component reusable - could be used anywhere in the project
     const router = useRouter();
     const currentSearchParams = useSearchParams()
@@ -128,8 +130,7 @@ export default function ChoosePieces({ dadosDoProcesso }) {
         } else {
             s += l[0] + ' + ' + (l.length - 1)
         }
-        return <p className="text-muted text-center h-print">{s} - <FontAwesomeIcon onClick={() => { setEditing(true) }} icon={faEdit} /></p>
-
+        return <p className="text-muted text-center h-print">{s} - <span onClick={() => { setEditing(true) }} className="text-primary" style={{ cursor: 'pointer' }}><FontAwesomeIcon icon={faEdit} /> Alterar</span></p>
     }
-    return <ChoosePiecesForm onSave={onSave} onClose={onClose} dadosDoProcesso={dadosDoProcesso} />
+    return <ChoosePiecesForm onSave={onSave} onClose={onClose} dadosDoProcesso={dadosDoProcesso} statusDeSintese={statusDeSintese} />
 }
