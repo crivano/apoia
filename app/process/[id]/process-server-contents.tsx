@@ -9,19 +9,22 @@ import ErrorMsg from './error-msg'
 import Subtitulo, { SubtituloLoading } from './subtitulo'
 import ChoosePieces from './choose-pieces'
 import { ListaDeProdutosServer } from './lista-produtos-server'
+import { StatusDeSintese } from '@/lib/proc/combinacoes'
+import { DadosDoProcessoType } from '@/lib/proc/process-types'
+import { cookies } from 'next/headers'
 
 export const maxDuration = 60 // seconds
 export const dynamic = 'force-dynamic'
 
 const canonicalPieces = (pieces: string[]) => pieces.sort((a, b) => a.localeCompare(b)).join(',')
 
-export async function ChoosePiecesServer({ pDadosDoProcesso }) {
+export async function ChoosePiecesServer({ pDadosDoProcesso, statusDeSintese }: { pDadosDoProcesso: Promise<DadosDoProcessoType>, statusDeSintese: StatusDeSintese }) {
     const dadosDoProcesso = await pDadosDoProcesso
     // console.log('dadosDoProcesso', dadosDoProcesso)
     if (!dadosDoProcesso || dadosDoProcesso.errorMsg)
         return ''
 
-    return <ChoosePieces dadosDoProcesso={dadosDoProcesso} key={`${dadosDoProcesso.tipoDeSintese}:${canonicalPieces(dadosDoProcesso.pecasSelecionadas.map(p => p.id))}`} />
+    return <ChoosePieces dadosDoProcesso={dadosDoProcesso} key={`${dadosDoProcesso.tipoDeSintese}:${canonicalPieces(dadosDoProcesso.pecasSelecionadas.map(p => p.id))}`} statusDeSintese={statusDeSintese} />
 }
 
 export default async function ShowProcess({ id, kind, pieces }) {
@@ -31,7 +34,11 @@ export default async function ShowProcess({ id, kind, pieces }) {
 
     id = (id?.toString() || '').replace(/[^0-9]/g, '')
 
-    const pDadosDoProcesso = obterDadosDoProcesso({ numeroDoProcesso: id, pUser, kind, pieces })
+    const statusCookie = cookies().get('beta-tester')?.value
+
+    const statusDeSintese = statusCookie ? JSON.parse(statusCookie) : StatusDeSintese.PUBLICO
+
+    const pDadosDoProcesso = obterDadosDoProcesso({ numeroDoProcesso: id, pUser, kind, pieces, statusDeSintese })
 
     return (
         <div className="mb-3">
@@ -40,7 +47,7 @@ export default async function ShowProcess({ id, kind, pieces }) {
                     <Subtitulo pDadosDoProcesso={pDadosDoProcesso} />
                 </Suspense>
                 <Suspense fallback=''>
-                    <ChoosePiecesServer pDadosDoProcesso={pDadosDoProcesso} />
+                    <ChoosePiecesServer pDadosDoProcesso={pDadosDoProcesso} statusDeSintese={statusDeSintese} />
                 </Suspense>
                 <Suspense fallback=''>
                     <ErrorMsg pDadosDoProcesso={pDadosDoProcesso} />

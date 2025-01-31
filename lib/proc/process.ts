@@ -4,7 +4,7 @@ import { IADocument } from '../db/mysql-types'
 import { inferirCategoriaDaPeca } from '../category'
 import { obterConteudoDaPeca, obterDocumentoGravado } from './piece'
 import { assertNivelDeSigilo, nivelDeSigiloPermitido, verificarNivelDeSigilo } from './sigilo'
-import { P, ProdutoCompleto, T, TipoDeSinteseEnum, TipoDeSinteseMap } from './combinacoes'
+import { P, ProdutoCompleto, StatusDeSintese, T, TipoDeSinteseEnum, TipoDeSinteseMap } from './combinacoes'
 import { infoDeProduto, TiposDeSinteseValido } from './info-de-produto'
 import { Documento, match, MatchOperator, MatchResult } from './pattern'
 import { getInterop, Interop } from '../interop/interop'
@@ -144,9 +144,10 @@ export type ObterDadosDoProcessoType = {
     kind?: TipoDeSinteseEnum
     pieces?: string[]
     conteudoDasPecasSelecionadas?: CargaDeConteudoEnum
+    statusDeSintese?: StatusDeSintese
 }
 
-export const obterDadosDoProcesso = async ({ numeroDoProcesso, pUser, idDaPeca, identificarPecas, completo, kind, pieces, conteudoDasPecasSelecionadas = CargaDeConteudoEnum.ASSINCRONO }: ObterDadosDoProcessoType): Promise<DadosDoProcessoType> => {
+export const obterDadosDoProcesso = async ({ numeroDoProcesso, pUser, idDaPeca, identificarPecas, completo, kind, pieces, conteudoDasPecasSelecionadas = CargaDeConteudoEnum.ASSINCRONO, statusDeSintese = StatusDeSintese.PUBLICO }: ObterDadosDoProcessoType): Promise<DadosDoProcessoType> => {
     let pecas: PecaType[] = []
     let errorMsg = undefined
     try {
@@ -244,7 +245,8 @@ export const obterDadosDoProcesso = async ({ numeroDoProcesso, pUser, idDaPeca, 
         let tipoDeSinteseSelecionado: TipoDeSinteseEnum | null = null
 
         // Localiza um tipo de síntese válido
-        for (const tipoDeSintese of TiposDeSinteseValido) {
+        const tipos = TiposDeSinteseValido.filter(t => t.status <= statusDeSintese)
+        for (const tipoDeSintese of tipos) {
             pecasSelecionadas = selecionarPecasPorPadrao(pecas, tipoDeSintese.padroes)
             if (pecasSelecionadas !== null) {
                 tipoDeSinteseSelecionado = tipoDeSintese.id
