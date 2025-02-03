@@ -32,10 +32,10 @@ export class InteropPDPJ implements Interop {
         const user = await getCurrentUser()
 
         // Utiliza um token fixo, previamente configurado
-        // if (envString('DATALAKE_TOKEN')) {
-        //     this.accessToken = envString('DATALAKE_TOKEN')
-        //     return
-        // }
+        if (envString('DATALAKE_TOKEN')) {
+            this.accessToken = envString('DATALAKE_TOKEN')
+            return
+        }
 
         // Obter o token de acesso do usuário logado pelo keycloak
         if (user.accessToken) {
