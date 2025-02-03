@@ -22,7 +22,7 @@ data:
   VERCEL_ENV: "development"
 
   DB_CLIENT: "pg"
-  DB_HOST: "postgres.comum"
+  ###DB_HOST: "postgres.comum"
   DB_PORT: "5432"
   ###DB_USER: ${DB_USER}
   ###DB_PASSWORD: ${DB_PASSWORD}
