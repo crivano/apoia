@@ -458,8 +458,9 @@ export class Dao {
             .join('ia_enum as e', 'e.id', '=', 'ei.enum_id').
             where({ 'b.id': batch_id, 'e.id': enum_id })
             .groupBy('ei.descr', 'ei.hidden')
-            .orderBy('count(distinct bd.id)', 'desc');
-
+            // .orderBy(knex.raw('count(distinct bd.id)'), 'desc');
+        result.sort((a, b) => a.count - b.count)
+        console.log('result', result)   
         return result
     }
 
@@ -518,13 +519,13 @@ export class Dao {
 
     static async assertIABatchId(batchName: string): Promise<number> {
         if (!knex) return
-        const bach = await knex('ia_bach').select('id').where({
+        const bach = await knex('ia_batch').select('id').where({
             name: batchName
         }).first()
         if (bach) {
             return bach.id
         }
-        const [created] = await knex('ia_bach').insert({ name: batchName }).returning('id')
+        const [created] = await knex('ia_batch').insert({ name: batchName }).returning('id')
         return getId(created)
     }
 

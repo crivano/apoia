@@ -46,7 +46,11 @@ export function matchDocuments(referenceList: PecaType[], comparisonList: PecaTy
             referenceIndexes.forEach(refIdx => {
                 // Para cada documento da lista de comparação
                 comparisonIndexes.forEach(compIdx => {
-                    const similarity = (similarityType === SimilarityType.JACCARD ? strcomp.cosine : strcomp.diceCoefficient).similarity(referenceList[refIdx].conteudo || '', comparisonList[compIdx].conteudo || '')
+                    const refContent = referenceList[refIdx].conteudo || ''
+                    const compContent = comparisonList[compIdx].conteudo || ''
+                    const similarity = (refContent === '' || compContent === '')
+                        ? 0
+                        : (similarityType === SimilarityType.JACCARD ? strcomp.cosine : strcomp.diceCoefficient).similarity(refContent, compContent)
                     matches.push({ index: refIdx, closestDocument: compIdx, similarity })
                 }
                 )
