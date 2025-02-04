@@ -37,7 +37,7 @@ data:
   APP_REGISTRY_HOST: "discovery.prd.cnj.cloud/eureka"
   #APP_REGISTRY_PORT: "8761"
 
-  DATALAKE_API_URL: "https://api-processo.data-lake.pdpj.jus.br/processo-api/api/v1"
+  DATALAKE_API_URL: "https://api-processo-integracao.data-lake.pdpj.jus.br/processo-api/api/v1"
 
 
   SYSTEMS: "TRF2,JFRJ,JFES"

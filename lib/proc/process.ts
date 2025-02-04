@@ -214,9 +214,8 @@ export const obterDadosDoProcesso = async ({ numeroDoProcesso, pUser, idDaPeca, 
                 for (const peca of pecasComConteudo) {
                     if (peca.pConteudo) {
                         const c = await peca.pConteudo
-                        if (c.errorMsg) throw new Error(c.errorMsg)
-                        const conteudo = c.conteudo
-
+                        if (c?.errorMsg) throw new Error(c.errorMsg)
+                        const conteudo = c?.conteudo
                         // Localiza a categoria das peças anteriores a esta peça
                         const anteriores: string[] = []
                         for (const pecaAnterior of pecas) {
@@ -286,8 +285,8 @@ export const obterDadosDoProcesso = async ({ numeroDoProcesso, pUser, idDaPeca, 
         if (pecasComConteudo?.length > 0 && conteudoDasPecasSelecionadas === CargaDeConteudoEnum.SINCRONO) {
             for (const peca of pecasComConteudo) {
                 const c = await peca.pConteudo
-                if (c.errorMsg) throw new Error(c.errorMsg)
-                peca.conteudo = c.conteudo
+                if (c?.errorMsg) throw new Error(c.errorMsg)
+                peca.conteudo = c?.conteudo
                 delete peca.pConteudo
             }
         }
@@ -295,7 +294,8 @@ export const obterDadosDoProcesso = async ({ numeroDoProcesso, pUser, idDaPeca, 
         // return { ...dadosDoProcesso, pecas: [] as PecaType[], pecasSelecionadas: [] as PecaType[], tipoDeSintese: tipoDeSinteseSelecionado, produtos: TipoDeSinteseMap[tipoDeSinteseSelecionado]?.produtos }
     } catch (error) {
         if (error?.message === 'NEXT_REDIRECT') throw error
-        errorMsg = `${error.message} - ${error.stack}`
+        console.error(`Erro ao obter dados do processo ${numeroDoProcesso}: ${error.stack}`)
+        errorMsg = `${error.message}`
         return { pecas, errorMsg }
     }
 }
