@@ -10,12 +10,16 @@ import { EMPTY_FORM_STATE, FormHelper } from '@/lib/ui/form-support';
 const Frm = new FormHelper()
 
 export default function PrefsForm(params) {
-    const router = useRouter();
     noStore()
+    const initialState = JSON.parse(JSON.stringify(params.initialState))
+    const initialFormState = JSON.parse(JSON.stringify(EMPTY_FORM_STATE))
     const [processing, setProcessing] = useState(false)
     const [errorMessage, setErrorMessage] = useState('')
-    const [data, setData] = useState(params.initialState)
-    const [formState, setFormState] = useState(EMPTY_FORM_STATE)
+    const [data, setData] = useState(initialState)
+    const [formState, setFormState] = useState(initialFormState)
+    const [refreshCount, setRefreshCount] = useState(0)
+    const router = useRouter();
+
     Frm.update(data, setData, formState)
 
     const handleClick = (e) => {
@@ -32,6 +36,9 @@ export default function PrefsForm(params) {
     const handleClear = (e) => {
         e.preventDefault();
         document.cookie = `prefs=; path=/;`
+        setData(JSON.parse(JSON.stringify(params.initialState)))
+        setFormState(JSON.parse(JSON.stringify(EMPTY_FORM_STATE)))
+        setRefreshCount(refreshCount + 1)
         router.push(`/`)
         router.refresh()
     }
@@ -54,6 +61,19 @@ export default function PrefsForm(params) {
         const enabled = params.availableApiKeys.includes(providerApiKey) || data.env && !!data.env[providerApiKey]
 
         return !enabled
+    }
+
+    const validator = (value: string, name: string, regex: RegExp): string | undefined => {
+        let error: string | undefined = undefined
+        if (value && !regex.test(value)) error = 'Chave da API inválida'
+        const newFormState = { ...formState }
+        if (error) {
+            newFormState.fieldErrors[name] = [error]
+        } else {
+            delete newFormState.fieldErrors[name]
+        }
+        setFormState(newFormState)
+        return error
     }
 
     const modelOptions = enumSortById(Model)
@@ -88,13 +108,13 @@ export default function PrefsForm(params) {
                 <form className="row justify-content-center" autoComplete='off'>
                     <div className="col col-12 col-md-8 col-xxl-6">
                         <div className=" d-block mx-auto mb-3 alert-secondary alert">
-                            <div >
+                            <div key={refreshCount}>
                                 <div className="row mb-2">
                                     <Frm.Select label="Modelo Padrão" name="model" options={[{ id: '', name: '[Selecionar]' }, ...modelOptions]} />
                                 </div>
                                 {enumSortById(ModelProvider).map((provider) => (
                                     <div className="row mb-2" key={provider.value.name}>
-                                        <Frm.Input label={`${provider.value.name}: Chave da API`} name={`env['${provider.value.apiKey}']`} />
+                                        <Frm.Input label={`${provider.value.name}: Chave da API`} name={`env['${provider.value.apiKey}']`} validator={(value: string, name: string) => validator(value, name, provider.value.apiKeyRegex)} />
                                     </div>))}
                                 {/* <div className="row mb-3">
                                     <div className="col">

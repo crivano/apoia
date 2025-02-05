@@ -2,15 +2,15 @@
 export type EnumOfObjectsValueType = { id: number, name: string }
 export type EnumOfObjectsType = { [key: string]: EnumOfObjectsValueType }
 
-export type ModelProviderValueType = EnumOfObjectsValueType & { apiKey: string }
+export type ModelProviderValueType = EnumOfObjectsValueType & { apiKey: string, apiKeyRegex: RegExp }
 export type ModelProviderType = { [key: string]: ModelProviderValueType }
 export const ModelProvider: ModelProviderType = {
-    ANTHROPIC: { id: 1, name: 'Anthropic', apiKey: 'ANTHROPIC_API_KEY' },
-    OPENAI: { id: 2, name: 'OpenAI', apiKey: 'OPENAI_API_KEY' },
-    GOOGLE: { id: 3, name: 'Google', apiKey: 'GOOGLE_API_KEY' },
-    GROQ: { id: 4, name: 'Groq', apiKey: 'GROQ_API_KEY' },
-    DEEPSEEK: { id: 5, name: 'DeepSeek', apiKey: 'DEEPSEEK_API_KEY' },
-} 
+    ANTHROPIC: { id: 1, name: 'Anthropic', apiKey: 'ANTHROPIC_API_KEY', apiKeyRegex:  /^sk-[a-zA-Z0-9_-]{100,110}$/},
+    OPENAI: { id: 2, name: 'OpenAI', apiKey: 'OPENAI_API_KEY', apiKeyRegex: /^sk-proj-[a-zA-Z0-9]{48}$/ },
+    GOOGLE: { id: 3, name: 'Google', apiKey: 'GOOGLE_API_KEY', apiKeyRegex: /^AI[a-zA-Z0-9]{37}$/ },
+    GROQ: { id: 4, name: 'Groq', apiKey: 'GROQ_API_KEY', apiKeyRegex: /^gsk_[a-zA-Z0-9]{52}$/ },
+    DEEPSEEK: { id: 5, name: 'DeepSeek', apiKey: 'DEEPSEEK_API_KEY', apiKeyRegex: /^sk-[a-zA-Z0-9]{32}$/ },
+}
 
 export type ModelValeuType = EnumOfObjectsValueType & { provider: ModelProviderValueType }
 export type ModelType = { [key: string]: ModelValeuType }
@@ -30,7 +30,9 @@ export const Model: ModelType = {
     GPT_4_O_2024_11_20:
         { id: 7, name: 'gpt-4o-2024-11-20', provider: ModelProvider.OPENAI },
     DEEPSEEK_CHAT:
-        { id: 8, name: 'deepseek-chat', provider: ModelProvider.DEEPSEEK }
+        { id: 8, name: 'deepseek-chat', provider: ModelProvider.DEEPSEEK },
+    // DEEPSEEK_REASONER:
+    //     { id: 9, name: 'deepseek-reasoner', provider: ModelProvider.DEEPSEEK }
 }
 
 export const ModelArray: ModelValeuType[] = [
@@ -42,6 +44,7 @@ export const ModelArray: ModelValeuType[] = [
     { id: 6, name: 'llama-3.1-70b-versatile', provider: ModelProvider.GROQ },
     { id: 7, name: 'gpt-4o-2024-11-20', provider: ModelProvider.OPENAI },
     { id: 8, name: 'deepseek-chat', provider: ModelProvider.DEEPSEEK },
+    // { id: 9, name: 'deepseek-reasoner', provider: ModelProvider.DEEPSEEK },
 ]
 
 export function enumSortById(e: EnumOfObjectsType): any[] {

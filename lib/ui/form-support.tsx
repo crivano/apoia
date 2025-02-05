@@ -201,11 +201,11 @@ export class FormHelper {
 
     public colClass = (width?: string | number) => `${this.compact ? 'mb-0' : 'mt-3'} col ${typeof width === 'string' ? width : `col-12 col-md-${width || 12}`}`
 
-    public Input = ({ label, name, width }: { label: string, name: string, width?: number | string }) => {
+    public Input = ({ label, name, validator, width }: { label: string, name: string, validator?: (value: string, name: string) => string | undefined, width?: number | string }) => {
         return (
             <Form.Group className={this.colClass(width)} controlId={name}>
                 <Form.Label className={this.compact ? 'mb-0' : ''}>{label}</Form.Label>
-                <Form.Control name={name} type="text" value={this.get(name)} onChange={e => this.set(name, e.target.value)} placeholder="" key={name} />
+                <Form.Control name={name} type="text" value={this.get(name)} onChange={e => { this.set(name, e.target.value); validator && validator(e.target.value, name)}} placeholder="" key={name} />
                 <FieldError formState={this.formState} name={name} />
             </Form.Group>
         )
