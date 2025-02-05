@@ -39,7 +39,7 @@ export async function POST(req: Request, { params }: { params: { name: string, n
     const user = await getCurrentUser()
     if (!user) return Response.json({ errormsg: 'Unauthorized' }, { status: 401 })
 
-    const msg = await analyze(name, number, complete)
+    const msg = await analyze(name, number, 'RELATORIO_DE_ACERVO', complete)
     return Response.json({ status: 'OK', msg })
   } catch (error) {
     console.error('Erro analisando', error)

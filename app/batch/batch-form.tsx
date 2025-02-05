@@ -73,7 +73,7 @@ export default function ProcessNumberForm(params) {
     useEffect(() => {
         updateItems()
         if (running) {
-            setTimeout(executeNext)
+            setTimeout(executeNext) //, 30000)
         }
     }, [running, ready, error])
 

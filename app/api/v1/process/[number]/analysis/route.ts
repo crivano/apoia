@@ -71,8 +71,9 @@ export async function GET(req: Request, { params }: { params: { number: string }
 
   const url = new URL(req.url)
   const complete: boolean = url.searchParams.get('complete') === 'true'
+  const kind: string | undefined = url.searchParams.get('kind')
   try {
-    const analysis = await analyze(undefined, params.number, complete)
+    const analysis = await analyze(undefined, params.number, kind, complete)
     const resp = analysis.generatedContent.map((content: GeneratedContent) => ({ descr: content.title, prompt: content.promptSlug, generated: filterText(content.generated) }))
     return Response.json({ status: 'OK', products: resp })
   } catch (error) {

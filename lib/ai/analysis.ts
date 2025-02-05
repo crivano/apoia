@@ -82,13 +82,13 @@ export function buildRequests(produtos: InfoDeProduto[], pecasComConteudo: Texto
     return requests
 }
 
-export async function analyze(batchName: string | undefined, dossierNumber: string, complete: boolean): Promise<{ dossierData: any, generatedContent: GeneratedContent[] }> {
+export async function analyze(batchName: string | undefined, dossierNumber: string, kind: string | undefined, complete: boolean): Promise<{ dossierData: any, generatedContent: GeneratedContent[] }> {
     console.log('analyze', batchName, dossierNumber)
     try {
         const pUser = assertCurrentUser()
 
         // Obter peças
-        const pDadosDoProcesso = obterDadosDoProcesso({ numeroDoProcesso: dossierNumber, pUser, completo: complete })
+        const pDadosDoProcesso = obterDadosDoProcesso({ numeroDoProcesso: dossierNumber, pUser, completo: complete, kind })
         const dadosDoProcesso = await pDadosDoProcesso
         if (dadosDoProcesso.errorMsg) throw new Error(dadosDoProcesso.errorMsg)
         if (!dadosDoProcesso?.tipoDeSintese) throw new Error(`${dossierNumber}: Nenhum tipo de síntese válido`)

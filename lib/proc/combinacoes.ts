@@ -20,6 +20,7 @@ export enum T {
     EXTRATO_DE_ATA = 'EXTRATO DE ATA',
     VOTO = 'VOTO',
     ACORDAO = 'ACÓRDÃO',
+    FORMULARIO = 'FORMULÁRIO',
 }
 
 export enum P {
@@ -39,6 +40,7 @@ export enum P {
     LITIGANCIA_PREDATORIA = 'Litigância Predatória',
     CHAT = 'Chat',
     RELATORIO_COMPLETO_CRIMINAL = 'Relatório Completo Criminal',
+    MINUTA_DE_DESPACHO_DE_ACORDO_9_DIAS = 'Minuta de Despacho de Acordo 9 dias',
 }
 
 export enum Plugin {
@@ -68,6 +70,7 @@ export const ProdutosValidos = {
     [P.LITIGANCIA_PREDATORIA]: { titulo: P.LITIGANCIA_PREDATORIA, prompt: 'litigancia-predatoria', plugins: [] },
     [P.CHAT]: { titulo: P.CHAT, prompt: 'chat', plugins: [] },
     [P.RELATORIO_COMPLETO_CRIMINAL]: { titulo: P.RELATORIO_COMPLETO_CRIMINAL, prompt: 'relatorio-completo-criminal', plugins: [] },
+    [P.MINUTA_DE_DESPACHO_DE_ACORDO_9_DIAS]: { titulo: P.MINUTA_DE_DESPACHO_DE_ACORDO_9_DIAS, prompt: 'minuta-de-despacho-de-acordo-9-dias', plugins: [] },
 }
 
 export interface ProdutoCompleto { produto: P, dados: T[] }
@@ -96,7 +99,8 @@ const padroesBasicos = [
     [ANY(), EXACT(T.SENTENCA), ANY(), OR(T.APELACAO, T.RECURSO, T.RECURSO_INOMINADO), ANY()],
     [ANY(), EXACT(T.PETICAO_INICIAL), ANY({ capture: [T.EMENDA_DA_INICIAL, T.CONTESTACAO, T.INFORMACAO_EM_MANDADO_DE_SEGURANCA, T.LAUDO] }), OR(T.CONTESTACAO, T.INFORMACAO_EM_MANDADO_DE_SEGURANCA), ANY(), EXACT(T.SENTENCA), ANY()],
     [ANY(), EXACT(T.PETICAO_INICIAL), ANY({ capture: [T.EMENDA_DA_INICIAL, T.CONTESTACAO, T.INFORMACAO_EM_MANDADO_DE_SEGURANCA, T.LAUDO] }), OR(T.CONTESTACAO, T.INFORMACAO_EM_MANDADO_DE_SEGURANCA), ANY()],
-    [ANY(), EXACT(T.PETICAO_INICIAL), ANY({ capture: [T.EMENDA_DA_INICIAL, T.CONTESTACAO, T.INFORMACAO_EM_MANDADO_DE_SEGURANCA, T.LAUDO, T.CONTESTACAO, T.INFORMACAO_EM_MANDADO_DE_SEGURANCA] })]
+    [ANY(), EXACT(T.PETICAO_INICIAL), ANY({ capture: [T.EMENDA_DA_INICIAL, T.CONTESTACAO, T.INFORMACAO_EM_MANDADO_DE_SEGURANCA, T.LAUDO, T.CONTESTACAO, T.INFORMACAO_EM_MANDADO_DE_SEGURANCA] })],
+    [ANY(), EXACT(T.PETICAO_INICIAL), ANY()]
 ]
 
 // "inicial contestação sentença, embargos de declaração, sentença, apelação, contrarrazoes de apelação"
@@ -179,6 +183,25 @@ export const TipoDeSinteseMap: Record<string, TipoDeSinteseType> = {
         ],
         produtos: [P.RELATORIO_COMPLETO_CRIMINAL, P.CHAT]
     },
+
+    MINUTA_DE_DESPACHO_DE_ACORDO_9_DIAS: {
+        status: StatusDeSintese.EM_DESENVOLVIMENTO,
+        sort: 9,
+        nome: 'Minuta de Despacho de Acordo 9 dias',
+        padroes: [
+            [ANY(), EXACT(T.PETICAO_INICIAL), ANY({ capture: [T.FORMULARIO] })],
+        ],
+        produtos: [P.MINUTA_DE_DESPACHO_DE_ACORDO_9_DIAS, P.CHAT]
+    },
+
+    RELATORIO_DE_ACERVO: {
+        status: StatusDeSintese.EM_DESENVOLVIMENTO,
+        sort: 1000,
+        nome: 'Relatório de Acervo',
+        padroes: padroesBasicos,
+        produtos: [P.RESUMOS, P.RESUMO]
+    },
+
 
     // RESUMOS_ACORDAO: {
     //     sort: 4,

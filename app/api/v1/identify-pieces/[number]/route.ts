@@ -1,5 +1,4 @@
 import { getCurrentUser } from '@/lib/user'
-import { analyze } from '@/lib/ai/analysis'
 import { obterDadosDoProcesso } from '@/lib/proc/process'
 
 export const maxDuration = 60

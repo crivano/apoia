@@ -164,8 +164,9 @@ export class InteropMNI implements Interop {
         if (!respQuery[0].sucesso)
             throw new Error(`${respQuery[0].mensagem}`)
         const dadosBasicos = respQuery[0].processo.dadosBasicos
+        const sigilo = dadosBasicos.attributes.nivelSigilo
         if (verificarNivelDeSigilo())
-            assertNivelDeSigilo(dadosBasicos.sigilo)
+            assertNivelDeSigilo(sigilo)
         const dataAjuizamento = dadosBasicos.attributes.dataAjuizamento
         // console.log('dadosBasicos', dadosBasicos)
         const nomeOrgaoJulgador = dadosBasicos.orgaoJulgador.attributes.nomeOrgao

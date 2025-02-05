@@ -644,9 +644,9 @@ export class Dao {
 
     static async assertIAEnumItemId(descr: string, enum_id: number): Promise<number> {
         if (!knex) return
-        const iaEnum = await knex('ia_enum').select('id').where({ descr, enum_id }).first()
+        const iaEnum = await knex('ia_enum_item').select('id').where({ descr, enum_id }).first()
         if (iaEnum) return iaEnum.id
-        const [result] = await knex('ia_enum').insert({
+        const [result] = await knex('ia_enum_item').insert({
             descr, enum_id
         }).returning("id")
         return getId(result)
