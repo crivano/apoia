@@ -110,7 +110,7 @@ function requestSlot(Frm: FormHelper, requests: GeneratedContent[], idx: number)
     return <div key={idx}>
         <h2>{maiusculasEMinusculas(request.title)}</h2>
         <Suspense fallback={ResumoDePecaLoading()}>
-            <AiContent definition={request.internalPrompt} data={request.data} key={calcSha256(request.data)} onBusy={() => onBusy(Frm, requests, idx)} onReady={(content) => onReady(Frm, requests, idx, content)} />
+            <AiContent definition={request.internalPrompt} data={request.data} key={`prompt: ${request.promptSlug}, data: ${calcSha256(request.data)}`} onBusy={() => onBusy(Frm, requests, idx)} onReady={(content) => onReady(Frm, requests, idx, content)} />
         </Suspense>
     </div>
 }
