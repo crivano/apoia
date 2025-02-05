@@ -114,7 +114,7 @@ export class InteropPDPJ implements Interop {
         const movimentosMap: Map<string, any> = new Map()
         for (const mov of processo.movimentos) {
             if (mov.idDocumento)
-            movimentosMap.set(mov.idDocumento, mov)
+                movimentosMap.set(mov.idDocumento, mov)
         }
 
         // Agora, vamos varrer os documentos de trás para frente
@@ -155,6 +155,18 @@ export class InteropPDPJ implements Interop {
             }
         );
         const b = await response.arrayBuffer()
+        if (response.status !== 200) {
+            try {
+                const decoder = new TextDecoder('utf-8')
+                const texto = decoder.decode(b)
+                if (response.headers.get('Content-Type') === 'application/json') {
+                    const data = JSON.parse(texto)
+                    throw new Error(data.message)
+                }
+            } catch (e) {
+                throw new Error(`Não foi possível obter o texto da peça. ${e} (${numeroDoProcesso}/${idDaPeca})`)
+            }
+        }
         const ab = b.slice(0, b.byteLength)
         const resultado = { buffer: ab, contentType: response.headers.get('Content-Type') }
         return resultado;

@@ -35,8 +35,9 @@ export const waitForTexts = async (data: PromptDataType): Promise<void> => {
         for (const texto of data.textos) {
             if (!texto.pTexto) continue
             const c = await texto.pTexto
-            if (c.errorMsg) throw new Error(c.errorMsg)
-            texto.texto = c.conteudo
+            if (c === undefined) throw new Error(`Conteúdo não encontrado para ${texto.label} (${texto.descr}) no evento ${texto.event}`)   
+            if (c?.errorMsg) throw new Error(c.errorMsg)
+            texto.texto = c?.conteudo
             delete texto.pTexto
         }
     }
