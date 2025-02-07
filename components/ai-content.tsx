@@ -74,15 +74,17 @@ export default function AiContent(params: { definition: PromptDefinitionType, da
                 body: JSON.stringify(payload)
             })
             if (!response.ok) {
-                let msg = `HTTP error: ${response.status}`
+                let msg: string | undefined = undefined
                 try {
                     const { errormsg } = await response.json()
                     msg = errormsg
                 } catch (e) { }
-                try {
-                    msg = await response.text()
-                } catch (e) { }
-                setErrormsg(msg)
+                if (!msg) {
+                    try {
+                        msg = await response.text()
+                    } catch (e) { }
+                }
+                setErrormsg(msg || `HTTP error: ${response.status}`)
                 return
             }
         } catch (err) {
