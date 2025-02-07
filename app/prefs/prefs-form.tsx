@@ -4,7 +4,7 @@ import React, { useState, FormEvent, useEffect } from 'react'
 import { unstable_noStore as noStore } from 'next/cache'
 import { Button, Form } from 'react-bootstrap';
 import { useRouter } from 'next/navigation';
-import { enumSortById, Model, ModelProvider } from '@/lib/ai/model-types';
+import { enumSorted, Model, ModelProvider } from '@/lib/ai/model-types';
 import { EMPTY_FORM_STATE, FormHelper } from '@/lib/ui/form-support';
 
 const Frm = new FormHelper()
@@ -44,12 +44,12 @@ export default function PrefsForm(params) {
     }
 
     const getAvailabeModel = () => {
-        for (const m of enumSortById(Model)) {
+        for (const m of enumSorted(Model)) {
             if (data.env && !!data.env[m.value.provider.apiKey])
                 return m.value.name
         }
         if (params.defaultModel) return params.defaultModel
-        for (const m of enumSortById(Model)) {
+        for (const m of enumSorted(Model)) {
             if (params.availableApiKeys.includes(m.value.provider.apiKey))
                 return m.value.name
         }
@@ -76,15 +76,15 @@ export default function PrefsForm(params) {
         return error
     }
 
-    const modelOptions = enumSortById(Model)
-        .sort((a, b) => a.value.provider.id - b.value.provider.id)
+    const modelOptions = enumSorted(Model)
+        // .sort((a, b) => a.value.provider.id - b.value.provider.id)
         .map(e => ({ id: e.value.name, name: e.value.name, disabled: isDisabled(e) }))
         .sort((a, b) => a.disabled ? 1 : b.disabled ? -1 : 0)
 
     useEffect(() => {
         const oldData = data
         const newData = { ...data, model: getAvailabeModel() }
-        for (const model of enumSortById(Model)) {
+        for (const model of enumSorted(Model)) {
             if (oldData.model === model.value.name && isDisabled(model)) {
                 setData(newData)
                 return
@@ -101,7 +101,7 @@ export default function PrefsForm(params) {
             <div className="row justify-content-center">
                 <div className="col col-12 col-md-8 col-xxl-6">
                     <h4 className="text-center mt-3 mb-2">Modelo de Inteligência Artificial</h4>
-                    <p className="text-center">Antes de usar a ApoIA é necessário selecionar o modelo de IA desejado e fornecer as respectivas chaves de API no formulário abaixo. Veja a <a href="https://github.com/trf2-jus-br/apoia/wiki/Modelos-de-IA-e-Chaves-de-APIs">documentação</a>.</p>
+                    <p className="text-center">Antes de usar a ApoIA é necessário selecionar o modelo de IA desejado e fornecer as respectivas chaves de API no formulário abaixo. Leia atentamente a <a href="https://github.com/trf2-jus-br/apoia/wiki/Modelos-de-IA-e-Chaves-de-APIs">documentação</a>, principalmente no que se refere aos limites de uso.</p>
                 </div>
             </div>
             <div >
@@ -112,7 +112,7 @@ export default function PrefsForm(params) {
                                 <div className="row mb-2">
                                     <Frm.Select label="Modelo Padrão" name="model" options={[{ id: '', name: '[Selecionar]' }, ...modelOptions]} />
                                 </div>
-                                {enumSortById(ModelProvider).map((provider) => (
+                                {enumSorted(ModelProvider).map((provider) => (
                                     <div className="row mb-2" key={provider.value.name}>
                                         <Frm.Input label={`${provider.value.name}: Chave da API`} name={`env['${provider.value.apiKey}']`} validator={(value: string, name: string) => validator(value, name, provider.value.apiKeyRegex)} />
                                     </div>))}
