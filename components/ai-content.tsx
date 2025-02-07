@@ -50,6 +50,7 @@ export default function AiContent(params: { definition: PromptDefinitionType, da
     const handleShow = () => setShow(true)
 
     const fetchStream = async () => {
+        const textDecoder = new TextDecoder('utf-8')
         const payload = {
             kind: params.definition.kind,
             data: params.data,
@@ -66,10 +67,28 @@ export default function AiContent(params: { definition: PromptDefinitionType, da
 
         if (params.onBusy) params.onBusy()
 
-        const response = await fetch('/api/v1/ai', {
-            method: 'POST',
-            body: JSON.stringify(payload)
-        })
+        let response: Response
+        try {
+            response = await fetch('/api/v1/ai', {
+                method: 'POST',
+                body: JSON.stringify(payload)
+            })
+            if (!response.ok) {
+                let msg = `HTTP error: ${response.status}`
+                try {
+                    const { errormsg } = await response.json()
+                    msg = errormsg
+                } catch (e) { }
+                try {
+                    msg = await response.text()
+                } catch (e) { }
+                setErrormsg(msg)
+                return
+            }
+        } catch (err) {
+            setErrormsg(err.message)
+            return
+        }
         const reader = response.body?.getReader()
 
         if (reader) {

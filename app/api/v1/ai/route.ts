@@ -91,14 +91,45 @@ export async function POST(request: Request) {
         if (typeof result === 'string') {
             return new Response(result, { status: 200 });
         }
-        if (result.toTextStreamResponse) {
-            return result.toTextStreamResponse();
+        if (result && result.textStream) {
+            const reader = result.textStream.getReader()
+            const { value, done } = await reader.read()
+            if (done || !value) {
+                throw new Error('Invalid or empty response at the beginning')
+            }
+
+            const feederStream = new ReadableStream({
+                start(controller) {
+                    controller.enqueue(value)
+                    function pump() {
+                        reader.read().then(({ done, value }) => {
+                            if (done) {
+                                controller.close()
+                                return
+                            }
+                            controller.enqueue(value)
+                            pump()
+                        })
+                    }
+                    pump()
+                },
+            })
+
+            // const transformStream = new TransformStream({
+            // transform(chunk, controller) {
+            //     const text = new TextDecoder().decode(chunk)
+            //     controller.enqueue(new TextEncoder().encode(text))
+            // },
+            // })
+
+            // const transformedStream = feederStream.pipeThrough(transformStream)
+            return new Response(feederStream, { status: 200 })
         } else {
             throw new Error('Invalid response')
         }
     } catch (error) {
         console.log('error', error)
         const message = Fetcher.processError(error)
-        return NextResponse.json({ message: `${message}` }, { status: 405 });
+        return NextResponse.json({ errormsg: `${message}` }, { status: 405 });
     }
 }
