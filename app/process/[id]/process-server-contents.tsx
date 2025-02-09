@@ -9,8 +9,7 @@ import ErrorMsg from './error-msg'
 import Subtitulo, { SubtituloLoading } from './subtitulo'
 import ChoosePieces from './choose-pieces'
 import { ListaDeProdutosServer } from './lista-produtos-server'
-import { StatusDeSintese } from '@/lib/proc/combinacoes'
-import { DadosDoProcessoType } from '@/lib/proc/process-types'
+import { DadosDoProcessoType, StatusDeLancamento } from '@/lib/proc/process-types'
 import { cookies } from 'next/headers'
 
 export const maxDuration = 60 // seconds
@@ -18,7 +17,7 @@ export const dynamic = 'force-dynamic'
 
 const canonicalPieces = (pieces: string[]) => pieces.sort((a, b) => a.localeCompare(b)).join(',')
 
-export async function ChoosePiecesServer({ pDadosDoProcesso, statusDeSintese }: { pDadosDoProcesso: Promise<DadosDoProcessoType>, statusDeSintese: StatusDeSintese }) {
+export async function ChoosePiecesServer({ pDadosDoProcesso, statusDeSintese }: { pDadosDoProcesso: Promise<DadosDoProcessoType>, statusDeSintese: StatusDeLancamento }) {
     const dadosDoProcesso = await pDadosDoProcesso
     // console.log('dadosDoProcesso', dadosDoProcesso)
     if (!dadosDoProcesso || dadosDoProcesso.errorMsg)
@@ -36,7 +35,7 @@ export default async function ShowProcess({ id, kind, pieces }) {
 
     const statusCookie = cookies().get('beta-tester')?.value
 
-    const statusDeSintese = statusCookie ? JSON.parse(statusCookie) : StatusDeSintese.PUBLICO
+    const statusDeSintese = statusCookie ? JSON.parse(statusCookie) : StatusDeLancamento.PUBLICO
 
     const pDadosDoProcesso = obterDadosDoProcesso({ numeroDoProcesso: id, pUser, kind, pieces, statusDeSintese })
 

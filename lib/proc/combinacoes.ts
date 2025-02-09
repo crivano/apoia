@@ -1,4 +1,5 @@
 import { ANY, EXACT, MatchOperator, OR } from "./pattern"
+import { StatusDeLancamento } from "./process-types"
 
 // Enum com os tipos de peças
 export enum T {
@@ -80,18 +81,13 @@ export const PC = (p: P, d?: T | T[]): ProdutoCompleto => {
     return { produto: p, dados: d ? [d as T] : [] }
 }
 
-export enum StatusDeSintese {
-    PUBLICO,
-    EM_DESENVOLVIMENTO
-}
-
 export type TipoDeSinteseType = {
     nome: string,
     // tipos: T[][],
     padroes: MatchOperator[][],
     produtos: (P | ProdutoCompleto)[],
     sort: number,
-    status: StatusDeSintese,
+    status: StatusDeLancamento,
 }
 
 const padroesBasicos = [
@@ -107,21 +103,21 @@ const padroesBasicos = [
 // "agravo, contrarrazoes de agravo"
 export const TipoDeSinteseMap: Record<string, TipoDeSinteseType> = {
     RESUMOS_TRIAGEM: {
-        status: StatusDeSintese.PUBLICO,
+        status: StatusDeLancamento.PUBLICO,
         sort: 1,
         nome: 'Resumos e triagem',
         padroes: padroesBasicos,
         produtos: [P.RESUMOS, P.RESUMO, P.CHAT]
     },
     RESUMOS_ANALISE: {
-        status: StatusDeSintese.PUBLICO,
+        status: StatusDeLancamento.PUBLICO,
         sort: 2,
         nome: 'Resumos e análise',
         padroes: padroesBasicos,
         produtos: [P.RESUMOS, P.ANALISE, P.CHAT]
     },
     RESUMOS: {
-        status: StatusDeSintese.PUBLICO,
+        status: StatusDeLancamento.PUBLICO,
         sort: 3,
         nome: 'Resumos das principais peças',
         padroes: padroesBasicos,
@@ -131,7 +127,7 @@ export const TipoDeSinteseMap: Record<string, TipoDeSinteseType> = {
         produtos: [P.RESUMOS, P.CHAT]
     },
     LITIGANCIA_PREDATORIA: {
-        status: StatusDeSintese.EM_DESENVOLVIMENTO,
+        status: StatusDeLancamento.EM_DESENVOLVIMENTO,
         sort: 4,
         nome: 'Litigância Predatória',
         padroes: [
@@ -140,7 +136,7 @@ export const TipoDeSinteseMap: Record<string, TipoDeSinteseType> = {
         produtos: [PC(P.RESUMOS, [T.PETICAO_INICIAL]), P.LITIGANCIA_PREDATORIA, P.CHAT]
     },
     PEDIDOS: {
-        status: StatusDeSintese.EM_DESENVOLVIMENTO,
+        status: StatusDeLancamento.EM_DESENVOLVIMENTO,
         sort: 5,
         nome: 'Pedidos',
         padroes: [
@@ -149,7 +145,7 @@ export const TipoDeSinteseMap: Record<string, TipoDeSinteseType> = {
         produtos: [P.RESUMOS, P.PEDIDOS, P.CHAT]
     },
     CHAT: {
-        status: StatusDeSintese.PUBLICO,
+        status: StatusDeLancamento.PUBLICO,
         sort: 6,
         nome: 'Chat',
         padroes: [
@@ -162,7 +158,7 @@ export const TipoDeSinteseMap: Record<string, TipoDeSinteseType> = {
     },
 
     INDICE: {
-        status: StatusDeSintese.EM_DESENVOLVIMENTO,
+        status: StatusDeLancamento.EM_DESENVOLVIMENTO,
         sort: 7,
         nome: 'Índice',
         padroes: [
@@ -175,7 +171,7 @@ export const TipoDeSinteseMap: Record<string, TipoDeSinteseType> = {
     },
 
     RELATORIO_CRIMINAL_COMPLETO_COM_INDICE: {
-        status: StatusDeSintese.EM_DESENVOLVIMENTO,
+        status: StatusDeLancamento.EM_DESENVOLVIMENTO,
         sort: 8,
         nome: 'Relatório Completo Criminal',
         padroes: [
@@ -185,7 +181,7 @@ export const TipoDeSinteseMap: Record<string, TipoDeSinteseType> = {
     },
 
     MINUTA_DE_DESPACHO_DE_ACORDO_9_DIAS: {
-        status: StatusDeSintese.EM_DESENVOLVIMENTO,
+        status: StatusDeLancamento.EM_DESENVOLVIMENTO,
         sort: 9,
         nome: 'Minuta de Despacho de Acordo 9 dias',
         padroes: [
@@ -195,7 +191,7 @@ export const TipoDeSinteseMap: Record<string, TipoDeSinteseType> = {
     },
 
     RELATORIO_DE_ACERVO: {
-        status: StatusDeSintese.EM_DESENVOLVIMENTO,
+        status: StatusDeLancamento.EM_DESENVOLVIMENTO,
         sort: 1000,
         nome: 'Relatório de Acervo',
         padroes: padroesBasicos,
@@ -220,7 +216,7 @@ export interface TipoDeSinteseValido {
     nome: string,
     padroes: MatchOperator[][],
     produtos: InfoDeProduto[],
-    status: StatusDeSintese,
+    status: StatusDeLancamento,
 }
 
 export interface InfoDeProduto {

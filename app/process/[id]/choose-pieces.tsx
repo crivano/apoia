@@ -6,9 +6,9 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { use, useEffect, useRef, useState } from "react"
 import TableRecords from '@/components/table-records'
-import { DadosDoProcessoType } from "@/lib/proc/process-types";
+import { DadosDoProcessoType, StatusDeLancamento } from "@/lib/proc/process-types";
 import { Button } from "react-bootstrap";
-import { StatusDeSintese, TipoDeSinteseEnum, TipoDeSinteseMap } from "@/lib/proc/combinacoes";
+import { TipoDeSinteseEnum, TipoDeSinteseMap } from "@/lib/proc/combinacoes";
 import { EMPTY_FORM_STATE, FormHelper } from "@/lib/ui/form-support";
 import { TiposDeSinteseValido } from "@/lib/proc/info-de-produto";
 
@@ -16,7 +16,7 @@ const Frm = new FormHelper()
 
 const canonicalPieces = (pieces: string[]) => pieces.sort((a, b) => a.localeCompare(b)).join(',')
 
-function ChoosePiecesForm({ dadosDoProcesso, onSave, onClose, statusDeSintese }: { dadosDoProcesso: DadosDoProcessoType, onSave: (kind: TipoDeSinteseEnum, pieces: string[]) => void, onClose: () => void, statusDeSintese: StatusDeSintese }) {
+function ChoosePiecesForm({ dadosDoProcesso, onSave, onClose, statusDeSintese }: { dadosDoProcesso: DadosDoProcessoType, onSave: (kind: TipoDeSinteseEnum, pieces: string[]) => void, onClose: () => void, statusDeSintese: StatusDeLancamento }) {
     const originalPieces: string[] = dadosDoProcesso.pecasSelecionadas.map(p => p.id)
     const [tipoDeSintese, setTipoDeSintese] = useState(dadosDoProcesso.tipoDeSintese)
     const [selectedIds, setSelectedIds] = useState(originalPieces)
@@ -83,7 +83,7 @@ export const ChoosePiecesLoading = () => {
 }
 
 
-export default function ChoosePieces({ dadosDoProcesso, statusDeSintese }: { dadosDoProcesso: DadosDoProcessoType, statusDeSintese: StatusDeSintese }) {
+export default function ChoosePieces({ dadosDoProcesso, statusDeSintese }: { dadosDoProcesso: DadosDoProcessoType, statusDeSintese: StatusDeLancamento }) {
     const pathname = usePathname(); // let's get the pathname to make the component reusable - could be used anywhere in the project
     const router = useRouter();
     const currentSearchParams = useSearchParams()

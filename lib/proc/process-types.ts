@@ -36,3 +36,7 @@ export type DadosDoProcessoType = {
     errorMsg?: string
 }
 
+export enum StatusDeLancamento {
+    PUBLICO,
+    EM_DESENVOLVIMENTO
+}

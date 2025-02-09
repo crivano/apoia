@@ -4,11 +4,11 @@ import { IADocument } from '../db/mysql-types'
 import { inferirCategoriaDaPeca } from '../category'
 import { obterConteudoDaPeca, obterDocumentoGravado } from './piece'
 import { assertNivelDeSigilo, nivelDeSigiloPermitido, verificarNivelDeSigilo } from './sigilo'
-import { P, ProdutoCompleto, StatusDeSintese, T, TipoDeSinteseEnum, TipoDeSinteseMap } from './combinacoes'
+import { P, ProdutoCompleto, T, TipoDeSinteseEnum, TipoDeSinteseMap } from './combinacoes'
 import { infoDeProduto, TiposDeSinteseValido } from './info-de-produto'
 import { Documento, match, MatchOperator, MatchResult } from './pattern'
 import { getInterop, Interop } from '../interop/interop'
-import { DadosDoProcessoType, PecaType } from './process-types'
+import { DadosDoProcessoType, PecaType, StatusDeLancamento } from './process-types'
 
 const selecionarPecas = (pecas: PecaType[], descricoes: string[]) => {
     const pecasRelevantes = pecas.filter(p => descricoes.includes(p.descr))
@@ -144,10 +144,10 @@ export type ObterDadosDoProcessoType = {
     kind?: TipoDeSinteseEnum
     pieces?: string[]
     conteudoDasPecasSelecionadas?: CargaDeConteudoEnum
-    statusDeSintese?: StatusDeSintese
+    statusDeSintese?: StatusDeLancamento
 }
 
-export const obterDadosDoProcesso = async ({ numeroDoProcesso, pUser, idDaPeca, identificarPecas, completo, kind, pieces, conteudoDasPecasSelecionadas = CargaDeConteudoEnum.ASSINCRONO, statusDeSintese = StatusDeSintese.PUBLICO }: ObterDadosDoProcessoType): Promise<DadosDoProcessoType> => {
+export const obterDadosDoProcesso = async ({ numeroDoProcesso, pUser, idDaPeca, identificarPecas, completo, kind, pieces, conteudoDasPecasSelecionadas = CargaDeConteudoEnum.ASSINCRONO, statusDeSintese = StatusDeLancamento.PUBLICO }: ObterDadosDoProcessoType): Promise<DadosDoProcessoType> => {
     let pecas: PecaType[] = []
     let errorMsg = undefined
     try {
