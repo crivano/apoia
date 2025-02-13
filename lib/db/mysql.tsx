@@ -1,17 +1,22 @@
-import { getCurrentUser } from "../user"
+import { assertCurrentUser, getCurrentUser } from "../user"
 import { slugify } from "../utils/utils"
 import * as mysqlTypes from "./mysql-types"
 import knex from './knex'
+import { PromptDataType } from "../ai/prompt-types"
 
-function getId(returning: number | {id: number}): number {
+function getId(returning: number | { id: number }): number {
     return typeof returning === 'number' ? returning : returning.id
+}
+
+async function getCurrentUserId() {
+    return await this.assertIAUserId((await assertCurrentUser()).name)
 }
 
 export class Dao {
     static async insertIATestset(data: mysqlTypes.IATestsetToInsert): Promise<mysqlTypes.IATestset | undefined> {
         const { base_testset_id, kind, name, model_id, content } = data
         const slug = slugify(name)
-        const created_by = (await getCurrentUser())?.id || null
+        const created_by = await getCurrentUserId() 
         const [insertedid] = await knex('ia_testset').insert({
             base_id: base_testset_id, kind, name, slug, model_id, content, created_by
         }).returning('id')
@@ -57,14 +62,21 @@ export class Dao {
 
 
     static async insertIAPrompt(conn: any, data: mysqlTypes.IAPromptToInsert): Promise<mysqlTypes.IAPrompt | undefined> {
-        const { base_prompt_id, kind, name, model_id, testset_id, content } = data
+        const { base_id, kind, name, model_id, testset_id, content } = data
         const slug = slugify(name)
-        const created_by = (await getCurrentUser())?.id || null
+        const created_by = await getCurrentUserId()
+        if (data.base_id) {
+            await knex('ia_prompt').update({ is_latest: 0 }).where({ base_id: data.base_id })
+        }
         const [result] = await knex('ia_prompt').insert<mysqlTypes.IAPrompt>({
-            base_id: base_prompt_id,
-            kind, name, slug, model_id, testset_id, content: JSON.stringify(content), created_by
+            base_id: base_id,
+            kind, name, slug, model_id, testset_id, content: JSON.stringify(content), created_by, is_latest: 1
         }).returning('id')
-        const record = await knex('ia_prompt').select<mysqlTypes.IAPrompt>('*').where({ id: getId(result) }).first()
+        const id = getId(result)
+        if (!data.base_id) {
+            await knex('ia_prompt').update({ base_id: id }).where({ id })
+        }
+        const record = await knex('ia_prompt').select<mysqlTypes.IAPrompt>('*').where({ id }).first()
         return record
     }
 
@@ -96,9 +108,22 @@ export class Dao {
         return updates.length > 0
     }
 
+    static async removeLatestPrompt(base_id: number): Promise<boolean> {
+        const created_by = await getCurrentUserId()
+        const updates = await knex('ia_prompt').update({
+            is_latest: 0
+        }).where({ base_id, created_by }).returning('*')
+        return updates.length > 0
+    }
+
 
     static async retrievePromptById(id: number): Promise<mysqlTypes.IAPrompt | undefined> {
         const result = await knex.select().from<mysqlTypes.IAPrompt>('ia_prompt').where({ id }).first()
+        return result
+    }
+
+    static async retrieveLatestPromptByBaseId(base_id: number): Promise<mysqlTypes.IAPrompt | undefined> {
+        const result = await knex.select().from<mysqlTypes.IAPrompt>('ia_prompt').where({ base_id, is_latest: 1 }).first()
         return result
     }
 
@@ -274,6 +299,40 @@ export class Dao {
         if (!result || result.length === 0) return []
         const records = result.map((record: any) => ({ ...record }))
         return records
+    }
+
+    static async setFavorite(prompt_id: number, user_id: number): Promise<boolean> {
+        await this.resetFavorite(prompt_id, user_id)
+        await knex('ia_favorite').insert({ prompt_id, user_id })
+        return true
+    }
+
+    static async resetFavorite(prompt_id: number, user_id: number): Promise<boolean> {
+        await knex('ia_favorite')
+            .delete()
+            .where({ prompt_id, user_id });
+        return true;
+    }
+
+    static async retrieveOfficialPrompts(): Promise<mysqlTypes.IAPrompt[]> {
+        if (!knex) return
+        const result = await knex('ia_prompt').select<Array<mysqlTypes.IAPrompt>>('*').where({ is_official: 1 })
+        if (!result || result.length === 0) return []
+        return result
+    }
+
+    static async retrieveLatestPrompts(user_id: number): Promise<mysqlTypes.IAPromptList[]> {
+        if (!knex) return
+        const result = await knex('ia_prompt')
+            .select(
+                'ia_prompt.*',
+                knex.raw('(created_by = ?) as is_mine', [user_id]),
+                knex.raw('(SELECT COUNT(*) FROM ia_favorite as f WHERE f.prompt_id = ia_prompt.base_id and f.user_id = ?) as is_favorite', [user_id]),
+                knex.raw('(SELECT COUNT(*) FROM ia_favorite as f WHERE f.prompt_id = ia_prompt.base_id) as favorite_count')
+            )
+            .where({ is_latest: 1 });
+        if (!result || result.length === 0) return []
+        return result
     }
 
     static async retrieveModels(): Promise<{ id: string, name: string }[]> {
@@ -458,9 +517,9 @@ export class Dao {
             .join('ia_enum as e', 'e.id', '=', 'ei.enum_id').
             where({ 'b.id': batch_id, 'e.id': enum_id })
             .groupBy('ei.descr', 'ei.hidden')
-            // .orderBy(knex.raw('count(distinct bd.id)'), 'desc');
+        // .orderBy(knex.raw('count(distinct bd.id)'), 'desc');
         result.sort((a, b) => a.count - b.count)
-        console.log('result', result)   
+        console.log('result', result)
         return result
     }
 

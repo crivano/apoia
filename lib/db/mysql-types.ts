@@ -88,7 +88,7 @@ export type IADocument = {
 
 export type IAPrompt = {
     id: number
-    base_prompt_id: number | null
+    base_id: number | null
     kind: string
     created_by: number | null
     name: string
@@ -96,16 +96,30 @@ export type IAPrompt = {
     model_id: number,
     testset_id: number | null
     content: {
+        author?: string
+
+        scope?: string[]
+        instance?: string[]
+        matter?: string[]
+
+        target?: string
+        editor_label?: string
+        piece_strategy?: string
+        piece_descr?: string[]
+        summary?: string
+        share?: string
+
         system_prompt: string | null
         prompt: string | null
         json_schema: string | null
         format: string | null
     }
     created_at: Date | null
+    is_latest: number
 }
 
 export type IAPromptToInsert = {
-    base_prompt_id?: number
+    base_id?: number
     kind: string
     name: string
     model_id: number
@@ -117,6 +131,43 @@ export type IAPromptToInsert = {
         format?: string
     }
 }
+
+export type IAPromptList = {
+    id: number
+    base_id: number | null
+    kind: string
+    created_by: number | null
+    name: string
+    slug: string
+    model_id: number,
+    testset_id: number | null
+    content: {
+        author?: string
+
+        scope?: string[]
+        instance?: string[]
+        matter?: string[]
+
+        target?: string
+        editor_label?: string
+        piece_strategy?: string
+        piece_descr?: string[]
+        summary?: string
+        share?: string
+
+        system_prompt: string | null
+        prompt: string | null
+        json_schema: string | null
+        format: string | null
+    }
+    created_at: Date | null
+    is_latest: number
+    is_mine: boolean
+    is_favorite: number
+    favorite_count: number
+}
+
+
 
 export type IATestset = {
     id: number

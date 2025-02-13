@@ -1,8 +1,10 @@
 import { formatDate } from "@/lib/utils/utils"
-import { faCheck } from "@fortawesome/free-solid-svg-icons"
+import { faStar } from "@fortawesome/free-regular-svg-icons"
+import { faStar as faStarSolid } from "@fortawesome/free-solid-svg-icons"
+import { faCheck, faPlay } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import Link from 'next/link'
-import { Form } from "react-bootstrap"
+import { Button, ButtonGroup, Dropdown, DropdownButton, Form } from "react-bootstrap"
 
 const tableSpecs = (pathname: string) => {
     return {
@@ -34,10 +36,41 @@ const tableSpecs = (pathname: string) => {
         },
         CountersByPromptKinds: {
             columns: [
-                { header: 'Tipo', accessorKey: 'kind', enableSorting: true, cell: data => <Link href={`${pathname}/kind/${data.row.original.kind}`}>{data.row.original.kind.toUpperCase()}</Link> },
+                { header: 'Tipo', accessorKey: 'kind', enableSorting: true, cell: data => <Link href={`${pathname}/kind/${data.row.original.kind}`}>{data.row.original.kind?.toUpperCase()}</Link> },
                 { header: 'Prompts', accessorKey: 'prompts', enableSorting: true, style: { textAlign: "right" }, cell: data => data.row.original.prompts || '' },
                 { header: 'Conjuntos de Teste', accessorKey: 'testsets', enableSorting: true, style: { textAlign: "right" }, cell: data => data.row.original.testsets || '' },
             ],
+        },
+        Prompts: {
+            columns: [
+                {
+                    header: ' ', accessorKey: '', style: { textAlign: "right", width: "1%" }, enableSorting: false, cell: data => data.row.original.is_favorite
+                        ? <a href={`/community/prompt/${data.row.original.base_id}/reset-favorite`} className="text-primary"><FontAwesomeIcon className="me-1" icon={faStarSolid} /></a>
+                        : <a href={`/community/prompt/${data.row.original.base_id}/set-favorite`} className="text-secondary opacity-50"><FontAwesomeIcon className="me-1" icon={faStar} /></a>
+                },
+                {
+                    header: 'Prompt', accessorKey: 'name', enableSorting: true, cell: data => <>
+                        <Link href={`/community/prompt/${data.row.original.base_id}`}>{data.row.original.name}</Link>
+                        <Dropdown style={{ display: "inline" }}>
+                            <Dropdown.Toggle as="a" className="m-1" id={data.row.original.name} />
+                            <Dropdown.Menu>
+                                <Dropdown.Item href={`/community/prompt/${data.row.original.base_id}`}>Executar</Dropdown.Item>
+                                <Dropdown.Item href={`/community/prompt/${data.row.original.id}/edit`} disabled={!data.row.original.is_mine}>Editar</Dropdown.Item>
+                                <Dropdown.Item href={`/community/prompt/new?copyFrom=${data.row.original.id}`}>Fazer uma cópia</Dropdown.Item>
+                                {/* <Dropdown.Item href="#/action-3">Informações sobre o prompt</Dropdown.Item> */}
+                                <Dropdown.Item href={`/community/prompt/${data.row.original.base_id}/set-favorite`}>Adicionar aos favoritos</Dropdown.Item>
+                                <Dropdown.Item href={`/community/prompt/${data.row.original.base_id}/reset-favorite`}>Remover dos favoritos</Dropdown.Item>
+                                <Dropdown.Item href={`/community/prompt/${data.row.original.base_id}/remove`} disabled={!data.row.original.is_mine}>Remover</Dropdown.Item>
+                                {/* <Dropdown.Item href="#/action-3">Ativar execução automática</Dropdown.Item>
+                                <Dropdown.Item href="#/action-3">Desativar execução automática</Dropdown.Item> */}
+                            </Dropdown.Menu>
+                        </Dropdown>
+                    </>
+                },
+                { header: 'Autor', accessorKey: 'content.author', enableSorting: true },
+                { header: 'Estrelas', accessorKey: 'favorite_count', enableSorting: true, style: { textAlign: "right" } },
+            ],
+            tableClassName: 'table table-striped'
         },
         PromptsByKind: {
             columns: [

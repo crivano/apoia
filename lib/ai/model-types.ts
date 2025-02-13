@@ -16,7 +16,7 @@ export type ModelProviderValueType = EnumOfObjectsValueType & { apiKey: string, 
 export type ModelProviderType = { [key: string]: ModelProviderValueType }
 
 export const ModelProvider: ModelProviderType = ModelProviderArray.reduce((acc, cur, idx) => {
-    acc[slugify(cur.name).replace('-', '_').toUpperCase()] = { ...cur, sort: idx + 1 }
+    acc[slugify(cur.name).replaceAll('-', '_').toUpperCase()] = { ...cur, sort: idx + 1 }
     return acc
 }, {} as ModelProviderType)
 
@@ -36,7 +36,7 @@ export type ModelValeuType = EnumOfObjectsValueType & { provider: ModelProviderV
 export type ModelType = { [key: string]: ModelValeuType }
 
 export const Model: ModelType = ModelArray.reduce((acc, cur, idx) => {
-    acc[slugify(cur.name).replace('-', '_').toUpperCase()] = { ...cur, sort: idx + 1 }
+    acc[slugify(cur.name).replaceAll('-', '_').toUpperCase()] = { ...cur, sort: idx + 1 }
     return acc
 }, {} as ModelType)
 

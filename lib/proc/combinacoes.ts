@@ -1,5 +1,7 @@
-import { ANY, EXACT, MatchOperator, OR } from "./pattern"
-import { StatusDeLancamento } from "./process-types"
+import { EnumOfObjectsValueType } from "../ai/model-types"
+import { maiusculasEMinusculas, slugify } from "../utils/utils"
+import { ANY, Documento, EXACT, match, MatchOperator, MatchResult, OR } from "./pattern"
+import { PecaType, StatusDeLancamento } from "./process-types"
 
 // Enum com os tipos de peças
 export enum T {
@@ -227,3 +229,91 @@ export interface InfoDeProduto {
     plugins: Plugin[]
 }
 
+
+const PieceStrategyArray = [
+    { id: 1, name: 'MAIS_RELEVANTES', descr: 'Peças mais relevantes', pattern: padroesBasicos },
+    { id: 2, name: 'PETICAO_INICIAL', descr: 'Petição inicial', pattern: TipoDeSinteseMap.PEDIDOS.padroes },
+    { id: 2, name: 'PETICAO_INICIAL_E_ANEXOS', descr: 'Petição inicial e anexos', pattern: TipoDeSinteseMap.LITIGANCIA_PREDATORIA.padroes },
+    { id: 3, name: 'TIPOS_ESPECIFICOS', descr: 'Peças de tipos específicos', pattern: undefined },
+    { id: 3, name: 'TODAS', descr: 'Todas', pattern: TipoDeSinteseMap.INDICE.padroes },
+]
+export type PieceStrategyValueType = EnumOfObjectsValueType & { descr: string, pattern: MatchOperator[][] | undefined }
+export type PieceStrategyType = { [key: string]: PieceStrategyValueType }
+export const PieceStrategy: PieceStrategyType = PieceStrategyArray.reduce((acc, cur, idx) => {
+    acc[slugify(cur.name).replaceAll('-', '_').toUpperCase()] = { ...cur, sort: idx + 1 }
+    return acc
+}, {} as PieceStrategyType)
+
+console.log('PieceStrategy', PieceStrategy)
+
+
+export type PieceDescrValueType = EnumOfObjectsValueType & { descr: string }
+export type PieceDescrType = { [key: string]: PieceDescrValueType }
+export const PieceDescr: PieceDescrType = Object.keys(T).filter(x => x !== 'TEXTO').reduce((acc, cur, idx) => {
+    acc[cur] = { id: idx + 1, name: cur, descr: maiusculasEMinusculas(T[cur]), sort: idx + 1 }
+    return acc
+}, {} as PieceDescrType)
+
+
+export const selecionarPecasPorPadrao = (pecas: PecaType[], padroes: MatchOperator[][]) => {
+    let ps: Documento[] = pecas.map(p => ({ id: p.id, tipo: p.descr as T, numeroDoEvento: p.numeroDoEvento, descricaoDoEvento: p.descricaoDoEvento }))
+
+    // Cria um índice de peças por id
+    const indexById = {}
+    for (let i = 0; i < ps.length; i++) {
+        indexById[ps[i].id] = i
+    }
+
+    // Cria um índice de matches possíveis
+    const matches: MatchResult[] = []
+    for (const padrao of padroes) {
+        const m = match(ps, padrao)
+        if (m !== null && m.length > 0)
+            matches.push(m)
+    }
+    if (matches.length === 0) return null
+
+    // Seleciona o match cuja última peça em uma operação de EXACT ou OR é a mais recente
+    let matchSelecionado: MatchResult | null = null
+    let idxUltimaPecaRelevanteDoMatchSelecionado = -1
+    for (const m of matches) {
+        // Encontra a última operação do tipo EXACT ou OR com peças capturadas
+        let idx = m.length - 1
+        while (idx >= 0 && !((m[idx].operator.type === 'ANY' || m[idx].operator.type === 'SOME') && m[idx].captured.length)) idx--
+        if (idx < 0) continue
+
+        // Encontra a última peça capturada
+        const ultimaPecaRelevante = m[idx].captured[m[idx].captured.length - 1]
+        const idxUltimaPecaRelevante = indexById[ultimaPecaRelevante.id]
+        if (idxUltimaPecaRelevante > idxUltimaPecaRelevanteDoMatchSelecionado) {
+            matchSelecionado = m
+            idxUltimaPecaRelevanteDoMatchSelecionado = idxUltimaPecaRelevante
+        }
+    }
+
+    // Se não encontrou, seleciona o match cuja última peça é a mais recente
+    if (matchSelecionado === null) {
+        for (const m of matches) {
+            // Encontra a última operação do tipo EXACT ou OR
+            let idx = m.length - 1
+            while (idx >= 0 && m[idx].captured.length === 0) idx--
+            if (idx < 0) continue
+
+            // Encontra a última peça capturada
+            const ultimaPecaRelevante = m[idx].captured[m[idx].captured.length - 1]
+            const idxUltimaPecaRelevante = indexById[ultimaPecaRelevante.id]
+            if (idxUltimaPecaRelevante > idxUltimaPecaRelevanteDoMatchSelecionado) {
+                matchSelecionado = m
+                idxUltimaPecaRelevanteDoMatchSelecionado = idxUltimaPecaRelevante
+            }
+        }
+    }
+
+    if (matchSelecionado === null) return null
+
+    // Flattern the match and map back to PecaType
+    const pecasSelecionadas = matchSelecionado.map(m => m.captured).flat().map(d => pecas[indexById[d.id]])
+
+    if (pecasSelecionadas.length === 0) return null
+    return pecasSelecionadas
+}

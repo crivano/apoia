@@ -26,7 +26,7 @@ export async function ChoosePiecesServer({ pDadosDoProcesso, statusDeSintese }: 
     return <ChoosePieces dadosDoProcesso={dadosDoProcesso} key={`${dadosDoProcesso.tipoDeSintese}:${canonicalPieces(dadosDoProcesso.pecasSelecionadas.map(p => p.id))}`} statusDeSintese={statusDeSintese} />
 }
 
-export default async function ShowProcess({ id, kind, pieces }) {
+export default async function ProcessServerContents({ id, kind, pieces }) {
     noStore()
 
     const pUser = assertCurrentUser()

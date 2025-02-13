@@ -46,6 +46,9 @@ export default function RootLayout({
                             <span className="navbar-toggler-icon"></span>
                         </button>
                         <div className="collapse navbar-collapse" id="navbarSupportedContent">
+                        <NavItem>
+                                <NavigationLink href="/community" text="Prompts" />
+                            </NavItem>
                             <NavItem>
                                 <NavigationLink href="/" text="Síntese" />
                             </NavItem>

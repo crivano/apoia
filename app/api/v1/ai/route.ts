@@ -15,6 +15,8 @@ async function getPromptDefinition(kind: string, promptSlug?: string, promptId?:
         prompt = await Dao.retrievePromptById(promptId)
         if (!prompt)
             throw new Error(`Prompt not found: ${promptId}`)
+        if (!prompt.kind)
+            prompt.kind = `prompt-${prompt.id}`
     } else if (kind && promptSlug) {
         const prompts = await Dao.retrievePromptsByKindAndSlug(kind, promptSlug)
         if (prompts.length === 0)
@@ -67,7 +69,13 @@ export async function POST(request: Request) {
         // console.log('body', JSON.stringify(body))
         const kind: string = body.kind
         const promptSlug: string | undefined = body.promptSlug
-        const promptId: number | undefined = body.promptId
+        let promptId: number | undefined = body.promptId
+        if (!promptId && kind.startsWith('prompt-')) {
+            const parts = kind.split('-')
+            if (parts.length === 2) {
+                promptId = parseInt(parts[1])
+            }
+        }
 
         const definition = await getPromptDefinition(kind, promptSlug, promptId)
         const data: any = body.data
@@ -91,8 +99,10 @@ export async function POST(request: Request) {
         if (typeof result === 'string') {
             return new Response(result, { status: 200 });
         }
+        if (result && definitionWithOptions.jsonSchema)
+            return result.toTextStreamResponse()
         if (result && result.textStream) {
-            const reader = result.textStream.getReader()
+            const reader: ReadableStreamDefaultReader = result.textStream.getReader()
             const { value, done } = await reader.read()
             if (done || !value) {
                 throw new Error('Invalid or empty response at the beginning')
@@ -114,15 +124,6 @@ export async function POST(request: Request) {
                     pump()
                 },
             })
-
-            // const transformStream = new TransformStream({
-            // transform(chunk, controller) {
-            //     const text = new TextDecoder().decode(chunk)
-            //     controller.enqueue(new TextEncoder().encode(text))
-            // },
-            // })
-
-            // const transformedStream = feederStream.pipeThrough(transformStream)
             return new Response(feederStream, { status: 200 })
         } else {
             throw new Error('Invalid response')
