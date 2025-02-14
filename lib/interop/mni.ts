@@ -9,6 +9,7 @@ import { Interop, ObterPecaType } from './interop'
 import { DadosDoProcessoType, PecaType } from '../proc/process-types'
 import { parseYYYYMMDDHHMMSS } from '../utils/utils'
 import { assertNivelDeSigilo, verificarNivelDeSigilo } from '../proc/sigilo'
+import { tua } from '../proc/tua'
 
 const limit = pLimit(envString('MNI_LIMIT') ? parseInt(envString('MNI_LIMIT')) : 1)
 
@@ -221,7 +222,8 @@ export class InteropMNI implements Interop {
             }
             return a.id.localeCompare(b.id)
         })
-        return { numeroDoProcesso, ajuizamento, codigoDaClasse, nomeOrgaoJulgador, pecas }
+        const classe = tua[codigoDaClasse]
+        return { numeroDoProcesso, ajuizamento, codigoDaClasse, classe, nomeOrgaoJulgador, pecas }
     }
 
     public obterPeca = async (numeroDoProcesso, idDaPeca): Promise<ObterPecaType> =>

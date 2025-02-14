@@ -2,21 +2,19 @@
 
 import { IAPrompt } from "@/lib/db/mysql-types";
 import { DadosDoProcessoType, PecaType } from "@/lib/proc/process-types";
-import ChoosePieces from "./choose-pieces";
-import Subtitulo from "./subtitulo";
-import ErrorMsg from "./error-msg";
-import { useEffect, useState } from "react";
+import { ReactNode, useEffect, useState } from "react";
 import { InfoDeProduto, P, PieceStrategy, selecionarPecasPorPadrao } from "@/lib/proc/combinacoes";
-import { ListaDeProdutos } from "./lista-produtos-client";
 import { GeneratedContent, PromptDataType, PromptDefinitionType, TextoType } from "@/lib/ai/prompt-types";
 import { slugify } from "@/lib/utils/utils";
 import { getInternalPrompt } from "@/lib/ai/prompt";
 import { ProgressBar } from "react-bootstrap";
-import PrintServerContents from "@/app/process/[id]/print-server-contents";
 import Print from "@/app/process/[id]/print";
+import Subtitulo from "./subtitulo";
+import ChoosePieces from "./choose-pieces";
+import ErrorMsg from "./error-msg";
+import { ListaDeProdutos } from "./lista-produtos-client";
 
-export default function ProcessContents({ prompt, dadosDoProcesso }: { prompt: IAPrompt, dadosDoProcesso: DadosDoProcessoType }) {
-    const [pieceContent, setPieceContent] = useState({})
+export default function ProcessContents({ prompt, dadosDoProcesso, pieceContent, setPieceContent, children }: { prompt: IAPrompt, dadosDoProcesso: DadosDoProcessoType, pieceContent: any, setPieceContent: (pieceContent: any) => void, children?: ReactNode }) {
     const [selectedPieces, setSelectedPieces] = useState<PecaType[]>([])
     const [loadingPiecesProgress, setLoadingPiecesProgress] = useState(-1)
     const [requests, setRequests] = useState<GeneratedContent[]>([])
@@ -37,7 +35,7 @@ export default function ProcessContents({ prompt, dadosDoProcesso }: { prompt: I
         const pattern = PieceStrategy[pieceStrategy].pattern
         if (pattern) {
             const pecasAcessiveis = allPieces.filter(p => nivelDeSigiloPermitido(p.sigilo))
-            return selecionarPecasPorPadrao(pecasAcessiveis, pattern)
+            return selecionarPecasPorPadrao(pecasAcessiveis, pattern) || []
         }
         return allPieces.filter(p => pieceDescr.includes(p.descr))
     }
@@ -74,7 +72,7 @@ export default function ProcessContents({ prompt, dadosDoProcesso }: { prompt: I
 
     const LoadingPieces = () => {
         if (loadingPiecesProgress === -1 || selectedPieces.length === 0) return null
-        return <ProgressBar variant="primary" striped={true} now={loadingPiecesProgress / selectedPieces.length * 100} label={`${loadingPiecesProgress}/${selectedPieces.length}`} />
+        return <>Carregando Peças...<ProgressBar variant="primary" striped={true} now={loadingPiecesProgress / selectedPieces.length * 100} label={`${loadingPiecesProgress}/${selectedPieces.length}`} /></>
         return <div className="alert alert-info mt-4">{`Carregando peça ${loadingPiecesProgress} de ${selectedPieces.length}`}</div>
     }
 
@@ -133,6 +131,7 @@ export default function ProcessContents({ prompt, dadosDoProcesso }: { prompt: I
 
     return <div>
         <Subtitulo dadosDoProcesso={dadosDoProcesso} />
+        {children}
         <ChoosePieces allPieces={dadosDoProcesso.pecas} selectedPieces={selectedPieces} onSave={changeSelectedPieces} />
         <LoadingPieces />
         <ErrorMsg dadosDoProcesso={dadosDoProcesso} />
@@ -141,7 +140,7 @@ export default function ProcessContents({ prompt, dadosDoProcesso }: { prompt: I
             <ListaDeProdutos dadosDoProcesso={dadosDoProcesso} requests={requests} />
         </>}
 
-        <Print numeroDoProcesso={dadosDoProcesso.numeroDoProcesso}/>
+        <Print numeroDoProcesso={dadosDoProcesso.numeroDoProcesso} />
         <hr className="mt-5" />
         <p style={{ textAlign: 'center' }}>Este documento foi gerado pela ApoIA, ferramenta de inteligência artificial desenvolvida exclusivamente para facilitar a triagem de acervo, e não substitui a elaboração de relatório específico em cada processo, a partir da consulta manual aos eventos dos autos. Textos gerados por inteligência artificial podem conter informações imprecisas ou incorretas.</p>
 

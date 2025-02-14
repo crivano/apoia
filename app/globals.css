@@ -378,3 +378,11 @@ div.ai-content table th {
 .chat-ai {
     background-color: rgb(65, 71, 77)
 }
+
+.chat-user-container:hover .icon-container {
+    display: block;
+}
+
+.chat-user-container .icon-container {
+    display: none;
+}

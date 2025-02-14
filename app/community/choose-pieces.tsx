@@ -101,7 +101,7 @@ export default function ChoosePieces({ allPieces, selectedPieces, onSave }: { al
     }
 
     if (!editing) {
-        const l = selectedPieces.map(p => maiusculasEMinusculas(p.descr))
+        const l = selectedPieces?.map(p => maiusculasEMinusculas(p.descr)) || []
         let s = `Peças: `
         if (l.length === 0)
             s += 'Nenhuma peça selecionada'

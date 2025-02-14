@@ -5,8 +5,9 @@ import { faCheck, faPlay } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import Link from 'next/link'
 import { Button, ButtonGroup, Dropdown, DropdownButton, Form } from "react-bootstrap"
+import { Instance, Matter, Scope } from "../proc/process-types"
 
-const tableSpecs = (pathname: string) => {
+const tableSpecs = (pathname: string, onClick: (kind: string, row: any) => void) => {
     return {
         ChoosePieces: {
             columns: [
@@ -50,14 +51,14 @@ const tableSpecs = (pathname: string) => {
                 },
                 {
                     header: 'Prompt', accessorKey: 'name', enableSorting: true, cell: data => <>
-                        <Link href={`/community/prompt/${data.row.original.base_id}`}>{data.row.original.name}</Link>
+                        <span className="text-primary" onClick={() => onClick('executar', data.row.original)}><u>{data.row.original.name}</u></span>
                         <Dropdown style={{ display: "inline" }}>
                             <Dropdown.Toggle as="a" className="m-1" id={data.row.original.name} />
                             <Dropdown.Menu>
-                                <Dropdown.Item href={`/community/prompt/${data.row.original.base_id}`}>Executar</Dropdown.Item>
+                                <Dropdown.Item onClick={() => onClick('executar', data.row.original)}>Executar</Dropdown.Item>
                                 <Dropdown.Item href={`/community/prompt/${data.row.original.id}/edit`} disabled={!data.row.original.is_mine}>Editar</Dropdown.Item>
                                 <Dropdown.Item href={`/community/prompt/new?copyFrom=${data.row.original.id}`}>Fazer uma cópia</Dropdown.Item>
-                                {/* <Dropdown.Item href="#/action-3">Informações sobre o prompt</Dropdown.Item> */}
+                                <Dropdown.Item href={`/community/prompt/${data.row.original.base_id}`}>Informações sobre o prompt</Dropdown.Item>
                                 <Dropdown.Item href={`/community/prompt/${data.row.original.base_id}/set-favorite`}>Adicionar aos favoritos</Dropdown.Item>
                                 <Dropdown.Item href={`/community/prompt/${data.row.original.base_id}/reset-favorite`}>Remover dos favoritos</Dropdown.Item>
                                 <Dropdown.Item href={`/community/prompt/${data.row.original.base_id}/remove`} disabled={!data.row.original.is_mine}>Remover</Dropdown.Item>
@@ -68,6 +69,9 @@ const tableSpecs = (pathname: string) => {
                     </>
                 },
                 { header: 'Autor', accessorKey: 'content.author', enableSorting: true },
+                { header: 'Segmento', accessorKey: 'content.scope', enableSorting: true, cell: data => data.row.original.content.scope?.map(i => Scope[i].acronym).join(', ') },
+                { header: 'Instância', accessorKey: 'content.instance', enableSorting: true, cell: data => data.row.original.content.instance?.map(i => Instance[i].acronym).join(', ') },
+                { header: 'Natureza', accessorKey: 'content.matter', enableSorting: true, cell: data => data.row.original.content.matter?.map(i => Matter[i].acronym).join(', ') },
                 { header: 'Estrelas', accessorKey: 'favorite_count', enableSorting: true, style: { textAlign: "right" } },
             ],
             tableClassName: 'table table-striped'

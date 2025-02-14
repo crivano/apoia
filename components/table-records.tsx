@@ -22,14 +22,14 @@ import { usePathname } from "next/navigation"
 
 
 
-export default function Table({ records, spec, linkToAdd, linkToBack, pageSize, selectedIds, onSelectdIdsChanged, children }: {
+export default function Table({ records, spec, linkToAdd, linkToBack, pageSize, selectedIds, onSelectdIdsChanged, onClick, children }: {
     records: any[], spec: string | any, linkToAdd?: string, linkToBack?: string, pageSize?: number,
-    selectedIds?: string[], onSelectdIdsChanged?: (ids: string[]) => void, children?: any
+    selectedIds?: string[], onSelectdIdsChanged?: (ids: string[]) => void, onClick?: (kind: string, row: any) => void, children?: any
 }) {
     const [sorting, setSorting] = useState([])
     const [globalFilter, setGlobalFilter] = useState('')
     const pathname = usePathname()
-    const { columns, thead, tr, tableClassName } = typeof (spec) === 'string' ? tableSpecs(pathname)[spec] : spec
+    const { columns, thead, tr, tableClassName } = typeof (spec) === 'string' ? tableSpecs(pathname, onClick)[spec] : spec
     const [rowSelection, setRowSelection] = useState<RowSelectionState>(selectedIds ? selectedIds.reduce((acc, value) => ({ ...acc, [value]: true }), {}) : {})
 
     const table = useReactTable({

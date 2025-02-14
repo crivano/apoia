@@ -4,6 +4,7 @@ import { parseYYYYMMDDHHMMSS } from '../utils/utils'
 import { assertNivelDeSigilo, verificarNivelDeSigilo } from '../proc/sigilo'
 import { getCurrentUser } from '../user'
 import { envString } from '../utils/env'
+import { tua } from '../proc/tua'
 
 const mimeTypyFromTipo = (tipo: string): string => {
     switch (tipo) {
@@ -139,7 +140,8 @@ export class InteropPDPJ implements Interop {
                 dataHora: new Date(doc.dataHoraJuntada),
             })
         }
-        return { numeroDoProcesso, ajuizamento, codigoDaClasse, nomeOrgaoJulgador, pecas }
+        const classe = tua[codigoDaClasse]
+        return { numeroDoProcesso, ajuizamento, codigoDaClasse, classe, nomeOrgaoJulgador, pecas }
     }
 
     public obterPeca = async (numeroDoProcesso, idDaPeca): Promise<ObterPecaType> => {
