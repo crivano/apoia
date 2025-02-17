@@ -31,10 +31,10 @@ export default async function UserMenu() {
             <li className="nav-item dropdown">
                 {user
                     ?
-                    <a className="nav-link dropdown-toggle text-white" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    <a className="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                         {user?.name}{user?.image?.system ? `/${user?.image?.system}` : '/PDPJ'}
                     </a>
-                    : <a className="nav-link dropdown-toggle text-white" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    : <a className="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                         Configurações
                     </a>}
                 <ul className="dropdown-menu  dropdown-menu-end" aria-labelledby="navbarDropdown">

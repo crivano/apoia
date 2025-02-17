@@ -16,12 +16,11 @@ const Signin = async () => {
     const providers = authOptions.providers
 
     return (
-        <div className="p-5 bg-white md:flex-1">
+        <div className="p-3 bg-white md:flex-1">
             <div className="container content">
                 <div className="px-4 my-3 text-center">
-                    {/* <Image src="/apoia-logo-vertical-transp.png" width={78 * 1102 / 478} height={78} alt="ApoIA Logo" className="mb-2" />
-                    <br/> */}
                     <Image src="/apoia-logo-transp.png" width={200} height={200 * 271 / 250} alt="ApoIA Logo" className="mb-2" />
+                    <Image src="/apoia-logo-texto-transp.png" width={48 * 1102 / 478} height={48} alt="ApoIA Logo" className="mb-2" />
                 </div>
 
                 {providers &&
