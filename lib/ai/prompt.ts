@@ -92,7 +92,7 @@ export const promptDefinitionFromMarkdown = (slug, md: string): PromptDefinition
         if (index % 2 === 0) {
             const tag = array[index - 1]?.trim()
             if (tag) {
-                acc[slugify(tag).replace('-', '_')] = part.trim()
+                acc[slugify(tag).replaceAll('-', '_')] = part.trim()
             }
         }
         return acc;

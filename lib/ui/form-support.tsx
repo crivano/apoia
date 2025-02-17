@@ -1,4 +1,4 @@
-import { Button, Form } from 'react-bootstrap'
+import { Button, Dropdown, Form } from 'react-bootstrap'
 import ReactTextareaAutosize from 'react-textarea-autosize'
 import { z, ZodTypeAny, ZodError } from 'zod';
 import _ from 'lodash'
@@ -201,33 +201,84 @@ export class FormHelper {
 
     public colClass = (width?: string | number) => `${this.compact ? 'mb-0' : 'mt-3'} col ${typeof width === 'string' ? width : `col-12 col-md-${width || 12}`}`
 
-    public Input = ({ label, name, validator, width }: { label: string, name: string, validator?: (value: string, name: string) => string | undefined, width?: number | string }) => {
+    public Input = ({ label, name, validator, width, visible, explanation }: { label: string, name: string, visible?: boolean, explanation?: string, validator?: (value: string, name: string) => string | undefined, width?: number | string }) => {
         return (
-            <Form.Group className={this.colClass(width)} controlId={name}>
+            <Form.Group className={`${this.colClass(width)} ${visible === false ? 'd-none' : ''}`} controlId={name}>
                 <Form.Label className={this.compact ? 'mb-0' : ''}>{label}</Form.Label>
-                <Form.Control name={name} type="text" value={this.get(name)} onChange={e => { this.set(name, e.target.value); validator && validator(e.target.value, name)}} placeholder="" key={name} />
+                <Form.Control name={name} type="text" value={this.get(name)} onChange={e => { this.set(name, e.target.value); validator && validator(e.target.value, name) }} placeholder="" key={name} />
                 <FieldError formState={this.formState} name={name} />
+                {explanation && <Form.Text className="text-muted">{explanation}</Form.Text>}
             </Form.Group>
         )
     }
 
-    public TextArea = ({ label, name, width, maxRows }: { label: string, name: string, width?: number | string, maxRows?: number }) => {
+    public TextArea = ({ label, name, width, maxRows, explanation }: { label: string, name: string, width?: number | string, maxRows?: number, explanation?: string }) => {
         return (
             <Form.Group className={this.colClass(width)} controlId={name}>
                 <Form.Label className={this.compact ? 'mb-0' : ''}>{label}</Form.Label>
                 <ReactTextareaAutosize className="form-control" name={name} value={this.get(name)} onChange={e => this.set(name, e.target.value)} placeholder="" key={name} />
                 <FieldError formState={this.formState} name={name} />
+                {explanation && <Form.Text className="text-muted">{explanation}</Form.Text>}
             </Form.Group>
         )
     }
 
-    public Select = ({ label, name, options, width }: { label: string, name: string, options: { id: number | string, name: string, disabled?: boolean }[], width?: number | string }) => {
+    public Select = ({ label, name, options, width, visible }: { label: string, name: string, options: { id: number | string, name: string, disabled?: boolean }[], visible?: boolean, width?: number | string }) => {
         return (
-            <Form.Group className={this.colClass(width)} controlId={name}>
+            <Form.Group className={`${this.colClass(width)} ${visible === false ? 'd-none' : ''}`} controlId={name}>
                 <Form.Label className={this.compact ? 'mb-0' : ''}>{label}</Form.Label>
                 <Form.Select name={name} value={this.get(name) || ''} onChange={e => this.set(name, e.target.value)}>
                     {options.map(c => (<option value={c.id} key={c.id} disabled={c.disabled === true}>{c.name}</option>))}
                 </Form.Select>
+                <FieldError formState={this.formState} name={name} />
+            </Form.Group >
+        )
+    }
+
+    public MultiSelect = ({ label, name, options, width, visible }: { label: string, name: string, options: { id: number | string, name: string, disabled?: boolean }[], visible?: boolean, width?: number | string }) => {
+
+        const change = (event) => {
+            const id = event.target.value;
+            const choosen = event.target.checked;
+
+            if (choosen) {
+                this.set(name, [...(this.get(name) || []), id]);
+            } else {
+                this.set(name, (this.get(name) || []).filter((i) => i !== id));
+            }
+        };
+
+        return (
+            <Form.Group className={`${this.colClass(width)} ${visible === false ? 'd-none' : ''}`} controlId={name}>
+                <Form.Label className={this.compact ? 'mb-0' : ''}>{label}</Form.Label>
+                <Dropdown>
+                    <Dropdown.Toggle as='span' variant="light" id="dropdown-basic" className='form-control'>
+                        {(this.get(name) || []).length === 0
+                            ? 'Selecione'
+                            : this.get(name).length === options.length
+                                ? 'Todos'
+                                : `${this.get(name).length} selecionado${this.get(name).length > 1 ? 's' : ''}`
+                            // options.find(o => o.id === this.get(name)[0])?.name
+                        }
+                    </Dropdown.Toggle>
+
+                    <Dropdown.Menu className="ps-2" style={{ maxHeight: '200px', overflowY: 'auto' }}>
+                        {options.map((option) => (
+                            <Form.Check
+                                className="custom-checkbox ml-3"
+                                key={option.id}
+                                type="checkbox"
+                                id={`option_${option.id}`}
+                                label={option.name}
+                                checked=
+                                {(this.get(name) || []).includes(option.id)}
+                                onChange={change}
+                                value={option.id}
+                            />
+                        ))}
+                    </Dropdown.Menu>
+                </Dropdown>
+                {/* {JSON.stringify(this.get(name))} */}
                 <FieldError formState={this.formState} name={name} />
             </Form.Group >
         )

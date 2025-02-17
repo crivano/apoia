@@ -4,11 +4,11 @@ import { IADocument } from '../db/mysql-types'
 import { inferirCategoriaDaPeca } from '../category'
 import { obterConteudoDaPeca, obterDocumentoGravado } from './piece'
 import { assertNivelDeSigilo, nivelDeSigiloPermitido, verificarNivelDeSigilo } from './sigilo'
-import { P, ProdutoCompleto, StatusDeSintese, T, TipoDeSinteseEnum, TipoDeSinteseMap } from './combinacoes'
+import { P, ProdutoCompleto, selecionarPecasPorPadrao, T, TipoDeSinteseEnum, TipoDeSinteseMap } from './combinacoes'
 import { infoDeProduto, TiposDeSinteseValido } from './info-de-produto'
 import { Documento, match, MatchOperator, MatchResult } from './pattern'
 import { getInterop, Interop } from '../interop/interop'
-import { DadosDoProcessoType, PecaType } from './process-types'
+import { DadosDoProcessoType, PecaType, StatusDeLancamento } from './process-types'
 
 const selecionarPecas = (pecas: PecaType[], descricoes: string[]) => {
     const pecasRelevantes = pecas.filter(p => descricoes.includes(p.descr))
@@ -48,69 +48,7 @@ export const selecionarUltimasPecas = (pecas: PecaType[], descricoes: string[]) 
     return pecasSelecionadas
 }
 
-export const selecionarPecasPorPadrao = (pecas: PecaType[], padroes: MatchOperator[][]) => {
-    const pecasAcessiveis = pecas.filter(p => nivelDeSigiloPermitido(p.sigilo))
-    let ps: Documento[] = pecasAcessiveis.map(p => ({ id: p.id, tipo: p.descr as T, numeroDoEvento: p.numeroDoEvento, descricaoDoEvento: p.descricaoDoEvento }))
 
-    // Cria um índice de peças por id
-    const indexById = {}
-    for (let i = 0; i < ps.length; i++) {
-        indexById[ps[i].id] = i
-    }
-
-    // Cria um índice de matches possíveis
-    const matches: MatchResult[] = []
-    for (const padrao of padroes) {
-        const m = match(ps, padrao)
-        if (m !== null && m.length > 0)
-            matches.push(m)
-    }
-    if (matches.length === 0) return null
-
-    // Seleciona o match cuja última peça em uma operação de EXACT ou OR é a mais recente
-    let matchSelecionado: MatchResult | null = null
-    let idxUltimaPecaRelevanteDoMatchSelecionado = -1
-    for (const m of matches) {
-        // Encontra a última operação do tipo EXACT ou OR com peças capturadas
-        let idx = m.length - 1
-        while (idx >= 0 && !((m[idx].operator.type === 'ANY' || m[idx].operator.type === 'SOME') && m[idx].captured.length)) idx--
-        if (idx < 0) continue
-
-        // Encontra a última peça capturada
-        const ultimaPecaRelevante = m[idx].captured[m[idx].captured.length - 1]
-        const idxUltimaPecaRelevante = indexById[ultimaPecaRelevante.id]
-        if (idxUltimaPecaRelevante > idxUltimaPecaRelevanteDoMatchSelecionado) {
-            matchSelecionado = m
-            idxUltimaPecaRelevanteDoMatchSelecionado = idxUltimaPecaRelevante
-        }
-    }
-
-    // Se não encontrou, seleciona o match cuja última peça é a mais recente
-    if (matchSelecionado === null) {
-        for (const m of matches) {
-            // Encontra a última operação do tipo EXACT ou OR
-            let idx = m.length - 1
-            while (idx >= 0 && m[idx].captured.length === 0) idx--
-            if (idx < 0) continue
-
-            // Encontra a última peça capturada
-            const ultimaPecaRelevante = m[idx].captured[m[idx].captured.length - 1]
-            const idxUltimaPecaRelevante = indexById[ultimaPecaRelevante.id]
-            if (idxUltimaPecaRelevante > idxUltimaPecaRelevanteDoMatchSelecionado) {
-                matchSelecionado = m
-                idxUltimaPecaRelevanteDoMatchSelecionado = idxUltimaPecaRelevante
-            }
-        }
-    }
-
-    if (matchSelecionado === null) return null
-
-    // Flattern the match and map back to PecaType
-    const pecasSelecionadas = matchSelecionado.map(m => m.captured).flat().map(d => pecasAcessiveis[indexById[d.id]])
-
-    if (pecasSelecionadas.length === 0) return null
-    return pecasSelecionadas
-}
 
 const iniciarObtencaoDeConteudo = async (dossier_id: number, numeroDoProcesso: string, pecas: PecaType[], interop: Interop, synchronous?: boolean) => {
     for (const peca of pecas) {
@@ -144,10 +82,10 @@ export type ObterDadosDoProcessoType = {
     kind?: TipoDeSinteseEnum
     pieces?: string[]
     conteudoDasPecasSelecionadas?: CargaDeConteudoEnum
-    statusDeSintese?: StatusDeSintese
+    statusDeSintese?: StatusDeLancamento
 }
 
-export const obterDadosDoProcesso = async ({ numeroDoProcesso, pUser, idDaPeca, identificarPecas, completo, kind, pieces, conteudoDasPecasSelecionadas = CargaDeConteudoEnum.ASSINCRONO, statusDeSintese = StatusDeSintese.PUBLICO }: ObterDadosDoProcessoType): Promise<DadosDoProcessoType> => {
+export const obterDadosDoProcesso = async ({ numeroDoProcesso, pUser, idDaPeca, identificarPecas, completo, kind, pieces, conteudoDasPecasSelecionadas = CargaDeConteudoEnum.ASSINCRONO, statusDeSintese = StatusDeLancamento.PUBLICO }: ObterDadosDoProcessoType): Promise<DadosDoProcessoType> => {
     let pecas: PecaType[] = []
     let errorMsg = undefined
     try {
@@ -246,7 +184,8 @@ export const obterDadosDoProcesso = async ({ numeroDoProcesso, pUser, idDaPeca, 
         // Localiza um tipo de síntese válido
         const tipos = TiposDeSinteseValido.filter(t => t.status <= statusDeSintese)
         for (const tipoDeSintese of tipos) {
-            pecasSelecionadas = selecionarPecasPorPadrao(pecas, tipoDeSintese.padroes)
+            const pecasAcessiveis = pecas.filter(p => nivelDeSigiloPermitido(p.sigilo))
+            pecasSelecionadas = selecionarPecasPorPadrao(pecasAcessiveis, tipoDeSintese.padroes)
             if (pecasSelecionadas !== null) {
                 tipoDeSinteseSelecionado = tipoDeSintese.id
                 break
@@ -260,7 +199,8 @@ export const obterDadosDoProcesso = async ({ numeroDoProcesso, pUser, idDaPeca, 
             tipoDeSinteseSelecionado = kind
             if (tipoDeSinteseSelecionado === undefined)
                 throw new Error(`Tipo de síntese ${kind} não reconhecido`)
-            pecasSelecionadas = selecionarPecasPorPadrao(pecas, TipoDeSinteseMap[kind].padroes)
+            const pecasAcessiveis = pecas.filter(p => nivelDeSigiloPermitido(p.sigilo))
+            pecasSelecionadas = selecionarPecasPorPadrao(pecasAcessiveis, TipoDeSinteseMap[kind].padroes)
 
         }
         if (!tipoDeSinteseSelecionado) tipoDeSinteseSelecionado = 'RESUMOS'
@@ -291,6 +231,34 @@ export const obterDadosDoProcesso = async ({ numeroDoProcesso, pUser, idDaPeca, 
             }
         }
         return { ...dadosDoProcesso, pecasSelecionadas: pecasComConteudo, tipoDeSintese: tipoDeSinteseSelecionado, produtos: TipoDeSinteseMap[tipoDeSinteseSelecionado]?.produtos }
+        // return { ...dadosDoProcesso, pecas: [] as PecaType[], pecasSelecionadas: [] as PecaType[], tipoDeSintese: tipoDeSinteseSelecionado, produtos: TipoDeSinteseMap[tipoDeSinteseSelecionado]?.produtos }
+    } catch (error) {
+        if (error?.message === 'NEXT_REDIRECT') throw error
+        console.error(`Erro ao obter dados do processo ${numeroDoProcesso}: ${error.stack}`)
+        errorMsg = `${error.message}`
+        return { pecas, errorMsg }
+    }
+}
+
+export const obterDadosDoProcesso2 = async ({ numeroDoProcesso, pUser, pieces, conteudoDasPecasSelecionadas = CargaDeConteudoEnum.ASSINCRONO }: ObterDadosDoProcessoType): Promise<DadosDoProcessoType> => {
+    let pecas: PecaType[] = []
+    let errorMsg = undefined
+    try {
+        const user = await pUser
+        const username = user?.email
+        const password = user?.image?.password ? decrypt(user?.image.password) : undefined
+
+        const interop = getInterop(username, password)
+        await interop.init()
+
+        const dadosDoProcesso = await interop.consultarProcesso(numeroDoProcesso)
+        // pecas = [...dadosDoProcesso.pecas]
+
+        // // grava os dados do processo no banco
+        // const system_id = await Dao.assertSystemId(user?.image?.system || 'PDPJ')
+        // const dossier_id = await Dao.assertIADossierId(numeroDoProcesso, system_id, dadosDoProcesso.codigoDaClasse, dadosDoProcesso.ajuizamento)
+
+        return { ...dadosDoProcesso }
         // return { ...dadosDoProcesso, pecas: [] as PecaType[], pecasSelecionadas: [] as PecaType[], tipoDeSintese: tipoDeSinteseSelecionado, produtos: TipoDeSinteseMap[tipoDeSinteseSelecionado]?.produtos }
     } catch (error) {
         if (error?.message === 'NEXT_REDIRECT') throw error

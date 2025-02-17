@@ -50,7 +50,7 @@ export const getNumberOfDaysInMonth = (year: number, month: number): number => {
 
 
 // Format date as YYYY-MM-DD HH:mm:ss
-export const formatDate = (date: Date): string => 
+export const formatDate = (date: Date): string =>
   date ? date.toISOString().replace('T', ' ').replace(/\..+/, '') : ''
 
 
@@ -61,7 +61,7 @@ export const convertBrazilianValueToNumber = (value) => {
   return value
 }
 
-export const slugify = (str) => {
+export const slugify = (str: string): string => {
   str = str.replace(/^\s+|\s+$/g, ''); // trim
   str = str.toLowerCase();
 
@@ -104,6 +104,8 @@ export const formatBrazilianDateTime = (dt: Date) => {
 export const formatBrazilianDate = (dt: Date) => {
   // console.log('dt', dt, 'type:', typeof dt)
   if (!dt) return ''
+  if (typeof dt === 'string') 
+    dt = new Date(dt)
   return dt.toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' })
 }
 
@@ -115,11 +117,11 @@ export const addBlockQuote = (str: string) => {
 }
 
 export const removeEmptyKeys = (payload: any) => {
-    Object.keys(payload).forEach(key => {
-        if (payload[key] === '') {
-            delete payload[key]
-        }
-    })
+  Object.keys(payload).forEach(key => {
+    if (payload[key] === '') {
+      delete payload[key]
+    }
+  })
 }
 
 export const intOrUndefined = (v: string | number | undefined): number | undefined => {

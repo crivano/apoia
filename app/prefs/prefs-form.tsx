@@ -5,6 +5,7 @@ import { unstable_noStore as noStore } from 'next/cache'
 import { useRouter } from 'next/navigation';
 import { enumSorted, Model, ModelProvider } from '@/lib/ai/model-types';
 import { EMPTY_FORM_STATE, FormHelper } from '@/lib/ui/form-support';
+import { StatusDeLancamento } from '@/lib/proc/process-types';
 
 const Frm = new FormHelper()
 
@@ -13,7 +14,6 @@ export default function PrefsForm(params) {
     const initialState = JSON.parse(JSON.stringify(params.initialState))
     const initialFormState = JSON.parse(JSON.stringify(EMPTY_FORM_STATE))
     const [processing, setProcessing] = useState(false)
-    const [errorMessage, setErrorMessage] = useState('')
     const [data, setData] = useState(initialState)
     const [formState, setFormState] = useState(initialFormState)
     const [refreshCount, setRefreshCount] = useState(0)
@@ -77,8 +77,9 @@ export default function PrefsForm(params) {
 
     const modelOptions = enumSorted(Model)
         // .sort((a, b) => a.value.provider.id - b.value.provider.id)
-        .map(e => ({ id: e.value.name, name: e.value.name, disabled: isDisabled(e) }))
+        .map(e => ({ id: e.value.name, name: e.value.name, disabled: isDisabled(e), visible: params.statusDeLancamento >= e.value.provider.status }))
         .sort((a, b) => a.disabled ? 1 : b.disabled ? -1 : 0)
+        // .filter(e => e.visible)
 
     useEffect(() => {
         const oldData = data
@@ -112,7 +113,7 @@ export default function PrefsForm(params) {
                                     <Frm.Select label="Modelo Padrão" name="model" options={[{ id: '', name: '[Selecionar]' }, ...modelOptions]} />
                                 </div>
                                 {enumSorted(ModelProvider).map((provider) => (
-                                    <div className="row mb-2" key={provider.value.name}>
+                                    <div className="row mb-2" key={provider.value.name} hidden={params.statusDeLancamento < provider.value.status}>
                                         <Frm.Input label={`${provider.value.name}: Chave da API`} name={`env['${provider.value.apiKey}']`} validator={(value: string, name: string) => validator(value, name, provider.value.apiKeyRegex)} />
                                     </div>))}
                                 {/* <div className="row mb-3">

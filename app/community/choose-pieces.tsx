@@ -6,7 +6,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { use, useEffect, useRef, useState } from "react"
 import TableRecords from '@/components/table-records'
-import { DadosDoProcessoType, StatusDeLancamento } from "@/lib/proc/process-types";
+import { DadosDoProcessoType, PecaType, StatusDeLancamento } from "@/lib/proc/process-types";
 import { Button } from "react-bootstrap";
 import { TipoDeSinteseEnum, TipoDeSinteseMap } from "@/lib/proc/combinacoes";
 import { EMPTY_FORM_STATE, FormHelper } from "@/lib/ui/form-support";
@@ -16,26 +16,24 @@ const Frm = new FormHelper()
 
 const canonicalPieces = (pieces: string[]) => pieces.sort((a, b) => a.localeCompare(b)).join(',')
 
-function ChoosePiecesForm({ dadosDoProcesso, onSave, onClose, statusDeSintese }: { dadosDoProcesso: DadosDoProcessoType, onSave: (kind: TipoDeSinteseEnum, pieces: string[]) => void, onClose: () => void, statusDeSintese: StatusDeLancamento }) {
-    const originalPieces: string[] = dadosDoProcesso.pecasSelecionadas.map(p => p.id)
-    const [tipoDeSintese, setTipoDeSintese] = useState(dadosDoProcesso.tipoDeSintese)
+function ChoosePiecesForm({ allPieces, selectedPieces, onSave, onClose }: { allPieces: PecaType[], selectedPieces: PecaType[], onSave: (pieces: string[]) => void, onClose: () => void }) {
+    const originalPieces: string[] = selectedPieces.map(p => p.id)
     const [selectedIds, setSelectedIds] = useState(originalPieces)
     const [canonicalOriginalPieces, setCanonicalOriginalPieces] = useState(canonicalPieces(originalPieces))
-    const tipos = TiposDeSinteseValido.filter(t => t.status <= statusDeSintese).map(tipo => ({ id: tipo.id, name: tipo.nome }))
+    const tipos = TiposDeSinteseValido.map(tipo => ({ id: tipo.id, name: tipo.nome }))
 
     const onSelectedIdsChanged = (ids: string[]) => {
         if (canonicalPieces(ids) !== canonicalPieces(selectedIds))
             setSelectedIds(ids)
     }
 
-    Frm.update({ tipoDeSintese, selectedIds }, (d) => { setTipoDeSintese(d.tipoDeSintese); setSelectedIds(d.selectedIds) }, EMPTY_FORM_STATE)
+    Frm.update({ selectedIds }, (d) => { setSelectedIds(d.selectedIds) }, EMPTY_FORM_STATE)
 
     const updateSelectedPieces = async () => {
         const res = await fetch('/api/v1/select-pieces', {
             method: 'post',
             body: JSON.stringify({
-                kind: tipoDeSintese,
-                pieces: dadosDoProcesso.pecas.map(p => ({ id: p.id, descr: p.descr, numeroDoEvento: p.numeroDoEvento, descricaoDoEvento: p.descricaoDoEvento, sigilo: p.sigilo }))
+                pieces: allPieces.map(p => ({ id: p.id, descr: p.descr, numeroDoEvento: p.numeroDoEvento, descricaoDoEvento: p.descricaoDoEvento, sigilo: p.sigilo }))
             }),
             headers: {
                 'Content-Type': 'application/json',
@@ -48,23 +46,20 @@ function ChoosePiecesForm({ dadosDoProcesso, onSave, onClose, statusDeSintese }:
         setCanonicalOriginalPieces(canonicalPieces(data.selectedIds))
     }
 
-    useEffect(() => {
-        updateSelectedPieces()
-    }, [tipoDeSintese])
+    // useEffect(() => {
+    //     updateSelectedPieces()
+    // }, [])
 
     const alteredPieces = canonicalPieces(selectedIds) !== canonicalOriginalPieces
 
     return <div className="mt-4 mb-4 h-print">
         <div className="alert alert-warning pt-0">
             <div className="row">
-                <Frm.Select label="Tipo de Síntese" name="tipoDeSintese" options={tipos} width={''} />
-            </div>
-            <div className="row">
                 <div className="col-12">
-                    <TableRecords records={[...dadosDoProcesso.pecas].reverse()} spec="ChoosePieces" pageSize={10} selectedIds={selectedIds} onSelectdIdsChanged={onSelectedIdsChanged}>
+                    <TableRecords records={[...allPieces].reverse()} spec="ChoosePieces" pageSize={10} selectedIds={selectedIds} onSelectdIdsChanged={onSelectedIdsChanged}>
                         <div className="col col-auto mb-0">
-                            {alteredPieces || tipoDeSintese !== dadosDoProcesso.tipoDeSintese
-                                ? <Button onClick={() => onSave(tipoDeSintese, alteredPieces ? selectedIds : [])} variant="primary"><FontAwesomeIcon icon={faRotateRight} className="me-2" />Salvar Alterações e Refazer</Button>
+                            {alteredPieces
+                                ? <Button onClick={() => onSave(alteredPieces ? selectedIds : [])} variant="primary"><FontAwesomeIcon icon={faRotateRight} className="me-2" />Salvar Alterações e Refazer</Button>
                                 : <Button onClick={() => onClose()} variant="secondary"><FontAwesomeIcon icon={faClose} className="me-1" />Fechar</Button>
                             }
                         </div></TableRecords>
@@ -83,7 +78,7 @@ export const ChoosePiecesLoading = () => {
 }
 
 
-export default function ChoosePieces({ dadosDoProcesso, statusDeSintese }: { dadosDoProcesso: DadosDoProcessoType, statusDeSintese: StatusDeLancamento }) {
+export default function ChoosePieces({ allPieces, selectedPieces, onSave }: { allPieces: PecaType[], selectedPieces: PecaType[], onSave: (pieces: string[]) => void }) {
     const pathname = usePathname(); // let's get the pathname to make the component reusable - could be used anywhere in the project
     const router = useRouter();
     const currentSearchParams = useSearchParams()
@@ -91,22 +86,10 @@ export default function ChoosePieces({ dadosDoProcesso, statusDeSintese }: { dad
     const [reloading, setReloading] = useState(false)
     const ref = useRef(null)
 
-    const handleClick = (e) => {
-    }
-
-    const onSave = (kind: TipoDeSinteseEnum, pieces: string[]) => {
+    const onSaveLocal = (pieces: string[]) => {
         setEditing(false)
-        const updatedSearchParams = new URLSearchParams(currentSearchParams.toString())
-        const original = updatedSearchParams.toString()
-        if (pieces?.length > 0)
-            updatedSearchParams.set("pieces", (pieces || [] as string[]).join(','))
-        else
-            updatedSearchParams.delete("pieces")
-        updatedSearchParams.set("kind", kind)
-        const current = updatedSearchParams.toString()
-        if (original === current) return
-        setReloading(true)
-        router.push(pathname + "?" + updatedSearchParams.toString())
+        // setReloading(true)
+        onSave(pieces)
     }
 
     const onClose = () => {
@@ -118,8 +101,8 @@ export default function ChoosePieces({ dadosDoProcesso, statusDeSintese }: { dad
     }
 
     if (!editing) {
-        const l = dadosDoProcesso.pecasSelecionadas.map(p => maiusculasEMinusculas(p.descr))
-        let s = `Tipo: ${TipoDeSinteseMap[dadosDoProcesso.tipoDeSintese]?.nome} - Peças: `
+        const l = selectedPieces?.map(p => maiusculasEMinusculas(p.descr)) || []
+        let s = `Peças: `
         if (l.length === 0)
             s += 'Nenhuma peça selecionada'
         else if (l.length === 1) {
@@ -132,5 +115,5 @@ export default function ChoosePieces({ dadosDoProcesso, statusDeSintese }: { dad
         }
         return <p className="text-muted text-center h-print">{s} - <span onClick={() => { setEditing(true) }} className="text-primary" style={{ cursor: 'pointer' }}><FontAwesomeIcon icon={faEdit} /> Alterar</span></p>
     }
-    return <ChoosePiecesForm onSave={onSave} onClose={onClose} dadosDoProcesso={dadosDoProcesso} statusDeSintese={statusDeSintese} />
+    return <ChoosePiecesForm onSave={onSaveLocal} onClose={onClose} allPieces={allPieces} selectedPieces={selectedPieces} />
 }
