@@ -32,15 +32,13 @@ export default function RootLayout({
             </head>
             <body>
                 <ImportBsJS />
-                <Navbar bg="primary" expand="lg">
+                <Navbar bg="light" data-bs-theme="light" expand="lg">
                     <Container fluid={false}>
-                        <div className="navbar-brand text-white" style={{ overflow: "hidden" }}>
-                            <Link href="/" className="ms-0 me-2" style={{ verticalAlign: "middle" }}>
+                        <div className="navbar-brand" style={{ overflow: "hidden" }}>
+                            <Link href="/" className="ms-0 me-0" style={{ verticalAlign: "middle" }}>
                                 {/* <Image src="/trf2-logo.png" width={34 * 27 / 32} height={34} alt="ApoIA Logo" className="me-0" /> */}
-                                <Image src="/apoia-logo-transp.png" width={52} height={52 * 271 / 250} alt="ApoIA Logo" className="me-0" style={{ marginTop: '-1em', marginBottom: '-1em', overflow: "hidden" }} />
+                                <Image src="/apoia-logo-vertical-transp.png" width={48 * 1102 / 478} height={48} alt="ApoIA Logo" className="me-0" style={{}} />
                             </Link>
-                            <Link href="/" className="text-white ms-0" style={{ textDecoration: "none", fontSize: "120%", verticalAlign: "middle" }}>
-                                ApoIA</Link>
                         </div>
                         <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                             <span className="navbar-toggler-icon"></span>

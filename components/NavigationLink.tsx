@@ -5,7 +5,7 @@ export const NavigationLink = (params: { href: string, text: string, className?:
     // const headersList = headers()
     // const fullUrl = headersList.get('referer') || ""
     // const pathname = new URL(fullUrl).pathname
-    let c = "nav-link text-white me-3"
+    let c = "nav-link me-3"
     if (params.className)
         c += params.className
     // if (pathname == params.href)
