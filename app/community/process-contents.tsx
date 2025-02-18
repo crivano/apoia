@@ -13,8 +13,9 @@ import Subtitulo from "./subtitulo";
 import ChoosePieces from "./choose-pieces";
 import ErrorMsg from "./error-msg";
 import { ListaDeProdutos } from "./lista-produtos-client";
+import { PromptParaCopiar } from "./prompt-to-copy";
 
-export default function ProcessContents({ prompt, dadosDoProcesso, pieceContent, setPieceContent, children }: { prompt: IAPrompt, dadosDoProcesso: DadosDoProcessoType, pieceContent: any, setPieceContent: (pieceContent: any) => void, children?: ReactNode }) {
+export default function ProcessContents({ prompt, dadosDoProcesso, pieceContent, setPieceContent, apiKeyProvided, children }: { prompt: IAPrompt, dadosDoProcesso: DadosDoProcessoType, pieceContent: any, setPieceContent: (pieceContent: any) => void, apiKeyProvided: boolean, children?: ReactNode }) {
     const [selectedPieces, setSelectedPieces] = useState<PecaType[]>([])
     const [loadingPiecesProgress, setLoadingPiecesProgress] = useState(-1)
     const [requests, setRequests] = useState<GeneratedContent[]>([])
@@ -136,13 +137,17 @@ export default function ProcessContents({ prompt, dadosDoProcesso, pieceContent,
         <LoadingPieces />
         <ErrorMsg dadosDoProcesso={dadosDoProcesso} />
         <div className="mb-4"></div>
-        {readyToStartAI && requests && requests.length && <>
-            <ListaDeProdutos dadosDoProcesso={dadosDoProcesso} requests={requests} />
-        </>}
-
-        <Print numeroDoProcesso={dadosDoProcesso.numeroDoProcesso} />
+        {readyToStartAI && requests && requests.length && (
+            apiKeyProvided
+                ? <>
+                    <ListaDeProdutos dadosDoProcesso={dadosDoProcesso} requests={requests} />
+                    <Print numeroDoProcesso={dadosDoProcesso.numeroDoProcesso} />
+                </>
+                : <PromptParaCopiar dadosDoProcesso={dadosDoProcesso} requests={requests} />
+        )
+        }
         <hr className="mt-5" />
         <p style={{ textAlign: 'center' }}>Este documento foi gerado pela ApoIA, ferramenta de inteligência artificial desenvolvida exclusivamente para facilitar a triagem de acervo, e não substitui a elaboração de relatório específico em cada processo, a partir da consulta manual aos eventos dos autos. Textos gerados por inteligência artificial podem conter informações imprecisas ou incorretas.</p>
 
-    </div>
+    </div >
 }    

@@ -36,6 +36,9 @@ export type DadosDoProcessoType = {
     classe?: string
     numeroDoProcesso?: string
     nomeOrgaoJulgador?: string
+    segmento?: string
+    instancia?: string
+    materia?: string
     errorMsg?: string
 }
 
@@ -46,9 +49,14 @@ export enum StatusDeLancamento {
 
 
 const ScopeArray = [
-    { id: 1, name: 'JUSTICA_FEDERAL', descr: 'Federal', acronym: 'JF' },
-    { id: 2, name: 'JUSTICA_ESTADUAL', descr: 'Estadual' , acronym: 'JE'},
-    { id: 3, name: 'JUSTICA_TRABALHISTA', descr: 'Trabalhista', acronym: 'JT' },
+    { id: 1, name: 'SUPREMO_TRIBUNAL_FEDERAL', descr: 'STF', acronym: 'STF' },
+    { id: 1, name: 'SUPERIOR_TRIBUNAL_JUSTICA', descr: 'STJ', acronym: 'STJ' },
+    { id: 1, name: 'CONSELHO_NACIONAL_JUSTICA', descr: 'CNJ', acronym: 'CNJ' },
+    { id: 2, name: 'JUSTICA_FEDERAL', descr: 'Federal', acronym: 'JF' },
+    { id: 3, name: 'JUSTICA_ESTADUAL', descr: 'Estadual' , acronym: 'JE'},
+    { id: 4, name: 'JUSTICA_TRABALHO', descr: 'Trabalhista', acronym: 'JT' },
+    { id: 2, name: 'JUSTICA_ELEITORAL', descr: 'Eleitoral', acronym: 'JE' },
+    { id: 2, name: 'JUSTICA_MILITAR_UNIAO', descr: 'Militar', acronym: 'JM' },
 ]
 export type ScopeValueType = EnumOfObjectsValueType & { descr: string, acronym: string }
 export type ScopeType = { [key: string]: ScopeValueType }
@@ -59,9 +67,10 @@ export const Scope: ScopeType = ScopeArray.reduce((acc, cur, idx) => {
 
 
 const InstanceArray = [
-    { id: 1, name: 'PRIMEIRA_INSTANCIA', descr: 'Primeira', acronym: '1ª' },
-    { id: 2, name: 'SEGUNDA_INSTANCIA', descr: 'Segunda', acronym: '2ª' },
-    { id: 3, name: 'TERCEIRA_INSTANCIA', descr: 'Terceira', acronym: '3ª' },
+    { id: 1, name: 'PRIMEIRO_GRAU', descr: 'Primeira', acronym: '1ª' },
+    { id: 2, name: 'SEGUNDO_GRAU', descr: 'Segunda', acronym: '2ª' },
+    { id: 3, name: 'TERCEIRO_GRAU', descr: 'Terceira', acronym: '3ª' },
+    { id: 4, name: 'QUARTO_GRAU', descr: 'Quarto', acronym: '4ª' },
 ]
 export type InstanceValueType = EnumOfObjectsValueType & { descr: string, acronym: string }
 export type InstanceType = { [key: string]: InstanceValueType }

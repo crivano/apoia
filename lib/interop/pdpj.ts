@@ -88,11 +88,28 @@ export class InteropPDPJ implements Interop {
             }
         );
 
-        if (!response.ok) {
-            throw new Error(`Error fetching process data: ${response.statusText}`);
+
+        let data = {}
+
+        const b = await response.arrayBuffer()
+        if (response.status !== 200) {
+            try {
+                const decoder = new TextDecoder('utf-8')
+                const texto = decoder.decode(b)
+                if (response.headers.get('Content-Type') === 'application/json') {
+                    const data = JSON.parse(texto)
+                    throw new Error(data.message)
+                }
+            } catch (e) {
+                throw new Error(`Não foi possível acessar o processo ${numeroDoProcesso} no DataLake/Codex da PDPJ (${e})`)
+            }
         }
 
-        const data = await response.json();
+        // if (!response.ok) {
+        //     throw new Error(`O processo não foi localizado na base da PDPJ (DataLake/Codex): ${response.statusText}`);
+        // }
+
+        // const data = await response.json();
         const processo = data[0].tramitacoes[data[0].tramitacoes.length - 1]
 
         if (verificarNivelDeSigilo())
@@ -101,6 +118,9 @@ export class InteropPDPJ implements Interop {
         const ajuizamento = new Date(processo.dataHoraAjuizamento)
         const nomeOrgaoJulgador = processo.tribunal.nome
         const codigoDaClasse = processo.classe[0]?.codigo || 0
+        const segmento = processo.tribunal.segmento
+        const instancia = processo.instancia
+        const materia = processo.natureza
 
         let pecas: PecaType[] = []
         const documentos = processo.documentos
@@ -141,7 +161,7 @@ export class InteropPDPJ implements Interop {
             })
         }
         const classe = tua[codigoDaClasse]
-        return { numeroDoProcesso, ajuizamento, codigoDaClasse, classe, nomeOrgaoJulgador, pecas }
+        return { numeroDoProcesso, ajuizamento, codigoDaClasse, classe, nomeOrgaoJulgador, pecas, segmento, instancia, materia }
     }
 
     public obterPeca = async (numeroDoProcesso, idDaPeca): Promise<ObterPecaType> => {
@@ -166,7 +186,7 @@ export class InteropPDPJ implements Interop {
                     throw new Error(data.message)
                 }
             } catch (e) {
-                throw new Error(`Não foi possível obter o texto da peça. ${e} (${numeroDoProcesso}/${idDaPeca})`)
+                throw new Error(`Não foi possível obter o texto da peça no DataLake/Codex da PDPJ. ({e} - ${numeroDoProcesso}/${idDaPeca})`)
             }
         }
         const ab = b.slice(0, b.byteLength)

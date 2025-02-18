@@ -543,10 +543,11 @@ export class Dao {
 
     static async insertIAGeneration(data: mysqlTypes.IAGeneration): Promise<mysqlTypes.IAGenerated | undefined> {
         if (!knex) return
+        const created_by = await getCurrentUserId() 
         const { model, prompt, sha256, generation, attempt } = data
         const [inserted] = await knex('ia_generation').insert({
             model,
-            prompt, sha256, generation, attempt
+            prompt, sha256, generation, attempt, created_by
         }).returning('id')
         const result = await knex('ia_generation').select<mysqlTypes.IAGenerated>('*').where('id', getId(inserted)).first()
         return result

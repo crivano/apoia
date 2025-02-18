@@ -61,7 +61,12 @@ export const promptExecuteBuilder = (definition: PromptDefinitionType, data: Pro
     if (definition.systemPrompt)
         message.push({ role: 'system', content: applyTextsAndVariables(definition.systemPrompt, data) })
 
-    const promptContent: string = applyTextsAndVariables(definition.prompt, data)
+    // add {{textos}} to the prompt if it doesn't have it
+    let prompt = definition.prompt
+    if (prompt && !prompt.includes('{{') && (!definition.systemPrompt || !definition.systemPrompt.includes('{{')))
+        prompt = `${prompt}\n\n{{textos}}`
+
+    const promptContent: string = applyTextsAndVariables(prompt, data)
     message.push({ role: 'user', content: promptContent })
 
     const params: PromptExecuteParamsType = {}

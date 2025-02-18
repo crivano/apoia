@@ -3,16 +3,12 @@
 import { Form, Button, Accordion, Nav, Col } from 'react-bootstrap'
 import { useRouter } from 'next/navigation'
 // import { DeleteForm } from "./record-delete-form"
-import dynamic from 'next/dynamic'
 import TextareaAutosize from 'react-textarea-autosize'
 import { removeOfficial, save, setOfficial } from './prompt-actions'
 import { EMPTY_FORM_STATE, FormHelper, FormError } from '@/lib/ui/form-support'
 import yamlps from 'js-yaml'
 import { useState } from 'react'
 import _ from 'lodash'
-import { IATestset } from '@/lib/db/mysql-types'
-import { useEffect } from 'react'
-import { slugify } from '@/lib/utils/utils'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faAdd, faRemove } from '@fortawesome/free-solid-svg-icons'
 import { enumSorted } from '@/lib/ai/model-types'
@@ -133,7 +129,7 @@ export default function PromptForm(props) {
                                 {data.content.format === undefined && <Frm.Button variant="light" onClick={() => { data.content.format = ''; setData({ ...data }) }}><FontAwesomeIcon icon={faAdd} /> Format</Frm.Button>}
                             </div>
                         </>}
-                        <Frm.TextArea label="Prompt" name="content.prompt" maxRows={20} explanation={`Utilize {{textos}} preferencialmente no final do prompt, ou onde devem ser incluídos os textos capturados ${Target.PROCESSO.name === data.content.target ? 'das peças do processo' : 'do editor de textos' }.`} />
+                        <Frm.TextArea label="Prompt" name="content.prompt" maxRows={20} explanation={`Utilize {{textos}} onde devem ser incluídos os textos capturados ${Target.PROCESSO.name === data.content.target ? 'das peças do processo' : 'do editor de textos' }, ou serão automaticamente incluídos no final.`} />
                     </>)
                     : (<TextareaAutosize className="form-control" value={yaml} onChange={(e) => handleYamlChanged(e.target.value)} />)}
             </div>

@@ -32,7 +32,7 @@ export default function RootLayout({
             </head>
             <body>
                 <ImportBsJS />
-                <Navbar bg="light" data-bs-theme="light" expand="lg">
+                <Navbar bg="light" data-bs-theme="light" expand="lg" style={{ borderBottom: "1px solid rgb(200, 200, 200)" }}>
                     <Container fluid={false}>
                         <div className="navbar-brand" style={{ overflow: "hidden" }}>
                             <Link href="/" className="ms-0 me-0" style={{ verticalAlign: "middle" }}>

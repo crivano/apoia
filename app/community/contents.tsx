@@ -19,6 +19,13 @@ import { Container, Spinner } from 'react-bootstrap'
 import { tua } from "@/lib/proc/tua"
 import Link from "next/link"
 
+export const copyPromptToClipboard = (prompt: IAPromptList) => {
+    let s: string = prompt.content.system_prompt
+    s = s ? `# PROMPT DE SISTEMA\n\n${s}\n\n# PROMPT\n\n` : ''
+    s += prompt.content.prompt
+    navigator.clipboard.writeText(s)
+}
+
 export function Contents({ prompts, user, user_id, apiKeyProvided }: { prompts: IAPromptList[], user: UserType, user_id: number, apiKeyProvided: boolean }) {
     const currentSearchParams = useSearchParams()
     const [prompt, setPrompt] = useState<IAPromptList>(null)
@@ -44,8 +51,13 @@ export function Contents({ prompts, user, user_id, apiKeyProvided }: { prompts: 
     }, [number])
 
     const promptOnClick = (kind: string, row: any) => {
-        if (kind === 'executar') {
-            setPrompt(row)
+        switch (kind) {
+            case 'executar':
+                setPrompt(row)
+                break;
+            case 'copiar':
+                copyPromptToClipboard(row)
+                break;
         }
     }
 
@@ -54,9 +66,12 @@ export function Contents({ prompts, user, user_id, apiKeyProvided }: { prompts: 
         if (response.ok) {
             const data = await response.json()
             setDadosDoProcesso(data)
-            setScope('JUSTICA_FEDERAL')
-            setInstance('PRIMEIRA_INSTANCIA')
-            setMatter('CIVEL')
+            if (data.segmento && Scope[data.segmento]) setScope(data.segmento)
+            else setScope(undefined)
+            if (data.instancia && Instance[data.instancia]) setInstance(data.instancia)
+            else setInstance(undefined)
+            if (data.materia && Matter[data.materia]) setMatter(data.materia)
+            else setMatter(undefined)
         }
     }
 
@@ -87,7 +102,8 @@ export function Contents({ prompts, user, user_id, apiKeyProvided }: { prompts: 
 
     return !prompt
         ? <>
-            <div className="" style={{ backgroundColor: 'rgba(0,0,0,0.2)' }}>
+            {/* <div className="" style={{ backgroundColor: 'rgba(0,0,0,0.2)' }}> */}
+            <div className="bg-primary text-white">
                 <Container className="p-2 pb-3" fluid={false}>
                     <FormGroup as={Row} className="">
                         <div className="col col-auto">
@@ -97,13 +113,13 @@ export function Contents({ prompts, user, user_id, apiKeyProvided }: { prompts: 
                         {numeroDoProcesso && !dadosDoProcesso &&
                             <div className="col col-auto">
                                 <FormLabel className="mb-0">&nbsp;</FormLabel>
-                                <span className="form-control" style={{ backgroundColor: 'rgba(0,0,0,0.05)' }}> Carregando Processo...</span>
+                                <span className="form-control text-white" style={{ backgroundColor: 'rgba(0,0,0,0.05)' }}> Carregando Processo...</span>
                             </div>
                         }
                         {dadosDoProcesso &&
                             <div className="col col-auto">
                                 <FormLabel className="mb-0">&nbsp;</FormLabel>
-                                <span className="form-control" style={{ backgroundColor: 'rgba(0,0,0,0.05)' }}>{dadosDoProcesso.classe}</span>
+                                <span className="form-control text-white" style={{ backgroundColor: 'rgba(0,0,0,0.05)' }}>{dadosDoProcesso.classe}</span>
                             </div>
                         }
                         <div className="col col-auto ms-auto">
@@ -145,7 +161,7 @@ export function Contents({ prompts, user, user_id, apiKeyProvided }: { prompts: 
                             <div id="printDiv">
                                 <ProcessTitle id={numeroDoProcesso} />
                                 {dadosDoProcesso
-                                    ? <ProcessContents prompt={prompt} dadosDoProcesso={dadosDoProcesso} pieceContent={pieceContent} setPieceContent={setPieceContent}>
+                                    ? <ProcessContents prompt={prompt} dadosDoProcesso={dadosDoProcesso} pieceContent={pieceContent} setPieceContent={setPieceContent} apiKeyProvided={apiKeyProvided}>
                                         <PromptTitle prompt={prompt} />
                                     </ProcessContents>
                                     : <><SubtituloLoading /><PromptTitle prompt={prompt} /></>}

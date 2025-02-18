@@ -3,6 +3,7 @@ import PromptForm from '../prompt-form'
 import { Dao } from '@/lib/db/mysql'
 import { assertCurrentUser } from '@/lib/user'
 import { maiusculasEMinusculas } from '@/lib/utils/utils'
+import { Instance, Matter, Scope } from '@/lib/proc/process-types'
 
 export default async function New({ params, searchParams }: { params: { kind: string }, searchParams: { copyFrom: string } }) {
     const { kind } = params
@@ -10,10 +11,10 @@ export default async function New({ params, searchParams }: { params: { kind: st
     const author = maiusculasEMinusculas(user.name)
     const emptyRecord = {
         content: {
-            scope: ["JUSTICA_FEDERAL", "JUSTICA_ESTADUAL", "JUSTICA_TRABALHISTA"],
+            scope: Object.keys(Scope),
             author,
-            instance: ["PRIMEIRA_INSTANCIA", "SEGUNDA_INSTANCIA", "TERCEIRA_INSTANCIA"],
-            matter: ["CIVEL", "CRIMINAL", "TRABALHISTA"],
+            instance: Object.keys(Instance),
+            matter: Object.keys(Matter),
             target: "PROCESSO",
             editor_label: "Texto",
             piece_strategy: "MAIS_RELEVANTES",
