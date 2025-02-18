@@ -7,10 +7,11 @@ import { Button } from 'react-bootstrap'
 import { PromptConfigType, PromptDefinitionType } from '@/lib/ai/prompt-types'
 import { slugify } from '@/lib/utils/utils'
 import { IAPrompt } from '@/lib/db/mysql-types'
+import { VisualizationEnum } from '@/lib/ui/preprocess'
 
 const EditorComp = dynamic(() => import('@/components/EditorComponent'), { ssr: false })
 
-export default function TargetText({ prompt }: { prompt: IAPrompt }) {
+export default function TargetText({ prompt, visualization }: { prompt: IAPrompt, visualization?: VisualizationEnum }) {
     const [markdown, setMarkdown] = useState('')
     const [hidden, setHidden] = useState(true)
     const [promptConfig, setPromptConfig] = useState({} as PromptConfigType)
@@ -35,7 +36,7 @@ export default function TargetText({ prompt }: { prompt: IAPrompt }) {
         <div className="mb-3">
             {/* <h2 className="mt-3">{prompt.content.editor_label}</h2> */}
             {/* <PromptConfig kind="ementa" setPromptConfig={setPromptConfig} /> */}
-            <div className="form-group"><label>Voto </label></div>
+            <div className="form-group"><label>{textoDescr}</label></div>
             <div className="alert alert-secondary mb-1 p-0">
                 <Suspense fallback={null}>
                     <EditorComp markdown={markdown} onChange={textChanged} />
@@ -53,7 +54,7 @@ export default function TargetText({ prompt }: { prompt: IAPrompt }) {
                 <AiContent
                     definition={definition}
                     data={{ textos: [{ descr: textoDescr, slug: slugify(textoDescr), texto: markdown }] }}
-                    options={{ cacheControl: true }} config={promptConfig} />
+                    options={{ cacheControl: true }} config={promptConfig} visualization={visualization}/>
             </>}
         </div>
     )

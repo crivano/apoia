@@ -18,6 +18,7 @@ import { enumSorted } from "@/lib/ai/model-types"
 import { Container, Spinner } from 'react-bootstrap'
 import { tua } from "@/lib/proc/tua"
 import Link from "next/link"
+import { VisualizationEnum } from "@/lib/ui/preprocess"
 
 export const copyPromptToClipboard = (prompt: IAPromptList) => {
     let s: string = prompt.content.system_prompt
@@ -170,7 +171,9 @@ export function Contents({ prompts, user, user_id, apiKeyProvided }: { prompts: 
                     :
                     prompt.content.target === 'TEXTO'
                         ? <TargetText prompt={prompt} />
-                        : null
+                        : prompt.content.target === 'REFINAMENTO' 
+                            ? <TargetText prompt={prompt} visualization={VisualizationEnum.DIFF} />
+                            : null
                 }
             </Container></>
 }

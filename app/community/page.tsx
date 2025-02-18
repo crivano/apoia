@@ -2,21 +2,10 @@
 
 import { Suspense } from 'react'
 import { unstable_noStore as noStore } from 'next/cache'
-import { Dao } from '@/lib/db/mysql'
 import { Container, Spinner } from 'react-bootstrap'
-import { assertCurrentUser } from '@/lib/user'
-import { Contents } from './contents'
-import { assertModel, hasApiKey } from '@/lib/ai/model-server'
+import ServerContents from './server-contents'
 
-export async function ServerContents({ params }: { params: {} }) {
-    const user = await assertCurrentUser()
-    const apiKeyProvided = await hasApiKey()
-    const user_id = await Dao.assertIAUserId(user.name)
-    const prompts = await Dao.retrieveLatestPrompts(user_id)
-    return <Contents prompts={prompts} user={user} user_id={user_id} apiKeyProvided={apiKeyProvided} />
-}
-
-export default async function Home({ params }: { params: {} }) {
+export default async function Home() {
     noStore()
     return (
         <Suspense fallback={
@@ -24,7 +13,7 @@ export default async function Home({ params }: { params: {} }) {
                 <div className="text-center"><Spinner variant='secondary' /></div>
             </Container>
         }>
-            <ServerContents params={params} />
+            <ServerContents />
         </Suspense>
     )
 }

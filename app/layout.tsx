@@ -48,7 +48,7 @@ export default function RootLayout({
                                 <NavigationLink href="/" text="Prompts" />
                             </NavItem>
                             <NavItem>
-                                <NavigationLink href="/" text="Síntese" />
+                                <NavigationLink href="/process" text="Síntese" />
                             </NavItem>
                             <NavItem>
                                 <NavigationLink href="/revision" text="Revisão de Texto" />

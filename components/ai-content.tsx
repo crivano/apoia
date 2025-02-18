@@ -34,13 +34,13 @@ export const spinner = (s: string, complete: boolean): string => {
     return s
 }
 
-export default function AiContent(params: { definition: PromptDefinitionType, data: PromptDataType, options?: PromptOptionsType, config?: PromptConfigType, onBusy?: () => void, onReady?: (content: ContentType) => void }) {
+export default function AiContent(params: { definition: PromptDefinitionType, data: PromptDataType, options?: PromptOptionsType, config?: PromptConfigType, visualization?: VisualizationEnum, onBusy?: () => void, onReady?: (content: ContentType) => void }) {
     const [current, setCurrent] = useState('')
     const [complete, setComplete] = useState(false)
     const [errormsg, setErrormsg] = useState('')
     const [show, setShow] = useState(false)
     const [evaluated, setEvaluated] = useState(false)
-    const [visualizationId, setVisualizationId] = useState<number>(VisualizationEnum.DIFF)
+    const [visualizationId, setVisualizationId] = useState<number>(params.visualization)
     const initialized = useRef(false)
 
     const handleClose = async (evaluation_id: number, descr: string | null) => {
@@ -162,7 +162,7 @@ export default function AiContent(params: { definition: PromptDefinitionType, da
             : <ResumoDePecaLoading />
         }
 
-        {params.definition.kind === 'refinamento' && complete &&
+        {complete && params.visualization !== undefined &&
             <div className="row d-print-none">
                 <div className="col col-auto">
                     <Form.Select aria-label="Tipo de Visualização" value={visualizationId} onChange={e => setVisualizationId(parseInt(e.target.value))} className='w-100 mt-2'>

@@ -11,7 +11,7 @@ export default async function New({ params }: { params: { kind: string, slug: st
     const prompts = await Dao.retrieveOfficialPromptsIdsAndNamesByKind(kind)
     const testsets = await Dao.retrieveOfficialTestsetsIdsAndNamesByKind(kind)
 
-    record.base_prompt_id = record.id
+    record.base_id = record.id
     return (<Container fluid={false}>
         <h1 className="mt-5 mb-3">Testes de Prompt</h1>
         <PromptTests record={record} models={models} testsets={testsets} />

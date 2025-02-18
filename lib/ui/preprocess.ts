@@ -45,7 +45,7 @@ export const preprocess = (text: string, definition: PromptDefinitionType, data:
     if (definition.format)
         text = libFormat(definition.format, text)
 
-    if (definition.kind === 'refinamento' && complete) {
+    if (complete && visualization !== undefined) {
         let texto = data.textos[0].texto
 
         switch (visualization) {
@@ -57,8 +57,6 @@ export const preprocess = (text: string, definition: PromptDefinitionType, data:
                 return converter.makeHtml(text)
             case VisualizationEnum.TEXT_ORIGINAL:
                 return converter.makeHtml(texto as string)
-            default:
-                return converter.makeHtml(text)
         }
     }
 
