@@ -76,7 +76,7 @@ const obterTextoDePdf = async (buffer: ArrayBuffer, documentId: number) => {
     const { pages, chars } = obterPaginasECaracteres(texto)
 
     // PDF tem texto suficiente para se considerar que não será necessário realizar o OCR
-    if (chars / pages.length > 500) {
+    if (chars / pages.length > 500 || !envString('OCR_URL')) {
         return atualizarConteudoDeDocumento(documentId, IADocumentContentSource.PDF, texto)
     }
 

@@ -45,7 +45,7 @@ export default function RootLayout({
                         </button>
                         <div className="collapse navbar-collapse" id="navbarSupportedContent">
                         <NavItem>
-                                <NavigationLink href="/community" text="Prompts" />
+                                <NavigationLink href="/" text="Prompts" />
                             </NavItem>
                             <NavItem>
                                 <NavigationLink href="/" text="Síntese" />

@@ -1,5 +1,4 @@
-import { TipoDeSinteseMap } from '@/lib/proc/combinacoes';
-import { selecionarPecasPorPadrao } from '@/lib/proc/process';
+import { TipoDeSinteseMap, selecionarPecasPorPadrao } from '@/lib/proc/combinacoes';
 import { PecaType } from '@/lib/proc/process-types';
 
 export const maxDuration = 60
