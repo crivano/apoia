@@ -40,10 +40,10 @@ data:
   DATALAKE_API_URL: "https://api-processo-integracao.data-lake.pdpj.jus.br/processo-api/api/v1"
 
 
-  SYSTEMS: "TRF2,JFRJ,JFES"
-  TRF2_MNI_WSDL_URL: "https://eproc-ws.trf2.jus.br/eproc/wsdl.php?srv=intercomunicacao2.2"
-  TRF2_MNI_ENDPOINT_URL: "https://eproc-ws.trf2.jus.br/eproc/ws/controlador_ws.php?srv=intercomunicacao2.2"
-  JFRJ_MNI_WSDL_URL: "https://eproc-ws.jfrj.jus.br/eproc/wsdl.php?srv=intercomunicacao2.2"
-  JFRJ_MNI_ENDPOINT_URL: "https://eproc-ws.jfrj.jus.br/eproc/ws/controlador_ws.php?srv=intercomunicacao2.2"
-  JFES_MNI_WSDL_URL: "https://eproc-ws.jfes.jus.br/eproc/wsdl.php?srv=intercomunicacao2.2"
-  JFES_MNI_ENDPOINT_URL: "https://eproc-ws.jfes.jus.br/eproc/ws/controlador_ws.php?srv=intercomunicacao2.2"
+  # SYSTEMS: "TRF2,JFRJ,JFES"
+  # TRF2_MNI_WSDL_URL: "https://eproc-ws.trf2.jus.br/eproc/wsdl.php?srv=intercomunicacao2.2"
+  # TRF2_MNI_ENDPOINT_URL: "https://eproc-ws.trf2.jus.br/eproc/ws/controlador_ws.php?srv=intercomunicacao2.2"
+  # JFRJ_MNI_WSDL_URL: "https://eproc-ws.jfrj.jus.br/eproc/wsdl.php?srv=intercomunicacao2.2"
+  # JFRJ_MNI_ENDPOINT_URL: "https://eproc-ws.jfrj.jus.br/eproc/ws/controlador_ws.php?srv=intercomunicacao2.2"
+  # JFES_MNI_WSDL_URL: "https://eproc-ws.jfes.jus.br/eproc/wsdl.php?srv=intercomunicacao2.2"
+  # JFES_MNI_ENDPOINT_URL: "https://eproc-ws.jfes.jus.br/eproc/ws/controlador_ws.php?srv=intercomunicacao2.2"
