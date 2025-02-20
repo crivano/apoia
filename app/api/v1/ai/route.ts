@@ -91,6 +91,8 @@ export async function POST(request: Request) {
         if (typeof result === 'string') {
             return new Response(result, { status: 200 });
         }
+        if (result && definitionWithOptions.jsonSchema)
+            return result.toTextStreamResponse()
         if (result && result.textStream) {
             const reader = result.textStream.getReader()
             const { value, done } = await reader.read()
