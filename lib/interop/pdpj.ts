@@ -89,27 +89,25 @@ export class InteropPDPJ implements Interop {
         );
 
 
-        let data = {}
+        let data: any = {}
 
-        const b = await response.arrayBuffer()
-        if (response.status !== 200) {
-            try {
-                const decoder = new TextDecoder('utf-8')
-                const texto = decoder.decode(b)
-                if (response.headers.get('Content-Type') === 'application/json') {
-                    const data = JSON.parse(texto)
-                    throw new Error(data.message)
-                }
-            } catch (e) {
-                throw new Error(`Não foi possível acessar o processo ${numeroDoProcesso} no DataLake/Codex da PDPJ (${e})`)
+        try {
+            const b = await response.arrayBuffer()
+            const decoder = new TextDecoder('utf-8')
+            const texto = decoder.decode(b)
+            if (response.headers.get('Content-Type') === 'application/json') {
+                data = JSON.parse(texto)
             }
+        } catch (e) {
+            throw new Error(`Não foi possível acessar o processo ${numeroDoProcesso} no DataLake/Codex da PDPJ (${e})`)
         }
 
-        // if (!response.ok) {
-        //     throw new Error(`O processo não foi localizado na base da PDPJ (DataLake/Codex): ${response.statusText}`);
-        // }
+        if (response.status !== 200) {
+            if (data.message)
+                throw new Error(data.message)
+            throw new Error(`Não foi possível acessar o processo ${numeroDoProcesso} no DataLake/Codex da PDPJ (${response.statusText})`)
+        }
 
-        // const data = await response.json();
         const processo = data[0].tramitacoes[data[0].tramitacoes.length - 1]
 
         if (verificarNivelDeSigilo())
