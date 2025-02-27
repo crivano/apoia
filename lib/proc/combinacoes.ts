@@ -244,7 +244,7 @@ export const PieceStrategy: PieceStrategyType = PieceStrategyArray.reduce((acc, 
     return acc
 }, {} as PieceStrategyType)
 
-console.log('PieceStrategy', PieceStrategy)
+// console.log('PieceStrategy', PieceStrategy)
 
 
 export type PieceDescrValueType = EnumOfObjectsValueType & { descr: string }

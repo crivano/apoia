@@ -83,7 +83,7 @@ export default function PromptForm(props) {
     const pieceStrategyOptions = enumSorted(PieceStrategy).map(e => ({ id: e.value.name, name: e.value.descr }))
     const pieceDescrOptions = enumSorted(PieceDescr).map(e => ({ id: e.value.name, name: e.value.descr }))
     const summaryOptions = [{ id: 'NENHUMA', name: 'Não' }, { id: 'TODAS', name: 'Sim' }]
-    const shareOptions = [{ id: 'PUBLICO', name: 'Público' }, { id: 'EM_DESENVOLVIMENTO', name: 'Somente beta testers' }, { id: 'PRIVADO', name: 'Privado' }]
+    const shareOptions = [{ id: 'PUBLICO', name: 'Público', disabled: true }, { id: 'NAO_LISTADO', name: 'Não Listado' }, { id: 'PRIVADO', name: 'Privado' }]
     const [field, setField] = useState([]);
 
     return (
@@ -99,7 +99,7 @@ export default function PromptForm(props) {
             <Frm.Select label="Seleção de Peças" name="content.piece_strategy" options={pieceStrategyOptions} width={3} visible={Target.PROCESSO.name === data.content.target} />
             <Frm.MultiSelect label="Tipos de Peças" name="content.piece_descr" options={pieceDescrOptions} width={2} visible={Target.PROCESSO.name === data.content.target && PieceStrategy.TIPOS_ESPECIFICOS.name === data.content.piece_strategy} />
             <Frm.Select label="Resumir Selecionadas" name="content.summary" options={summaryOptions} width={2} visible={Target.PROCESSO.name === data.content.target} />
-            <Frm.Select label="Compartilhamento" name="content.share" options={shareOptions} width={2} />
+            <Frm.Select label="Compartilhamento" name="share" options={shareOptions} width={2} />
 
             <div className='col col-12'>
                 {showAdvancedOptions &&

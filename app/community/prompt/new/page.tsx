@@ -10,6 +10,7 @@ export default async function New({ params, searchParams }: { params: { kind: st
     const user = await assertCurrentUser()
     const author = maiusculasEMinusculas(user.name)
     const emptyRecord = {
+        share: "PRIVADO",
         content: {
             scope: Object.keys(Scope),
             author,
@@ -20,7 +21,6 @@ export default async function New({ params, searchParams }: { params: { kind: st
             piece_strategy: "MAIS_RELEVANTES",
             piece_descr: [],
             summary: "TODAS",
-            share: "PRIVADO",
         }
     }
 

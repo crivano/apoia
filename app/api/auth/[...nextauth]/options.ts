@@ -1,8 +1,8 @@
-import CredentialsProvider from "next-auth/providers/credentials";
-import KeycloakProvider from "next-auth/providers/keycloak";
+import CredentialsProvider from "next-auth/providers/credentials"
+import KeycloakProvider from "next-auth/providers/keycloak"
 // import jwt from 'jsonwebtoken'
-import * as jose from "jose";
-import { envString } from "@/lib/utils/env";
+import * as jose from "jose"
+import { envString } from "@/lib/utils/env"
 
 const authOptions = {
   secret: envString('NEXTAUTH_SECRET') as string,
@@ -16,28 +16,30 @@ const authOptions = {
     async jwt({ token, user, account }) {
       let roles = undefined as
         | { [key: string]: { roles: Array<any> } }
-        | undefined;
+        | undefined
+      let corporativo = undefined as any[]
 
       if (account?.access_token) {
-        let decodedToken = jose.decodeJwt(account?.access_token);
+        let decodedToken: any = jose.decodeJwt(account?.access_token)
         if (decodedToken && typeof decodedToken !== "string") {
-          roles = (decodedToken?.realm_access as any)?.roles;
+          roles = decodedToken.realm_access.roles
+          corporativo = decodedToken.corporativo
         }
       }
-      token = { roles, accessToken: account?.access_token, ...token, ...user };
-      // console.log("[jwt callback] token " + JSON.stringify(token));
-      return token;
+      token = { roles, corporativo, accessToken: account?.access_token, ...token, ...user }
+      // console.log("[jwt callback] token " + JSON.stringify(token))
+      return token
     },
     async session({ session, token, user }) {
       // Send properties to the client, like an access_token from a provider.
-      session.user = token;
-      return session;
+      session.user = token
+      return session
     },
   },
   pages: {
     signIn: "/auth/signin",
   },
-};
+}
 
 // GithubProvider({
 //   clientId: envString('CSVIEWER_GITHUB_ID'),
@@ -70,9 +72,9 @@ if (envString('SYSTEMS')) {
     },
 
     async authorize(credentials, req) {
-      const system = credentials?.system;
-      let email = credentials?.email;
-      let password = credentials?.password;
+      const system = credentials?.system
+      let email = credentials?.email
+      let password = credentials?.password
 
       if (envString('NEXTAUTH_REPLACE_EMAIL_AND_PASSWORD')) {
         const a = Buffer.from(envString('NEXTAUTH_REPLACE_EMAIL_AND_PASSWORD'), 'base64').toString('utf-8').split(",")
@@ -95,13 +97,13 @@ if (envString('SYSTEMS')) {
             password,
           }),
         },
-      );
-      const user = await res.json();
+      )
+      const user = await res.json()
       if (res.ok && user) {
-        return user;
-      } else return null;
+        return user
+      } else return null
     },
-  }));
+  }))
 }
 
 if (envString('KEYCLOAK_ISSUER')) {
@@ -110,8 +112,8 @@ if (envString('KEYCLOAK_ISSUER')) {
     clientId: 'apoia',
     clientSecret: envString('KEYCLOAK_CREDENTIALS_SECRET') as string,
     issuer: envString('KEYCLOAK_ISSUER'),
-  }));
+  }))
 
 }
 
-export default authOptions;
+export default authOptions

@@ -14,6 +14,7 @@ import { set } from 'zod'
 import Print from '../process/[id]/print'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faRefresh } from '@fortawesome/free-solid-svg-icons'
+import { selecionarPecasPorPadrao, TipoDeSinteseMap } from '@/lib/proc/combinacoes'
 
 type DadosDoProcessoAndControlType =
     DadosDoProcessoType & { missingDadosDoProcesso: boolean, missingPeticaoInicial: boolean }
@@ -59,7 +60,7 @@ export default function AbusiveLitigationPage(params: { NAVIGATE_TO_PROCESS_URL?
     const [processosMap, setProcessosMap] = useState({} as { [key: string]: DadosDoProcessoAndControlType })
     const [status, setStatus] = useState('')
     const [toast, setToast] = useState('')
-    const [tipoDeSimilaridade, setTipoDeSimilaridade] = useState(SimilarityType.JACCARD)
+    const [tipoDeSimilaridade, setTipoDeSimilaridade] = useState(SimilarityType.DICE)
     const [processoPrincipal, setProcessoPrincipal] = useState(undefined as DadosDoProcessoAndControlType)
     const [textos, setTextos] = useState([] as TextoType[])
 
@@ -112,16 +113,45 @@ export default function AbusiveLitigationPage(params: { NAVIGATE_TO_PROCESS_URL?
     const obterDadosDoProcessoEConteudoDaPeticaoInicial = async (numeroDoProcesso: string, procs: DadosDoProcessoAndControlType[], procsMap: { [key: string]: DadosDoProcessoAndControlType }): Promise<DadosDoProcessoAndControlType> => {
         let dadosDoProcesso: DadosDoProcessoAndControlType = procsMap[numeroDoProcesso]
         if (!dadosDoProcesso) {
-            dadosDoProcesso = await fetcher.get(`/api/v1/process/${numeroDoProcesso}?kind=LITIGANCIA_PREDATORIA&selectedPiecesContent=true`)
-            dadosDoProcesso = {
-                ...dadosDoProcesso,
-                missingDadosDoProcesso: false,
-                missingPeticaoInicial: false,
-                numeroDoProcesso,
-                ajuizamento: dadosDoProcesso.ajuizamento && new Date(dadosDoProcesso.ajuizamento)
+            const response = await fetcher.get(`/api/v1/process/${numeroDoProcesso}`)
+            if (response.arrayDeDadosDoProcesso && response.arrayDeDadosDoProcesso.length > 0) {
+                for (const dadosDoProc of response.arrayDeDadosDoProcesso) {
+                    const pecasSelecionadas = selecionarPecasPorPadrao(dadosDoProc.pecas, TipoDeSinteseMap['LITIGANCIA_PREDATORIA'].padroes)
+                    const peticaoInicialPeca = pecasSelecionadas.find(peca => slugify(peca.descr) === 'peticao-inicial')
+                    if (!peticaoInicialPeca)
+                        continue
+                    // dadosDoProcesso = response
+                    dadosDoProcesso = {
+                        ...dadosDoProc,
+                        pecasSelecionadas,
+                        missingDadosDoProcesso: false,
+                        missingPeticaoInicial: false,
+                        numeroDoProcesso,
+                        ajuizamento: dadosDoProc.ajuizamento && new Date(dadosDoProc.ajuizamento)
+                    }
+                    break
+                }
+                for (const peca of dadosDoProcesso.pecasSelecionadas) {
+                    if (peca.conteudo) continue
+                    try {
+                        const resp = await fetcher.get(`/api/v1/process/${numeroDoProcesso}/piece/${peca.id}/content`)
+                        if (resp.errormsg) {
+                            peca.errorMsg = resp.errormsg
+                            peca.conteudo = ''
+                        } else
+                            peca.conteudo = resp.content
+                    } catch (error) {
+                        peca.errorMsg = `Erro ao carregar conteúdo da peça ${peca.id} - ${error}`
+                    }
+                }
+                procsMap[numeroDoProcesso] = dadosDoProcesso
+                setProcessosMap({ ...procsMap })
             }
-            procsMap[numeroDoProcesso] = dadosDoProcesso
-            setProcessosMap({ ...procsMap })
+            if (response.errorMsg) {
+                dadosDoProcesso = { numeroDoProcesso, pecas: [], pecasSelecionadas: [], missingDadosDoProcesso: true, missingPeticaoInicial: true, errorMsg: response.errorMsg }
+                procsMap[numeroDoProcesso] = dadosDoProcesso
+                setProcessosMap({ ...procsMap })
+            }
         }
 
         if (!dadosDoProcesso) {
@@ -238,6 +268,7 @@ export default function AbusiveLitigationPage(params: { NAVIGATE_TO_PROCESS_URL?
         // Obter a petição inicial dos outros processos
         const numerosUnicosDeProcessos = fixOutrosNumerosDeProcessos(outrosNumerosDeProcessos, numeroDoProcesso).split(',').map(n => n.trim())
         for (const numeroDoOutroProcesso of numerosUnicosDeProcessos) {
+            if (!numeroDoOutroProcesso) continue
             // console.log('numeroDoOutroProcesso', numeroDoOutroProcesso)
             setStatus(`Obtendo dados do processo ${numeroDoOutroProcesso} (${procs.length + 1}/${numerosUnicosDeProcessos.length})...`)
             await carregarProcesso(dadosDoProcesso, numeroDoOutroProcesso, procs, procsMap, simMap)
@@ -263,7 +294,7 @@ export default function AbusiveLitigationPage(params: { NAVIGATE_TO_PROCESS_URL?
                             <input type="text" id="key" name="key" placeholder="" autoFocus={true} className="form-control" onChange={(e: React.ChangeEvent<HTMLInputElement>) => numeroDoProcessoChanged(e.target.value.replace(/\D/g, ""))} value={numeroDoProcesso} autoComplete='' />
                         </div>
                     </div>
-                    <div className="col col-6">
+                    <div className="col col-6 d-none">
                         <div className="form-group">
                             <label>Tipo de Similaridade</label>
                             <select className="form-control" value={tipoDeSimilaridade} onChange={(e) => tipoDeSimilaridadeChanged(e.target.value as SimilarityType)}>
@@ -313,7 +344,10 @@ export default function AbusiveLitigationPage(params: { NAVIGATE_TO_PROCESS_URL?
                                     }</td>
                                     : <>
                                         <td className="text-center">{formatBrazilianDate(processo.ajuizamento)}</td>
-                                        {principal.pecasSelecionadas?.map((p, index) => <td key={p.rotulo} className="text-end">{formatSimilarity(similaridade[processo.numeroDoProcesso][index].similarity)}</td>)}
+                                        {principal.pecasSelecionadas?.map((p, index) => {
+                                            const s = similaridade[processo.numeroDoProcesso][index]
+                                            return <td title={s.closestDocument?.errorMsg} key={p.rotulo} className={`text-end${s.closestDocument?.errorMsg ? ' text-danger' : ''}`}>{formatSimilarity(s.similarity)}</td>
+                                        })}
                                         <td className="text-end"></td>
                                     </>}
                             </tr>

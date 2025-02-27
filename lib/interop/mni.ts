@@ -142,7 +142,7 @@ export class InteropMNI implements Interop {
         return res[0].mensagem.includes(currentSystem.validation)
     }
 
-    public consultarProcesso = async (numeroDoProcesso: string): Promise<DadosDoProcessoType> => {
+    public consultarProcesso = async (numeroDoProcesso: string): Promise<DadosDoProcessoType[]> => {
         const client = await getClient(undefined)
         // throw an error if the number is invalid
         if (!numeroDoProcesso.match(/^\d{20}$/))
@@ -223,7 +223,7 @@ export class InteropMNI implements Interop {
             return a.id.localeCompare(b.id)
         })
         const classe = tua[codigoDaClasse]
-        return { numeroDoProcesso, ajuizamento, codigoDaClasse, classe, nomeOrgaoJulgador, pecas }
+        return [{ numeroDoProcesso, ajuizamento, codigoDaClasse, classe, nomeOrgaoJulgador, pecas }]
     }
 
     public obterPeca = async (numeroDoProcesso, idDaPeca): Promise<ObterPecaType> =>

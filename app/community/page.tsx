@@ -7,6 +7,7 @@ import ServerContents from './server-contents'
 
 export default async function Home() {
     noStore()
+
     return (
         <Suspense fallback={
             <Container className="mt-5" fluid={false}>

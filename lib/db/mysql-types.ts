@@ -95,6 +95,7 @@ export type IAPrompt = {
     slug: string
     model_id: number,
     testset_id: number | null
+    share?: string
     content: {
         author?: string
 
@@ -107,7 +108,6 @@ export type IAPrompt = {
         piece_strategy?: string
         piece_descr?: string[]
         summary?: string
-        share?: string
 
         system_prompt: string | null
         prompt: string | null
@@ -120,15 +120,28 @@ export type IAPrompt = {
 
 export type IAPromptToInsert = {
     base_id?: number
-    kind: string
+    kind?: string
     name: string
     model_id: number
     testset_id: number | null
+    share?: string
     content: {
         system_prompt?: string
         prompt: string | null
         json_schema?: string
         format?: string
+
+        author?: string
+        
+        scope?: string[]
+        instance?: string[]
+        matter?: string[]
+
+        target?: string
+        editor_label?: string
+        piece_strategy?: string
+        piece_descr?: string
+        summary?: string
     }
 }
 
@@ -141,6 +154,7 @@ export type IAPromptList = {
     slug: string
     model_id: number,
     testset_id: number | null
+    share?: string
     content: {
         author?: string
 
@@ -153,7 +167,6 @@ export type IAPromptList = {
         piece_strategy?: string
         piece_descr?: string[]
         summary?: string
-        share?: string
 
         system_prompt: string | null
         prompt: string | null

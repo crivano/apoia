@@ -96,7 +96,8 @@ export const obterDadosDoProcesso = async ({ numeroDoProcesso, pUser, idDaPeca, 
         const interop = getInterop(username, password)
         await interop.init()
 
-        const dadosDoProcesso = await interop.consultarProcesso(numeroDoProcesso)
+        const arrayDadosDoProcesso = await interop.consultarProcesso(numeroDoProcesso)
+        const dadosDoProcesso = arrayDadosDoProcesso[arrayDadosDoProcesso.length - 1]
         pecas = [...dadosDoProcesso.pecas]
 
         // for (const peca of pecas) {
@@ -240,7 +241,7 @@ export const obterDadosDoProcesso = async ({ numeroDoProcesso, pUser, idDaPeca, 
     }
 }
 
-export const obterDadosDoProcesso2 = async ({ numeroDoProcesso, pUser, pieces, conteudoDasPecasSelecionadas = CargaDeConteudoEnum.ASSINCRONO }: ObterDadosDoProcessoType): Promise<DadosDoProcessoType> => {
+export const obterDadosDoProcesso2 = async ({ numeroDoProcesso, pUser, pieces, conteudoDasPecasSelecionadas = CargaDeConteudoEnum.ASSINCRONO }: ObterDadosDoProcessoType): Promise<{ arrayDeDadosDoProcesso?: DadosDoProcessoType[], errorMsg?: string | undefined }> => {
     let pecas: PecaType[] = []
     let errorMsg = undefined
     try {
@@ -258,13 +259,13 @@ export const obterDadosDoProcesso2 = async ({ numeroDoProcesso, pUser, pieces, c
         // const system_id = await Dao.assertSystemId(user?.image?.system || 'PDPJ')
         // const dossier_id = await Dao.assertIADossierId(numeroDoProcesso, system_id, dadosDoProcesso.codigoDaClasse, dadosDoProcesso.ajuizamento)
 
-        return { ...dadosDoProcesso }
+        return { arrayDeDadosDoProcesso: [...dadosDoProcesso] }
         // return { ...dadosDoProcesso, pecas: [] as PecaType[], pecasSelecionadas: [] as PecaType[], tipoDeSintese: tipoDeSinteseSelecionado, produtos: TipoDeSinteseMap[tipoDeSinteseSelecionado]?.produtos }
     } catch (error) {
         if (error?.message === 'NEXT_REDIRECT') throw error
         console.error(`Erro ao obter dados do processo ${numeroDoProcesso}: ${error.stack}`)
         errorMsg = `${error.message}`
-        return { pecas, errorMsg }
+        return { errorMsg }
     }
 }
 

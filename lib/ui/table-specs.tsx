@@ -69,10 +69,11 @@ const tableSpecs = (pathname: string, onClick: (kind: string, row: any) => void)
                         </Dropdown>
                     </>
                 },
+
                 { header: 'Autor', accessorKey: 'content.author', enableSorting: true },
-                { header: 'Segmento', accessorKey: 'content.scope', enableSorting: true, cell: data => data.row.original.content.scope?.map(i => Scope[i]?.acronym || 'Não Encontrado').join(', ') },
-                { header: 'Instância', accessorKey: 'content.instance', enableSorting: true, cell: data => data.row.original.content.instance?.map(i => Instance[i]?.acronym || 'Não Encontrado').join(', ') },
-                { header: 'Natureza', accessorKey: 'content.matter', enableSorting: true, cell: data => data.row.original.content.matter?.map(i => Matter[i]?.acronym || 'Não Encontrado').join(', ') },
+                { header: 'Segmento', accessorKey: 'content.scope', enableSorting: true, cell: data => data.row.original.content.scope?.length === Object.keys(Scope).length ? 'Todos' : data.row.original.content.scope?.map(i => Scope[i]?.acronym || 'Não Encontrado').join(', ') },
+                { header: 'Instância', accessorKey: 'content.instance', enableSorting: true, cell: data => data.row.original.content.instance?.length === Object.keys(Instance).length ? 'Todas' : data.row.original.content.instance?.map(i => Instance[i]?.acronym || 'Não Encontrado').join(', ') },
+                { header: 'Natureza', accessorKey: 'content.matter', enableSorting: true, cell: data => data.row.original.content.matter?.length === Object.keys(Matter).length ? 'Todas' : data.row.original.content.matter?.map(i => Matter[i]?.acronym || 'Não Encontrado').join(', ') },
                 { header: 'Estrelas', accessorKey: 'favorite_count', enableSorting: true, style: { textAlign: "right" } },
             ],
             tableClassName: 'table table-striped'

@@ -2,6 +2,9 @@
 ALTER TABLE ia_prompt
   ADD COLUMN is_latest boolean DEFAULT false;
   
+ALTER TABLE ia_prompt
+  ADD COLUMN share varchar(32) DEFAULT 'PRIVADO';
+  
 -- Change the column "kind" to be VARCHAR(32). If needed, use USING to cast.
 ALTER TABLE ia_prompt
   ALTER COLUMN kind TYPE varchar(32)

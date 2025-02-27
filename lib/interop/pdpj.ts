@@ -75,7 +75,7 @@ export class InteropPDPJ implements Interop {
         throw new Error('Not implemented')
     }
 
-    public consultarProcesso = async (numeroDoProcesso: string): Promise<DadosDoProcessoType> => {
+    public consultarProcesso = async (numeroDoProcesso: string): Promise<DadosDoProcessoType[]> => {
         const response = await fetch(
             envString('DATALAKE_API_URL') + `/processos/${numeroDoProcesso}`,
             {
@@ -108,58 +108,60 @@ export class InteropPDPJ implements Interop {
             throw new Error(`Não foi possível acessar o processo ${numeroDoProcesso} no DataLake/Codex da PDPJ (${response.statusText})`)
         }
 
-        const processo = data[0].tramitacoes[data[0].tramitacoes.length - 1]
+        const resp: DadosDoProcessoType[] = []
+        for (const processo of data[0].tramitacoes) {
+            if (verificarNivelDeSigilo())
+                assertNivelDeSigilo('' + processo.nivelSigilo)
 
-        if (verificarNivelDeSigilo())
-            assertNivelDeSigilo('' + processo.nivelSigilo)
+            const ajuizamento = new Date(processo.dataHoraAjuizamento)
+            const nomeOrgaoJulgador = processo.tribunal.nome
+            const codigoDaClasse = processo.classe[0]?.codigo || 0
+            const segmento = processo.tribunal.segmento
+            const instancia = processo.instancia
+            const materia = processo.natureza
 
-        const ajuizamento = new Date(processo.dataHoraAjuizamento)
-        const nomeOrgaoJulgador = processo.tribunal.nome
-        const codigoDaClasse = processo.classe[0]?.codigo || 0
-        const segmento = processo.tribunal.segmento
-        const instancia = processo.instancia
-        const materia = processo.natureza
+            let pecas: PecaType[] = []
+            const documentos = processo.documentos
 
-        let pecas: PecaType[] = []
-        const documentos = processo.documentos
+            // Para descobrir qual o número do evento que está relacionado a cada documento é necessário
+            // ver se existe um movimento em "processo.movimentos" que tenha o "idDocumento" igual ao "id" do documento
+            // Se houver, o número do evento será igual ao "sequencia" do movimento. Se não houver,
+            // o número do evento será igual ao "sequencia" do movimento do documento anterior.
+            // A lista de documentos deve ser varrida de trás para frente, para começar pela petição incial.
 
-        // Para descobrir qual o número do evento que está relacionado a cada documento é necessário
-        // ver se existe um movimento em "processo.movimentos" que tenha o "idDocumento" igual ao "id" do documento
-        // Se houver, o número do evento será igual ao "sequencia" do movimento. Se não houver,
-        // o número do evento será igual ao "sequencia" do movimento do documento anterior.
-        // A lista de documentos deve ser varrida de trás para frente, para começar pela petição incial.
+            // Inicialmente, vamos criar um mapa para relacionar os idDocumento com os movimentos
+            const movimentosMap: Map<string, any> = new Map()
+            for (const mov of processo.movimentos) {
+                if (mov.idDocumento)
+                    movimentosMap.set(mov.idDocumento, mov)
+            }
 
-        // Inicialmente, vamos criar um mapa para relacionar os idDocumento com os movimentos
-        const movimentosMap: Map<string, any> = new Map()
-        for (const mov of processo.movimentos) {
-            if (mov.idDocumento)
-                movimentosMap.set(mov.idDocumento, mov)
+            // Agora, vamos varrer os documentos de trás para frente
+            let mov = processo.movimentos[processo.movimentos.length - 1]
+            for (let i = documentos.length - 1; i >= 0; i--) {
+                const doc = documentos[i]
+                const relatedMov = movimentosMap.get(doc.id)
+                if (relatedMov) mov = relatedMov
+                pecas.push({
+                    id: doc.id,
+                    numeroDoEvento: mov.sequencia,
+                    descricaoDoEvento: mov.descricao,
+                    descr: doc.tipo.nome.toUpperCase(),
+                    tipoDoConteudo: mimeTypyFromTipo(doc.arquivo?.tipo),
+                    sigilo: nivelDeSigiloFromNivel(doc.nivelSigilo),
+                    pConteudo: undefined,
+                    conteudo: undefined,
+                    pDocumento: undefined,
+                    documento: undefined,
+                    categoria: undefined,
+                    rotulo: doc.nome,
+                    dataHora: new Date(doc.dataHoraJuntada),
+                })
+            }
+            const classe = tua[codigoDaClasse]
+            resp.push({ numeroDoProcesso, ajuizamento, codigoDaClasse, classe, nomeOrgaoJulgador, pecas, segmento, instancia, materia })
         }
-
-        // Agora, vamos varrer os documentos de trás para frente
-        let mov = processo.movimentos[processo.movimentos.length - 1]
-        for (let i = documentos.length - 1; i >= 0; i--) {
-            const doc = documentos[i]
-            const relatedMov = movimentosMap.get(doc.id)
-            if (relatedMov) mov = relatedMov
-            pecas.push({
-                id: doc.id,
-                numeroDoEvento: mov.sequencia,
-                descricaoDoEvento: mov.descricao,
-                descr: doc.tipo.nome.toUpperCase(),
-                tipoDoConteudo: mimeTypyFromTipo(doc.arquivo?.tipo),
-                sigilo: nivelDeSigiloFromNivel(doc.nivelSigilo),
-                pConteudo: undefined,
-                conteudo: undefined,
-                pDocumento: undefined,
-                documento: undefined,
-                categoria: undefined,
-                rotulo: doc.nome,
-                dataHora: new Date(doc.dataHoraJuntada),
-            })
-        }
-        const classe = tua[codigoDaClasse]
-        return { numeroDoProcesso, ajuizamento, codigoDaClasse, classe, nomeOrgaoJulgador, pecas, segmento, instancia, materia }
+        return resp
     }
 
     public obterPeca = async (numeroDoProcesso, idDaPeca): Promise<ObterPecaType> => {
@@ -184,7 +186,7 @@ export class InteropPDPJ implements Interop {
                     throw new Error(data.message)
                 }
             } catch (e) {
-                throw new Error(`Não foi possível obter o texto da peça no DataLake/Codex da PDPJ. ({e} - ${numeroDoProcesso}/${idDaPeca})`)
+                throw new Error(`Não foi possível obter o texto da peça no DataLake/Codex da PDPJ. (${e} - ${numeroDoProcesso}/${idDaPeca})`)
             }
         }
         const ab = b.slice(0, b.byteLength)

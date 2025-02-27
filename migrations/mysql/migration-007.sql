@@ -1,5 +1,6 @@
 ALTER TABLE `apoia`.`ia_prompt` 
 ADD COLUMN `is_latest` TINYINT(1) NULL DEFAULT '0' AFTER `is_official`,
+ADD COLUMN `share` VARCHAR(32) NULL DEFAULT 'PRIVADO' AFTER `is_latest`,
 CHANGE COLUMN `kind` `kind` VARCHAR(32) NULL DEFAULT NULL,
 ADD INDEX `latest` (`is_latest` ASC, `base_id` ASC, `id` ASC) VISIBLE;
 

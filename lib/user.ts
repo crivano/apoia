@@ -8,7 +8,7 @@ import { verify } from 'crypto'
 import { verifyJweToken } from './utils/jwt'
 
 export type UserType = {
-    id?: number, name: string, email: string, image: { password: string, system: string }, accessToken?: string
+    id?: number, name: string, email: string, image: { password: string, system: string }, accessToken?: string, corporativo?: any[], roles?: string[]
 }
 
 export const getCurrentUser = async (): Promise<UserType | undefined> => {
@@ -30,6 +30,17 @@ export const getCurrentUser = async (): Promise<UserType | undefined> => {
 export const assertCurrentUser = async () => {
     const user = await getCurrentUser()
     if (!user) redirect('/auth/signin')
+    return user
+}
+
+export const isUserCorporativo = (user: UserType) => {
+    return !!user.corporativo || !!user.image?.system || process.env.NODE_ENV === 'development';
+}
+
+export const assertCurrentUserCorporativo = async () => {
+    const user = await assertCurrentUser()
+    if (!isUserCorporativo(user))
+        throw new Error('Usuário não é corporativo')
     return user
 }
 

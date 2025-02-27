@@ -23,6 +23,7 @@ export type PecaType = {
     categoria: string | undefined
     rotulo: string | undefined
     dataHora: Date | undefined
+    errorMsg?: string
 }
 
 export type DadosDoProcessoType = {

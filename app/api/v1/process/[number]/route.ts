@@ -44,10 +44,13 @@ export async function GET(req: Request, { params }: { params: { number: string, 
     const url = new URL(req.url)
     const kind = url.searchParams.get('kind')
     const obterConteudo = url.searchParams.get('selectedPiecesContent') === 'true'
-    // const dadosDoProcesso = await obterDadosDoProcesso({
-    //   numeroDoProcesso: params.number, pUser, kind,
-    //   conteudoDasPecasSelecionadas: obterConteudo ? CargaDeConteudoEnum.SINCRONO : CargaDeConteudoEnum.NAO
-    // })
+    // if (kind) {
+    //   const dadosDoProcesso = await obterDadosDoProcesso({
+    //     numeroDoProcesso: params.number, pUser, kind,
+    //     conteudoDasPecasSelecionadas: obterConteudo ? CargaDeConteudoEnum.SINCRONO : CargaDeConteudoEnum.NAO
+    //   })
+    //   return Response.json(dadosDoProcesso)
+    // }
     const dadosDoProcesso = await obterDadosDoProcesso2({
       numeroDoProcesso: params.number, pUser,
       conteudoDasPecasSelecionadas: obterConteudo ? CargaDeConteudoEnum.SINCRONO : CargaDeConteudoEnum.NAO

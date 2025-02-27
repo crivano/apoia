@@ -12,51 +12,51 @@ export default async function PromptInfoContents({ pPrompt }: { pPrompt: Promise
                 <Row className="mb-3">
                     <Col md={3}>
                         <Form.Label>Nome</Form.Label>
-                        <Form.Control className="form-control" plaintext readOnly defaultValue={prompt.name} />
+                        <Form.Control className="form-control" readOnly defaultValue={prompt.name} />
                     </Col>
                     <Col md={3}>
                         <Form.Label>Autor</Form.Label>
-                        <Form.Control className="form-control" plaintext readOnly defaultValue={prompt.content.author} />
+                        <Form.Control className="form-control" readOnly defaultValue={prompt.content.author} />
                     </Col>
                     <Col md={2}>
                         <Form.Label>Segmento</Form.Label>
-                        <Form.Control className="form-control" plaintext readOnly defaultValue={prompt.content.scope} />
+                        <Form.Control className="form-control" readOnly defaultValue={prompt.content.scope} />
                     </Col>
                     <Col md={2}>
                         <Form.Label>Instância</Form.Label>
-                        <Form.Control className="form-control" plaintext readOnly defaultValue={prompt.content.instance} />
+                        <Form.Control className="form-control" readOnly defaultValue={prompt.content.instance} />
                     </Col>
                     <Col md={2}>
                         <Form.Label>Natureza</Form.Label>
-                        <Form.Control className="form-control" plaintext readOnly defaultValue={prompt.content.matter} />
+                        <Form.Control className="form-control" readOnly defaultValue={prompt.content.matter} />
                     </Col>
                 </Row>
                 <Row className="mb-3">
                     <Col md={3}>
                         <Form.Label>Alvo</Form.Label>
-                        <Form.Control className="form-control" plaintext readOnly defaultValue={prompt.content.target} />
+                        <Form.Control className="form-control" readOnly defaultValue={prompt.content.target} />
                     </Col>
                     <Col md={3}>
                         <Form.Label>Nome do Campo</Form.Label>
-                        <Form.Control className="form-control" plaintext readOnly defaultValue={prompt.content.editor_label} />
+                        <Form.Control className="form-control" readOnly defaultValue={prompt.content.editor_label} />
                     </Col>
                     <Col md={3}>
                         <Form.Label>Seleção de Peças</Form.Label>
-                        <Form.Control className="form-control" plaintext readOnly defaultValue={prompt.content.piece_strategy} />
+                        <Form.Control className="form-control" readOnly defaultValue={prompt.content.piece_strategy} />
                     </Col>
                     <Col md={3}>
                         <Form.Label>Tipos de Peças</Form.Label>
-                        <Form.Control className="form-control" plaintext readOnly defaultValue={prompt.content.piece_descr} />
+                        <Form.Control className="form-control" readOnly defaultValue={prompt.content.piece_descr} />
                     </Col>
                 </Row>
                 <Row className="mb-3">
                     <Col md={2}>
                         <Form.Label>Resumir Selecionadas</Form.Label>
-                        <Form.Control className="form-control" plaintext readOnly defaultValue={prompt.content.summary} />
+                        <Form.Control className="form-control" readOnly defaultValue={prompt.content.summary} />
                     </Col>
                     <Col md={2}>
                         <Form.Label>Compartilhamento</Form.Label>
-                        <Form.Control className="form-control" plaintext readOnly defaultValue={prompt.content.share} />
+                        <Form.Control className="form-control" readOnly defaultValue={prompt.share} />
                     </Col>
                 </Row>
                 <Row className="mb-3">
@@ -65,7 +65,7 @@ export default async function PromptInfoContents({ pPrompt }: { pPrompt: Promise
                         <Form.Control className="form-control"
                             as="textarea"
                             rows={5}
-                            plaintext
+                            
                             readOnly
                             defaultValue={prompt.content.prompt}
                         />
@@ -78,7 +78,7 @@ export default async function PromptInfoContents({ pPrompt }: { pPrompt: Promise
                             <Form.Control className="form-control"
                                 as="textarea"
                                 rows={5}
-                                plaintext
+                                
                                 readOnly
                                 defaultValue={prompt.content.system_prompt}
                             />
@@ -93,7 +93,7 @@ export default async function PromptInfoContents({ pPrompt }: { pPrompt: Promise
                                 <Form.Control className="form-control"
                                     as="textarea"
                                     rows={5}
-                                    plaintext
+                                    
                                     readOnly
                                     defaultValue={prompt.content.json_schema}
                                 />
@@ -105,7 +105,7 @@ export default async function PromptInfoContents({ pPrompt }: { pPrompt: Promise
                                 <Form.Control className="form-control"
                                     as="textarea"
                                     rows={5}
-                                    plaintext
+                                    
                                     readOnly
                                     defaultValue={prompt.content.format}
                                 />

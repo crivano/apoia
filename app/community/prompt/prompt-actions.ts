@@ -4,6 +4,8 @@ import { FormState, fromErrorToFormState, numericString } from '@/lib/ui/form-su
 import { Dao } from '@/lib/db/mysql'
 import test from 'node:test'
 import z, { ZodError } from 'zod'
+import { IAPromptToInsert } from '@/lib/db/mysql-types'
+import { Instance, Matter, Scope } from '@/lib/proc/process-types'
 
 // import { redirect } from 'next/navigation'
 // redirect(`/posts/${data.id}`)
@@ -14,6 +16,7 @@ const promptSchema = z.object({
     name: z.string().min(1),
     model_id: numericString(z.number()).nullable().optional(),
     testset_id: numericString(z.number()).nullable().optional(),
+    share: z.string().nullable().optional(),
     content: z.object({
         author: z.string(),
         
@@ -26,7 +29,6 @@ const promptSchema = z.object({
         piece_strategy: z.string().nullable().optional(),
         piece_descr: z.string().array().nullable().optional(),
         summary: z.string().nullable().optional(),
-        share: z.string().nullable().optional(),
 
         system_prompt: z.string().nullable().optional(),
         prompt: z.string().min(1),
@@ -37,7 +39,7 @@ const promptSchema = z.object({
 
 export const save = async (object: any) => {
     try {
-        const data = promptSchema.parse(object)
+        const data: IAPromptToInsert = promptSchema.parse(object) as any
         await Dao.insertIAPrompt(null, data as any)
         return { status: 'SUCCESS', message: 'success' }
     } catch (error) {

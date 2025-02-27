@@ -8,7 +8,7 @@ export type ObterPecaType = { buffer: ArrayBuffer, contentType: string }
 export interface Interop {
     init(): Promise<void>
     autenticar(system: string): Promise<boolean>
-    consultarProcesso(numeroDoProcesso: string): Promise<DadosDoProcessoType>
+    consultarProcesso(numeroDoProcesso: string): Promise<DadosDoProcessoType[]>
     obterPeca(numeroDoProcesso: string, idDaPeca: string): Promise<ObterPecaType>
 }
 

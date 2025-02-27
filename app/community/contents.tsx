@@ -19,6 +19,7 @@ import { Container, Spinner } from 'react-bootstrap'
 import { tua } from "@/lib/proc/tua"
 import Link from "next/link"
 import { VisualizationEnum } from "@/lib/ui/preprocess"
+import { array } from "zod"
 
 export const copyPromptToClipboard = (prompt: IAPromptList) => {
     let s: string = prompt.content.system_prompt
@@ -31,6 +32,8 @@ export function Contents({ prompts, user, user_id, apiKeyProvided }: { prompts: 
     const currentSearchParams = useSearchParams()
     const [prompt, setPrompt] = useState<IAPromptList>(null)
     const [numeroDoProcesso, setNumeroDoProcesso] = useState<string>(null)
+    const [arrayDeDadosDoProcesso, setArrayDeDadosDoProcesso] = useState<DadosDoProcessoType[]>(null)
+    const [idxProcesso, setIdxProcesso] = useState(0)
     const [dadosDoProcesso, setDadosDoProcesso] = useState<DadosDoProcessoType>(null)
     const [promptParam, setPromptParam] = useState<string>(currentSearchParams.get('prompt'))
     const processParam = currentSearchParams.get('process')
@@ -66,13 +69,10 @@ export function Contents({ prompts, user, user_id, apiKeyProvided }: { prompts: 
         const response = await fetch(`/api/v1/process/${numeroDoProcesso}`)
         if (response.ok) {
             const data = await response.json()
-            setDadosDoProcesso(data)
-            if (data.segmento && Scope[data.segmento]) setScope(data.segmento)
-            else setScope(undefined)
-            if (data.instancia && Instance[data.instancia]) setInstance(data.instancia)
-            else setInstance(undefined)
-            if (data.materia && Matter[data.materia]) setMatter(data.materia)
-            else setMatter(undefined)
+            setArrayDeDadosDoProcesso(data.arrayDeDadosDoProcesso)
+            const dadosDoProc = data.arrayDeDadosDoProcesso[data.arrayDeDadosDoProcesso.length - 1]
+            setIdxProcesso(data.arrayDeDadosDoProcesso.length - 1)
+            setDadosDoProcesso(dadosDoProc)
         }
     }
 
@@ -92,6 +92,23 @@ export function Contents({ prompts, user, user_id, apiKeyProvided }: { prompts: 
         }
     }, [numeroDoProcesso])
 
+    useEffect(() => {
+        if (!dadosDoProcesso) {
+            setScope(undefined)
+            setInstance(undefined)
+            setMatter(undefined)
+            return
+        }
+        if (dadosDoProcesso.segmento && Scope[dadosDoProcesso.segmento]) setScope(dadosDoProcesso.segmento)
+        else setScope(undefined)
+        if (dadosDoProcesso.instancia && Instance[dadosDoProcesso.instancia]) setInstance(dadosDoProcesso.instancia)
+        else setInstance(undefined)
+        if (dadosDoProcesso.materia && Matter[dadosDoProcesso.materia]) setMatter(dadosDoProcesso.materia)
+        else setMatter(undefined)
+    }, [dadosDoProcesso])
+
+
+
     const PromptTitle = ({ prompt }: { prompt: IAPromptList }) => <div className="text-muted text-center h-print">Prompt: {prompt.name} - <span onClick={() => { setPromptParam(undefined); setPrompt(null) }} className="text-primary" style={{ cursor: 'pointer' }}><FontAwesomeIcon icon={faEdit} /> Alterar</span></div>
 
     const filteredPrompts = prompts.filter((p) => {
@@ -108,7 +125,7 @@ export function Contents({ prompts, user, user_id, apiKeyProvided }: { prompts: 
                 <Container className="p-2 pb-3" fluid={false}>
                     <FormGroup as={Row} className="">
                         <div className="col col-auto">
-                            <FormLabel className="mb-0">Número do Processo:</FormLabel>
+                            <FormLabel className="mb-0">Número do Processo</FormLabel>
                             <Form.Control name="numeroDoProcesso" placeholder="(opcional)" autoFocus={true} className="form-control" onChange={(e: React.ChangeEvent<HTMLInputElement>) => setNumber(e.target.value.replace(/\D/g, ""))} value={number} />
                         </div>
                         {numeroDoProcesso && !dadosDoProcesso &&
@@ -117,28 +134,36 @@ export function Contents({ prompts, user, user_id, apiKeyProvided }: { prompts: 
                                 <span className="form-control text-white" style={{ backgroundColor: 'rgba(0,0,0,0.05)' }}> Carregando Processo...</span>
                             </div>
                         }
-                        {dadosDoProcesso &&
+                        {numeroDoProcesso && arrayDeDadosDoProcesso && arrayDeDadosDoProcesso.length > 1 &&
+                            <div className="col col-auto">
+                                <FormLabel className="mb-0">Tramitação</FormLabel>
+                                <FormSelect value={idxProcesso} onChange={(e) => { const idx = parseInt(e.target.value); setIdxProcesso(idx); setDadosDoProcesso(arrayDeDadosDoProcesso[idx]) }} className="form-select">
+                                    {arrayDeDadosDoProcesso.map((d, idx) => <option key={idx} value={idx}>{d.classe}</option>)}
+                                </FormSelect>
+                            </div>
+                        }
+                        {dadosDoProcesso && arrayDeDadosDoProcesso && arrayDeDadosDoProcesso.length === 1 &&
                             <div className="col col-auto">
                                 <FormLabel className="mb-0">&nbsp;</FormLabel>
                                 <span className="form-control text-white" style={{ backgroundColor: 'rgba(0,0,0,0.05)' }}>{dadosDoProcesso.classe}</span>
                             </div>
                         }
                         <div className="col col-auto ms-auto">
-                            <FormLabel className="mb-0">Segmento:</FormLabel>
+                            <FormLabel className="mb-0">Segmento</FormLabel>
                             <FormSelect value={scope} onChange={(e) => setScope(e.target.value)} className="form-select w-auto">
                                 <option value="">Todos</option>
                                 {enumSorted(Scope).map((s) => <option key={s.value.id} value={s.value.name}>{s.value.descr}</option>)}
                             </FormSelect>
                         </div>
                         <div className="col col-auto">
-                            <FormLabel className="mb-0">Instância:</FormLabel>
+                            <FormLabel className="mb-0">Instância</FormLabel>
                             <FormSelect value={instance} onChange={(e) => setInstance(e.target.value)} className="form-select w-auto">
                                 <option value="">Todas</option>
                                 {enumSorted(Instance).map((s) => <option key={s.value.id} value={s.value.name}>{s.value.descr}</option>)}
                             </FormSelect>
                         </div>
                         <div className="col col-auto">
-                            <FormLabel className="mb-0">Matéria:</FormLabel>
+                            <FormLabel className="mb-0">Matéria</FormLabel>
                             <FormSelect value={matter} onChange={(e) => setMatter(e.target.value)} className="form-select w-auto">
                                 <option value="">Todas</option>
                                 {enumSorted(Matter).map((s) => <option key={s.value.id} value={s.value.name}>{s.value.descr}</option>)}
@@ -171,7 +196,7 @@ export function Contents({ prompts, user, user_id, apiKeyProvided }: { prompts: 
                     :
                     prompt.content.target === 'TEXTO'
                         ? <TargetText prompt={prompt} />
-                        : prompt.content.target === 'REFINAMENTO' 
+                        : prompt.content.target === 'REFINAMENTO'
                             ? <TargetText prompt={prompt} visualization={VisualizationEnum.DIFF} />
                             : null
                 }
