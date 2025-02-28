@@ -8,11 +8,11 @@ import { enumSorted } from "@/lib/ai/model-types"
 import { Instance, Matter, Scope } from "@/lib/proc/process-types"
 
 export default function PromptsTable({ prompts, onClick, onProcessNumberChange }: { prompts: IAPromptList[], onClick: (kind: string, row: any) => void, onProcessNumberChange: (number: string) => void }) {
-    prompts.sort((a, b) => {
-        if (a.is_favorite !== b.is_favorite)
-            return b.is_favorite - a.is_favorite;
-        return a.id - b.id
-    })
+    // prompts.sort((a, b) => {
+    //     if (a.is_favorite !== b.is_favorite)
+    //         return b.is_favorite - a.is_favorite;
+    //     return a.id - b.id
+    // })
 
     // Replace the return statement below with this updated JSX
     return (

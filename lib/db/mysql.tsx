@@ -384,6 +384,16 @@ export class Dao {
         for (const record of result) {
             this.hydratatePromptContent(record.content)
         }
+        result.sort((a, b) => {
+            if (a.is_favorite && !b.is_favorite) return -1
+            if (!a.is_favorite && b.is_favorite) return 1
+            if (a.favorite_count > b.favorite_count) return -1
+            if (a.favorite_count < b.favorite_count) return 1
+            return 0
+        })
+
+        console.log('***latest prompts', result.map((r: any) => r.name))
+
         return result
     }
 

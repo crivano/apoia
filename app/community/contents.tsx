@@ -13,7 +13,7 @@ import ProcessTitle from "./process-title"
 import { SubtituloLoading } from "./subtitulo"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faEdit } from "@fortawesome/free-solid-svg-icons"
-import { Form, FormGroup, FormLabel, FormSelect, Row } from "react-bootstrap"
+import { Form, FormGroup, FormLabel, FormSelect, Row, Toast } from "react-bootstrap"
 import { enumSorted } from "@/lib/ai/model-types"
 import { Container, Spinner } from 'react-bootstrap'
 import { tua } from "@/lib/proc/tua"
@@ -42,6 +42,7 @@ export function Contents({ prompts, user, user_id, apiKeyProvided }: { prompts: 
     const [instance, setInstance] = useState<string>()
     const [matter, setMatter] = useState<string>()
     const [pieceContent, setPieceContent] = useState({})
+    const [toast, setToast] = useState<string>()
 
     // const handleFilterChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     //     setFilter(e.target.value)
@@ -61,7 +62,12 @@ export function Contents({ prompts, user, user_id, apiKeyProvided }: { prompts: 
                 break;
             case 'copiar':
                 copyPromptToClipboard(row)
-                break;
+                setToast('Prompt copiado para a área de transferência')
+                break
+            case 'copiar link para favoritar':
+                navigator.clipboard.writeText(`Clique no link abaixo para adicionar o prompt ${row.name} aos favoritos:\n\n${window.location.origin}/community/prompt/${row.base_id}/set-favorite`)
+                setToast('Link copiado para a área de transferência')
+                break
         }
     }
 
@@ -176,6 +182,13 @@ export function Contents({ prompts, user, user_id, apiKeyProvided }: { prompts: 
                 {!apiKeyProvided && <p className="text-center mt-3 mb-3">Execute os prompts diretamente na ApoIA, cadastrando sua <Link href="/prefs">Chave de API</Link>.</p>}
                 <PromptsTable prompts={filteredPrompts} onClick={promptOnClick} onProcessNumberChange={setNumeroDoProcesso} />
             </Container>
+            <Toast onClose={() => setToast('')} show={!!toast} delay={3000} bg="success" autohide key={toast} style={{ position: 'fixed', top: 10, right: 10 }}>
+                <Toast.Header>
+                    <strong className="me-auto">Atenção</strong>
+                </Toast.Header>
+                <Toast.Body>{toast}</Toast.Body>
+            </Toast>
+
         </>
         : <>
             <Container className="mt-4" fluid={false}>

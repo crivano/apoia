@@ -110,4 +110,19 @@ export const Target: TargetType = TargetArray.reduce((acc, cur, idx) => {
 }, {} as TargetType)
 
 
+const ShareArray = [
+    { id: 1, name: 'PUBLICO', descr: 'Público' },
+    { id: 2, name: 'NAO_LISTADO', descr: 'Não Listado' },
+    { id: 3, name: 'PRIVADO', descr: 'Privado' },
+]
+export type ShareValueType = EnumOfObjectsValueType & { descr: string }
+
+const shareKeys = TargetArray.map(i => i.name)
+type ShareKeys = typeof shareKeys[number]
+export type ShareType = { [key: ShareKeys]: ShareValueType }
+export const Share: TargetType = ShareArray.reduce((acc, cur, idx) => {
+    acc[slugify(cur.name).replaceAll('-', '_').toUpperCase()] = { ...cur, sort: idx + 1 }
+    return acc
+}, {} as ShareType)
+
 

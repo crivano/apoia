@@ -5,7 +5,7 @@ import { faCheck, faPlay } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import Link from 'next/link'
 import { Button, ButtonGroup, Dropdown, DropdownButton, Form } from "react-bootstrap"
-import { Instance, Matter, Scope } from "../proc/process-types"
+import { Instance, Matter, Scope, Share } from "../proc/process-types"
 
 const tableSpecs = (pathname: string, onClick: (kind: string, row: any) => void) => {
     return {
@@ -56,7 +56,8 @@ const tableSpecs = (pathname: string, onClick: (kind: string, row: any) => void)
                             <Dropdown.Toggle as="a" className="m-1" id={data.row.original.name} />
                             <Dropdown.Menu>
                                 <Dropdown.Item onClick={() => onClick('executar', data.row.original)}>Executar</Dropdown.Item>
-                                <Dropdown.Item onClick={() => onClick('copiar', data.row.original)}>Copiar para Área de Transferência</Dropdown.Item>
+                                <Dropdown.Item onClick={() => onClick('copiar', data.row.original)}>Copiar prompt</Dropdown.Item>
+                                <Dropdown.Item onClick={() => onClick('copiar link para favoritar', data.row.original)}>Copiar link para adicionar aos favoritos</Dropdown.Item>
                                 <Dropdown.Item href={`/community/prompt/${data.row.original.id}/edit`} disabled={!data.row.original.is_mine}>Editar</Dropdown.Item>
                                 <Dropdown.Item href={`/community/prompt/new?copyFrom=${data.row.original.id}`}>Fazer uma cópia</Dropdown.Item>
                                 <Dropdown.Item href={`/community/prompt/${data.row.original.base_id}`}>Informações sobre o prompt</Dropdown.Item>
@@ -71,9 +72,10 @@ const tableSpecs = (pathname: string, onClick: (kind: string, row: any) => void)
                 },
 
                 { header: 'Autor', accessorKey: 'content.author', enableSorting: true },
-                { header: 'Segmento', accessorKey: 'content.scope', enableSorting: true, cell: data => data.row.original.content.scope?.length === Object.keys(Scope).length ? 'Todos' : data.row.original.content.scope?.map(i => Scope[i]?.acronym || 'Não Encontrado').join(', ') },
-                { header: 'Instância', accessorKey: 'content.instance', enableSorting: true, cell: data => data.row.original.content.instance?.length === Object.keys(Instance).length ? 'Todas' : data.row.original.content.instance?.map(i => Instance[i]?.acronym || 'Não Encontrado').join(', ') },
-                { header: 'Natureza', accessorKey: 'content.matter', enableSorting: true, cell: data => data.row.original.content.matter?.length === Object.keys(Matter).length ? 'Todas' : data.row.original.content.matter?.map(i => Matter[i]?.acronym || 'Não Encontrado').join(', ') },
+                { header: 'Segmento', accessorKey: 'content.scope', enableSorting: true, cell: data => data.row.original.content.scope?.length === Object.keys(Scope).length ? 'Todos' : data.row.original.content.scope?.map(i => Scope[i]?.acronym || 'Não Encontrado').join(', '), style: { textAlign: "center" } },
+                { header: 'Instância', accessorKey: 'content.instance', enableSorting: true, cell: data => data.row.original.content.instance?.length === Object.keys(Instance).length ? 'Todas' : data.row.original.content.instance?.map(i => Instance[i]?.acronym || 'Não Encontrado').join(', '), style: { textAlign: "center" } },
+                { header: 'Natureza', accessorKey: 'content.matter', enableSorting: true, cell: data => data.row.original.content.matter?.length === Object.keys(Matter).length ? 'Todas' : data.row.original.content.matter?.map(i => Matter[i]?.acronym || 'Não Encontrado').join(', '), style: { textAlign: "center" } },
+                { header: 'Compart.', accessorKey: 'share', enableSorting: true, cell: data => Share[data.row.original.share]?.descr || 'Não Encontrado', style: { textAlign: "right" } },
                 { header: 'Estrelas', accessorKey: 'favorite_count', enableSorting: true, style: { textAlign: "right" } },
             ],
             tableClassName: 'table table-striped'
