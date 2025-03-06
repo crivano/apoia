@@ -5,6 +5,7 @@ import { Dao } from '@/lib/db/mysql'
 import { assertCurrentUser, isUserCorporativo, UserType } from '@/lib/user'
 import { Contents } from './contents'
 import { Container } from 'react-bootstrap'
+import { cookies } from 'next/headers'
 
 export default async function ServerContents() {
     const user = await assertCurrentUser()
@@ -13,6 +14,9 @@ export default async function ServerContents() {
     const apiKeyProvided = await hasApiKey()
     const user_id = await Dao.assertIAUserId(user.name)
     const prompts = await Dao.retrieveLatestPrompts(user_id)
-    return <Contents prompts={prompts} user={user} user_id={user_id} apiKeyProvided={apiKeyProvided} />
+
+    const listPublicPromptsCookie = !!cookies().get('list-public-prompts')?.value
+
+    return <Contents prompts={prompts} user={user} user_id={user_id} apiKeyProvided={apiKeyProvided} listPublicPromptsCookie={listPublicPromptsCookie} />
 }
 
