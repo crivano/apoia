@@ -217,9 +217,8 @@ export function Contents({ prompts, user, user_id, apiKeyProvided, listPublicPro
                         <div className="mt-5 pt-2 border-top">
                             <p className="text-muted">
                                 Deseja visualizar prompts compartilhados publicamente por outros usuários?
-                                Esses prompts foram disponibilizados pela comunidade e não passam por validação oficial.
-                                Eles podem gerar respostas imprecisas, inconsistentes ou inadequadas para seu contexto.
-                                Sempre revise os resultados antes de utilizá-los.
+                                Esses prompts não passam por nenhum tipo de validação e podem gerar respostas imprecisas, 
+                                inconsistentes ou inadequadas para seu contexto.
                             </p>
                         </div>
                     </div>
