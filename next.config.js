@@ -14,7 +14,7 @@ const nextConfig = {
     output: "standalone",
     webpack: (config, { buildId, dev, isServer, defaultLoaders, webpack }) => {
         config.module.rules.push({
-            test: /\.(txt|md)$/,
+            test: /\.(txt|md|html)$/,
             // This is the asset module.
             type: 'asset/source',
         })

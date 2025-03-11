@@ -378,7 +378,6 @@ export default function AbusiveLitigationPage(params: { NAVIGATE_TO_PROCESS_URL?
                                             const s = similaridade[processo.numeroDoProcesso][index]
                                             return <td title={s.closestDocument?.errorMsg} key={p.rotulo} className={`text-end${s.closestDocument?.errorMsg ? ' text-danger' : ''}`}><span onClick={() => handleShowDiff(processo, index)}>{formatSimilarity(s.similarity)}</span></td>
                                         })}
-                                        <td className="text-end"></td>
                                     </>}
                             </tr>
                         ))}
