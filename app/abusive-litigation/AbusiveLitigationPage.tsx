@@ -15,6 +15,8 @@ import Print from '../process/[id]/print'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faRefresh } from '@fortawesome/free-solid-svg-icons'
 import { selecionarPecasPorPadrao, TipoDeSinteseMap } from '@/lib/proc/combinacoes'
+import DiffViewer from './diff-viewer'
+import { useRouter } from 'next/navigation'
 
 type DadosDoProcessoAndControlType =
     DadosDoProcessoType & { missingDadosDoProcesso: boolean, missingPeticaoInicial: boolean }
@@ -63,7 +65,23 @@ export default function AbusiveLitigationPage(params: { NAVIGATE_TO_PROCESS_URL?
     const [tipoDeSimilaridade, setTipoDeSimilaridade] = useState(SimilarityType.DICE)
     const [processoPrincipal, setProcessoPrincipal] = useState(undefined as DadosDoProcessoAndControlType)
     const [textos, setTextos] = useState([] as TextoType[])
+    const [showDiff, setShowDiff] = useState(false)
+    const [diffFrom, setDiffFrom] = useState('')
+    const [diffTo, setDiffTo] = useState('')
 
+    const router = useRouter()
+
+    const handleCloseDiff = () => {
+        setShowDiff(false)
+        setDiffFrom('')
+        setDiffTo('')
+    }
+
+    const handleShowDiff = (processo: DadosDoProcessoAndControlType, pecaIdx: number) => {
+        setDiffFrom(principal.pecasSelecionadas[pecaIdx].conteudo)
+        setDiffTo(processo.pecasSelecionadas[pecaIdx].conteudo)
+        setShowDiff(true);
+    }
 
     const outrosNumerosDeProcessosChanged = (text) => {
         setOutrosNumerosDeProcessos(text)
@@ -236,48 +254,60 @@ export default function AbusiveLitigationPage(params: { NAVIGATE_TO_PROCESS_URL?
     }
 
     const startAnalysis = async () => {
-        let procs: DadosDoProcessoAndControlType[] = []
-        let procsMap: { [key: string]: DadosDoProcessoAndControlType } = processosMap
-        const simMap: { [key: string]: DocumentMatch[] } = {}
+        try {
+            let procs: DadosDoProcessoAndControlType[] = []
+            let procsMap: { [key: string]: DadosDoProcessoAndControlType } = processosMap
+            const simMap: { [key: string]: DocumentMatch[] } = {}
 
-        setProcessoPrincipal(undefined)
-        setProcessos(procs)
-        setSimilaridade({})
-        setHidden(false)
+            setProcessoPrincipal(undefined)
+            setProcessos(procs)
+            setSimilaridade({})
+            setHidden(false)
 
-        // Obter a petição inicial do processo principal
-        setStatus('Obtendo dados do processo principal...')
-        const dadosDoProcesso = await obterDadosDoProcessoEConteudoDaPeticaoInicial(numeroDoProcesso, procs, procsMap)
-        if (!dadosDoProcesso) {
-            setStatus('Processo principal não encontrado.')
-            return
+            // Obter a petição inicial do processo principal
+            setStatus('Obtendo dados do processo principal...')
+            const dadosDoProcesso = await obterDadosDoProcessoEConteudoDaPeticaoInicial(numeroDoProcesso, procs, procsMap)
+            if (!dadosDoProcesso) {
+                setStatus('Processo principal não encontrado.')
+                return
+            }
+            procs.push(dadosDoProcesso)
+            setProcessos([...procs])
+
+            const peticaoInicial = localizarAPeticaoInicial(dadosDoProcesso)
+            if (!peticaoInicial) {
+                setStatus('Petição inicial não encontrada.')
+                return
+            }
+
+            simMap[dadosDoProcesso.numeroDoProcesso] = matchDocuments(dadosDoProcesso.pecasSelecionadas, dadosDoProcesso.pecasSelecionadas, tipoDeSimilaridade)
+            setSimilaridade({ ...simMap })
+
+
+            // Obter a petição inicial dos outros processos
+            const numerosUnicosDeProcessos = fixOutrosNumerosDeProcessos(outrosNumerosDeProcessos, numeroDoProcesso).split(',').map(n => n.trim())
+            for (const numeroDoOutroProcesso of numerosUnicosDeProcessos) {
+                if (!numeroDoOutroProcesso) continue
+                // console.log('numeroDoOutroProcesso', numeroDoOutroProcesso)
+                setStatus(`Obtendo dados do processo ${numeroDoOutroProcesso} (${procs.length + 1}/${numerosUnicosDeProcessos.length})...`)
+                await carregarProcesso(dadosDoProcesso, numeroDoOutroProcesso, procs, procsMap, simMap)
+            }
+
+            setProcessoPrincipal(dadosDoProcesso)
+            setTextos(await getPiecesWithContent(dadosDoProcesso, numeroDoProcesso))
+
+            setStatus('')
+
+        } catch (error) {
+            if (error?.message === 'NEXT_REDIRECT') {
+                // Extract the redirect path if it's included in the error
+                const redirectPath = error.redirectPath || '/auth/signin';
+                router.push(redirectPath);
+                return; // Stop execution
+              }
+            console.error(`Erro: ${error.stack}`)
+            setStatus(`${error.message}`)
         }
-        procs.push(dadosDoProcesso)
-        setProcessos([...procs])
-
-        const peticaoInicial = localizarAPeticaoInicial(dadosDoProcesso)
-        if (!peticaoInicial) {
-            setStatus('Petição inicial não encontrada.')
-            return
-        }
-
-        simMap[dadosDoProcesso.numeroDoProcesso] = matchDocuments(dadosDoProcesso.pecasSelecionadas, dadosDoProcesso.pecasSelecionadas, tipoDeSimilaridade)
-        setSimilaridade({ ...simMap })
-
-
-        // Obter a petição inicial dos outros processos
-        const numerosUnicosDeProcessos = fixOutrosNumerosDeProcessos(outrosNumerosDeProcessos, numeroDoProcesso).split(',').map(n => n.trim())
-        for (const numeroDoOutroProcesso of numerosUnicosDeProcessos) {
-            if (!numeroDoOutroProcesso) continue
-            // console.log('numeroDoOutroProcesso', numeroDoOutroProcesso)
-            setStatus(`Obtendo dados do processo ${numeroDoOutroProcesso} (${procs.length + 1}/${numerosUnicosDeProcessos.length})...`)
-            await carregarProcesso(dadosDoProcesso, numeroDoOutroProcesso, procs, procsMap, simMap)
-        }
-
-        setProcessoPrincipal(dadosDoProcesso)
-        setTextos(await getPiecesWithContent(dadosDoProcesso, numeroDoProcesso))
-
-        setStatus('')
     }
 
     const principal: DadosDoProcessoAndControlType = processosMap[numeroDoProcesso]
@@ -346,7 +376,7 @@ export default function AbusiveLitigationPage(params: { NAVIGATE_TO_PROCESS_URL?
                                         <td className="text-center">{formatBrazilianDate(processo.ajuizamento)}</td>
                                         {principal.pecasSelecionadas?.map((p, index) => {
                                             const s = similaridade[processo.numeroDoProcesso][index]
-                                            return <td title={s.closestDocument?.errorMsg} key={p.rotulo} className={`text-end${s.closestDocument?.errorMsg ? ' text-danger' : ''}`}>{formatSimilarity(s.similarity)}</td>
+                                            return <td title={s.closestDocument?.errorMsg} key={p.rotulo} className={`text-end${s.closestDocument?.errorMsg ? ' text-danger' : ''}`}><span onClick={() => handleShowDiff(processo, index)}>{formatSimilarity(s.similarity)}</span></td>
                                         })}
                                         <td className="text-end"></td>
                                     </>}
@@ -370,6 +400,7 @@ export default function AbusiveLitigationPage(params: { NAVIGATE_TO_PROCESS_URL?
                 <Toast.Body>{toast}</Toast.Body>
             </Toast>
             <Print numeroDoProcesso={numeroDoProcesso} />
+            <DiffViewer show={showDiff} onClose={handleCloseDiff} from={diffFrom} to={diffTo} />
         </div>
     )
 }
