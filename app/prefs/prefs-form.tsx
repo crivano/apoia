@@ -79,7 +79,7 @@ export default function PrefsForm(params) {
         // .sort((a, b) => a.value.provider.id - b.value.provider.id)
         .map(e => ({ id: e.value.name, name: e.value.name, disabled: isDisabled(e), visible: params.statusDeLancamento >= e.value.provider.status }))
         .sort((a, b) => a.disabled ? 1 : b.disabled ? -1 : 0)
-        // .filter(e => e.visible)
+    // .filter(e => e.visible)
 
     useEffect(() => {
         const oldData = data
@@ -101,7 +101,7 @@ export default function PrefsForm(params) {
             <div className="row justify-content-center">
                 <div className="col col-12 col-md-8 col-xxl-6">
                     <h4 className="text-center mt-3 mb-2">Modelo de Inteligência Artificial</h4>
-                    <p className="text-center">Antes de usar a ApoIA é necessário selecionar o modelo de IA desejado e fornecer as respectivas chaves de API no formulário abaixo. Leia atentamente a <a href="https://github.com/trf2-jus-br/apoia/wiki/Modelos-de-IA-e-Chaves-de-APIs">documentação</a>, principalmente no que se refere aos limites de uso.</p>
+                    <p className="text-center">Antes de usar a ApoIA é necessário fornecer uma chave de API e selecionar o modelo de IA desejado no formulário abaixo. Leia atentamente a <a href="https://github.com/trf2-jus-br/apoia/wiki/Modelos-de-IA-e-Chaves-de-APIs">documentação</a>, principalmente no que se refere aos limites de uso e a LGPD.</p>
                 </div>
             </div>
             <div >
@@ -109,21 +109,21 @@ export default function PrefsForm(params) {
                     <div className="col col-12 col-md-8 col-xxl-6">
                         <div className=" d-block mx-auto mb-3 alert-secondary alert">
                             <div key={refreshCount}>
-                                <div className="row mb-2">
-                                    <Frm.Select label="Modelo Padrão" name="model" options={[{ id: '', name: '[Selecionar]' }, ...modelOptions]} />
-                                </div>
                                 {enumSorted(ModelProvider).map((provider) => (
                                     <div className="row mb-2" key={provider.value.name} hidden={params.statusDeLancamento < provider.value.status}>
                                         <Frm.Input label={`${provider.value.name}: Chave da API`} name={`env['${provider.value.apiKey}']`} validator={(value: string, name: string) => validator(value, name, provider.value.apiKeyRegex)} />
                                     </div>))}
                                 {/* <div className="row mb-3">
                                     <div className="col">
-                                        <div className="form-group">
-                                            <label>Chave da API</label>
-                                            <input type="text" id="key" name="key" placeholder="" autoFocus={true} className="form-control" onChange={(e: React.ChangeEvent<HTMLInputElement>) => setApiKey(e.target.value)} value={apiKey} autoComplete='off' />
-                                        </div>
+                                    <div className="form-group">
+                                    <label>Chave da API</label>
+                                    <input type="text" id="key" name="key" placeholder="" autoFocus={true} className="form-control" onChange={(e: React.ChangeEvent<HTMLInputElement>) => setApiKey(e.target.value)} value={apiKey} autoComplete='off' />
                                     </div>
-                                </div> */}
+                                    </div>
+                                    </div> */}
+                                <div className="row mb-2">
+                                    <Frm.Select label="Modelo Padrão" name="model" options={[{ id: '', name: '[Selecionar]' }, ...modelOptions]} />
+                                </div>
                                 <div className="row pt-3">
                                     <div className="col">
                                         <button onClick={handleClear} className="btn btn-warning" style={{ width: '10em' }}>Limpar</button>
