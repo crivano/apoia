@@ -12,7 +12,7 @@ export default async function ServerContents() {
     if (!await isUserCorporativo(user))
         return <Container><div className="alert alert-danger mt-5">Usuário não é corporativo</div></Container>
     const apiKeyProvided = await hasApiKey()
-    const user_id = await Dao.assertIAUserId(user.name)
+    const user_id = await Dao.assertIAUserId(user.preferredUsername || user.name)
     const prompts = await Dao.retrieveLatestPrompts(user_id)
 
     const listPublicPromptsCookie = !!cookies().get('list-public-prompts')?.value

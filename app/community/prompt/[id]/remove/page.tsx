@@ -8,7 +8,7 @@ import { assertCurrentUser } from '@/lib/user'
 export default async function Home({ params }: { params: { id: string } }) {
     noStore()
     const user = await assertCurrentUser()
-    const user_id = await Dao.assertIAUserId(user.name)
+    const user_id = await Dao.assertIAUserId(user.preferredUsername || user.name)
 
     await Dao.removeLatestPrompt(parseInt(params.id))
 

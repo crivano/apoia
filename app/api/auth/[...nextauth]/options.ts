@@ -18,15 +18,19 @@ const authOptions = {
         | { [key: string]: { roles: Array<any> } }
         | undefined
       let corporativo = undefined as any[]
+      let preferredUsername = undefined as string
+      let iss = undefined as string
 
       if (account?.access_token) {
         let decodedToken: any = jose.decodeJwt(account?.access_token)
         if (decodedToken && typeof decodedToken !== "string") {
           roles = decodedToken.realm_access.roles
           corporativo = decodedToken.corporativo
+          preferredUsername = decodedToken.preferred_username
+          iss = decodedToken.iss
         }
       }
-      token = { roles, corporativo, accessToken: account?.access_token, ...token, ...user }
+      token = { roles, corporativo, preferredUsername, iss, accessToken: account?.access_token, ...token, ...user }
       // console.log("[jwt callback] token " + JSON.stringify(token))
       return token
     },

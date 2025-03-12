@@ -10,7 +10,8 @@ function getId(returning: number | { id: number }): number {
 }
 
 async function getCurrentUserId() {
-    return await Dao.assertIAUserId((await assertCurrentUser()).name)
+    const user = await assertCurrentUser()
+    return await Dao.assertIAUserId(user.preferredUsername || user.name)
 }
 
 export class Dao {

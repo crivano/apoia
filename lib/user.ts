@@ -8,7 +8,7 @@ import { verify } from 'crypto'
 import { verifyJweToken } from './utils/jwt'
 
 export type UserType = {
-    id?: number, name: string, email: string, image: { password: string, system: string }, accessToken?: string, corporativo?: any[], roles?: string[]
+    id?: number, name: string, email: string, preferredUsername?: string, iss?: string, image: { password: string, system: string }, accessToken?: string, corporativo?: any[], roles?: string[]
 }
 
 export const getCurrentUser = async (): Promise<UserType | undefined> => {
@@ -34,7 +34,7 @@ export const assertCurrentUser = async () => {
 }
 
 export const isUserCorporativo = (user: UserType) => {
-    return !!user.corporativo || !!user.image?.system || process.env.NODE_ENV === 'development';
+    return !!user.corporativo || !!user.image?.system || process.env.NODE_ENV === 'development' || user.iss === 'https://sso.stg.cloud.pje.jus.br/auth/realms/pje';
 }
 
 export const assertCurrentUserCorporativo = async () => {
