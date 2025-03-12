@@ -1,6 +1,6 @@
 import { formatDate } from "@/lib/utils/utils"
-import { faStar } from "@fortawesome/free-regular-svg-icons"
-import { faStar as faStarSolid } from "@fortawesome/free-solid-svg-icons"
+import { faStar, faUser } from "@fortawesome/free-regular-svg-icons"
+import { faStar as faStarSolid, faUser as faUserSolid } from "@fortawesome/free-solid-svg-icons"
 import { faCheck, faPlay } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import Link from 'next/link'
@@ -46,8 +46,8 @@ const tableSpecs = (pathname: string, onClick: (kind: string, row: any) => void)
             columns: [
                 {
                     header: ' ', accessorKey: '', style: { textAlign: "right", width: "1%" }, enableSorting: false, cell: data => data.row.original.is_favorite
-                        ? <a href={`/community/prompt/${data.row.original.base_id}/reset-favorite`} className="text-primary"><FontAwesomeIcon className="me-1" icon={faStarSolid} /></a>
-                        : <a href={`/community/prompt/${data.row.original.base_id}/set-favorite`} className="text-secondary opacity-50"><FontAwesomeIcon className="me-1" icon={faStar} /></a>
+                        ? <a href={`/community/prompt/${data.row.original.base_id}/reset-favorite`} className="text-primary"><FontAwesomeIcon className="me-1" icon={data.row.original.is_mine ? faUserSolid : faStarSolid} /></a>
+                        : <a href={`/community/prompt/${data.row.original.base_id}/set-favorite`} className="text-secondary opacity-50"><FontAwesomeIcon className="me-1" icon={data.row.original.is_mine ? faUser : faStar} /></a>
                 },
                 {
                     header: 'Prompt', accessorKey: 'name', enableSorting: true, cell: data => <>
