@@ -163,7 +163,7 @@ export default function AiContent(params: { definition: PromptDefinitionType, da
         }
 
         {complete && params.visualization !== undefined &&
-            <div className="row d-print-none">
+            <div className="row d-print-none h-print">
                 <div className="col col-auto">
                     <Form.Select aria-label="Tipo de Visualização" value={visualizationId} onChange={e => setVisualizationId(parseInt(e.target.value))} className='w-100 mt-2'>
                         {Visualization.map(e => (

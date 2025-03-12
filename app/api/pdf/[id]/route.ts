@@ -5,7 +5,7 @@ import template from '@/lib/pdf/template.html'
 
 
 export async function POST(req: Request, { params }: { params: { id: string } }) {
-    const id: string = (params?.id?.toString() || '').replace(/[^0-9]/g, '') as string
+    const id: string = (params?.id?.toString() || '') as string
     const json = await req.formData()
     const html = json.get('html')
     const formated = template.replace(`<div class="content"></div>`, html)

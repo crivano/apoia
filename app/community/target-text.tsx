@@ -8,6 +8,7 @@ import { PromptConfigType, PromptDefinitionType } from '@/lib/ai/prompt-types'
 import { slugify } from '@/lib/utils/utils'
 import { IAPrompt } from '@/lib/db/mysql-types'
 import { VisualizationEnum } from '@/lib/ui/preprocess'
+import Print from '../process/[id]/print'
 
 const EditorComp = dynamic(() => import('@/components/EditorComponent'), { ssr: false })
 
@@ -49,13 +50,14 @@ export default function TargetText({ prompt, visualization }: { prompt: IAPrompt
                 {/* <Button disabled={!markdown || !orgaoJulgador} className="mt-3" onClick={() => setHidden(false)}>Gerar Ementa</Button> */}
                 <Button disabled={!markdown} className="mt-3" onClick={() => setHidden(false)}>Prosseguir</Button>
             </>}
-            {!hidden && markdown && <>
+            {!hidden && markdown && <div id="printDiv">
                 <h2 className="mt-3">{prompt.name}</h2>
                 <AiContent
                     definition={definition}
                     data={{ textos: [{ descr: textoDescr, slug: slugify(textoDescr), texto: markdown }] }}
-                    options={{ cacheControl: true }} config={promptConfig} visualization={visualization}/>
-            </>}
+                    options={{ cacheControl: true }} config={promptConfig} visualization={visualization} />
+                <Print numeroDoProcesso={slugify(prompt.name)} />
+            </div>}
         </div>
     )
 }
