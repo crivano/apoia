@@ -16,9 +16,6 @@ export default function Print(params) {
             printHtml.setAttribute('value', innerHTML)
         }
         let htm = innerHTML
-        // htm = htm.replace(/<(table|th|td)(>| )/g, '<$1 style="border-collapse: collapse; padding: .2em; border: 1px solid;"$2')
-
-        console.log('htm', htm)
         setHtml(htm)
     }
 
