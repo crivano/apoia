@@ -28,12 +28,12 @@ export const maxDuration = 60
  *         required: false
  *         type: string
  *         description: Tipo de síntese para seleção de peças
- *       200:
- *         description: Dados do processo
- *         content:
- *           application/json:
- *             schema:
- *               type: object
+ *     200:
+ *       description: Dados do processo
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
  */
 export async function GET(req: Request, { params }: { params: { number: string, piece: string } }) {
   const pUser = getCurrentUser()

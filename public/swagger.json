@@ -390,6 +390,44 @@
         }
       }
     },
+    "/api/v1/process/{number}": {
+      "get": {
+        "200": {
+          "description": "Dados do processo",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        },
+        "description": "Obtem as informações de um processo",
+        "tags": [
+          "process"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "number",
+            "required": true,
+            "description": "Número do processo (apenas números)"
+          },
+          {
+            "in": "query",
+            "name": "kind",
+            "required": false,
+            "type": "string",
+            "description": "Tipo de síntese para seleção de peças"
+          }
+        ]
+      }
+    },
     "/api/v1/select-pieces": {
       "post": {
         "description": "Seleciona as peças que serão utilizadas na síntese",
