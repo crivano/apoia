@@ -89,23 +89,20 @@ export class InteropPDPJ implements Interop {
         );
 
 
-        let data: any = {}
+        let data = {}
 
-        try {
-            const b = await response.arrayBuffer()
-            const decoder = new TextDecoder('utf-8')
-            const texto = decoder.decode(b)
-            if (response.headers.get('Content-Type') === 'application/json') {
-                data = JSON.parse(texto)
-            }
-        } catch (e) {
-            throw new Error(`Não foi possível acessar o processo ${numeroDoProcesso} no DataLake/Codex da PDPJ (${e})`)
-        }
-
+        const b = await response.arrayBuffer()
         if (response.status !== 200) {
-            if (data.message)
-                throw new Error(data.message)
-            throw new Error(`Não foi possível acessar o processo ${numeroDoProcesso} no DataLake/Codex da PDPJ (${response.statusText})`)
+            try {
+                const decoder = new TextDecoder('utf-8')
+                const texto = decoder.decode(b)
+                if (response.headers.get('Content-Type') === 'application/json') {
+                    const data = JSON.parse(texto)
+                    throw new Error(data.message)
+                }
+            } catch (e) {
+                throw new Error(`Não foi possível acessar o processo ${numeroDoProcesso} no DataLake/Codex da PDPJ (${e})`)
+            }
         }
 
         const resp: DadosDoProcessoType[] = []
