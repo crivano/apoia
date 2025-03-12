@@ -20,7 +20,7 @@ export default async function New({ params, searchParams }: { params: { kind: st
             editor_label: "Texto",
             piece_strategy: "MAIS_RELEVANTES",
             piece_descr: [],
-            summary: "TODAS",
+            summary: "SIM",
         }
     }
 

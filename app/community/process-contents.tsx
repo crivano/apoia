@@ -81,7 +81,7 @@ export default function ProcessContents({ prompt, dadosDoProcesso, pieceContent,
         const requestArray: GeneratedContent[] = []
         const pecasComConteudo: TextoType[] = selectedPieces.map(peca => ({ id: peca.id, event: peca.numeroDoEvento, label: peca.rotulo, descr: peca.descr, slug: slugify(peca.descr), texto: contents[peca.id] }))
         let produtos: (InfoDeProduto | P)[] = []
-        if (prompt.content.summary === 'TODAS') {
+        if (prompt.content.summary === 'SIM') {
             for (const peca of pecasComConteudo) {
                 const definition = getInternalPrompt(`resumo-${peca.slug}`)
                 const data: PromptDataType = { textos: [peca] }

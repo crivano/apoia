@@ -82,7 +82,7 @@ export default function PromptForm(props) {
     const targetOptions = enumSorted(Target).map(e => ({ id: e.value.name, name: e.value.descr }))
     const pieceStrategyOptions = enumSorted(PieceStrategy).map(e => ({ id: e.value.name, name: e.value.descr }))
     const pieceDescrOptions = enumSorted(PieceDescr).map(e => ({ id: e.value.name, name: e.value.descr }))
-    const summaryOptions = [{ id: 'NENHUMA', name: 'Não' }, { id: 'TODAS', name: 'Sim' }]
+    const summaryOptions = [{ id: 'NAO', name: 'Não' }, { id: 'SIM', name: 'Sim' }]
     const shareOptions = [{ id: 'PADRAO', name: 'Padrão', disabled: true }, { id: 'PUBLICO', name: 'Público' }, { id: 'NAO_LISTADO', name: 'Não Listado' }, { id: 'PRIVADO', name: 'Privado' }]
     const [field, setField] = useState([]);
 
