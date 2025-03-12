@@ -64,7 +64,7 @@ export default function PrefsForm(params) {
 
     const validator = (value: string, name: string, regex: RegExp): string | undefined => {
         let error: string | undefined = undefined
-        if (value && !regex.test(value)) error = 'Chave da API inválida'
+        if (value && !regex.test(value)) error = 'Confirme se a Chave da API é válida'
         const newFormState = { ...formState }
         if (error) {
             newFormState.fieldErrors[name] = [error]
