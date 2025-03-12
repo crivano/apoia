@@ -17,6 +17,8 @@ import { faRefresh } from '@fortawesome/free-solid-svg-icons'
 import { selecionarPecasPorPadrao, TipoDeSinteseMap } from '@/lib/proc/combinacoes'
 import DiffViewer from './diff-viewer'
 import { useRouter } from 'next/navigation'
+import Chat from '../community/chat'
+import { calcSha256 } from '@/lib/utils/hash'
 
 type DadosDoProcessoAndControlType =
     DadosDoProcessoType & { missingDadosDoProcesso: boolean, missingPeticaoInicial: boolean }
@@ -304,7 +306,7 @@ export default function AbusiveLitigationPage(params: { NAVIGATE_TO_PROCESS_URL?
                 const redirectPath = error.redirectPath || '/auth/signin';
                 router.push(redirectPath);
                 return; // Stop execution
-              }
+            }
             console.error(`Erro: ${error.stack}`)
             setStatus(`${error.message}`)
         }
@@ -391,6 +393,8 @@ export default function AbusiveLitigationPage(params: { NAVIGATE_TO_PROCESS_URL?
                     definition={getInternalPrompt('litigancia-predatoria')}
                     data={{ textos }}
                     options={{ cacheControl: true }} config={promptConfig} />
+
+                <Chat definition={getInternalPrompt('chat')} data={{ textos }} key={calcSha256({ textos })} />
             </>}
             <Toast onClose={() => setToast('')} show={!!toast} delay={3000} bg="danger" autohide key={toast} style={{ position: 'fixed', top: 10, right: 10 }}>
                 <Toast.Header>
