@@ -7,7 +7,7 @@ import { useEffect, useState } from "react"
 import { enumSorted } from "@/lib/ai/model-types"
 import { Instance, Matter, Scope } from "@/lib/proc/process-types"
 
-export default function PromptsTable({ prompts, onClick, onProcessNumberChange }: { prompts: IAPromptList[], onClick: (kind: string, row: any) => void, onProcessNumberChange: (number: string) => void }) {
+export default function PromptsTable({ prompts, onClick, onProcessNumberChange, children }: { prompts: IAPromptList[], onClick: (kind: string, row: any) => void, onProcessNumberChange: (number: string) => void, children: any }) {
     // prompts.sort((a, b) => {
     //     if (a.is_favorite !== b.is_favorite)
     //         return b.is_favorite - a.is_favorite;
@@ -25,9 +25,7 @@ export default function PromptsTable({ prompts, onClick, onProcessNumberChange }
                 </FormSelect>
             </div> */}
             < TableRecords records={prompts} spec="Prompts" pageSize={20} onClick={onClick} >
-                <div className="col col-auto">
-                    <Button variant="primary" href="/community/prompt/new">Criar Novo Prompt</Button>
-                </div>
+                {children}
             </TableRecords >
         </>
     )

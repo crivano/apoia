@@ -13,13 +13,14 @@ import ProcessTitle from "./process-title"
 import { SubtituloLoading } from "./subtitulo"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faEdit } from "@fortawesome/free-solid-svg-icons"
-import { Form, FormGroup, FormLabel, FormSelect, Row, Toast } from "react-bootstrap"
+import { Button, Form, FormGroup, FormLabel, FormSelect, Row, Toast } from "react-bootstrap"
 import { enumSorted } from "@/lib/ai/model-types"
 import { Container, Spinner } from 'react-bootstrap'
 import { tua } from "@/lib/proc/tua"
 import Link from "next/link"
 import { VisualizationEnum } from "@/lib/ui/preprocess"
 import { array } from "zod"
+import { addListPublicPromptsCookie, removeListPublicPromptsCookie } from "./add-cookie"
 
 export const copyPromptToClipboard = (prompt: IAPromptList) => {
     let s: string = prompt.content.system_prompt
@@ -28,7 +29,7 @@ export const copyPromptToClipboard = (prompt: IAPromptList) => {
     navigator.clipboard.writeText(s)
 }
 
-export function Contents({ prompts, user, user_id, apiKeyProvided }: { prompts: IAPromptList[], user: UserType, user_id: number, apiKeyProvided: boolean }) {
+export function Contents({ prompts, user, user_id, apiKeyProvided, listPublicPromptsCookie }: { prompts: IAPromptList[], user: UserType, user_id: number, apiKeyProvided: boolean, listPublicPromptsCookie: boolean }) {
     const currentSearchParams = useSearchParams()
     const [prompt, setPrompt] = useState<IAPromptList>(null)
     const [numeroDoProcesso, setNumeroDoProcesso] = useState<string>(null)
@@ -43,6 +44,14 @@ export function Contents({ prompts, user, user_id, apiKeyProvided }: { prompts: 
     const [matter, setMatter] = useState<string>()
     const [pieceContent, setPieceContent] = useState({})
     const [toast, setToast] = useState<string>()
+    const [listarPromptsPublicos, setListarPromptsPublicos] = useState(listPublicPromptsCookie)
+
+    const changeListarPromptsPublicos = (value: boolean) => {
+        setListarPromptsPublicos(value)
+        if (value) addListPublicPromptsCookie()
+        else removeListPublicPromptsCookie()
+    }
+
 
     // const handleFilterChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     //     setFilter(e.target.value)
@@ -118,6 +127,7 @@ export function Contents({ prompts, user, user_id, apiKeyProvided }: { prompts: 
     const PromptTitle = ({ prompt }: { prompt: IAPromptList }) => <div className="text-muted text-center h-print">Prompt: {prompt.name} - <span onClick={() => { setPromptParam(undefined); setPrompt(null) }} className="text-primary" style={{ cursor: 'pointer' }}><FontAwesomeIcon icon={faEdit} /> Alterar</span></div>
 
     const filteredPrompts = prompts.filter((p) => {
+        if (!listarPromptsPublicos && p.share === 'PUBLICO' && !p.is_mine) return false
         if (scope && !p.content.scope?.includes(scope)) return false
         if (instance && !p.content.instance?.includes(instance)) return false
         if (matter && !p.content.matter?.includes(matter)) return false
@@ -180,7 +190,52 @@ export function Contents({ prompts, user, user_id, apiKeyProvided }: { prompts: 
             </div >
             <Container className="mt-2" fluid={false}>
                 {!apiKeyProvided && <p className="text-center mt-3 mb-3">Execute os prompts diretamente na ApoIA, cadastrando sua <Link href="/prefs">Chave de API</Link>.</p>}
-                <PromptsTable prompts={filteredPrompts} onClick={promptOnClick} onProcessNumberChange={setNumeroDoProcesso} />
+                <PromptsTable prompts={filteredPrompts} onClick={promptOnClick} onProcessNumberChange={setNumeroDoProcesso}>
+                    <div className="col col-auto">
+                        <Button variant="primary" href="/community/prompt/new">Criar Novo Prompt</Button>
+                    </div>
+                    {listarPromptsPublicos &&
+                        <div className="col col-auto">
+                            <div className="form-check mt-2">
+                                <input
+                                    className="form-check-input"
+                                    type="checkbox"
+                                    id="acceptPublicPrompts"
+                                    checked={listarPromptsPublicos}
+                                    onChange={(e) => changeListarPromptsPublicos(e.target.checked)}
+                                />
+                                <label className="form-check-label" htmlFor="acceptPublicPrompts">
+                                    Listar prompts públicos
+                                </label>
+                            </div>
+                        </div>
+                    }
+                </PromptsTable>
+
+                {!listarPromptsPublicos && <>
+                    <div className="mb-3">
+                        <div className="mt-5 pt-2 border-top">
+                            <p className="text-muted">
+                                Deseja visualizar prompts compartilhados publicamente por outros usuários?
+                                Esses prompts não passam por nenhum tipo de validação e podem gerar respostas imprecisas, 
+                                inconsistentes ou inadequadas para seu contexto.
+                            </p>
+                        </div>
+                    </div>
+                    <div className="form-check mt-3">
+                        <input
+                            className="form-check-input"
+                            type="checkbox"
+                            id="acceptPublicPrompts"
+                            checked={listarPromptsPublicos}
+                            onChange={(e) => changeListarPromptsPublicos(e.target.checked)}
+                        />
+                        <label className="form-check-label" htmlFor="acceptPublicPrompts">
+                            Listar prompts públicos
+                        </label>
+                    </div>
+                </>}
+
             </Container>
             <Toast onClose={() => setToast('')} show={!!toast} delay={3000} bg="success" autohide key={toast} style={{ position: 'fixed', top: 10, right: 10 }}>
                 <Toast.Header>
