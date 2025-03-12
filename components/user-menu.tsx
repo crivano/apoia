@@ -9,6 +9,7 @@ import { unstable_noStore as noStore } from 'next/cache'
 import { getPrefs } from '../lib/utils/prefs';
 import { NavigationLink } from './NavigationLink';
 import { envString } from '@/lib/utils/env';
+import { maiusculasEMinusculas, primeiroEUltimoNome } from '@/lib/utils/utils';
 
 
 export default async function UserMenu() {
@@ -32,7 +33,7 @@ export default async function UserMenu() {
                 {user
                     ?
                     <a className="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        {user?.name}{user?.image?.system ? `/${user?.image?.system}` : '/PDPJ'}
+                        {user?.image?.system ? `${user?.name}/${user?.image?.system}` : `${maiusculasEMinusculas(primeiroEUltimoNome(user?.name))}/PDPJ`}
                     </a>
                     : <a className="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                         Configurações

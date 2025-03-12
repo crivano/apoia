@@ -6,6 +6,12 @@ export const timeAgo = (timestamp: Date, timeOnly?: boolean): string => {
     }`
 }
 
+export const primeiroEUltimoNome = (nome: string): string => {
+  const partes = nome.split(' ')
+  if (partes.length === 1) return nome
+  return partes[0] + ' ' + partes[partes.length - 1]
+}
+
 export const maiusculasEMinusculas = (s) => {
   let sb = "";
   let f = true;
@@ -104,7 +110,7 @@ export const formatBrazilianDateTime = (dt: Date) => {
 export const formatBrazilianDate = (dt: Date) => {
   // console.log('dt', dt, 'type:', typeof dt)
   if (!dt) return ''
-  if (typeof dt === 'string') 
+  if (typeof dt === 'string')
     dt = new Date(dt)
   return dt.toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' })
 }
