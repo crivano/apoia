@@ -7,8 +7,9 @@ ALTER TABLE ia_prompt
   
 -- Change the column "kind" to be VARCHAR(32). If needed, use USING to cast.
 ALTER TABLE ia_prompt
-  ALTER COLUMN kind TYPE varchar(32)
-  USING kind::varchar(32);
+  ALTER COLUMN kind TYPE varchar(32) 
+  USING kind::varchar(32),
+  ALTER COLUMN kind DROP NOT NULL;
 
 -- Create an index on (is_latest, base_id, id)
 CREATE INDEX latest ON ia_prompt (is_latest, base_id, id);

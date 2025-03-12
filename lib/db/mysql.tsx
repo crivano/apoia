@@ -354,7 +354,7 @@ export class Dao {
             .select(
                 'ia_prompt.*',
                 knex.raw('(ia_prompt.created_by = ?) as is_mine', [user_id]),
-                knex.raw('IF(COUNT(f.prompt_id) > 0, 1, 0) as is_favorite'),
+                knex.raw('CASE WHEN COUNT(f.prompt_id) > 0 THEN 1 ELSE 0 END as is_favorite'),
                 knex.raw('(SELECT COUNT(*) FROM ia_favorite as f WHERE f.prompt_id = ia_prompt.base_id) as favorite_count')
             )
             .where('ia_prompt.is_latest', 1)
