@@ -13,7 +13,7 @@ import ProcessTitle from "./process-title"
 import { SubtituloLoading } from "./subtitulo"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faEdit } from "@fortawesome/free-solid-svg-icons"
-import { Button, Form, FormGroup, FormLabel, FormSelect, Row, Toast } from "react-bootstrap"
+import { Button, Form, FormGroup, FormLabel, FormSelect, Row, Toast, ToastContainer } from "react-bootstrap"
 import { enumSorted } from "@/lib/ai/model-types"
 import { Container, Spinner } from 'react-bootstrap'
 import { tua } from "@/lib/proc/tua"
@@ -96,6 +96,13 @@ export function Contents({ prompts, user, user_id, apiKeyProvided, listPublicPro
         const response = await fetch(`/api/v1/process/${numeroDoProcesso}`)
         if (response.ok) {
             const data = await response.json()
+            if (data.errorMsg) {
+                toastMessage(data.errorMsg, 'danger')
+                setArrayDeDadosDoProcesso(null)
+                setDadosDoProcesso(null)
+                setNumeroDoProcesso(null)
+                return
+            }
             setArrayDeDadosDoProcesso(data.arrayDeDadosDoProcesso)
             const dadosDoProc = data.arrayDeDadosDoProcesso[data.arrayDeDadosDoProcesso.length - 1]
             setIdxProcesso(data.arrayDeDadosDoProcesso.length - 1)
@@ -229,7 +236,7 @@ export function Contents({ prompts, user, user_id, apiKeyProvided, listPublicPro
                         <div className="mt-5 pt-2 border-top">
                             <p className="text-muted">
                                 Deseja visualizar prompts compartilhados publicamente por outros usuários?
-                                Esses prompts não passam por nenhum tipo de validação e podem gerar respostas imprecisas, 
+                                Esses prompts não passam por nenhum tipo de validação e podem gerar respostas imprecisas,
                                 inconsistentes ou inadequadas para seu contexto.
                             </p>
                         </div>
@@ -249,12 +256,14 @@ export function Contents({ prompts, user, user_id, apiKeyProvided, listPublicPro
                 </>}
 
             </Container>
-            <Toast onClose={() => setToast('')} show={!!toast} delay={3000} bg={toastVariant} autohide key={toast} style={{ position: 'fixed', top: 10, right: 10 }}>
-                <Toast.Header>
-                    <strong className="me-auto">Atenção</strong>
-                </Toast.Header>
-                <Toast.Body>{toast}</Toast.Body>
-            </Toast>
+            <ToastContainer className="p-3" position="bottom-end" style={{ zIndex: 1 }}>
+                <Toast onClose={() => setToast('')} show={!!toast} delay={10000} bg={toastVariant} autohide key={toast} >
+                    <Toast.Header>
+                        <strong className="me-auto">Atenção</strong>
+                    </Toast.Header>
+                    <Toast.Body>{toast}</Toast.Body>
+                </Toast>
+            </ToastContainer>
 
         </>
         : <>
