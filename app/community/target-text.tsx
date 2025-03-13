@@ -9,10 +9,11 @@ import { slugify } from '@/lib/utils/utils'
 import { IAPrompt } from '@/lib/db/mysql-types'
 import { VisualizationEnum } from '@/lib/ui/preprocess'
 import Print from '../process/[id]/print'
+import { promptExecuteBuilder } from '@/lib/ai/prompt'
 
 const EditorComp = dynamic(() => import('@/components/EditorComponent'), { ssr: false })
 
-export default function TargetText({ prompt, visualization }: { prompt: IAPrompt, visualization?: VisualizationEnum }) {
+export default function TargetText({ prompt, visualization, apiKeyProvided }: { prompt: IAPrompt, visualization?: VisualizationEnum, apiKeyProvided: boolean }) {
     const [markdown, setMarkdown] = useState('')
     const [hidden, setHidden] = useState(true)
     const [promptConfig, setPromptConfig] = useState({} as PromptConfigType)
@@ -33,6 +34,22 @@ export default function TargetText({ prompt, visualization }: { prompt: IAPrompt
 
     const textoDescr = prompt.content.editor_label || 'Texto'
 
+    const PromptParaCopiar = () => {
+        if (!prompt || !markdown) return ''
+
+        const exec = promptExecuteBuilder(definition, { textos: [{ descr: prompt.content?.editor_label || 'Texto', slug: slugify(prompt.content?.editor_label || 'texto'), texto: markdown }] })
+
+        const s: string = exec.message.map(m => m.role === 'system' ? `# PROMPT DE SISTEMA\n\n${m.content}\n\n# PROMPT` : m.content).join('\n\n')
+
+        navigator.clipboard.writeText(s)
+
+        return <>
+            <p className="alert alert-warning text-center mt-3">Prompt copiado para a área de transferência, já com o conteúdo do texto informado acima!</p>
+            <h2>{prompt.name}</h2>
+            <textarea name="prompt" className="form-control" rows={10}>{s}</textarea>
+        </>
+    }
+
     return (
         <div className="mb-3">
             {/* <h2 className="mt-3">{prompt.content.editor_label}</h2> */}
@@ -51,13 +68,22 @@ export default function TargetText({ prompt, visualization }: { prompt: IAPrompt
                 <Button disabled={!markdown} className="mt-3" onClick={() => setHidden(false)}>Prosseguir</Button>
             </>}
             {!hidden && markdown && <div id="printDiv">
-                <h2 className="mt-3">{prompt.name}</h2>
-                <AiContent
-                    definition={definition}
-                    data={{ textos: [{ descr: textoDescr, slug: slugify(textoDescr), texto: markdown }] }}
-                    options={{ cacheControl: true }} config={promptConfig} visualization={visualization} />
-                <Print numeroDoProcesso={slugify(prompt.name)} />
+
+                {apiKeyProvided
+                    ? <>
+                        <h2 className="mt-3">{prompt.name}</h2>
+                        <AiContent
+                            definition={definition}
+                            data={{ textos: [{ descr: textoDescr, slug: slugify(textoDescr), texto: markdown }] }}
+                            options={{ cacheControl: true }} config={promptConfig} visualization={visualization} />
+                        <Print numeroDoProcesso={slugify(prompt.name)} />
+                    </>
+                    : <PromptParaCopiar></PromptParaCopiar>
+                }
             </div>}
         </div>
     )
 }
+
+
+

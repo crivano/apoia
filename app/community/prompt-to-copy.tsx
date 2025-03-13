@@ -15,30 +15,6 @@ import { promptExecuteBuilder } from '@/lib/ai/prompt'
 
 const Frm = new FormHelper(true)
 
-const onBusy = (Frm: FormHelper, requests: GeneratedContent[], idx: number) => {
-    Frm.set('pending', Frm.get('pending') + 1)
-}
-
-const onReady = (Frm: FormHelper, requests: GeneratedContent[], idx: number, content: ContentType) => {
-    const request = requests[idx]
-    Frm.set('pending', Frm.get('pending') - 1)
-
-    // Frm.set(`flow.ready[${idx}]`, content)
-    if (requests[idx].produto === P.PEDIDOS && content.json) {
-        Frm.set('pedidos', content.json.pedidos)
-    }
-}
-
-function requestSlot(Frm: FormHelper, requests: GeneratedContent[], idx: number) {
-    const request = requests[idx]
-    return <div key={idx}>
-        <h2>{maiusculasEMinusculas(request.title)}</h2>
-        <Suspense fallback={ResumoDePecaLoading()}>
-            <AiContent definition={request.internalPrompt} data={request.data} key={`prompt: ${request.promptSlug} data: ${calcSha256(request.data)}`} onBusy={() => onBusy(Frm, requests, idx)} onReady={(content) => onReady(Frm, requests, idx, content)} />
-        </Suspense>
-    </div>
-}
-
 export const PromptParaCopiar = ({ dadosDoProcesso, requests }: { dadosDoProcesso: DadosDoProcessoType, requests: GeneratedContent[] }) => {
     if (!dadosDoProcesso || dadosDoProcesso.errorMsg) return ''
 

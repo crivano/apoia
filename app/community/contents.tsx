@@ -44,7 +44,13 @@ export function Contents({ prompts, user, user_id, apiKeyProvided, listPublicPro
     const [matter, setMatter] = useState<string>()
     const [pieceContent, setPieceContent] = useState({})
     const [toast, setToast] = useState<string>()
+    const [toastVariant, setToastVariant] = useState<string>()
     const [listarPromptsPublicos, setListarPromptsPublicos] = useState(listPublicPromptsCookie)
+
+    const toastMessage = (message: string, variant: string) => {
+        setToast(message)
+        setToastVariant(variant)
+    }
 
     const changeListarPromptsPublicos = (value: boolean) => {
         setListarPromptsPublicos(value)
@@ -67,15 +73,21 @@ export function Contents({ prompts, user, user_id, apiKeyProvided, listPublicPro
     const promptOnClick = (kind: string, row: any) => {
         switch (kind) {
             case 'executar':
+                if (row.content.target === 'PROCESSO' && !numeroDoProcesso) {
+                    toastMessage('Antes de executar esse prompt é necessário informar o número do processo', 'warning')
+                    // Focus on the process number input field
+                    document.querySelector<HTMLInputElement>('input[name="numeroDoProcesso"]')?.focus()
+                    return
+                }
                 setPrompt(row)
                 break;
             case 'copiar':
                 copyPromptToClipboard(row)
-                setToast('Prompt copiado para a área de transferência')
+                toastMessage('Prompt copiado para a área de transferência', 'success')
                 break
             case 'copiar link para favoritar':
                 navigator.clipboard.writeText(`Clique no link abaixo para adicionar o prompt ${row.name} aos favoritos:\n\n${window.location.origin}/community/prompt/${row.base_id}/set-favorite`)
-                setToast('Link copiado para a área de transferência')
+                toastMessage('Link copiado para a área de transferência', 'success')
                 break
         }
     }
@@ -237,7 +249,7 @@ export function Contents({ prompts, user, user_id, apiKeyProvided, listPublicPro
                 </>}
 
             </Container>
-            <Toast onClose={() => setToast('')} show={!!toast} delay={3000} bg="success" autohide key={toast} style={{ position: 'fixed', top: 10, right: 10 }}>
+            <Toast onClose={() => setToast('')} show={!!toast} delay={3000} bg={toastVariant} autohide key={toast} style={{ position: 'fixed', top: 10, right: 10 }}>
                 <Toast.Header>
                     <strong className="me-auto">Atenção</strong>
                 </Toast.Header>
@@ -263,9 +275,9 @@ export function Contents({ prompts, user, user_id, apiKeyProvided, listPublicPro
                         </>
                     :
                     prompt.content.target === 'TEXTO'
-                        ? <TargetText prompt={prompt} />
+                        ? <TargetText prompt={prompt} apiKeyProvided={apiKeyProvided} />
                         : prompt.content.target === 'REFINAMENTO'
-                            ? <TargetText prompt={prompt} visualization={VisualizationEnum.DIFF} />
+                            ? <TargetText prompt={prompt} apiKeyProvided={apiKeyProvided} visualization={VisualizationEnum.DIFF} />
                             : null
                 }
             </Container></>
