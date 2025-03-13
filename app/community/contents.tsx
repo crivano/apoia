@@ -166,7 +166,7 @@ export function Contents({ prompts, user, user_id, apiKeyProvided, listPublicPro
                         {numeroDoProcesso && !dadosDoProcesso &&
                             <div className="col col-auto">
                                 <FormLabel className="mb-0">&nbsp;</FormLabel>
-                                <span className="form-control text-white" style={{ backgroundColor: 'rgba(0,0,0,0.05)' }}> Carregando Processo...</span>
+                                <span className="form-control text-white" style={{ backgroundColor: 'rgba(0,0,0,0.05)' }}><Spinner size="sm" animation="border" role="status"><span className="visually-hidden">Loading...</span></Spinner></span>
                             </div>
                         }
                         {numeroDoProcesso && arrayDeDadosDoProcesso && arrayDeDadosDoProcesso.length > 1 &&
