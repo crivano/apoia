@@ -10,6 +10,9 @@ import { getPrefs } from '../lib/utils/prefs';
 import { NavigationLink } from './NavigationLink';
 import { envString } from '@/lib/utils/env';
 import { maiusculasEMinusculas, primeiroEUltimoNome } from '@/lib/utils/utils';
+import WootricSurvey from './wootric-survey';
+import { assertCurrentUser, isUserCorporativo } from '@/lib/user';
+import { hasApiKey } from '@/lib/ai/model-server';
 
 
 export default async function UserMenu() {
@@ -23,6 +26,9 @@ export default async function UserMenu() {
     const model = byCookie?.model
 
     const user = session?.user
+    const userCorporativo = user && !!await isUserCorporativo(user)
+    const apiKeyProvided = await hasApiKey()
+
     return (
         <ul className="navbar-nav me-1 mb-2x mb-lg-0x">
             {((envString('ACCESS_ARENA') || '').split(';').includes(user?.name) || user?.roles?.includes('apoia-role-arena')) &&
@@ -42,6 +48,7 @@ export default async function UserMenu() {
                     {!user && <li><Link className="dropdown-item" href="/auth/signin">Login</Link></li>}
                     <li><Link className="dropdown-item" href="/prefs">Modelo de IA{model && ` (${model})`}</Link></li>
                     {user && <li><UserMenuSignout /></li>}
+                    {user && userCorporativo && apiKeyProvided && envString('NEXT_PUBLIC_WOOTRIC_ACCOUNT_TOKEN') && <WootricSurvey user={user} />}
                 </ul>
             </li>
         </ul>
