@@ -1,19 +1,21 @@
-import "bootstrap/dist/css/bootstrap.min.css";
-import "./globals.css";
-import ImportBsJS from "../components/importBsJS";
-import { Navbar, Nav, Container, NavDropdown, NavLink, NavItem } from "react-bootstrap";
-import NextAuthProvider from './context/nextAuthProvider';
-import UserMenu from "../components/user-menu";
+import "bootstrap/dist/css/bootstrap.min.css"
+import "./globals.css"
+import ImportBsJS from "../components/importBsJS"
+import { Navbar, Nav, Container, NavDropdown, NavLink, NavItem } from "react-bootstrap"
+import NextAuthProvider from './context/nextAuthProvider'
+import UserMenu from "../components/user-menu"
 import Link from 'next/link'
 import Image from 'next/image'
 import '@mdxeditor/editor/style.css'
-import { NavigationLink } from "@/components/NavigationLink";
+import { NavigationLink } from "@/components/NavigationLink"
+import { GoogleAnalytics } from '@next/third-parties/google'
 
 // The following import prevents a Font Awesome icon server-side rendering bug,
 // where the icons flash from a very large icon down to a properly sized one:
 import '@fortawesome/fontawesome-svg-core/styles.css';
 // Prevent fontawesome from adding its CSS since we did it manually above:
 import { config } from '@fortawesome/fontawesome-svg-core';
+import { envString } from "@/lib/utils/env"
 config.autoAddCss = false; /* eslint-disable import/first */
 
 
@@ -65,6 +67,7 @@ export default function RootLayout({
                         {children}
                     </div>
                 </NextAuthProvider>
+                {envString('GOOGLE_ANALYTICS_ID') && <GoogleAnalytics gaId={envString('GOOGLE_ANALYTICS_ID')} />}
             </body>
         </html>
     );
