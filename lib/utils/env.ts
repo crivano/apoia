@@ -31,6 +31,9 @@ enum EnvPublicEnum {
     MODEL,
     MNI_LIMIT,
     OCR_LIMIT,
+
+    NEXT_PUBLIC_WOOTRIC_ACCOUNT_TOKEN,
+    GOOGLE_ANALYTICS_ID,
 }
 
 enum EnvPrivateEnum {
