@@ -28,7 +28,7 @@ export default function Chat(params: { definition: PromptDefinitionType, data: P
     }
 
     return (
-        <div className={messages.find(m => m.role === 'assistant' || m.role) ? '' : 'd-print-none'}>
+        <div className={messages.find(m => m.role === 'assistant') ? '' : 'd-print-none h-print'}>
             <h2>Chat</h2>
 
             <div className="alert alert-dark bg-dark text-white p-2 pt-3 pb-3 chat-box">
