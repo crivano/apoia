@@ -6,6 +6,11 @@ metadata:
     app: pdpj-apoia
 spec:
   replicas: 1
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: 1
   selector:
     matchLabels:
       app: pdpj-apoia
@@ -42,29 +47,29 @@ spec:
         ports:
         - containerPort: 80
           name: http
-        #livenessProbe:
-        #  httpGet:
-        #    path: /actuator/health/liveness
-        #    port: http
-        #  failureThreshold: 6
-        #  initialDelaySeconds: 60
-        #  periodSeconds: 30
-        #  timeoutSeconds: 10
-        #readinessProbe:
-        #  httpGet:
-        #    path: /actuator/health/readiness
-        #    port: http
-        #  failureThreshold: 3
-        #  initialDelaySeconds: 10
-        #  periodSeconds: 30
-        #  timeoutSeconds: 10
-        #startupProbe:
-        #  tcpSocket:
-        #    port: http
-        #  initialDelaySeconds: 10  
-        #  failureThreshold: 5
-        #  periodSeconds: 30
-        #  timeoutSeconds: 10
+        livenessProbe:
+          httpGet:
+            path: /api/actuator/health
+            port: http
+          failureThreshold: 6
+          initialDelaySeconds: 60
+          periodSeconds: 30
+          timeoutSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /api/actuator/health
+            port: http
+          failureThreshold: 3
+          initialDelaySeconds: 10
+          periodSeconds: 30
+          timeoutSeconds: 10
+        startupProbe:
+          tcpSocket:
+            port: http
+          initialDelaySeconds: 10  
+          failureThreshold: 5
+          periodSeconds: 30
+          timeoutSeconds: 10
         resources:
           requests:
             memory: "512Mi"
