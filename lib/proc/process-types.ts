@@ -40,6 +40,7 @@ export type DadosDoProcessoType = {
     segmento?: string
     instancia?: string
     materia?: string
+    oabPoloAtivo?: string
     errorMsg?: string
 }
 

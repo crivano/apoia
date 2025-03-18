@@ -80,8 +80,9 @@ export default function AbusiveLitigationPage(params: { NAVIGATE_TO_PROCESS_URL?
     }
 
     const handleShowDiff = (processo: DadosDoProcessoAndControlType, pecaIdx: number) => {
-        setDiffFrom(principal.pecasSelecionadas[pecaIdx].conteudo)
-        setDiffTo(processo.pecasSelecionadas[pecaIdx].conteudo)
+        setDiffFrom(principal.pecasSelecionadas[pecaIdx].conteudo || '')
+        const s = similaridade[processo.numeroDoProcesso][pecaIdx]
+        setDiffTo(s?.closestDocument.conteudo || '')
         setShowDiff(true);
     }
 
@@ -296,7 +297,7 @@ export default function AbusiveLitigationPage(params: { NAVIGATE_TO_PROCESS_URL?
             }
 
             setProcessoPrincipal(dadosDoProcesso)
-            setTextos(await getPiecesWithContent(dadosDoProcesso, numeroDoProcesso))
+            setTextos(await getPiecesWithContent(dadosDoProcesso, numeroDoProcesso, true))
 
             setStatus('')
 
@@ -359,6 +360,7 @@ export default function AbusiveLitigationPage(params: { NAVIGATE_TO_PROCESS_URL?
                             <th className="text-end">#</th>
                             <th>Número do Processo</th>
                             <th className="text-center">Ajuizamento</th>
+                            <th className="text-center">OAB</th>
                             {principal.pecasSelecionadas?.map(p => <th key={p.rotulo} className="text-end">{p.rotulo.toLowerCase()}</th>)}
                         </tr>
                     </thead>
@@ -376,9 +378,10 @@ export default function AbusiveLitigationPage(params: { NAVIGATE_TO_PROCESS_URL?
                                     }</td>
                                     : <>
                                         <td className="text-center">{formatBrazilianDate(processo.ajuizamento)}</td>
+                                        <td className="text-center">{processo.oabPoloAtivo}</td>
                                         {principal.pecasSelecionadas?.map((p, index) => {
                                             const s = similaridade[processo.numeroDoProcesso][index]
-                                            return <td title={s.closestDocument?.errorMsg} key={p.rotulo} className={`text-end${s.closestDocument?.errorMsg ? ' text-danger' : ''}`}><span onClick={() => handleShowDiff(processo, index)}>{formatSimilarity(s.similarity)}</span></td>
+                                            return <td title={JSON.stringify(s.closestDocument)} key={`${processo}-${p.rotulo}`} className={`text-end${s.closestDocument?.errorMsg ? ' text-danger' : ''}`}><span onClick={() => handleShowDiff(processo, index)}>{formatSimilarity(s.similarity)}</span></td>
                                         })}
                                     </>}
                             </tr>

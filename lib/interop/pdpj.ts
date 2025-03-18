@@ -116,6 +116,12 @@ export class InteropPDPJ implements Interop {
             const segmento = processo.tribunal.segmento
             const instancia = processo.instancia
             const materia = processo.natureza
+            const poloAtivo = processo.partes.filter(p => p.polo === 'ATIVO')
+            const representantesDePoloAtivo = poloAtivo.map(p => p.representantes).flat()
+            const primeiraOabDePoloAtivo = representantesDePoloAtivo.find(r => r.oab[0]?.numero)?.oab[0]
+            const oabPoloAtivo = primeiraOabDePoloAtivo ? `${primeiraOabDePoloAtivo.numero}/${primeiraOabDePoloAtivo.uf}` : undefined
+            // const primeiraOabDePoloAtivo = processo.partes.find(p => p.polo === 'ATIVO' && p.representantes?.length > 0 && p.representantes[0].oab?.numero)?.representantes[0].oab
+            // const oabPoloAtivo = primeiraOabDePoloAtivo ? `${primeiraOabDePoloAtivo.numero}/${primeiraOabDePoloAtivo.uf}` : undefined
 
             let pecas: PecaType[] = []
             const documentos = processo.documentos
@@ -156,7 +162,7 @@ export class InteropPDPJ implements Interop {
                 })
             }
             const classe = tua[codigoDaClasse]
-            resp.push({ numeroDoProcesso, ajuizamento, codigoDaClasse, classe, nomeOrgaoJulgador, pecas, segmento, instancia, materia })
+            resp.push({ numeroDoProcesso, ajuizamento, codigoDaClasse, classe, nomeOrgaoJulgador, pecas, segmento, instancia, materia, oabPoloAtivo })
         }
         return resp
     }

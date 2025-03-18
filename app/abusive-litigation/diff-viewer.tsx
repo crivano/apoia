@@ -8,14 +8,11 @@ const DiffViewer = ({ show, onClose, from, to }: { show: boolean, onClose: () =>
         <>
             <Modal show={show} onHide={onClose} size="lg">
                 <Modal.Header closeButton>
-                    <Modal.Title>Diff Viewer</Modal.Title>
+                    <Modal.Title>Diferenças</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                     <div>
-                        <DiffWords
-                            from={from}
-                            to={to}
-                        />
+                        <DiffWords from={from} to={to} />
                     </div>
                 </Modal.Body>
                 <Modal.Footer>
