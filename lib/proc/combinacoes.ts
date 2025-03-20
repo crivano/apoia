@@ -24,6 +24,7 @@ export enum T {
     VOTO = 'VOTO',
     ACORDAO = 'ACÓRDÃO',
     FORMULARIO = 'FORMULÁRIO',
+    PARECER = 'PARECER',
 }
 
 export enum P {
@@ -39,6 +40,7 @@ export enum P {
     REVISAO = 'Revisão',
     REFINAMENTO = 'Refinamento',
     PEDIDOS = 'Pedidos',
+    PEDIDOS_FUNDAMENTACOES_E_DISPOSITIVOS = 'Pedidos, Fundamentações e Dispositivos',
     INDICE = 'Índice',
     LITIGANCIA_PREDATORIA = 'Litigância Predatória',
     CHAT = 'Chat',
@@ -69,6 +71,7 @@ export const ProdutosValidos = {
     [P.REVISAO]: { titulo: P.REVISAO, prompt: 'revisao', plugins: [] },
     [P.REFINAMENTO]: { titulo: P.REFINAMENTO, prompt: 'refinamento', plugins: [] },
     [P.PEDIDOS]: { titulo: P.PEDIDOS, prompt: 'pedidos-de-peticao-inicial', plugins: [] },
+    [P.PEDIDOS_FUNDAMENTACOES_E_DISPOSITIVOS]: { titulo: P.PEDIDOS_FUNDAMENTACOES_E_DISPOSITIVOS, prompt: 'pedidos-fundamentacoes-e-dispositivos', plugins: [] },
     [P.INDICE]: { titulo: P.INDICE, prompt: 'indice', plugins: [] },
     [P.LITIGANCIA_PREDATORIA]: { titulo: P.LITIGANCIA_PREDATORIA, prompt: 'litigancia-predatoria', plugins: [] },
     [P.CHAT]: { titulo: P.CHAT, prompt: 'chat', plugins: [] },
@@ -92,12 +95,20 @@ export type TipoDeSinteseType = {
     status: StatusDeLancamento,
 }
 
-const padroesBasicos = [
-    [ANY(), EXACT(T.SENTENCA), ANY(), OR(T.APELACAO, T.RECURSO, T.RECURSO_INOMINADO), ANY({ capture: [T.CONTRARRAZOES, T.CONTRARRAZOES_AO_RECURSO_DE_APELACAO] }), OR(T.CONTRARRAZOES, T.CONTRARRAZOES_AO_RECURSO_DE_APELACAO), ANY()],
-    [ANY(), EXACT(T.SENTENCA), ANY(), OR(T.APELACAO, T.RECURSO, T.RECURSO_INOMINADO), ANY()],
-    [ANY(), EXACT(T.PETICAO_INICIAL), ANY({ capture: [T.EMENDA_DA_INICIAL, T.CONTESTACAO, T.INFORMACAO_EM_MANDADO_DE_SEGURANCA, T.LAUDO] }), OR(T.CONTESTACAO, T.INFORMACAO_EM_MANDADO_DE_SEGURANCA), ANY(), EXACT(T.SENTENCA), ANY()],
+const padroesApelacao = [
+    [ANY(), EXACT(T.PETICAO_INICIAL), ANY(), EXACT(T.SENTENCA), ANY(), OR(T.APELACAO, T.RECURSO, T.RECURSO_INOMINADO), ANY({ capture: [T.CONTRARRAZOES, T.CONTRARRAZOES_AO_RECURSO_DE_APELACAO] }), OR(T.CONTRARRAZOES, T.CONTRARRAZOES_AO_RECURSO_DE_APELACAO),  ANY({ capture: [T.PARECER] })]
+]
+
+const padroesPeticaoInicialEContestacao = [
     [ANY(), EXACT(T.PETICAO_INICIAL), ANY({ capture: [T.EMENDA_DA_INICIAL, T.CONTESTACAO, T.INFORMACAO_EM_MANDADO_DE_SEGURANCA, T.LAUDO] }), OR(T.CONTESTACAO, T.INFORMACAO_EM_MANDADO_DE_SEGURANCA), ANY()],
     [ANY(), EXACT(T.PETICAO_INICIAL), ANY({ capture: [T.EMENDA_DA_INICIAL, T.CONTESTACAO, T.INFORMACAO_EM_MANDADO_DE_SEGURANCA, T.LAUDO, T.CONTESTACAO, T.INFORMACAO_EM_MANDADO_DE_SEGURANCA] })],
+]
+
+const padroesBasicos = [
+    ...padroesApelacao,
+    [ANY(), EXACT(T.SENTENCA), ANY(), OR(T.APELACAO, T.RECURSO, T.RECURSO_INOMINADO), ANY()],
+    [ANY(), EXACT(T.PETICAO_INICIAL), ANY({ capture: [T.EMENDA_DA_INICIAL, T.CONTESTACAO, T.INFORMACAO_EM_MANDADO_DE_SEGURANCA, T.LAUDO] }), OR(T.CONTESTACAO, T.INFORMACAO_EM_MANDADO_DE_SEGURANCA), ANY(), EXACT(T.SENTENCA), ANY()],
+    ...padroesPeticaoInicialEContestacao,
     [ANY(), EXACT(T.PETICAO_INICIAL), ANY()]
 ]
 
@@ -146,9 +157,16 @@ export const TipoDeSinteseMap: Record<string, TipoDeSinteseType> = {
         ],
         produtos: [P.RESUMOS, P.PEDIDOS, P.CHAT]
     },
+    PEDIDOS_FUNDAMENTACOES_E_DISPOSITIVOS: {
+        status: StatusDeLancamento.EM_DESENVOLVIMENTO,
+        sort: 6,
+        nome: 'Minuta de Sentença',
+        padroes: padroesPeticaoInicialEContestacao,
+        produtos: [P.RESUMOS, P.PEDIDOS_FUNDAMENTACOES_E_DISPOSITIVOS, P.CHAT]
+    },
     CHAT: {
         status: StatusDeLancamento.PUBLICO,
-        sort: 6,
+        sort: 7,
         nome: 'Chat',
         padroes: [
             [ANY({ capture: [] })],
@@ -161,7 +179,7 @@ export const TipoDeSinteseMap: Record<string, TipoDeSinteseType> = {
 
     INDICE: {
         status: StatusDeLancamento.EM_DESENVOLVIMENTO,
-        sort: 7,
+        sort: 8,
         nome: 'Índice',
         padroes: [
             [ANY({ capture: [] })],
@@ -174,7 +192,7 @@ export const TipoDeSinteseMap: Record<string, TipoDeSinteseType> = {
 
     RELATORIO_CRIMINAL_COMPLETO_COM_INDICE: {
         status: StatusDeLancamento.EM_DESENVOLVIMENTO,
-        sort: 8,
+        sort: 9,
         nome: 'Relatório Completo Criminal',
         padroes: [
             [ANY({ capture: [] })],
@@ -184,7 +202,7 @@ export const TipoDeSinteseMap: Record<string, TipoDeSinteseType> = {
 
     MINUTA_DE_DESPACHO_DE_ACORDO_9_DIAS: {
         status: StatusDeLancamento.EM_DESENVOLVIMENTO,
-        sort: 9,
+        sort: 10,
         nome: 'Minuta de Despacho de Acordo 9 dias',
         padroes: [
             [ANY(), EXACT(T.PETICAO_INICIAL), ANY({ capture: [T.FORMULARIO] })],
@@ -268,8 +286,10 @@ export const selecionarPecasPorPadrao = (pecas: PecaType[], padroes: MatchOperat
     const matches: MatchResult[] = []
     for (const padrao of padroes) {
         const m = match(ps, padrao)
-        if (m !== null && m.length > 0)
+        if (m !== null && m.length > 0) {
             matches.push(m)
+            break
+        }
     }
     if (matches.length === 0) return null
 

@@ -1,12 +1,10 @@
 import { decrypt } from '../utils/crypt'
 import { Dao } from '../db/mysql'
-import { IADocument } from '../db/mysql-types'
 import { inferirCategoriaDaPeca } from '../category'
 import { obterConteudoDaPeca, obterDocumentoGravado } from './piece'
 import { assertNivelDeSigilo, nivelDeSigiloPermitido, verificarNivelDeSigilo } from './sigilo'
-import { P, ProdutoCompleto, selecionarPecasPorPadrao, T, TipoDeSinteseEnum, TipoDeSinteseMap } from './combinacoes'
+import { P, selecionarPecasPorPadrao, T, TipoDeSinteseEnum, TipoDeSinteseMap } from './combinacoes'
 import { infoDeProduto, TiposDeSinteseValido } from './info-de-produto'
-import { Documento, match, MatchOperator, MatchResult } from './pattern'
 import { getInterop, Interop } from '../interop/interop'
 import { DadosDoProcessoType, PecaType, StatusDeLancamento } from './process-types'
 
@@ -97,7 +95,10 @@ export const obterDadosDoProcesso = async ({ numeroDoProcesso, pUser, idDaPeca, 
         await interop.init()
 
         const arrayDadosDoProcesso = await interop.consultarProcesso(numeroDoProcesso)
-        const dadosDoProcesso = arrayDadosDoProcesso[arrayDadosDoProcesso.length - 1]
+        let dadosDoProcesso = arrayDadosDoProcesso[arrayDadosDoProcesso.length - 1]
+        if (idDaPeca) {
+            dadosDoProcesso = arrayDadosDoProcesso.find(d => d.pecas.map(p => p.id).includes(idDaPeca))
+        }
         pecas = [...dadosDoProcesso.pecas]
 
         // for (const peca of pecas) {
@@ -268,4 +269,3 @@ export const obterDadosDoProcesso2 = async ({ numeroDoProcesso, pUser, pieces, c
         return { errorMsg }
     }
 }
-

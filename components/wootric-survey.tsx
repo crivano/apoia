@@ -2,7 +2,7 @@
 
 import { useEffect } from "react"
 
-export default function WootricSurvey( {user}:  {user: any}) {
+export default function WootricSurvey( {user, token}:  {user: any, token: string}) {
     useEffect(() => {
         // Load the script dynamically
         const script = document.createElement("script");
@@ -10,11 +10,11 @@ export default function WootricSurvey( {user}:  {user: any}) {
         script.async = true;
         script.onload = () => {
             if (window.wootric) {
-                window.wootric_survey_immediately = true
+                // window.wootric_survey_immediately = true
                 window.wootricSettings = {
-                    account_token: process.env.NEXT_PUBLIC_WOOTRIC_ACCOUNT_TOKEN, 
+                    account_token: token, 
                     email: user.email, 
-                    // created_at: 1234567890,
+                    created_at: 1234567890,
                     // Other optional settings:
                     // language: 'en',
                     // product_name: 'ApoIA',

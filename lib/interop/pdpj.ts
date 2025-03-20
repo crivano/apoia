@@ -164,6 +164,21 @@ export class InteropPDPJ implements Interop {
             const classe = tua[codigoDaClasse]
             resp.push({ numeroDoProcesso, ajuizamento, codigoDaClasse, classe, nomeOrgaoJulgador, pecas, segmento, instancia, materia, oabPoloAtivo })
         }
+
+        if (resp.length > 1) {
+            resp.sort((a, b) => {
+                const latestPecaDateA = a.pecas.length ? Math.max(...a.pecas.map(p => p.dataHora.getTime())) : 0;
+                const latestPecaDateB = b.pecas.length ? Math.max(...b.pecas.map(p => p.dataHora.getTime())) : 0;
+                return latestPecaDateB - latestPecaDateA;
+            })
+            const combinado = resp.reduce((acc, p) => {
+                acc.pecas.push(...p.pecas)
+                return acc
+            }, { ...resp[0], classe: `[Processos Agregados]`, pecas: [] })
+            combinado.pecas.sort((a, b) => a.dataHora.getTime() - b.dataHora.getTime())
+            resp.push(combinado)
+        }
+
         return resp
     }
 

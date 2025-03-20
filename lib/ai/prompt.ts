@@ -147,6 +147,7 @@ import sentenca from "@/prompts/sentenca.md"
 import int_identificar_categoria_de_peca from '@/prompts/int-identificar-categoria-de-peca.md'
 import litigancia_predatoria from '@/prompts/litigancia-predatoria.md'
 import pedidos_de_peticao_inicial from '@/prompts/pedidos-de-peticao-inicial.md'
+import pedidos_fundamentacoes_e_dispositivos from '@/prompts/pedidos-fundamentacoes-e-dispositivos.md'
 import indice from '@/prompts/indice.md'
 import chat from '@/prompts/chat.md'
 import relatorio_completo_criminal from '@/prompts/relatorio-completo-criminal.md'
@@ -173,6 +174,7 @@ export const internalPrompts = {
     int_identificar_categoria_de_peca: promptDefinitionFromMarkdown('int_identificar_categoria_de_peca', int_identificar_categoria_de_peca),
     litigancia_predatoria: promptDefinitionFromMarkdown('litigancia_predatoria', litigancia_predatoria),
     pedidos_de_peticao_inicial: promptDefinitionFromMarkdown('pedidos_de_peticao_inicial', pedidos_de_peticao_inicial),
+    pedidos_fundamentacoes_e_dispositivos: promptDefinitionFromMarkdown('pedidos_fundamentacoes_e_dispositivos', pedidos_fundamentacoes_e_dispositivos),
     indice: promptDefinitionFromMarkdown('indice', indice),
     chat: promptDefinitionFromMarkdown('chat', chat),
     relatorio_completo_criminal: promptDefinitionFromMarkdown('relatorio_completo_criminal', relatorio_completo_criminal),

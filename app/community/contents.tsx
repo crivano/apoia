@@ -104,8 +104,8 @@ export function Contents({ prompts, user, user_id, apiKeyProvided, listPublicPro
                 return
             }
             setArrayDeDadosDoProcesso(data.arrayDeDadosDoProcesso)
-            const dadosDoProc = data.arrayDeDadosDoProcesso[data.arrayDeDadosDoProcesso.length - 1]
-            setIdxProcesso(data.arrayDeDadosDoProcesso.length - 1)
+            const dadosDoProc = data.arrayDeDadosDoProcesso[0]
+            setIdxProcesso(0)
             setDadosDoProcesso(dadosDoProc)
         }
     }
