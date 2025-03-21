@@ -52,8 +52,9 @@ const fixOutrosNumerosDeProcessos = (outrosNumerosDeProcessos: string, numeroDoP
     return Array.from(numerosUnicosDeProcessos).join(', ')
 }
 
-export default function AbusiveLitigationPage(params: { NAVIGATE_TO_PROCESS_URL?: string }) {
+export default function AbusiveLitigationPage(params: { NAVIGATE_TO_PROCESS_URL?: string, hasApiKey: boolean }) {
     const NAVIGATE_TO_PROCESS_URL = params.NAVIGATE_TO_PROCESS_URL
+    const hasApiKey = params.hasApiKey
     const [outrosNumerosDeProcessos, setOutrosNumerosDeProcessos] = useState('')
     const [numeroDoProcesso, setNumeroDoProcesso] = useState('')
     const [hidden, setHidden] = useState(true)
@@ -370,7 +371,7 @@ export default function AbusiveLitigationPage(params: { NAVIGATE_TO_PROCESS_URL?
                                 <td className="text-end" title="Clique para tornar o principal" style={{ cursor: 'pointer' }} onClick={e => replaceMainProcess(processo.numeroDoProcesso)}>{index + 1}</td>
                                 <td>{NAVIGATE_TO_PROCESS_URL ? (<a href={NAVIGATE_TO_PROCESS_URL.replace('{numero}', processo.numeroDoProcesso)} style={{ color: 'rgb(33, 37, 41)', textDecoration: 'none' }} target="_blank" title="Clique para visualizar o processo">{processo.numeroDoProcesso}</a>) : processo.numeroDoProcesso}</td>
                                 {processo.errorMsg
-                                    ? <td className="text-end text-danger" colSpan={principal.pecasSelecionadas.length + 1}>{processo.errorMsg &&
+                                    ? <td className="text-end text-danger" colSpan={principal.pecasSelecionadas.length + 2}>{processo.errorMsg &&
                                         <>
                                             {processo.errorMsg}
                                             <span className="text-secondary" onClick={() => { refreshProcesso(processo.numeroDoProcesso) }}> <FontAwesomeIcon icon={faRefresh} /></span>
@@ -390,7 +391,7 @@ export default function AbusiveLitigationPage(params: { NAVIGATE_TO_PROCESS_URL?
                 </table>
             </>}
 
-            {!hidden && processoPrincipal && textos && <>
+            {!hidden && processoPrincipal && textos && hasApiKey && <>
                 <h2 className="mt-3">Análise Qualitativa</h2>
                 <AiContent key={numeroDoProcesso + outrosNumerosDeProcessos}
                     definition={getInternalPrompt('litigancia-predatoria')}
