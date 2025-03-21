@@ -28,6 +28,7 @@ export default async function New({ params, searchParams }: { params: { kind: st
     const copyFromId = searchParams.copyFrom
     if (copyFromId) {
         record = await Dao.retrievePromptById(parseInt(copyFromId))
+        record.share = "PRIVADO"
         if (!record) throw new Error('Prompt not found')
         const newName = record.name.replace(/\((\d+)\)$/, (_, n) => `(${Number(n) + 1})`)
         record.name = record.name === newName ? record.name + ' (1)' : newName

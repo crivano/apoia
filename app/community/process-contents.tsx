@@ -32,7 +32,6 @@ export default function ProcessContents({ prompt, dadosDoProcesso, pieceContent,
     }
 
     const chooseSelectedPieces = (allPieces: PecaType[], pieceStrategy: string, pieceDescr: string[]) => {
-        console.log('pieceStrategy2', PieceStrategy)
         const pattern = PieceStrategy[pieceStrategy].pattern
         if (pattern) {
             const pecasAcessiveis = allPieces.filter(p => nivelDeSigiloPermitido(p.sigilo))
@@ -122,7 +121,6 @@ export default function ProcessContents({ prompt, dadosDoProcesso, pieceContent,
     }
 
     useEffect(() => {
-        console.log('prompt', prompt)
         setSelectedPieces(chooseSelectedPieces(dadosDoProcesso.pecas, prompt.content.piece_strategy, prompt.content.piece_descr))
     }, [prompt])
 
