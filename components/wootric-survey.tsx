@@ -14,7 +14,7 @@ export default function WootricSurvey( {user, token}:  {user: any, token: string
                 window.wootricSettings = {
                     account_token: token, 
                     email: user.email, 
-                    created_at: 1234567890,
+                    created_at: 1608123600,
                     // Other optional settings:
                     // language: 'en',
                     // product_name: 'ApoIA',
