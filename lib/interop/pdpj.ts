@@ -1,5 +1,5 @@
 import { Interop, ObterPecaType } from './interop'
-import { DadosDoProcessoType, PecaType } from '../proc/process-types'
+import { DadosDoProcessoType, Instance, PecaType } from '../proc/process-types'
 import { parseYYYYMMDDHHMMSS } from '../utils/utils'
 import { assertNivelDeSigilo, verificarNivelDeSigilo } from '../proc/sigilo'
 import { getCurrentUser } from '../user'
@@ -172,7 +172,7 @@ export class InteropPDPJ implements Interop {
                 return latestPecaDateB - latestPecaDateA;
             })
             const combinado = resp.reduce((acc, p) => {
-                acc.pecas.push(...p.pecas)
+                acc.pecas.push(...p.pecas.map(peca => ({ ...peca, numeroDoEvento: peca.numeroDoEvento + (Instance[p.instancia] ? `, ${Instance[p.instancia].acronym} Grau` : '') })))
                 return acc
             }, { ...resp[0], classe: `[Processos Agregados]`, pecas: [] })
             combinado.pecas.sort((a, b) => a.dataHora.getTime() - b.dataHora.getTime())
