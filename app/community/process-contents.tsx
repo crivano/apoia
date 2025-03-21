@@ -3,7 +3,7 @@
 import { IAPrompt } from "@/lib/db/mysql-types";
 import { DadosDoProcessoType, PecaType } from "@/lib/proc/process-types";
 import { ReactNode, useEffect, useState } from "react";
-import { InfoDeProduto, P, PieceStrategy, selecionarPecasPorPadrao } from "@/lib/proc/combinacoes";
+import { InfoDeProduto, P, PieceStrategy, selecionarPecasPorPadrao, T } from "@/lib/proc/combinacoes";
 import { GeneratedContent, PromptDataType, PromptDefinitionType, TextoType } from "@/lib/ai/prompt-types";
 import { slugify } from "@/lib/utils/utils";
 import { getInternalPrompt } from "@/lib/ai/prompt";
@@ -38,7 +38,8 @@ export default function ProcessContents({ prompt, dadosDoProcesso, pieceContent,
             const pecasAcessiveis = allPieces.filter(p => nivelDeSigiloPermitido(p.sigilo))
             return selecionarPecasPorPadrao(pecasAcessiveis, pattern) || []
         }
-        return allPieces.filter(p => pieceDescr.includes(p.descr))
+        const validDescrs = pieceDescr.map(d => T[d] || d)
+        return allPieces.filter(p => validDescrs.includes(p.descr))
     }
 
     const getSelectedPiecesContents = async () => {
