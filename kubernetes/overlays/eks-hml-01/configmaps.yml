@@ -45,3 +45,5 @@ data:
   # JFRJ_MNI_ENDPOINT_URL: "https://eproc-ws.jfrj.jus.br/eproc/ws/controlador_ws.php?srv=intercomunicacao2.2"
   # JFES_MNI_WSDL_URL: "https://eproc-ws.jfes.jus.br/eproc/wsdl.php?srv=intercomunicacao2.2"
   # JFES_MNI_ENDPOINT_URL: "https://eproc-ws.jfes.jus.br/eproc/ws/controlador_ws.php?srv=intercomunicacao2.2"
+
+  MODERATOR: "00489623760"

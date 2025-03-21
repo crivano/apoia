@@ -334,6 +334,18 @@ export class Dao {
         return true;
     }
 
+    static async setPrivate(prompt_id: number): Promise<boolean> {
+        // use knex to set the prompt as private
+        await knex('ia_prompt').update({ share: 'PRIVADO' }).where({ id: prompt_id })
+        return true
+    }
+
+    static async setStandard(prompt_id: number): Promise<boolean> {
+        // use knex to set the prompt as standard
+        await knex('ia_prompt').update({ share: 'PADRAO' }).where({ id: prompt_id })
+        return true
+    }
+
     static async retrieveOfficialPrompts(): Promise<mysqlTypes.IAPrompt[]> {
         if (!knex) return
         const result = await knex('ia_prompt').select<Array<mysqlTypes.IAPrompt>>('*').where({ is_official: 1 })
