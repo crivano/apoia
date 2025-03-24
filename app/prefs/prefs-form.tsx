@@ -109,10 +109,14 @@ export default function PrefsForm(params) {
                     <div className="col col-12 col-md-8 col-xxl-6">
                         <div className=" d-block mx-auto mb-3 alert-secondary alert">
                             <div key={refreshCount}>
-                                {enumSorted(ModelProvider).map((provider) => (
+                                {enumSorted(ModelProvider).map((provider) => (<>
                                     <div className="row mb-2" key={provider.value.name} hidden={params.statusDeLancamento < provider.value.status}>
-                                        <Frm.Input label={`${provider.value.name}: Chave da API`} name={`env['${provider.value.apiKey}']`} validator={(value: string, name: string) => validator(value, name, provider.value.apiKeyRegex)} />
-                                    </div>))}
+                                        <Frm.Input label={`${provider.value.name}: Chave da API`} name={`env['${provider.value.apiKey}']`} validator={(value: string, name: string) => validator(value, name, provider.value.apiKeyRegex)} width={provider.value.resourceName ? 8 : 12} />
+                                        {provider.value.resourceName &&
+                                            <Frm.Input label={`Nome do Recurso`} name={`env['${provider.value.resourceName}']`} width="4" />
+                                        }
+                                    </div>
+                                </>))}
                                 {/* <div className="row mb-3">
                                     <div className="col">
                                     <div className="form-group">

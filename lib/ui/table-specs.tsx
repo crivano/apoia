@@ -46,7 +46,7 @@ const tableSpecs = (pathname: string, onClick: (kind: string, row: any) => void)
         Prompts: {
             columns: [
                 {
-                    header: ' ', accessorKey: '', style: { textAlign: "right", width: "1%" }, enableSorting: false, cell: data => data.row.original.is_favorite
+                    header: ' ', accessorKey: '', style: { textAlign: "center", width: "1%" }, enableSorting: false, cell: data => data.row.original.is_favorite
                         ? <a href={`/community/prompt/${data.row.original.base_id}/reset-favorite`} className="text-primary"><FontAwesomeIcon className="me-1" icon={data.row.original.is_mine ? faUserSolid : faStarSolid} /></a>
                         : <a href={`/community/prompt/${data.row.original.base_id}/set-favorite`} className="text-secondary opacity-50"><FontAwesomeIcon className="me-1" icon={data.row.original.is_mine ? faUser : faStar} /></a>
                 },
