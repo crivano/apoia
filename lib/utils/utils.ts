@@ -136,3 +136,15 @@ export const intOrUndefined = (v: string | number | undefined): number | undefin
   }
   return v
 }
+
+// Remove accents, remove spaces, to camelcase, first letter lowercase
+export const labelToName = (label: string) => {
+  return label
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-zA-Z0-9 ]/g, '')
+    .replace(/\b\w/g, char => char.toUpperCase())
+    .replace(/ /g, '')
+    .replace(/^./, char => char.toLowerCase());
+}
+

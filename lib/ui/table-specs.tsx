@@ -6,6 +6,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import Link from 'next/link'
 import { Button, ButtonGroup, Dropdown, DropdownButton, Form } from "react-bootstrap"
 import { Instance, Matter, Scope, Share } from "../proc/process-types"
+import { maxDuration } from "@/app/batch/page"
 
 const tableSpecs = (pathname: string, onClick: (kind: string, row: any) => void) => {
     return {
@@ -29,12 +30,13 @@ const tableSpecs = (pathname: string, onClick: (kind: string, row: any) => void)
                     ),
                 },
                 { header: 'Evento', accessorKey: 'numeroDoEvento', enableSorting: true },
-                { header: 'Descrição', accessorKey: 'descricaoDoEvento', enableSorting: true },
-                { header: 'Rótulo', accessorKey: 'rotulo', enableSorting: true },
-                { header: 'Tipo', accessorKey: 'descr', enableSorting: true, cell: data => <span>{data.row.original.descr.toUpperCase()}</span> },
+                { header: 'Descrição', accessorKey: 'descricaoDoEvento', enableSorting: true, style: { whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '10em' }, cell: data => <span title={data.row.original.descricaoDoEvento}>{data.row.original.descricaoDoEvento.toLowerCase()}</span> },
+                { header: 'Rótulo', accessorKey: 'rotulo', enableSorting: true, style: { whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '10em' }, cell: data => <span title={data.row.original.rotulo}>{data.row.original.rotulo.toLowerCase()}</span> },
+                { header: 'Tipo', accessorKey: 'descr', enableSorting: true, style: { whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '10em' }, cell: data => <span title={data.row.original.descr}>{data.row.original.descr.toLowerCase()}</span> },
                 { header: 'Sigilo', accessorKey: 'sigilo', enableSorting: true, cell: data => <span>{data.row.original.sigilo}</span> },
             ],
             tableClassName: 'table table-sm table-striped table-warning',
+            pageSizes: [10, 20, 50, 100, 200, 500],
         },
         CountersByPromptKinds: {
             columns: [

@@ -69,10 +69,10 @@ export const Scope: ScopeType = ScopeArray.reduce((acc, cur, idx) => {
 
 
 const InstanceArray = [
-    { id: 1, name: 'PRIMEIRO_GRAU', descr: 'Primeira', acronym: '1ª' },
-    { id: 2, name: 'SEGUNDO_GRAU', descr: 'Segunda', acronym: '2ª' },
-    { id: 3, name: 'TERCEIRO_GRAU', descr: 'Terceira', acronym: '3ª' },
-    { id: 4, name: 'QUARTO_GRAU', descr: 'Quarto', acronym: '4ª' },
+    { id: 1, name: 'PRIMEIRO_GRAU', descr: 'Primeira', acronym: '1º' },
+    { id: 2, name: 'SEGUNDO_GRAU', descr: 'Segunda', acronym: '2º' },
+    { id: 3, name: 'TERCEIRO_GRAU', descr: 'Terceira', acronym: '3º' },
+    { id: 4, name: 'QUARTO_GRAU', descr: 'Quarto', acronym: '4º' },
 ]
 export type InstanceValueType = EnumOfObjectsValueType & { descr: string, acronym: string }
 export type InstanceType = { [key: string]: InstanceValueType }

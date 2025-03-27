@@ -284,6 +284,35 @@ export class FormHelper {
         )
     }
 
+    public CheckBoxes = ({ label, labelsAndNames, width }: { label: string, labelsAndNames: { label: string, name: string }[], width?: number | string }) => {
+        return this.setData ? (
+            <div className={this.colClass(width)}>
+                <Form.Label>{label}</Form.Label>
+                {labelsAndNames.map((c, idx) => {
+                    return (
+                        <Form.Check key={c.name} type="checkbox" label={c.label} checked={this.get(c.name)} onChange={e => this.set(c.name, e.target.checked)} />
+                    )
+                })}
+            </div>
+        ) : (
+            <div className={this.colClass(width)}>
+                <Form.Label>{label}</Form.Label>
+                <table className="table table-bordered">
+                    <tbody>
+                        {labelsAndNames.map((c, idx) => {
+                            return (
+                                <tr key={c.name}>
+                                    <td>{c.label}</td>
+                                    <td><strong>{this.get(c.name) ? 'Sim' : 'Não'}</strong></td>
+                                </tr>
+                            )
+                        })}
+                    </tbody>
+                </table>
+            </div>
+        )
+    }
+
     public Button = ({ onClick, variant, children }: { onClick: () => void, variant?: string, children }) => {
         return (<div className="col col-auto mt-3">
             <label className="form-label">&nbsp;</label><br />

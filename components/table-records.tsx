@@ -10,7 +10,9 @@ import {
     getFilteredRowModel,
     getPaginationRowModel,
     useReactTable,
-    RowSelectionState
+    RowSelectionState,
+    filterFns,
+    FilterMeta
 } from '@tanstack/react-table'
 import { Table as BTable, Pagination, Form } from 'react-bootstrap'
 import tableSpecs from '@/lib/ui/table-specs'
@@ -20,16 +22,25 @@ import Link from 'next/link'
 import { link } from 'fs'
 import { usePathname } from "next/navigation"
 
+const customFilterFn = (rows, columnId, filterValue, addMeta: (meta: FilterMeta) => void): boolean => {
+    console.log('rows', rows)
+    if (filterValue === 'selecionada') {
+        return rows.getIsSelected()
+    }
+    return filterFns.includesString(rows, columnId, filterValue, addMeta)
+}
+
 
 
 export default function Table({ records, spec, linkToAdd, linkToBack, pageSize, selectedIds, onSelectdIdsChanged, onClick, children }: {
     records: any[], spec: string | any, linkToAdd?: string, linkToBack?: string, pageSize?: number,
     selectedIds?: string[], onSelectdIdsChanged?: (ids: string[]) => void, onClick?: (kind: string, row: any) => void, children?: any
 }) {
+    const [currentPageSize, setCurrentPageSize] = useState(pageSize || 5)
     const [sorting, setSorting] = useState([])
     const [globalFilter, setGlobalFilter] = useState('')
     const pathname = usePathname()
-    const { columns, thead, tr, tableClassName } = typeof (spec) === 'string' ? tableSpecs(pathname, onClick)[spec] : spec
+    const { columns, thead, tr, tableClassName, pageSizes } = typeof (spec) === 'string' ? tableSpecs(pathname, onClick)[spec] : spec
     const [rowSelection, setRowSelection] = useState<RowSelectionState>(selectedIds ? selectedIds.reduce((acc, value) => ({ ...acc, [value]: true }), {}) : {})
 
     const table = useReactTable({
@@ -41,6 +52,7 @@ export default function Table({ records, spec, linkToAdd, linkToBack, pageSize, 
         autoResetPageIndex: false,
         onRowSelectionChange: setRowSelection, //hoist up the row selection state to your own scope
         onSortingChange: setSorting,
+        globalFilterFn: customFilterFn,
         onGlobalFilterChange: setGlobalFilter,
         getCoreRowModel: getCoreRowModel(),
         getSortedRowModel: getSortedRowModel(),
@@ -48,7 +60,11 @@ export default function Table({ records, spec, linkToAdd, linkToBack, pageSize, 
         getPaginationRowModel: getPaginationRowModel(),
         getRowId: row => row.id,
     })
-    table.getState().pagination.pageSize = pageSize || 5
+
+    useEffect(() => {
+        table.setPageSize(currentPageSize)
+        table.setPageIndex(0)
+    }, [currentPageSize])
 
     useEffect(() => {
         if (selectedIds)
@@ -111,12 +127,41 @@ export default function Table({ records, spec, linkToAdd, linkToBack, pageSize, 
                     }
                 </div>
                 <div className="col col-auto mb-0">
+                    <input
+                        list="filter-options"
+                        value={globalFilter}
+                        onChange={e => { setGlobalFilter(String(e.target.value)); table.setGlobalFilter(String(e.target.value)) }}
+                        placeholder="Filtrar..."
+                        className="form-control" style={{ width: '8em' }}
+                    />
+                    <datalist id="filter-options">
+                        <option value="selecionada" />
+                    </datalist>
+                </div>
+                {pageSizes && Array.isArray(pageSizes) && pageSizes.length > 0 && (
+                    <div className="col col-auto mb-0">
+                        <Form.Select
+                            value={currentPageSize}
+                            onChange={e => setCurrentPageSize(Number(e.target.value))}
+                            className="d-print-none"
+                        >
+                            {pageSizes.map(size => (
+                                <option key={size} value={size}>{size}</option>
+                            ))}
+                        </Form.Select>
+                    </div>
+                )}
+                <div className="col col-auto mb-0">
                     <Pagination className='mb-0'>
+                        <Pagination.First onClick={() => table.firstPage()}
+                            disabled={!table.getCanPreviousPage()} />
                         <Pagination.Prev onClick={() => table.previousPage()}
                             disabled={!table.getCanPreviousPage()} />
                         <Pagination.Item> {table.getState().pagination.pageIndex + 1} of{' '}
                             {table.getPageCount()}</Pagination.Item>
                         <Pagination.Next onClick={() => table.nextPage()}
+                            disabled={!table.getCanNextPage()} />
+                        <Pagination.Last onClick={() => table.lastPage()}
                             disabled={!table.getCanNextPage()} />
                     </Pagination>
                 </div>
