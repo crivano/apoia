@@ -5,7 +5,7 @@ import { DadosDoProcessoType, PecaType } from "@/lib/proc/process-types";
 import { ReactNode, useEffect, useState } from "react";
 import { InfoDeProduto, P, PieceStrategy, selecionarPecasPorPadrao, T } from "@/lib/proc/combinacoes";
 import { GeneratedContent, PromptDataType, PromptDefinitionType, TextoType } from "@/lib/ai/prompt-types";
-import { slugify } from "@/lib/utils/utils";
+import { joinWithAnd, slugify } from "@/lib/utils/utils";
 import { getInternalPrompt } from "@/lib/ai/prompt";
 import { ProgressBar } from "react-bootstrap";
 import Print from "@/app/process/[id]/print";
@@ -15,11 +15,12 @@ import ErrorMsg from "./error-msg";
 import { ListaDeProdutos } from "./lista-produtos-client";
 import { PromptParaCopiar } from "./prompt-to-copy";
 
-export default function ProcessContents({ prompt, dadosDoProcesso, pieceContent, setPieceContent, apiKeyProvided, children }: { prompt: IAPrompt, dadosDoProcesso: DadosDoProcessoType, pieceContent: any, setPieceContent: (pieceContent: any) => void, apiKeyProvided: boolean, children?: ReactNode }) {
+export default function ProcessContents({ prompt, dadosDoProcesso, pieceContent, setPieceContent, apiKeyProvided, model, children }: { prompt: IAPrompt, dadosDoProcesso: DadosDoProcessoType, pieceContent: any, setPieceContent: (pieceContent: any) => void, apiKeyProvided: boolean, model?: string, children?: ReactNode }) {
     const [selectedPieces, setSelectedPieces] = useState<PecaType[]>([])
     const [loadingPiecesProgress, setLoadingPiecesProgress] = useState(-1)
     const [requests, setRequests] = useState<GeneratedContent[]>([])
     const [readyToStartAI, setReadyToStartAI] = useState(false)
+    const [choosingPieces, setChoosingPieces] = useState(false)
 
     const changeSelectedPieces = (pieces: string[]) => {
         setSelectedPieces(dadosDoProcesso.pecas.filter(p => pieces.includes(p.id)))
@@ -42,6 +43,7 @@ export default function ProcessContents({ prompt, dadosDoProcesso, pieceContent,
     }
 
     const getSelectedPiecesContents = async () => {
+        const startTime = new Date()
         if (selectedPieces.length === 0) return
         const cache = pieceContent
         const loading = {}
@@ -67,8 +69,13 @@ export default function ProcessContents({ prompt, dadosDoProcesso, pieceContent,
         }
         setPieceContent(contents)
         setLoadingPiecesProgress(-1)
+
+        const minimumTime = 1500
+        const elapsedTime = new Date().getTime() - startTime.getTime()
+        if (!readyToStartAI && elapsedTime < minimumTime) {
+            await new Promise(resolve => setTimeout(resolve, minimumTime - elapsedTime))
+        }
         setRequests(buildRequests(contents))
-        setReadyToStartAI(true)
     }
 
     const LoadingPieces = () => {
@@ -129,10 +136,14 @@ export default function ProcessContents({ prompt, dadosDoProcesso, pieceContent,
         getSelectedPiecesContents()
     }, [selectedPieces])
 
+    useEffect(() => {
+        if (requests && requests.length && !choosingPieces) setReadyToStartAI(true)
+    }, [choosingPieces, requests])
+
     return <div>
         <Subtitulo dadosDoProcesso={dadosDoProcesso} />
         {children}
-        <ChoosePieces allPieces={dadosDoProcesso.pecas} selectedPieces={selectedPieces} onSave={changeSelectedPieces} />
+        <ChoosePieces allPieces={dadosDoProcesso.pecas} selectedPieces={selectedPieces} onSave={changeSelectedPieces} onStartEditing={() => setChoosingPieces(true)} onEndEditing={() => setChoosingPieces(false)} />
         <LoadingPieces />
         <ErrorMsg dadosDoProcesso={dadosDoProcesso} />
         <div className="mb-4"></div>
@@ -147,6 +158,9 @@ export default function ProcessContents({ prompt, dadosDoProcesso, pieceContent,
         }
         <hr className="mt-5" />
         <p style={{ textAlign: 'center' }}>Este documento foi gerado pela ApoIA, ferramenta de inteligência artificial desenvolvida exclusivamente para facilitar a triagem de acervo, e não substitui a elaboração de relatório específico em cada processo, a partir da consulta manual aos eventos dos autos. Textos gerados por inteligência artificial podem conter informações imprecisas ou incorretas.</p>
-
+        <p style={{ textAlign: 'center' }}>
+            O prompt {`${prompt.name} (${prompt.id})`} utilizou o modelo {model} 
+            {selectedPieces?.length && <span> e acessou as peças: {joinWithAnd(selectedPieces.map(p => `${p.descr?.toLowerCase()} (e.${p.numeroDoEvento})`))}</span>}
+        .</p>
     </div >
 }    

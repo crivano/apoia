@@ -29,7 +29,7 @@ export const copyPromptToClipboard = (prompt: IAPromptList) => {
     navigator.clipboard.writeText(s)
 }
 
-export function Contents({ prompts, user, user_id, apiKeyProvided, listPublicPromptsCookie }: { prompts: IAPromptList[], user: UserType, user_id: number, apiKeyProvided: boolean, listPublicPromptsCookie: boolean }) {
+export function Contents({ prompts, user, user_id, apiKeyProvided, model, listPublicPromptsCookie }: { prompts: IAPromptList[], user: UserType, user_id: number, apiKeyProvided: boolean, model?: string, listPublicPromptsCookie: boolean }) {
     const currentSearchParams = useSearchParams()
     const [prompt, setPrompt] = useState<IAPromptList>(null)
     const [numeroDoProcesso, setNumeroDoProcesso] = useState<string>(null)
@@ -185,21 +185,21 @@ export function Contents({ prompts, user, user_id, apiKeyProvided, listPublicPro
                         }
                         <div className="col col-auto ms-auto">
                             <FormLabel className="mb-0">Segmento</FormLabel>
-                            <FormSelect value={scope} onChange={(e) => setScope(e.target.value)} className="form-select w-auto">
+                            <FormSelect value={scope} onChange={(e) => setScope(e.target.value)} className={`form-select w-auto${scope ? ' bg-warning' : ''}`}>
                                 <option value="">Todos</option>
                                 {enumSorted(Scope).map((s) => <option key={`key-scope-${s.value.name}`} value={s.value.name}>{s.value.descr}</option>)}
                             </FormSelect>
                         </div>
                         <div className="col col-auto">
                             <FormLabel className="mb-0">Instância</FormLabel>
-                            <FormSelect value={instance} onChange={(e) => setInstance(e.target.value)} className="form-select w-auto">
+                            <FormSelect value={instance} onChange={(e) => setInstance(e.target.value)} className={`form-select w-auto${instance ? ' bg-warning' : ''}`}>
                                 <option value="">Todas</option>
                                 {enumSorted(Instance).map((s) => <option key={`key-instance-${s.value.name}`} value={s.value.name}>{s.value.descr}</option>)}
                             </FormSelect>
                         </div>
                         <div className="col col-auto">
-                            <FormLabel className="mb-0">Matéria</FormLabel>
-                            <FormSelect value={matter} onChange={(e) => setMatter(e.target.value)} className="form-select w-auto">
+                            <FormLabel className="mb-0">Natureza</FormLabel>
+                            <FormSelect value={matter} onChange={(e) => setMatter(e.target.value)} className={`form-select w-auto${matter ? ' bg-warning' : ''}`}>
                                 <option value="">Todas</option>
                                 {enumSorted(Matter).map((s) => <option key={`key-matter-${s.value.name}`} value={s.value.name}>{s.value.descr}</option>)}
                             </FormSelect>
@@ -276,7 +276,7 @@ export function Contents({ prompts, user, user_id, apiKeyProvided, listPublicPro
                             <div id="printDiv">
                                 <ProcessTitle id={numeroDoProcesso} />
                                 {dadosDoProcesso
-                                    ? <ProcessContents prompt={prompt} dadosDoProcesso={dadosDoProcesso} pieceContent={pieceContent} setPieceContent={setPieceContent} apiKeyProvided={apiKeyProvided}>
+                                    ? <ProcessContents prompt={prompt} dadosDoProcesso={dadosDoProcesso} pieceContent={pieceContent} setPieceContent={setPieceContent} apiKeyProvided={apiKeyProvided} model={model}>
                                         <PromptTitle prompt={prompt} />
                                     </ProcessContents>
                                     : <><SubtituloLoading /><PromptTitle prompt={prompt} /></>}

@@ -43,6 +43,17 @@ export const maiusculasEMinusculas = (s) => {
   return s;
 }
 
+export const joinWithAnd = (arr: string[]): string => {
+  if (arr.length === 0) return ''
+  if (arr.length === 1) return arr[0]
+  if (arr.length === 2) return `${arr[0]} and ${arr[1]}`
+  
+  const lastItem = arr[arr.length - 1]
+  const itemsExceptLast = arr.slice(0, -1)
+  
+  return `${itemsExceptLast.join(', ')} e ${lastItem}`
+}
+
 export const getNumberOfDaysInMonth = (year: number, month: number): number => {
   // Create a new Date object with the given year and month (months are zero-based)
   const date = new Date(year, month - 1, 1);

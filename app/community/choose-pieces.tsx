@@ -11,6 +11,7 @@ import { Button } from "react-bootstrap";
 import { TipoDeSinteseEnum, TipoDeSinteseMap } from "@/lib/proc/combinacoes";
 import { EMPTY_FORM_STATE, FormHelper } from "@/lib/ui/form-support";
 import { TiposDeSinteseValido } from "@/lib/proc/info-de-produto";
+import { on } from "events";
 
 const Frm = new FormHelper()
 
@@ -78,7 +79,7 @@ export const ChoosePiecesLoading = () => {
 }
 
 
-export default function ChoosePieces({ allPieces, selectedPieces, onSave }: { allPieces: PecaType[], selectedPieces: PecaType[], onSave: (pieces: string[]) => void }) {
+export default function ChoosePieces({ allPieces, selectedPieces, onSave, onStartEditing, onEndEditing }: { allPieces: PecaType[], selectedPieces: PecaType[], onSave: (pieces: string[]) => void, onStartEditing: () => void, onEndEditing: () => void }) {       
     const pathname = usePathname(); // let's get the pathname to make the component reusable - could be used anywhere in the project
     const router = useRouter();
     const currentSearchParams = useSearchParams()
@@ -90,10 +91,12 @@ export default function ChoosePieces({ allPieces, selectedPieces, onSave }: { al
         setEditing(false)
         // setReloading(true)
         onSave(pieces)
+        onEndEditing()
     }
 
     const onClose = () => {
         setEditing(false)
+        onEndEditing()
     }
 
     if (reloading) {
@@ -113,7 +116,7 @@ export default function ChoosePieces({ allPieces, selectedPieces, onSave }: { al
         } else {
             s += l[0] + ' + ' + (l.length - 1)
         }
-        return <p className="text-muted text-center h-print">{s} - <span onClick={() => { setEditing(true) }} className="text-primary" style={{ cursor: 'pointer' }}><FontAwesomeIcon icon={faEdit} /> Alterar</span></p>
+        return <p className="text-muted text-center h-print">{s} - <span onClick={() => { setEditing(true); onStartEditing() }} className="text-primary" style={{ cursor: 'pointer' }}><FontAwesomeIcon icon={faEdit} /> Alterar</span></p>
     }
     return <ChoosePiecesForm onSave={onSaveLocal} onClose={onClose} allPieces={allPieces} selectedPieces={selectedPieces} />
 }
