@@ -57,8 +57,8 @@ const ScopeArray = [
     { id: 2, name: 'JUSTICA_FEDERAL', descr: 'Federal', acronym: 'JF' },
     { id: 3, name: 'JUSTICA_ESTADUAL', descr: 'Estadual' , acronym: 'JE'},
     { id: 4, name: 'JUSTICA_TRABALHO', descr: 'Trabalhista', acronym: 'JT' },
-    { id: 2, name: 'JUSTICA_ELEITORAL', descr: 'Eleitoral', acronym: 'JE' },
-    { id: 2, name: 'JUSTICA_MILITAR_UNIAO', descr: 'Militar', acronym: 'JM' },
+    { id: 2, name: 'JUSTICA_ELEITORAL', descr: 'Eleitoral', acronym: 'TRE' },
+    { id: 2, name: 'JUSTICA_MILITAR_UNIAO', descr: 'Militar', acronym: 'JMU' },
 ]
 export type ScopeValueType = EnumOfObjectsValueType & { descr: string, acronym: string }
 export type ScopeType = { [key: string]: ScopeValueType }
