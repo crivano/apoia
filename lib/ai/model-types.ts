@@ -37,7 +37,7 @@ const ModelArray = [
     { id: 2, name: 'claude-3-5-sonnet-20241022', provider: ModelProvider.ANTHROPIC, status: StatusDeLancamento.PUBLICO },
     { id: 14, name: 'claude-3-5-haiku-20241022', provider: ModelProvider.ANTHROPIC, status: StatusDeLancamento.PUBLICO },
     { id: 9, name: 'gemini-2.0-flash', provider: ModelProvider.GOOGLE, status: StatusDeLancamento.PUBLICO },
-    { id: 10, name: 'gemini-2.0-pro-exp-02-05', provider: ModelProvider.GOOGLE, status: StatusDeLancamento.PUBLICO },
+    { id: 10, name: 'gemini-2.5-pro-exp-03-25', provider: ModelProvider.GOOGLE, status: StatusDeLancamento.PUBLICO },
     { id: 4, name: 'gemini-1.5-pro-002', provider: ModelProvider.GOOGLE, status: StatusDeLancamento.PUBLICO },
     { id: 5, name: 'llama-3.2-90b-text-preview', provider: ModelProvider.GROQ, status: StatusDeLancamento.EM_DESENVOLVIMENTO },
     { id: 6, name: 'llama-3.1-70b-versatile', provider: ModelProvider.GROQ, status: StatusDeLancamento.EM_DESENVOLVIMENTO },
