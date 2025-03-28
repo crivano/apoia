@@ -113,7 +113,7 @@ export default function PrefsForm(params) {
                                     <div className="row mb-2" key={provider.value.name} hidden={params.statusDeLancamento < provider.value.status}>
                                         <Frm.Input label={`${provider.value.name}: Chave da API`} name={`env['${provider.value.apiKey}']`} validator={(value: string, name: string) => validator(value, name, provider.value.apiKeyRegex)} width={provider.value.resourceName ? 8 : 12} />
                                         {provider.value.resourceName &&
-                                            <Frm.Input label={`Nome do Recurso`} name={`env['${provider.value.resourceName}']`} width="4" />
+                                            <Frm.Input label={`Nome do Recurso/URL`} name={`env['${provider.value.resourceName}']`} width="4" />
                                         }
                                     </div>
                                 </>))}

@@ -65,7 +65,9 @@ export function getModel(params?: { structuredOutputs: boolean, overrideModel?: 
         return { model, modelRef: google(model, { structuredOutputs: params?.structuredOutputs }) }
     }
     if (getEnvKeyByModel(model) === ModelProvider.AZURE.apiKey) {
-        const azure = createAzure({ apiKey: apiKey, resourceName: azureResourceName })
+        const azure = azureResourceName?.startsWith('https')
+            ? createAzure({ apiKey: apiKey, baseURL: azureResourceName })
+            : createAzure({ apiKey: apiKey, resourceName: azureResourceName })
         return { model, modelRef: azure(model.replace('azure-', ''), { structuredOutputs: params?.structuredOutputs }) as unknown as LanguageModelV1 }
     }
     if (getEnvKeyByModel(model) === ModelProvider.GROQ.apiKey) {
