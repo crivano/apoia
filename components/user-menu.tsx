@@ -15,7 +15,7 @@ import { assertCurrentUser, isUserCorporativo } from '@/lib/user';
 import { hasApiKey } from '@/lib/ai/model-server';
 
 
-export default async function UserMenu() {
+export default async function UserMenu({ defaultModel }: { defaultModel?: string }) {
     noStore()
     const session = await getServerSession(authOptions);
     // if (!session) return <NavItem>
@@ -23,7 +23,7 @@ export default async function UserMenu() {
     // </NavItem>
 
     const byCookie = getPrefs()
-    const model = byCookie?.model
+    const model = byCookie?.model || defaultModel
 
     const user = session?.user
     const userCorporativo = user && !!await isUserCorporativo(user)

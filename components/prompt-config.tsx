@@ -50,9 +50,9 @@ function PromptConfigForm({ kind, config, onSave }: { kind: string, config: Prom
                 {prompts?.length
                     ? <Frm.Select label="Prompt" name="prompt_slug" options={[{ id: '', name: 'Padrão' }, ...prompts]} width={6} />
                     : null}
-                {models?.length
+                {/* {models?.length
                     ? <Frm.Select label="Modelo de Linguagem" name="model_slug" options={[{ id: '', name: 'Padrão' }, ...models]} width={6} />
-                    : null}
+                    : null} */}
                 <Frm.TextArea label="Personalização do Prompt" name="extra" width={''} />
                 <Frm.Button onClick={returnConfig} variant="primary"><FontAwesomeIcon icon={faSave} /></Frm.Button>
             </div>

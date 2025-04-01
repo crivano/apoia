@@ -42,22 +42,22 @@ export default function PrefsForm(params) {
         router.refresh()
     }
 
-    const getAvailabeModel = () => {
+    const getAvailableModel = () => {
         for (const m of enumSorted(Model)) {
             if (data.env && !!data.env[m.value.provider.apiKey])
                 return m.value.name
         }
-        if (params.defaultModel) return params.defaultModel
-        for (const m of enumSorted(Model)) {
-            if (params.availableApiKeys.includes(m.value.provider.apiKey))
-                return m.value.name
-        }
+        // if (params.defaultModel) return params.defaultModel
+        // for (const m of enumSorted(Model)) {
+        //     if (params.availableApiKeys.includes(m.value.provider.apiKey))
+        //         return m.value.name
+        // }
         return ''
     }
 
     const isDisabled = (model): boolean => {
         const providerApiKey = model.value.provider.apiKey
-        const enabled = params.availableApiKeys.includes(providerApiKey) || data.env && !!data.env[providerApiKey]
+        const enabled = data.env && !!data.env[providerApiKey] // || params.availableApiKeys.includes(providerApiKey)
 
         return !enabled
     }
@@ -83,7 +83,7 @@ export default function PrefsForm(params) {
 
     useEffect(() => {
         const oldData = data
-        const newData = { ...data, model: getAvailabeModel() }
+        const newData = { ...data, model: getAvailableModel() }
         for (const model of enumSorted(Model)) {
             if (oldData.model === model.value.name && isDisabled(model)) {
                 setData(newData)
@@ -133,7 +133,7 @@ export default function PrefsForm(params) {
                                         <button onClick={handleClear} className="btn btn-warning" style={{ width: '10em' }}>Limpar</button>
                                     </div>
                                     <div className="col">
-                                        <button onClick={handleClick} disabled={processing || (!data.model && !params.defaultModel)} className="btn btn-primary float-end" style={{ width: '10em' }}>{processing
+                                        <button onClick={handleClick} disabled={processing || !data.model} className="btn btn-primary float-end" style={{ width: '10em' }}>{processing
                                             ? (<span className="spinner-border text-white opacity-50" style={{ width: '1em', height: '1em' }} role="status"><span className="visually-hidden">Loading...</span></span>)
                                             : 'Salvar'}</button>
 

@@ -47,3 +47,5 @@ data:
   # JFES_MNI_ENDPOINT_URL: "https://eproc-ws.jfes.jus.br/eproc/ws/controlador_ws.php?srv=intercomunicacao2.2"
 
   MODERATOR: "00489623760"
+
+  MODEL: "gpt-4o-mini"

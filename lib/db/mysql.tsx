@@ -405,9 +405,6 @@ export class Dao {
             if (a.favorite_count < b.favorite_count) return 1
             return 0
         })
-
-        console.log('***latest prompts', result.map((r: any) => r.name))
-
         return result
     }
 

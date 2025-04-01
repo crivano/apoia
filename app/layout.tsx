@@ -59,7 +59,7 @@ export default function RootLayout({
                                 <NavigationLink href="/headnote" text="Ementa" />
                             </NavItem>
                         </div>
-                        <UserMenu />
+                        <UserMenu defaultModel={envString('MODEL')} />
                     </Container>
                 </Navbar>
                 <NextAuthProvider>
