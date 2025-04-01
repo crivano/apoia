@@ -284,13 +284,13 @@ export class FormHelper {
         )
     }
 
-    public CheckBoxes = ({ label, labelsAndNames, width }: { label: string, labelsAndNames: { label: string, name: string }[], width?: number | string }) => {
+    public CheckBoxes = ({ label, labelsAndNames, onClick, width }: { label: string, labelsAndNames: { label: string, name: string }[], onClick?: (label: string, name: string, checked: boolean) => void, width?: number | string }) => {
         return this.setData ? (
             <div className={this.colClass(width)}>
                 <Form.Label>{label}</Form.Label>
-                {labelsAndNames.map((c, idx) => {
+                {labelsAndNames.filter(c => c != null).map((c, idx) => {
                     return (
-                        <Form.Check key={c.name} type="checkbox" label={c.label} checked={this.get(c.name)} onChange={e => this.set(c.name, e.target.checked)} />
+                        <Form.Check key={c.name} type="checkbox" label={c.label} checked={this.get(c.name)} onChange={e => {this.set(c.name, e.target.checked); if (onClick) onClick(c.label, c.name, e.target.checked)}} />
                     )
                 })}
             </div>
@@ -299,7 +299,7 @@ export class FormHelper {
                 <Form.Label>{label}</Form.Label>
                 <table className="table table-bordered">
                     <tbody>
-                        {labelsAndNames.map((c, idx) => {
+                        {labelsAndNames.filter(c => c != null).map((c, idx) => {
                             return (
                                 <tr key={c.name}>
                                     <td>{c.label}</td>

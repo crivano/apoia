@@ -10,7 +10,9 @@ Escreva de modo CONCISO, mas completo e abrangente, sem redundância
 
 # PROMPT
 
-Você receberá os textos de algumas peças processuais e deverá identificar todos os pedidos que forem realizados pelo autor. Para cada pedido, pense em algumas fundamentações juridicas para decidir pela procedência ou pela improcedência
+Você receberá os textos de algumas peças processuais e deverá identificar todos os pedidos que forem realizados pelo autor.
+
+Para cada pedido, quero que você pense profundamente sobre as fundamentações juridicas aplicáveis. Como queremos ser imparciais, se possível, inclua 2 ou 3 fundamentações pela procedência e 2 ou 3 pela improcedência.
 
 ## Formato da Resposta
 
@@ -35,6 +37,10 @@ Opções para "verba":
 - OUTRA
 - NENHUMA
 
+Opções para "fundamentacoes.tipo"
+- PROCEDENTE
+- IMPROCEDENTE
+
 Sua resposta deve sempre ser formatada em JSON, conforme o padrão abaixo:
 
 ```json
@@ -44,9 +50,11 @@ Sua resposta deve sempre ser formatada em JSON, conforme o padrão abaixo:
     "tipoDePedido": "Utilize uma das opções tabeladas",
     "liminar": "Utilize uma das opções tabeladas",
     "verba": "Utilize uma das opções tabeladas se houver, ou omita esta propriedade",
-    "valor": Informe o valor numérico em Reais se houver ou 0.00 se não houver,
-    "fundamentacoesProcedencia"["Escreva uma ou mais fundamentações jurídicas que possam justificar a procedência"],
-    "fundamentacoesImprocedencia"["Escreva uma ou mais fundamentações jurídicas que possam justificar a improcedência"]
+    "valor": Informe o valor numérico em Reais se houver ou 0 se não houver,
+    "fundamentacoes": [{
+      "tipo": "Utilize uma das opções tabeladas",
+      "texto": "Escreva fundamentação jurídica que possa justificar a procedência ou improcedência, o tipo já foi especificado acima, portanto, basta escrever a fundamentação em si"
+    }]
   }]
 }
 ```
@@ -86,16 +94,23 @@ Identifique os pedidos na petição abaixo:
                     "valor": {
                         "type": "number"
                     },
-                    "fundamentacoesProcedencia": {
+                    "fundamentacoes": {
                         "type": "array",
                         "items": {
-                            "type": "string"
-                        }
-                    },
-                    "fundamentacoesImprocedencia": {
-                        "type": "array",
-                        "items": {
-                            "type": "string"
+                            "type": "object",
+                            "properties": {
+                                "texto": {
+                                    "type": "string"
+                                },
+                                "tipo": {
+                                    "type": "string"
+                                }
+                            },
+                            "required": [
+                                "tipo",
+                                "texto"
+                            ],
+                            "additionalProperties": false
                         }
                     }
                 },
@@ -105,8 +120,7 @@ Identifique os pedidos na petição abaixo:
                     "liminar",
                     "verba",
                     "valor",
-                    "fundamentacoesProcedencia",
-                    "fundamentacoesImprocedencia"
+                    "fundamentacoes"
                 ],
                 "additionalProperties": false
             }
@@ -131,7 +145,7 @@ Identifique os pedidos na petição abaixo:
 } %}
 {% for d in pedidos %}{{loop.index}}. {% if d.liminar === 'SIM' %}**Liminar** - {% endif %}{{ tipos[d.tipoDePedido] }}: {{ d.texto }}{% if d.valor %} ({{ d.verba }}: {{ (d.valor).toLocaleString('pt-br',{style: 'currency', currency: 'BRL'}) }}){% endif %}
 {{"\t"}}- Procedência
-{% for f in d.fundamentacoesProcedencia %}{{"\t"}}{{"\t"}}- {{f}}
-{% endfor %}{{"\t"}}- Improcedência
-{% for f in d.fundamentacoesImprocedencia %}{{"\t"}}{{"\t"}}- {{f}}
-{% endfor %}{% endfor %}
+{% if d.fundamentacoes %}{% for f in d.fundamentacoes | deProcedencia %}{{"\t"}}{{"\t"}}- {{f.texto}}
+{% endfor %}{% endif %}{{"\t"}}- Improcedência
+{% if d.fundamentacoes %}{% for f in d.fundamentacoes | deImprocedencia %}{{"\t"}}{{"\t"}}- {{f.texto}}
+{% endfor %}{% endif %}{% endfor %}

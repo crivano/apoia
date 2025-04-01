@@ -13,8 +13,11 @@ export function format(formatter: string, s: string): string {
     const json = parse(s, ALL)
     if (!json) return ''
 
-    const result = nunjucks.renderString(formatter, json)
+    var env = nunjucks.configure()
+    env.addFilter('deProcedencia', arr => arr.filter(e => e.tipo == 'PROCEDENTE'))
+    env.addFilter('deImprocedencia', arr => arr.filter(e => e.tipo == 'IMPROCEDENTE'))
 
+    const result = env.renderString(formatter, json)
     return result
 }
 
