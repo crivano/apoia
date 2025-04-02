@@ -30,7 +30,7 @@ export async function POST(req: Request) {
 
     const { messages } = await req.json()
 
-    const { model, modelRef } = getModel()
+    const { model, modelRef } = await getModel()
 
     const result = streamText({
         model: modelRef,

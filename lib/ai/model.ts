@@ -36,8 +36,8 @@ export function getApiKeyByModel(model: string, prefs: PrefsCookieType): string 
     throw new Error(`API Key ${envKey} not found for model ${model}`)
 }
 
-export function getModel(params?: { structuredOutputs: boolean, overrideModel?: string }): { model: string, modelRef: LanguageModelV1 } {
-    const prefs = getPrefs()
+export async function getModel(params?: { structuredOutputs: boolean, overrideModel?: string }): Promise<{ model: string, modelRef: LanguageModelV1 }> {
+    const prefs = await getPrefs()
     let model: string
     let azureResourceName: string
     if (prefs) {

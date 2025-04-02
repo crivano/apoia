@@ -14,7 +14,7 @@ export const dynamic = 'force-dynamic'
 
 export default async function Home() {
   // await assertCurrentUser()
-  const prefs = getPrefs()
+  const prefs = await getPrefs()
 
   let initialState: PrefsCookieType = EMPTY_PREFS_COOKIE
   if (prefs)

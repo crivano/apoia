@@ -6,7 +6,7 @@ import { getPrefs } from "../utils/prefs"
 import { envString } from "../utils/env"
 
 export const hasApiKey = async (): Promise<boolean> => {
-    const prefs = getPrefs()
+    const prefs = await getPrefs()
     for (const provider of enumSortById(ModelProvider)) {
         if ((envString(provider.value.apiKey) && envString('MODEL')) || prefs?.env[provider.value.apiKey])
             return true
@@ -15,7 +15,7 @@ export const hasApiKey = async (): Promise<boolean> => {
 }
 
 export const hasApiKeyAndModel = async (): Promise<{hasApiKey: boolean, model: string}> => {
-    const prefs = getPrefs()
+    const prefs = await getPrefs()
     let hasApiKey = false
     for (const provider of enumSortById(ModelProvider)) {
         if ((envString(provider.value.apiKey) && envString('MODEL')) || prefs?.env[provider.value.apiKey])

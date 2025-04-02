@@ -1,10 +1,10 @@
 import { PrefsCookieType } from '@/lib/utils/prefs-types';
-import { headers, cookies, type UnsafeUnwrappedHeaders, type UnsafeUnwrappedCookies } from 'next/headers';
+import { headers, cookies } from 'next/headers';
 
-export function getPrefs(): PrefsCookieType | undefined {
+export async function getPrefs(): Promise<PrefsCookieType | undefined> {
 
     // Get from model-and-api-key header, which is a JSON encoded object withi the model and the *_API_KEY params encoded in base64
-    const headersList = (headers() as unknown as UnsafeUnwrappedHeaders);
+    const headersList = await (headers());
     const prefsHeader = headersList.get("prefs")
     if (prefsHeader) {
         const s = atob(prefsHeader)
@@ -14,7 +14,8 @@ export function getPrefs(): PrefsCookieType | undefined {
         return { model, env }
     }
 
-    const prefsCookie = (cookies() as unknown as UnsafeUnwrappedCookies).get('prefs')?.value
+    const cookiesList = await (cookies());
+    const prefsCookie = cookiesList.get('prefs')?.value
     if (prefsCookie)
         return JSON.parse(atob(prefsCookie))
 
