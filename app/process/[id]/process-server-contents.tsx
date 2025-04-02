@@ -33,7 +33,7 @@ export default async function ProcessServerContents({ id, kind, pieces }) {
 
     id = (id?.toString() || '').replace(/[^0-9]/g, '')
 
-    const statusCookie = cookies().get('beta-tester')?.value
+    const statusCookie = (await cookies()).get('beta-tester')?.value
 
     const statusDeSintese = statusCookie ? JSON.parse(statusCookie) : StatusDeLancamento.PUBLICO
 

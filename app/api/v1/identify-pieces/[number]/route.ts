@@ -28,11 +28,12 @@ export const maxDuration = 60
  *       200:
  *         description: OK, processo analisado e resultado armazenado no banco de dados
  */
-export async function POST(req: Request, { params }: { params: { name: string, number: string } }) {
+export async function POST(req: Request, props: { params: Promise<{ name: string, number: string }> }) {
+  const params = await props.params;
   const { name, number } = params
   try {
     const pUser = getCurrentUser()
-    if (!await pUser) return Response.json({ errormsg: 'Unauthorized' }, { status: 401 })
+    if (!(await pUser)) return Response.json({ errormsg: 'Unauthorized' }, { status: 401 })
 
     const dadosDoProcesso = await obterDadosDoProcesso({numeroDoProcesso: number, pUser, identificarPecas:true})
     if (dadosDoProcesso.errorMsg) throw new Error(dadosDoProcesso.errorMsg)

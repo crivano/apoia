@@ -6,7 +6,8 @@ import { Dao } from '@/lib/db/mysql'
 import { Container, Spinner } from 'react-bootstrap'
 import PromptInfoContents from './prompt-info-contents'
 
-export default async function Home({ params }: { params: { id: number } }) {
+export default async function Home(props: { params: Promise<{ id: number }> }) {
+    const params = await props.params;
     noStore()
 
     const pPrompt = Dao.retrieveLatestPromptByBaseId(params.id)

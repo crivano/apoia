@@ -2,7 +2,8 @@ import { Container } from 'react-bootstrap'
 import TestsetForm from '../testset-form'
 import { Dao } from '@/lib/db/mysql'
 
-export default async function New({ params }: { params: { kind: string } }) {
+export default async function New(props: { params: Promise<{ kind: string }> }) {
+    const params = await props.params;
     const { kind } = params
 
     const models = await Dao.retrieveModels()

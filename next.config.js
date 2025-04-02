@@ -12,6 +12,16 @@
 const nextConfig = {
     // trailingSlash: true,
     output: "standalone",
+    experimental: {
+        turbo: {
+            rules: {
+                '*.md': {
+                    loaders: ['raw-loader'],
+                    as: '*.js',
+                },
+            },
+        },
+    },
     webpack: (config, { buildId, dev, isServer, defaultLoaders, webpack }) => {
         config.module.rules.push({
             test: /\.(txt|md|html)$/,
@@ -50,9 +60,6 @@ const nextConfig = {
         //     );
         // }
         return config
-    },
-    experimental: {
-        instrumentationHook: true,
     },
     // experimental: {
     //     staleTimes: {

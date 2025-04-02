@@ -43,7 +43,8 @@ const preprocessAgrupamento = (text: string) => {
  *       200:
  *         description: Relatório em HTML
  */
-export async function GET(req: Request, { params }: { params: { name: string } }) {
+export async function GET(req: Request, props: { params: Promise<{ name: string }> }) {
+    const params = await props.params;
     const user = await getCurrentUser()
     if (!user) return Response.json({ errormsg: 'Unauthorized' }, { status: 401 })
 
@@ -180,7 +181,6 @@ export async function GET(req: Request, { params }: { params: { name: string } }
     console.log('count', count)
 
     return new Response(formated(html), { headers: { 'Content-Type': 'text/html; charset=utf-8' } })
-
 }
 
 const buildPDF = async (html: string, filename: string, disposition) => {

@@ -12,7 +12,7 @@ export type UserType = {
 }
 
 export const getCurrentUser = async (): Promise<UserType | undefined> => {
-    const headersList = headers()
+    const headersList = await headers()
     const authorization = headersList.get("authorization")
     if (authorization) {
         const claims = await verifyJweToken(authorization)
@@ -33,13 +33,13 @@ export const assertCurrentUser = async () => {
     return user
 }
 
-export const isUserCorporativo = (user: UserType) => {
+export const isUserCorporativo = async (user: UserType) => {
     return !!user.corporativo || !!user.image?.system || process.env.NODE_ENV === 'development' || user.iss === 'https://sso.stg.cloud.pje.jus.br/auth/realms/pje';
 }
 
 export const assertCurrentUserCorporativo = async () => {
     const user = await assertCurrentUser()
-    if (!isUserCorporativo(user))
+    if (!await isUserCorporativo(user))
         throw new Error('Usuário não é corporativo')
     return user
 }

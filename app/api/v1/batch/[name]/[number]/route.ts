@@ -31,7 +31,8 @@ export const maxDuration = 60
  *       200:
  *         description: OK, processo analisado e resultado armazenado no banco de dados
  */
-export async function POST(req: Request, { params }: { params: { name: string, number: string } }) {
+export async function POST(req: Request, props: { params: Promise<{ name: string, number: string }> }) {
+  const params = await props.params;
   const { name, number } = params
   const url = new URL(req.url)
   const complete: boolean = url.searchParams.get('complete') === 'true'

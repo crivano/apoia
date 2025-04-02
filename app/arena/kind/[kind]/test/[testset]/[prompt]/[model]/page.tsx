@@ -5,7 +5,10 @@ import { TestTable } from './test-table'
 import Link from 'next/link'
 
 
-export default async function TestResult({ params }: { params: { kind: string, testset: number, prompt: number, model: number } }) {
+export default async function TestResult(
+    props: { params: Promise<{ kind: string, testset: number, prompt: number, model: number }> }
+) {
+    const params = await props.params;
     const testset = await Dao.retrieveTestsetById(params.testset)
     const prompt = await Dao.retrievePromptById(params.prompt)
     const model = await Dao.retrieveModelById(params.model)

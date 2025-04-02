@@ -35,7 +35,11 @@ export const maxDuration = 60
  *           schema:
  *             type: object
  */
-export async function GET(req: Request, { params }: { params: { number: string, piece: string } }) {
+export async function GET(
+  req: Request,
+  props: { params: Promise<{ number: string, piece: string }> }
+) {
+  const params = await props.params;
   const pUser = getCurrentUser()
   const user = await pUser
   if (!user) return Response.json({ errormsg: 'Unauthorized' }, { status: 401 })

@@ -10,9 +10,10 @@ import { Button, Container } from 'react-bootstrap'
 import Link from 'next/link'
 import { headers } from "next/headers";
 
-export default async function Home({ params }: { params: { kind: string } }) {
+export default async function Home(props: { params: Promise<{ kind: string }> }) {
+    const params = await props.params;
     noStore()
-    const heads = headers()
+    const heads = await headers()
     const pathname = heads.get('next-url')
     const kind = params.kind
     const prompts = await Dao.retrievePromptsByKind(null, kind)

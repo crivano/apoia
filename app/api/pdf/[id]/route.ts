@@ -4,7 +4,8 @@ export const maxDuration = 60
 import template from '@/lib/pdf/template.html'
 
 
-export async function POST(req: Request, { params }: { params: { id: string } }) {
+export async function POST(req: Request, props: { params: Promise<{ id: string }> }) {
+    const params = await props.params;
     const id: string = (params?.id?.toString() || '') as string
     const json = await req.formData()
     const html = json.get('html')

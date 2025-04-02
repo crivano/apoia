@@ -22,7 +22,7 @@ export default async function Home() {
 
   const availableApiKeys = Object.values(ModelProvider).filter((model) => envString(model.apiKey)).map((model) => model.apiKey)
 
-  const statusCookie = cookies().get('beta-tester')?.value
+  const statusCookie = (await cookies()).get('beta-tester')?.value
   const statusDeLancamento = statusCookie ? JSON.parse(statusCookie) : StatusDeLancamento.PUBLICO
 
 
