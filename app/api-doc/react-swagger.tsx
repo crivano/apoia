@@ -1,7 +1,7 @@
 'use client';
 
-import 'swagger-ui-react/swagger-ui.css'
-import SwaggerUI from 'swagger-ui-react'
+import 'swagger-ui/dist/swagger-ui.css'
+import SwaggerUI from './swaggerui'
 
 
 type Props = {
