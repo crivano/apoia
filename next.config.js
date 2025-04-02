@@ -21,6 +21,7 @@ const nextConfig = {
                 },
             },
         },
+        serverComponentsExternalPackages: ['knex'],
     },
     webpack: (config, { buildId, dev, isServer, defaultLoaders, webpack }) => {
         config.module.rules.push({
@@ -35,6 +36,7 @@ const nextConfig = {
                     // Possible drivers for knex - we'll ignore them
                     // comment the one YOU WANT to use
                     sqlite3: 'sqlite3',
+                    'better-sqlite3': 'better-sqlite3',
                     // mysql2: 'mysql2', // << using this one
                     mariasql: 'mariasql',
                     mysql: 'mysql',

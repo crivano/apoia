@@ -36,7 +36,7 @@ export default function Chat(params: { definition: PromptDefinitionType, data: P
                     {messages.map((m, idx) => (
                         <>{m.role === 'user' ?
                             <div className="row justify-content-end ms-5 g-2 chat-user-container">
-                                <div key={m.id} className={`col col-auto mb-0 icon-container`}>
+                                <div key={`edit-${m.id}`} className={`col col-auto mb-0 icon-container`}>
                                     <FontAwesomeIcon onClick={() => handleEditMessage(idx)} icon={faEdit} className="text-white align-bottom" />
                                 </div>
                                 <div key={m.id} className={`col col-auto mb-0`}>
