@@ -60,18 +60,18 @@ export default function TestBuilder({ kind, testset, prompt, model }: { kind: st
         }
     }
 
-    const run = async () => {
-        setCurrent('')
-        setErrormsg('')
-        setComplete(false)
-        try {
-            fetchStream()
-        } catch (e) {
-            setErrormsg(e.message)
-        }
-    }
-
     useEffect(() => {
+        const run = async () => {
+            setCurrent('')
+            setErrormsg('')
+            setComplete(false)
+            try {
+                fetchStream()
+            } catch (e) {
+                setErrormsg(e.message)
+            }
+        }
+
         if (initialized.current) return
         initialized.current = true
         run()

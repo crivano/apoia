@@ -1,13 +1,6 @@
 /** @type {import('next').NextConfig} */
 
-// const withBundleAnalyzer = require('@next/bundle-analyzer')({
-//     enabled: true,
-// })
-
-// /** @type {import('next').NextConfig} */
-// const nextConfig = {}
-
-// module.exports = withBundleAnalyzer(nextConfig)
+// const webpack = require('webpack');
 
 const nextConfig = {
     // trailingSlash: true,
@@ -44,7 +37,7 @@ const nextConfig = {
                     oracle: 'oracle',
                     'strong-oracle': 'strong-oracle',
                     oracledb: 'oracledb',
-                    pg: 'pg',
+                    // pg: 'pg',
                     'pg-query-stream': 'pg-query-stream',
                     "pdfjs-dist/build/pdf.worker.min.js": "pdfjs-dist/build/pdf.worker.min.js"
                 }

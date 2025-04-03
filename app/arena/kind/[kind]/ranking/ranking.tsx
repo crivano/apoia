@@ -23,7 +23,7 @@ function RankingTable({ kind, testsetId, promptId, modelId }) {
             setRecords(ranking as IARankingType[])
         }
         asyncSetData()
-    }, [testsetId, promptId, modelId])
+    }, [testsetId, promptId, modelId, kind])
 
     if (testsetId && promptId && modelId && records.length === 0) return <div>
         <p>Não foi realizada uma avaliação para a Coleção de Testes, o Prompt e o Modelo de Liguagem selecionados acima. Clique no botão abaixo para iniciar.</p>
