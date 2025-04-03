@@ -12,6 +12,7 @@
 const nextConfig = {
     // trailingSlash: true,
     output: "standalone",
+    serverExternalPackages: ['knex', 'pdf-parse'],
     experimental: {
         turbo: {
             rules: {
@@ -21,7 +22,6 @@ const nextConfig = {
                 },
             },
         },
-        serverComponentsExternalPackages: ['knex'],
     },
     webpack: (config, { buildId, dev, isServer, defaultLoaders, webpack }) => {
         config.module.rules.push({
