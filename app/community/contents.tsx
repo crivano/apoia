@@ -38,7 +38,7 @@ export function Contents({ prompts, user, user_id, apiKeyProvided, model, listPu
     const [dadosDoProcesso, setDadosDoProcesso] = useState<DadosDoProcessoType>(null)
     const [promptParam, setPromptParam] = useState<string>(currentSearchParams.get('prompt'))
     const processParam = currentSearchParams.get('process')
-    const [number, setNumber] = useState<string>()
+    const [number, setNumber] = useState<string>('')
     const [scope, setScope] = useState<string>()
     const [instance, setInstance] = useState<string>()
     const [matter, setMatter] = useState<string>()

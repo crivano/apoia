@@ -14,7 +14,7 @@ export const dynamic = 'force-dynamic'
 
 export default async function Home() {
   // await assertCurrentUser()
-  const prefs = getPrefs()
+  const prefs = await getPrefs()
 
   let initialState: PrefsCookieType = EMPTY_PREFS_COOKIE
   if (prefs)
@@ -22,7 +22,7 @@ export default async function Home() {
 
   const availableApiKeys = Object.values(ModelProvider).filter((model) => envString(model.apiKey)).map((model) => model.apiKey)
 
-  const statusCookie = cookies().get('beta-tester')?.value
+  const statusCookie = (await cookies()).get('beta-tester')?.value
   const statusDeLancamento = statusCookie ? JSON.parse(statusCookie) : StatusDeLancamento.PUBLICO
 
 

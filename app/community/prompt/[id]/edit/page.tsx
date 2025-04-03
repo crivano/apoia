@@ -2,7 +2,8 @@ import { Container } from 'react-bootstrap'
 import PromptForm from '../../prompt-form'
 import { Dao } from '@/lib/db/mysql'
 
-export default async function Edit({ params }: { params: { id: number } }) {
+export default async function Edit(props: { params: Promise<{ id: number }> }) {
+    const params = await props.params;
     const { id } = params
 
     const record = await Dao.retrievePromptById(id)

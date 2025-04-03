@@ -4,12 +4,13 @@ import Fetcher from '@/lib/utils/fetcher'
 import { Suspense } from 'react'
 import ProcessTitle from './process-title'
 import { Container } from 'react-bootstrap'
-import { useSearchParams } from 'next/navigation'
 
 export const maxDuration = 60 // seconds
 export const dynamic = 'force-dynamic'
 
-export default async function ShowProcess({ params, searchParams }) {
+export default async function ShowProcess(props) {
+    const searchParams = await props.searchParams;
+    const params = await props.params;
     const kind = searchParams?.kind
     const pieces = searchParams?.pieces
     // await assertCurrentUser()

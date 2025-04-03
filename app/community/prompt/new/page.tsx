@@ -5,7 +5,11 @@ import { assertCurrentUser } from '@/lib/user'
 import { maiusculasEMinusculas } from '@/lib/utils/utils'
 import { Instance, Matter, Scope } from '@/lib/proc/process-types'
 
-export default async function New({ params, searchParams }: { params: { kind: string }, searchParams: { copyFrom: string } }) {
+export default async function New(
+    props: { params: Promise<{ kind: string }>, searchParams: Promise<{ copyFrom: string }> }
+) {
+    const searchParams = await props.searchParams;
+    const params = await props.params;
     const { kind } = params
     const user = await assertCurrentUser()
     const author = maiusculasEMinusculas(user.name)

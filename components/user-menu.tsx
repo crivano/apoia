@@ -22,7 +22,7 @@ export default async function UserMenu({ defaultModel }: { defaultModel?: string
     //     <NavigationLink href="/auth/signin" text="Login" />
     // </NavItem>
 
-    const byCookie = getPrefs()
+    const byCookie = await getPrefs()
     const model = byCookie?.model || defaultModel
 
     const user = session?.user

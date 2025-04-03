@@ -1,3 +1,14 @@
-declare module '*.txt'
-declare module '*.md'
-declare module '*.html'
+declare module '*.txt' {
+    const content: string;
+    export default content;
+}
+
+declare module '*.md' {
+    const content: string;
+    export default content;
+}
+
+declare module '*.html' {
+    const content: string;
+    export default content;
+}

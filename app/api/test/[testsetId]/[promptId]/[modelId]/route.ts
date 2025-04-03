@@ -13,9 +13,13 @@ import { getCurrentUser } from '@/lib/user'
 export const maxDuration = 60
 
 
-export async function GET(req: Request, { params }: { params: { testsetId: number, promptId: number, modelId: number } }) {
-    const user = await getCurrentUser()
-    if (!user) return Response.json({ errormsg: 'Unauthorized' }, { status: 401 })
+export async function GET(
+  req: Request,
+  props: { params: Promise<{ testsetId: number, promptId: number, modelId: number }> }
+) {
+  const params = await props.params;
+  const user = await getCurrentUser()
+  if (!user) return Response.json({ errormsg: 'Unauthorized' }, { status: 401 })
 
   const encoder = new TextEncoder()
 

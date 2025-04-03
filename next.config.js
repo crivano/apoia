@@ -1,17 +1,21 @@
 /** @type {import('next').NextConfig} */
 
-// const withBundleAnalyzer = require('@next/bundle-analyzer')({
-//     enabled: true,
-// })
-
-// /** @type {import('next').NextConfig} */
-// const nextConfig = {}
-
-// module.exports = withBundleAnalyzer(nextConfig)
+// const webpack = require('webpack');
 
 const nextConfig = {
     // trailingSlash: true,
     output: "standalone",
+    serverExternalPackages: ['knex', 'pdf-parse'],
+    experimental: {
+        turbo: {
+            rules: {
+                '*.md': {
+                    loaders: ['raw-loader'],
+                    as: '*.js',
+                },
+            },
+        },
+    },
     webpack: (config, { buildId, dev, isServer, defaultLoaders, webpack }) => {
         config.module.rules.push({
             test: /\.(txt|md|html)$/,
@@ -25,6 +29,7 @@ const nextConfig = {
                     // Possible drivers for knex - we'll ignore them
                     // comment the one YOU WANT to use
                     sqlite3: 'sqlite3',
+                    'better-sqlite3': 'better-sqlite3',
                     // mysql2: 'mysql2', // << using this one
                     mariasql: 'mariasql',
                     mysql: 'mysql',
@@ -32,7 +37,7 @@ const nextConfig = {
                     oracle: 'oracle',
                     'strong-oracle': 'strong-oracle',
                     oracledb: 'oracledb',
-                    pg: 'pg',
+                    // pg: 'pg',
                     'pg-query-stream': 'pg-query-stream',
                     "pdfjs-dist/build/pdf.worker.min.js": "pdfjs-dist/build/pdf.worker.min.js"
                 }
@@ -50,9 +55,6 @@ const nextConfig = {
         //     );
         // }
         return config
-    },
-    experimental: {
-        instrumentationHook: true,
     },
     // experimental: {
     //     staleTimes: {

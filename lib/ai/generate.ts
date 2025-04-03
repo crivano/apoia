@@ -67,7 +67,7 @@ export async function streamContent(definition: PromptDefinitionType, data: Prom
     const exec = promptExecuteBuilder(definition, data)
     const messages = exec.message
     const structuredOutputs = exec.params?.structuredOutputs
-    const { model, modelRef } = getModel({ structuredOutputs: !!structuredOutputs, overrideModel: definition.model })
+    const { model, modelRef } = await getModel({ structuredOutputs: !!structuredOutputs, overrideModel: definition.model })
     const sha256 = calcSha256(messages)
     if (results) results.sha256 = sha256
     const attempt = definition?.cacheControl !== true && definition?.cacheControl || null
@@ -131,7 +131,7 @@ export async function evaluate(definition: PromptDefinitionType, data: PromptDat
 
     if (!user_id) throw new Error('Unauthorized')
 
-    const { model } = getModel()
+    const { model } = await getModel()
     await waitForTexts(data)
     const exec = promptExecuteBuilder(definition, data)
     const messages = exec.message

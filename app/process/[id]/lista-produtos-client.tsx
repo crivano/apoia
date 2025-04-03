@@ -35,7 +35,7 @@ const onReady = (Frm: FormHelper, requests: GeneratedContent[], idx: number, con
 function requestSlot(Frm: FormHelper, requests: GeneratedContent[], idx: number) {
     const request = requests[idx]
 
-    console.log('requestSlot', Frm.data, requests, idx, Frm.get('pedidos_fundamentacoes_e_dispositivos'))
+    // console.log('requestSlot', Frm.data, requests, idx, Frm.get('pedidos_fundamentacoes_e_dispositivos'))
 
     const pedidos = Frm.get('pedidos')
     if (request.produto === P.PEDIDOS && pedidos) {

@@ -23,19 +23,18 @@ export default function Chat(params: { definition: PromptDefinitionType, data: P
             <div className="alert alert-dark bg-dark text-white p-2 pt-3 pb-3 chat-box">
                 <div className='container'>
                     {messages.map(m => (
-                        <>{m.role === 'user' ?
-                            <div className="row justify-content-end ms-5">
-                                <div key={m.id} className={`col col-auto mb-0`}>
+                        m.role === 'user'
+                            ? <div className="row justify-content-end ms-5" key={`user-${m.id}`}>
+                                <div className={`col col-auto mb-0`}>
                                     <div className={`text-wrap mb-3 rounded chat-content chat-user`} dangerouslySetInnerHTML={{ __html: preprocessar(m.content, m.role) }} />
                                 </div>
                             </div>
                             : m.role === 'assistant' &&
-                            <div className="row justify-content-start me-5">
-                                <div key={m.id} className={`col col-auto mb-0`}>
+                            <div className="row justify-content-start me-5" key={`assistant-${m.id}`}>
+                                <div className={`col col-auto mb-0`}>
                                     <div className={`text-wrap mb-3 rounded chat-content chat-ai`} dangerouslySetInnerHTML={{ __html: preprocessar(m.content, m.role) }} />
                                 </div>
                             </div>
-                        }</>
                     ))}
 
                     <div className="rowx">

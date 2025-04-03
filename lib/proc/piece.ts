@@ -68,10 +68,7 @@ const atualizarConteudoDeDocumento = async (documentId: number, contentSource: n
 }
 
 const obterTextoDePdf = async (buffer: ArrayBuffer, documentId: number) => {
-
     const bufferCopy = buffer.slice(0);
-
-    console.log('obterTextoDePdf', documentId, buffer.byteLength)
     const texto = await pdfToText(buffer, {})
     const { pages, chars } = obterPaginasECaracteres(texto)
 
@@ -120,6 +117,7 @@ export const obterConteudoDaPeca = async (dossier_id: number, numeroDoProcesso: 
 
         const document = await obterDocumentoGravado(dossier_id, numeroDoProcesso, idDaPeca, descrDaPeca)
         const document_id = document ? document.id : undefined
+
         if (document && document.content) {
             console.log('Retrieving from cache, content of type', document.content_source_id)
             return { conteudo: document.content }
@@ -128,31 +126,25 @@ export const obterConteudoDaPeca = async (dossier_id: number, numeroDoProcesso: 
         const { buffer, contentType } = await interop.obterPeca(numeroDoProcesso, idDaPeca)
 
         switch (contentType) {
-            case 'text/plain': {
+            case 'text/plain':
                 return { conteudo: await obterTextoSimples(buffer, document_id) }
-            }
-            case 'text/html': {
+            case 'text/html':
                 return { conteudo: await obterTextoDeHtml(buffer, document_id) }
-            }
-            case 'application/pdf': {
+            case 'application/pdf':
                 return { conteudo: await obterTextoDePdf(buffer, document_id) }
-            }
-            case 'image/jpeg': {
+            case 'image/jpeg':
                 return { conteudo: await atualizarConteudoDeDocumento(document_id, IADocumentContentSource.IMAGE, 'Peça no formato de imagem JPEG, conteúdo não acessado.') }
-            }
-            case 'image/png': {
+            case 'image/png':
                 return { conteudo: await atualizarConteudoDeDocumento(document_id, IADocumentContentSource.IMAGE, 'Peça no formato de imagem PNG, conteúdo não acessado.') }
-            }
-            case 'video/mp4': {
+            case 'video/mp4':
                 return { conteudo: await atualizarConteudoDeDocumento(document_id, IADocumentContentSource.VIDEO, 'Peça no formato de vídeo X-MS-WMV, conteúdo não acessado.') }
-            }
-            case 'video/mp4': {
+            case 'video/mp4':
                 return { conteudo: await atualizarConteudoDeDocumento(document_id, IADocumentContentSource.VIDEO, 'Peça no formato de vídeo MP4, conteúdo não acessado.') }
-            }
-            throw new Error(`Tipo de conteúdo não suportado: ${contentType}`)
+            default:
+                throw new Error(`Tipo de conteúdo não suportado: ${contentType}`)
         }
     } catch (error) {
-        return { conteudo: undefined, errorMsg: error}
+        return { conteudo: undefined, errorMsg: error }
     }
 }
 

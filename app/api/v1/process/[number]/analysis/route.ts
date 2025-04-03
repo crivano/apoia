@@ -65,7 +65,8 @@ export const maxDuration = 60
  *                         type: string
  *                         description: Conteúdo gerado
  */
-export async function GET(req: Request, { params }: { params: { number: string } }) {
+export async function GET(req: Request, props: { params: Promise<{ number: string }> }) {
+  const params = await props.params;
   const user = await getCurrentUser()
   if (!user) return Response.json({ errormsg: 'Unauthorized' }, { status: 401 })
 

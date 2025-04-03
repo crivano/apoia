@@ -23,7 +23,6 @@ import { link } from 'fs'
 import { usePathname } from "next/navigation"
 
 const customFilterFn = (rows, columnId, filterValue, addMeta: (meta: FilterMeta) => void): boolean => {
-    console.log('rows', rows)
     if (filterValue === 'selecionada') {
         return rows.getIsSelected()
     }

@@ -7,7 +7,8 @@ import TablePlaceholder from '@/components/table-placeholder'
 import TableRecords from '@/components/table-records'
 import { Container } from 'react-bootstrap'
 
-export default async function Home({ params }: { params: { kind: string, slug: string } }) {
+export default async function Home(props: { params: Promise<{ kind: string, slug: string }> }) {
+    const params = await props.params;
     noStore()
     const { kind, slug } = params
     const records = await Dao.retrievePromptsByKindAndSlug(kind, slug)

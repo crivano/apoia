@@ -38,7 +38,7 @@ export const PedidosFundamentacoesEDispositivos = ({ pedidos, request, Frm }: { 
     if (pedidosAnalisados) {
         const data = { ...request.data }
         const pedidos = [...Frm.get('pedidos')].filter(p => p.dispositivo).map(p => ({ ...p, fundamentacoes: [...p.fundamentacoes.filter(f => f.selecionada).map(f => f.texto)] }))
-        console.log('pedidosAnalisados', pedidos)
+        // console.log('pedidosAnalisados', pedidos)
         data.textos.push({ slug: 'pedidos', descr: 'Pedidos', texto: JSON.stringify(pedidos) })
         const prompt = getInternalPrompt('sentenca')
 

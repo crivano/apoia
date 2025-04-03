@@ -2,7 +2,8 @@ import { Container } from 'react-bootstrap'
 import PromptForm from '../../../prompt-form'
 import { Dao } from '@/lib/db/mysql'
 
-export default async function New({ params }: { params: { kind: string, slug: string, id: number } }) {
+export default async function New(props: { params: Promise<{ kind: string, slug: string, id: number }> }) {
+    const params = await props.params;
     const { kind, slug, id } = params
 
     const record = await Dao.retrievePromptById(id)
