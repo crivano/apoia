@@ -611,6 +611,7 @@ export class Dao {
             .where({
                 'bdi.batch_dossier_id': batch_dossier_id
             })
+            .orderBy('bdi.id')
         return result
     }
 
