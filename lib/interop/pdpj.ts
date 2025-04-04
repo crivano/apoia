@@ -118,7 +118,7 @@ export class InteropPDPJ implements Interop {
             const materia = processo.natureza
             const poloAtivo = processo.partes.filter(p => p.polo === 'ATIVO')
             const representantesDePoloAtivo = poloAtivo.map(p => p.representantes).flat()
-            const primeiraOabDePoloAtivo = representantesDePoloAtivo.find(r => r.oab[0]?.numero)?.oab[0]
+            const primeiraOabDePoloAtivo = representantesDePoloAtivo.find(r => r && r.oab && r.oab[0]?.numero)?.oab[0]
             const oabPoloAtivo = primeiraOabDePoloAtivo ? `${primeiraOabDePoloAtivo.numero}/${primeiraOabDePoloAtivo.uf}` : undefined
             // const primeiraOabDePoloAtivo = processo.partes.find(p => p.polo === 'ATIVO' && p.representantes?.length > 0 && p.representantes[0].oab?.numero)?.representantes[0].oab
             // const oabPoloAtivo = primeiraOabDePoloAtivo ? `${primeiraOabDePoloAtivo.numero}/${primeiraOabDePoloAtivo.uf}` : undefined
