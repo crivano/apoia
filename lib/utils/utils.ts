@@ -47,10 +47,10 @@ export const joinWithAnd = (arr: string[]): string => {
   if (arr.length === 0) return ''
   if (arr.length === 1) return arr[0]
   if (arr.length === 2) return `${arr[0]} and ${arr[1]}`
-  
+
   const lastItem = arr[arr.length - 1]
   const itemsExceptLast = arr.slice(0, -1)
-  
+
   return `${itemsExceptLast.join(', ')} e ${lastItem}`
 }
 
@@ -158,4 +158,10 @@ export const labelToName = (label: string) => {
     .replace(/ /g, '')
     .replace(/^./, char => char.toLowerCase());
 }
+
+export const removeAccents = (s: string): string => {
+  return s.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+}
+
+
 

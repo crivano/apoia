@@ -98,6 +98,10 @@
         "moduleNameMapper": {
             "^@/(.*)$": "<rootDir>/$1"
         },
+        "transform": {
+            "\\.txt$": "<rootDir>/txtTransformer.js"
+        },
+        "moduleFileExtensions": ["js", "ts", "json", "txt"],
         "testMatch": [
             "**/__tests__/**/*.+(test.ts|spec.ts)",
             "**/?(*.)+(spec|test).+(ts|tsx)"
