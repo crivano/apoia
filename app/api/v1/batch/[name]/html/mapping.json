@@ -1,0 +1,293 @@
+[{
+        "descr": "Anulação de Débito Fiscal / Auto de Infração",
+        "groupedItems": [
+            "Ação anulatória de débito fiscal",
+            "Anulação de auto de infração",
+            "Anulação de Débito Fiscal"
+        ]
+    },
+    {
+        "descr": "Compensação e Restituição Tributária",
+        "groupedItems": [
+            "Compensação de crédito tributário",
+            "Compensação tributária",
+            "Compensação Tributária",
+            "Compensação tributária - Limitações legais",
+            "Compensação tributária - Retificação de PER/DCOMP",
+            "Compensação tributária com créditos de terceiros",
+            "Compensação tributária e denúncia espontânea",
+            "Demora na decisão administrativa de restituição de tributos",
+            "Ressarcimento de créditos tributários",
+            "Restituição de créditos tributários",
+            "Restituição/Compensação de PIS e COFINS em Substituição Tributária",
+            "Habilitação de crédito decorrente de decisão judicial"
+        ]
+    },
+    {
+        "descr": "Contribuições Previdenciárias (Base de Cálculo, Verbas Específicas)",
+        "groupedItems": [
+            "Contribuição previdenciária sobre benefícios",
+            "Contribuição previdenciária sobre terço de férias",
+            "Contribuição Previdenciária sobre Terço de Férias",
+            "Contribuição previdenciária sobre verbas indenizatórias",
+            "Contribuições Previdenciárias - Base de Cálculo",
+            "Contribuições Previdenciárias - Exclusão de Verbas",
+            "Contribuições previdenciárias sobre benefícios e tributos",
+            "Contribuições previdenciárias sobre benefícios",
+            "Contribuições Previdenciárias sobre Serviços Cedidos",
+            "Créditos de Contribuição Previdenciária"
+        ]
+    },
+    {
+        "descr": "Contribuições Parafiscais / Terceiros - Limite Base de Cálculo (20 Salários Mínimos)",
+        "groupedItems": [
+            "Contribuições de Terceiros - EC 33/2001",
+            "Contribuições de terceiros - Limite de 20 salários mínimos",
+            "Contribuições parafiscais - Limitação da base de cálculo",
+            "Contribuições parafiscais - Limitação de base de cálculo",
+            "Contribuições parafiscais - Limite de 20 salários-mínimos",
+            "Contribuições parafiscais - Limite de 20 salários mínimos",
+            "Contribuições parafiscais - Limite de salário-contribuição",
+            "Contribuições parafiscais - Limite salarial"
+        ]
+    },
+    {
+        "descr": "Exclusão de Tributos da Base de Cálculo (ICMS, ISS, PIS/COFINS)",
+        "groupedItems": [
+            "Exclusão de ICMS da Base de Cálculo do IRPJ e CSLL",
+            "Exclusão de ICMS da base de cálculo do IRPJ/CSLL",
+            "Exclusão de PIS/COFINS da própria base de cálculo",
+            "Exclusão de tributos da base de cálculo",
+            "Exclusão do FECP da base de cálculo do PIS/COFINS",
+            "Exclusão do ICMS-ST da base de cálculo do PIS e COFINS",
+            "Exclusão do ICMS da base de cálculo do PIS/COFINS",
+            "Exclusão do ISS da base de cálculo do PIS e COFINS",
+            "Exclusão do ISS da base de cálculo do PIS/COFINS",
+            "Exclusão do ISSQN da base de cálculo do PIS/COFINS",
+            "Exclusão do PIS e COFINS da própria base de cálculo",
+            "Execução fiscal - ICMS na base de cálculo da COFINS",
+            "ICMS-ST na base de cálculo do PIS/COFINS"
+        ]
+    },
+    {
+        "descr": "Execução Fiscal - Procedimentos, Penhora, Garantia e Embargos",
+        "groupedItems": [
+            "Arrolamento de bens e direitos",
+            "Bloqueio judicial e correção monetária",
+            "Conflito de competência em execução fiscal",
+            "Embargos à execução fiscal",
+            "Embargos de terceiro - Bem de família",
+            "Execução fiscal - Bloqueio de contas",
+            "Execução fiscal - Competência Justiça Federal",
+            "Execução fiscal - Dívida ativa da União",
+            "Execução Fiscal - Embargos",
+            "Execução fiscal - Extinção por baixo valor",
+            "Execução fiscal - Extrato bancário",
+            "Execução fiscal - Nulidade de citação e penhora de bem de família",
+            "Execução fiscal - Penhora de bem em condomínio",
+            "Execução fiscal - penhora de precatório",
+            "Execução fiscal - penhora de recebíveis",
+            "Execução fiscal - Seguro-garantia",
+            "Execução fiscal - Substituição de penhora",
+            "Execução fiscal - Taxa de fiscalização",
+            "Execução fiscal - validade de CDA",
+            "Execução fiscal e posse de imóvel arrematado",
+            "Execução fiscal de FGTS",
+            "Impenhorabilidade de repasses do SUS",
+            "Impenhorabilidade de valores em execução fiscal",
+            "Indisponibilidade de bens em execução fiscal",
+            "Revisão de cálculos judiciais em execução fiscal",
+            "Suspensão de exigibilidade de crédito tributário"
+        ]
+    },
+    {
+        "descr": "Execução Fiscal - Responsabilidade de Sócios, Grupo Econômico e Redirecionamento",
+        "groupedItems": [
+            "Execução fiscal - grupo econômico",
+            "Execução fiscal - Grupo econômico",
+            "Execução fiscal - Grupo econômico e desconsideração da personalidade jurídica",
+            "Execução fiscal - Incidente de Desconsideração de Personalidade Jurídica",
+            "Execução fiscal - Legitimidade passiva",
+            "Execução fiscal - Legitimidade passiva de ex-administrador",
+            "Execução fiscal - Legitimidade passiva de sócio",
+            "Execução fiscal - Legitimidade passiva de sócio/administrador",
+            "Execução Fiscal - Legitimidade Passiva e Bem de Família",
+            "Execução fiscal - Legitimidade passiva e penhora",
+            "Execução fiscal - Redirecionamento a sócios",
+            "Execução fiscal - Redirecionamento e grupo econômico",
+            "Execução fiscal - Responsabilidade de sócios",
+            "Grupo Econômico e Desconsideração da Personalidade Jurídica",
+            "Sucessão empresarial e responsabilidade tributária"
+        ]
+    },
+    {
+        "descr": "Execução Fiscal - Prescrição (Comum e Intercorrente)",
+        "groupedItems": [
+            "Execução fiscal - Prescrição",
+            "Execução fiscal - Prescrição de crédito tributário",
+            "Execução Fiscal - Prescrição e Alienação de Bens",
+            "Execução fiscal - Prescrição e parcelamento",
+            "Execução fiscal - Prescrição e suspensão",
+            "Execução fiscal - Prescrição intercorrente",
+            "Execução Fiscal - Prescrição Intercorrente",
+            "Execução fiscal - validade da CDA e prescrição",
+            "Execução Fiscal e Prescrição Intercorrente",
+            "Prescrição intercorrente em execução fiscal"
+        ]
+    },
+    {
+        "descr": "Execução Fiscal - Massa Falida",
+        "groupedItems": [
+            "Execução fiscal - Massa falida",
+            "Execução fiscal - Multa moratória em falência",
+            "Execução fiscal - Multas contra massa falida",
+            "Execução fiscal contra massa falida"
+        ]
+    },
+    {
+        "descr": "Honorários Advocatícios (Execução, Sucumbência, Precatório)",
+        "groupedItems": [
+            "Embargos de terceiro - Honorários advocatícios",
+            "Execução de honorários advocatícios",
+            "Execução de honorários sucumbenciais contra a Fazenda Nacional",
+            "Execução fiscal - Honorários sucumbenciais",
+            "Expedição de precatório para honorários advocatícios",
+            "Honorários advocatícios e execução fiscal",
+            "Honorários advocatícios e intimação eletrônica",
+            "Honorários advocatícios em execução fiscal"
+        ]
+    },
+    {
+        "descr": "Créditos Tributários, Incentivos e Subvenções Fiscais (PIS/COFINS, ICMS, IPI)",
+        "groupedItems": [
+            "Crédito de IPI em transferências internas",
+            "Crédito de PIS/COFINS e ICMS",
+            "Crédito presumido de ICMS",
+            "Crédito presumido de ICMS na base de cálculo de tributos federais",
+            "Créditos de PIS/COFINS",
+            "Créditos de PIS/COFINS e ICMS",
+            "Créditos Presumidos de ICMS - PIS/COFINS",
+            "Créditos presumidos de ICMS e PIS/COFINS",
+            "Créditos presumidos de ICMS e tributação federal",
+            "Créditos presumidos de PIS/COFINS",
+            "Exclusão de créditos presumidos de ICMS",
+            "Execução fiscal - Insumo PIS/COFINS",
+            "ICMS-ST e Compensação de PIS/COFINS",
+            "Incentivos fiscais de ICMS",
+            "Tributação de benefícios fiscais de ICMS",
+            "Tributação de incentivos fiscais de ICMS",
+            "Tributação de subvenções fiscais"
+        ]
+    },
+    {
+        "descr": "Benefícios Fiscais (PERSE, PAT, ICMS, Alíquotas Reduzidas)",
+        "groupedItems": [
+            "Benefício fiscal - Alíquota reduzida IRPJ/CSLL",
+            "Benefício fiscal - PERSE",
+            "Benefício fiscal de ICMS",
+            "Dedução fiscal do Programa de Alimentação do Trabalhador (PAT)",
+            "Repetição de indébito - Perse"
+        ]
+    },
+    {
+        "descr": "Isenção de Imposto de Renda por Doença Grave / Moléstia Grave",
+        "groupedItems": [
+            "Isenção de Imposto de Renda - Doença Grave",
+            "Isenção de imposto de renda para portadores de doenças graves",
+            "Isenção de imposto de renda por doença grave",
+            "Isenção de Imposto de Renda por Doença Grave",
+            "Isenção de imposto de renda por moléstia grave",
+            "Isenção de Imposto de Renda por Moléstia Grave",
+            "Isenção de imposto de renda - Omissão administrativa INSS"
+        ]
+    },
+    {
+        "descr": "Transação Tributária e Parcelamento",
+        "groupedItems": [
+            "Autorregularização de débitos tributários",
+            "Parcelamento tributário",
+            "Transação fiscal e parcelamento tributário",
+            "Transação tributária",
+            "Transação tributária - Análise de proposta",
+            "Transação tributária - Inscrição em dívida ativa",
+            "Transação tributária e inscrição em dívida ativa",
+            "Transação Tributária e Inscrição em Dívida Ativa"
+        ]
+    },
+    {
+        "descr": "Certidões de Regularidade Fiscal e FGTS",
+        "groupedItems": [
+            "Certidão de regularidade do FGTS",
+            "Certidão de Regularidade do FGTS",
+            "Certidão de regularidade fiscal"
+        ]
+    },
+    {
+        "descr": "Fraude à Execução Fiscal",
+        "groupedItems": [
+            "Fraude à execução - Alienação de imóvel",
+            "Fraude à execução em execution fiscal",
+            "Fraude à execução fiscal",
+            "Fraude à execução em execução fiscal"
+        ]
+    },
+    {
+        "descr": "Empréstimo Compulsório sobre Energia Elétrica",
+        "groupedItems": [
+            "Empréstimo compulsório - Energia elétrica",
+            "Empréstimo compulsório sobre energia elétrica"
+        ]
+    },
+    {
+        "descr": "Execução / Cumprimento de Sentença contra a Fazenda Pública",
+        "groupedItems": [
+            "Cumprimento de sentença - Atualização monetária e juros",
+            "Execução contra a Fazenda Pública",
+            "Execução de sentença contra a Fazenda Nacional"
+        ]
+    },
+    {
+        "descr": "Fator Acidentário de Prevenção (FAP) - Revisão",
+        "groupedItems": [
+            "Fator Acidentário de Prevenção (FAP)",
+            "Revisão do Fator Acidentário de Prevenção (FAP)"
+        ]
+    },
+    {
+        "descr": "Contribuições Específicas (Salário-Educação, Sindical)",
+        "groupedItems": [
+            "Contribuição para o salário-educação - Titular de cartório",
+            "Contribuição sindical - Desconto em folha"
+        ]
+    },
+    {
+        "descr": "Tributação de Verbas e Operações Específicas",
+        "groupedItems": [
+            "Dedutibilidade de Juros sobre Capital Próprio",
+            "Imposto de renda sobre verbas indenizatórias",
+            "Tributação de serviços hospitalares",
+            "Tributação de veículos usados",
+            "Tributação sobre consignação de mercadorias",
+            "Tributação sobre energia elétrica",
+            "Imposto de Renda sobre Incorporação de Ações",
+            "Imposto sobre Operações Financeiras (IOF) - Mútuo entre pessoas jurídicas"
+        ]
+    },
+    {
+        "descr": "Questões Tributárias e Processuais Diversas",
+        "groupedItems": [
+            "Ação Rescisória - Modulação de Efeitos STF",
+            "Aposentadoria e Pensão - Desconto Retroativo",
+            "Cobrança de ressarcimento e multa - SICOBE",
+            "COFINS-Importação - Anterioridade Nonagesimal",
+            "Desoneração da folha de pagamento",
+            "Imunidade tributária de entidades beneficentes",
+            "Multa Aduaneira - Agência Marítima",
+            "Prejuízo fiscal e regularização tributária",
+            "Protesto indevido e indenização por danos morais",
+            "Regime de admissão temporária - Juros de mora",
+            "Retroatividade de norma tributária",
+            "Taxa de Controle e Fiscalização Ambiental (TCFA)"
+        ]
+    }
+]

@@ -13,6 +13,14 @@ const nextConfig = {
                     loaders: ['raw-loader'],
                     as: '*.js',
                 },
+                '*.txt': {
+                    loaders: ['raw-loader'],
+                    as: '*.js',
+                },
+                '*.html': {
+                    loaders: ['raw-loader'],
+                    as: '*.js',
+                },
             },
         },
     },

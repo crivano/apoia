@@ -16,7 +16,7 @@ export default async function Home() {
     await assertCurrentUser()
     await assertModel()
 
-    const records = await Dao.retrieveCountersByPromptKinds()
+    const records = (await Dao.retrieveCountersByPromptKinds()).filter(r => r.kind)
     const promptKinds = Object.entries(internalPrompts).map(([kind, prompt]) => ({ kind, prompts: 0, testsets: 0 }))
     promptKinds.forEach(promptKind => {
         if (!records.find(r => r.kind === promptKind.kind)) {

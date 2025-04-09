@@ -5,6 +5,7 @@ import { preprocess } from "@/lib/ui/preprocess"
 import { fixText } from "@/lib/fix"
 import { tua } from "@/lib/proc/tua"
 import { getCurrentUser } from "@/lib/user"
+import mapping from './mapping.json'
 
 export const maxDuration = 60
 
@@ -68,7 +69,7 @@ export async function GET(req: Request, props: { params: Promise<{ name: string 
             acc.push(i.enum_item_descr)
         return acc
     }, [] as string[])
-    console.log('enumDescrs', enumDescrs)
+    // console.log('enumDescrs', enumDescrs)
     if (!enumDescrs[0]) {
         const firstEnumDescr = enumDescrs.shift() as string
         if (ungrouped)
@@ -80,7 +81,7 @@ export async function GET(req: Request, props: { params: Promise<{ name: string 
         return acc
     }, {})
 
-    const triageItems = enumDescrs.map(d => ({ descr: d, items: map[d] }))
+    let triageItems = enumDescrs.map(d => ({ descr: d, items: map[d] }))
 
     html += `<h1>${params.name}</h1>`
 
@@ -126,6 +127,21 @@ export async function GET(req: Request, props: { params: Promise<{ name: string 
         </script>`
 
     // index
+    const originalTriageItems = triageItems
+    console.log('originalIndex', JSON.stringify(originalTriageItems.map(ti => ({ descr: ti.descr, count: ti.items.length }))))
+    const mappedTriageItems = mapping.map(m => ({ ...m, items: [] }))
+    for (const ti of originalTriageItems) {
+        const mappedBy = mappedTriageItems.find(m => m.groupedItems.find(g => g === ti.descr))
+        if (mappedBy) {
+            mappedBy.items = [...mappedBy.items, ...ti.items]
+        } else {
+            console.log('mapping not found', ti.descr)
+            mappedTriageItems.push({ descr: ti.descr, items: ti.items, groupedItems: [ti.descr] })
+        }
+    }
+    triageItems = mappedTriageItems //.filter(ti => ti.items.length > 0)
+    console.log('\n\nmappedTriageItems', JSON.stringify(mappedTriageItems.map(ti => ({ descr: ti.descr, count: ti.items.length }))))
+
     html += `<div class="page"><h2>Índice</h2>`
     html += `<table><thead><tr><th style="text-align: left">Grupo</th><th style="text-align: right">Quantidade</th></thead><tbody>`
     for (const ti of triageItems) {
@@ -135,6 +151,7 @@ export async function GET(req: Request, props: { params: Promise<{ name: string 
     html += `<tfoot><tr><th style="text-align: left">Total</th><th style="text-align: right">${triageItems.reduce((acc, t) => acc + t.items.length, 0)}</th></tr></tfoot>`
     html += `</table>`
     html += `</div>`
+
 
     const enumItens = await Dao.retrieveEnumItems()
     const enumMap = enumItens.reduce((acc, ei) => {
@@ -156,8 +173,8 @@ export async function GET(req: Request, props: { params: Promise<{ name: string 
 
         for (const item of ti.items) {
             const nomeDaClasse = tua[item.dossier_class_code]
-            console.log('item', item)
-            console.log('nomeDaClasse', nomeDaClasse)
+            // console.log('item', item)
+            // console.log('nomeDaClasse', nomeDaClasse)
             html += `<div class="page"><h1 class="titulo">Processo ${item.dossier_code}</h1>`
             html += `<div class="subtitulo">`
             if (nomeDaClasse) html += nomeDaClasse
@@ -287,8 +304,7 @@ const formated = (html: string) => {
 <body>
 <table style="width: 100%">
     <tr>
-        <td style="width: 3em"><img src="https://apoia.vercel.app/apoia-logo-transp.png" style="height: 3em" alt="Apoia" /></td>
-        <td align-left><span style="font-size: 150%">ApoIA</span><br/></td>
+        <td style="width: 3em"><img src="https://apoia.vercel.app/apoia-logo-vertical-transp.png" style="height: 3em" alt="Apoia" /></td>
     </tr>
 </table>
 

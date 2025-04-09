@@ -120,6 +120,10 @@ export async function analyze(batchName: string | undefined, dossierNumber: stri
             const result = await req.result as IAGenerated
             req.generated = result.generation
             req.id = result.id
+            if (!req.generated || !req.id) {
+                console.error('Error generating content')
+                throw new Error('Error generating content')
+            }
         }
 
         if (batchName) {

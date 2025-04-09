@@ -63,15 +63,15 @@ export class Dao {
     }
 
     static dehydratatePromptContent = (content: any): void => {
-        if (content.scope && content.scope.length === Object.keys(Scope).length) content.scope = null
-        if (content.instance && content.instance.length === Object.keys(Instance).length) content.instance = null
-        if (content.matter && content.matter.length === Object.keys(Matter).length) content.matter = null
+        if (content?.scope && content.scope.length === Object.keys(Scope).length) content.scope = null
+        if (content?.instance && content.instance.length === Object.keys(Instance).length) content.instance = null
+        if (content?.matter && content.matter.length === Object.keys(Matter).length) content.matter = null
     }
 
     static hydratatePromptContent = (content: any): void => {
-        if (content.scope === null) content.scope = Object.keys(Scope)
-        if (content.instance === null) content.instance = Object.keys(Instance)
-        if (content.matter === null) content.matter = Object.keys(Matter)
+        if (content?.scope === null) content.scope = Object.keys(Scope)
+        if (content?.instance === null) content.instance = Object.keys(Instance)
+        if (content?.matter === null) content.matter = Object.keys(Matter)
     }
 
 
@@ -592,7 +592,7 @@ export class Dao {
             .groupBy('ei.descr', 'ei.hidden')
         // .orderBy(knex.raw('count(distinct bd.id)'), 'desc');
         result.sort((a, b) => a.count - b.count)
-        console.log('result', result)
+        // console.log('result', result)
         return result
     }
 
@@ -611,7 +611,7 @@ export class Dao {
             .where({
                 'bdi.batch_dossier_id': batch_dossier_id
             })
-            .orderBy('bdi.id')
+            .orderBy('bdi.seq')
         return result
     }
 
