@@ -87,6 +87,9 @@ export type GeneratedContent = {
     id?: number,
     documentCode: string | null, // identificador da peça no Eproc
     documentDescr: string | null, // descrição da peça no Eproc
+    documentLocation?: string, // local onde a peça está armazenada
+    documentLink?: string, // tipo da peça no Eproc
+    
     // infoDeProduto: InfoDeProduto
     title: string,
     produto: P,

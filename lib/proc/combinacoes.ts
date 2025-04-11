@@ -20,6 +20,7 @@ export enum T {
     APELACAO = 'APELAÇÃO',
     CONTRARRAZOES_AO_RECURSO_DE_APELACAO = 'CONTRARRAZÕES AO RECURSO DE APELAÇÃO',
     AGRAVO = 'AGRAVO',
+    AGRAVO_INTERNO = 'AGRAVO INTERNO',
     RECURSO = 'RECURSO',
     RECURSO_INOMINADO = 'RECURSO INOMINADO',
     CONTRARRAZOES = 'CONTRARRAZÕES',
@@ -121,17 +122,28 @@ const pecasRelevantesTR = [
     T.CONTRARRAZOES
 ]
 
-const pecasRelevantes2aInstancia = [
-    T.RECURSO,
-    T.APELACAO,
+const pecasRelevantes2aInstanciaRecursos = [
+    T.APELACAO, 
+    T.RECURSO, 
     T.AGRAVO,
+    T.AGRAVO_INTERNO,
     T.EMBARGOS_DE_DECLARACAO,
-    T.DESPACHO_DECISAO,
+    T.RECURSO_INOMINADO,
+]
+
+const pecasRelevantes2aInstanciaContrarrazoes = [
+    T.CONTRARRAZOES, 
+    T.CONTRARRAZOES_AO_RECURSO_DE_APELACAO
+]
+
+const pecasRelevantes2aInstancia = [
+    ...pecasRelevantes2aInstanciaRecursos,
     T.CONTRARRAZOES
 ]
 
 const padroesApelacao = [
-    [ANY(), EXACT(T.PETICAO_INICIAL), ANY(), EXACT(T.SENTENCA), ANY(), OR(T.APELACAO, T.RECURSO, T.RECURSO_INOMINADO), ANY({ capture: [T.CONTRARRAZOES, T.CONTRARRAZOES_AO_RECURSO_DE_APELACAO] }), OR(T.CONTRARRAZOES, T.CONTRARRAZOES_AO_RECURSO_DE_APELACAO), ANY({ capture: [T.PARECER] })],
+    [ANY(), EXACT(T.PETICAO_INICIAL), ANY(), EXACT(T.SENTENCA), ANY(), OR(...pecasRelevantes2aInstanciaRecursos), ANY({ capture: [] }), OR(...pecasRelevantes2aInstanciaContrarrazoes), ANY({ capture: [T.PARECER] })],
+    [ANY(), EXACT(T.PETICAO_INICIAL), ANY(), EXACT(T.SENTENCA), ANY(), OR(...pecasRelevantes2aInstanciaRecursos), ANY({ capture: [...pecasRelevantes2aInstanciaContrarrazoes, T.PARECER] })],
     [ANY(), EXACT(T.PETICAO_INICIAL), ANY({ capture: [...pecasRelevantes2aInstancia] })]
 ]
 

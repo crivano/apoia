@@ -65,7 +65,7 @@ export function buildRequests(produtos: InfoDeProduto[], pecasComConteudo: Texto
             for (const peca of data.textos) {
                 const definition = getInternalPrompt(`resumo-${peca.slug}`)
                 const data: PromptDataType = { textos: [peca] }
-                requests.push({ documentCode: peca.id || null, documentDescr: peca.descr, data, title: peca.descr, produto: produto.produto, promptSlug: definition.kind, internalPrompt: definition })
+                requests.push({ documentCode: peca.id || null, documentDescr: peca.descr, documentLocation: peca.event, data, title: peca.descr, produto: produto.produto, promptSlug: definition.kind, internalPrompt: definition })
             }
             continue
         }
