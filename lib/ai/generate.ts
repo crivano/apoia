@@ -9,6 +9,8 @@ import { getModel } from './model'
 import { promptExecuteBuilder, waitForTexts } from './prompt'
 import { calcSha256 } from '../utils/hash'
 import { envString } from '../utils/env'
+import { anonymizeNames } from '../anonym/name-anonymizer'
+import { anonymizeText } from '../anonym/anonym'
 
 export async function retrieveFromCache(sha256: string, model: string, prompt: string, attempt: number | null): Promise<IAGenerated | undefined> {
     const cached = await Dao.retrieveIAGeneration({ sha256, model, prompt, attempt })
@@ -64,6 +66,21 @@ export async function streamContent(definition: PromptDefinitionType, data: Prom
     // if (!user) return Response.json({ errormsg: 'Unauthorized' }, { status: 401 })
     console.log('will build prompt', definition.kind)
     await waitForTexts(data)
+
+    if (envString('ANONIMYZE')) {
+        data.textos = data.textos.map((datum: any) => {
+            let l = datum.label
+            if (l) {
+                l = anonymizeText(l).text
+            }
+            let t = datum.texto
+            if (t) {
+                t = anonymizeText(t).text
+            }
+            return { ...datum, label: l, texto: t }
+        })
+    }
+
     const exec = promptExecuteBuilder(definition, data)
     const messages = exec.message
     const structuredOutputs = exec.params?.structuredOutputs

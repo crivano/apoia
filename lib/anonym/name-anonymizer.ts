@@ -12,6 +12,7 @@ function breakIntoWords(text: string): string[] {
 
 // Function to check if a word is a valid first name
 const isValidFirstName = (name: string): boolean => {
+  if (!isValidName(name)) return false
   return firstNameSet.has(name.toLowerCase())
 }
 
@@ -30,7 +31,7 @@ const isWhiteSpaceOrSpecialChar = (word: string): boolean => {
  * @param commonFirstNames Array of common Brazilian first names
  * @returns The anonymized text
  */
-export function anonymizeNames(text: string): string {
+export function anonymizeNames(text: string): { text: string; substitutions: number } {
   // Brazilian name connectives
   const connectives = ['de', 'da', 'das', 'do', 'dos']
 
@@ -40,6 +41,7 @@ export function anonymizeNames(text: string): string {
   // const words = match.split(/\s+/)
 
   let result = []
+  let substitutions = 0
 
   while (words.length > 0) {
     while (words.length > 0 && !isValidFirstName(words[0])) {
@@ -63,13 +65,17 @@ export function anonymizeNames(text: string): string {
       }
     }
     if (names.length > 0) {
+      substitutions++
+      // const saveNames = [...names]
       // While names and with something that is not a isValidName, remove from names and unshift to words
       while (names.length > 0 && !isValidName(names[names.length - 1])) {
         const name = names.pop()
         if (name) words.unshift(name)
       }
-      result.push(...names.filter(name => !/\s+/.test(name) && !connectives.includes(name.toLowerCase())).map(name => `${name[0]}.`))
+      const formatedNames = names.filter(name => !/\s+/.test(name) && !connectives.includes(name.toLowerCase())).map(name => `${name[0]}.`)
+      result.push(...formatedNames)
+      // console.log(`replaced name ${saveNames.join('')} with ${formatedNames.join('')}`.replace(/\s+/g, ' '))
     }
   }
-  return result.join('')
+  return { text: result.join(''), substitutions }
 }

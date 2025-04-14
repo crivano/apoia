@@ -1,6 +1,7 @@
 import { removeAccents } from '@/lib/utils/utils'
 import commonFirstNames from './common-first-names.json'
 import commonLastNames from './common-last-names.json'
+import { anonymizeNames } from './name-anonymizer';
 
 const names = [...commonFirstNames, ...commonLastNames]
 
@@ -30,7 +31,7 @@ const CRM_PATTERN = /\b(?:CRM(?:\/RJ|RJ|ERJ)?|CREMERJ)\s*(?:\d{2,10}|\d{2,3}\.\d
  * @param text The text to anonymize
  * @returns The anonymized text and the number of substitutions made
  */
-function anonymizeText(text: string): { text: string; substitutions: number } {
+export function anonymizeText(text: string): { text: string; substitutions: number } {
     let currentText = text;
     let totalSubstitutions = 0;
 
@@ -57,123 +58,10 @@ function anonymizeText(text: string): { text: string; substitutions: number } {
     replaceAndCount(OAB_PATTERN, '000');
     replaceAndCount(URL_PATTERN, '---');
     replaceAndCount(CRM_PATTERN, '000');
+    const r = anonymizeNames(currentText);
+    totalSubstitutions += r.substitutions;
+    currentText = r.text;
 
     return { text: currentText, substitutions: totalSubstitutions };
 }
 
-// Function to create a diacritic-insensitive pattern for a word
-export function diacriticInsensitive(word: string): string {
-    const mapping: { [key: string]: string } = {
-        'a': 'aàáâãäå',
-        'e': 'eèéêë',
-        'i': 'iìíîï',
-        'o': 'oòóôõö',
-        'u': 'uùúûü',
-        'c': 'cç'
-    };
-
-    const mappingUppercase: { [key: string]: string } = {
-        'a': 'AÀÁÂÃÄÅ',
-        'e': 'EÈÉÊË',
-        'i': 'IÌÍÎÏ',
-        'o': 'OÒÓÔÕÖ',
-        'u': 'UÙÚÛÜ',
-        'c': 'CÇ'
-    };
-
-    let pattern = "";
-    for (const ch of word) {
-        const baseNoDiacritics = removeAccents(ch).toLowerCase();
-        if (mapping[baseNoDiacritics]) {
-            pattern += `[${mapping[baseNoDiacritics]}]`;
-        } else {
-            // Escape special characters
-            pattern += ch.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
-        }
-    }
-    return pattern;
-}
-
-/**
- * Anonymizes names by replacing them with initials
- * @param text The text to anonymize
- * @param selectedText Optional selected text to specifically anonymize
- * @param namesFilePath Path to file containing common names
- * @returns The anonymized text and the number of substitutions made
- */
-function anonymizeNameInitials(
-    text: string,
-    selectedText: string = "",
-): { text: string; substitutions: number } {
-    let currentText = text;
-    let totalSubstitutions = 0;
-
-
-
-    if (selectedText) {
-        // Process selected text
-        const words = selectedText.split(/\s+/);
-        const initials = words
-            .map(word => word.charAt(0).toUpperCase())
-            .join(".");
-
-        const ignoreWords = new Set(["de", "da", "do", "dos", "das"]);
-        const patternParts: string[] = [];
-
-        words.forEach((word, i) => {
-            if (ignoreWords.has(removeAccents(word.toLowerCase()))) {
-                const patternWord = diacriticInsensitive(word);
-                if (i === 0) {
-                    patternParts.push(patternWord);
-                } else {
-                    patternParts.push(`(?:\\s+${patternWord})?`);
-                }
-            } else {
-                const fullWordPattern = diacriticInsensitive(word);
-                const abbrevPattern = diacriticInsensitive(word[0]);
-                if (i === 0) {
-                    patternParts.push(`(?:${fullWordPattern}|${abbrevPattern}\\.?)`);
-                } else {
-                    patternParts.push(`(?:\\s+(?:${fullWordPattern}|${abbrevPattern}\\.?))`);
-                }
-            }
-        });
-
-        const patternStr = `\\b${patternParts.join("")}\\b`;
-        const pattern = new RegExp(patternStr, 'gi');
-
-        let subs = 0;
-        currentText = currentText.replace(pattern, () => {
-            subs++;
-            return initials;
-        });
-
-        totalSubstitutions += subs;
-    } else {
-        // Handle common names from file
-        // Note: In a browser environment, you'd need to load this differently
-        // This is a Node.js example
-        try {
-            const fs = require('fs');
-            const namesList = names;
-
-            for (const name of namesList) {
-                const replacement = `${name[0].toUpperCase()}.`;
-                const namePattern = diacriticInsensitive(name);
-                const pattern = new RegExp(`\\b${namePattern}\\b`, 'gi');
-
-                let subs = 0;
-                currentText = currentText.replace(pattern, () => {
-                    subs++;
-                    return replacement;
-                });
-
-                totalSubstitutions += subs;
-            }
-        } catch (e) {
-            console.error(`Error anonymizing name initials: ${e}`);
-        }
-    }
-
-    return { text: currentText, substitutions: totalSubstitutions };
-}

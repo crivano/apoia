@@ -47,7 +47,6 @@ function requestSlot(Frm: FormHelper, requests: GeneratedContent[], idx: number)
         return <Chat definition={request.internalPrompt} data={request.data} key={calcSha256(request.data)} />
     }
 
-    console.log('requestSlot', request)
     return <div key={idx}>
         <h2>{maiusculasEMinusculas(request.title)}<span style={{fontWeight: 'normal', fontSize: '60%'}}>{request.documentLocation ? ` (e. ${request.documentLocation})` : ``}</span></h2>
         <Suspense fallback={ResumoDePecaLoading()}>

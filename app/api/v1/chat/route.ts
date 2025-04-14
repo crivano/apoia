@@ -1,5 +1,7 @@
 import { getModel } from '@/lib/ai/model'
+import { anonymizeText } from '@/lib/anonym/anonym'
 import { getCurrentUser } from '@/lib/user'
+import { envString } from '@/lib/utils/env'
 import { streamText } from 'ai'
 
 // Allow streaming responses up to 30 seconds
@@ -31,6 +33,14 @@ export async function POST(req: Request) {
     const { messages } = await req.json()
 
     const { model, modelRef } = await getModel()
+
+    if (envString('ANONIMYZE')) {
+        messages.forEach((message: any) => {
+            if (message.role === 'user' && message.content) {
+                message.content = anonymizeText(message.content).text
+            }
+        })
+    }
 
     const result = streamText({
         model: modelRef,
