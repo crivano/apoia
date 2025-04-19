@@ -14,6 +14,7 @@ export enum T {
     REPLICA = 'RÉPLICA',
     LAUDO = 'LAUDO',
     LAUDO_PERICIA = 'LAUDO/PERÍCIA',
+    CADASTRO_NACIONAL_DE_INFORMACOES_SOCIAIS = 'CADASTRO NACIONAL DE INFORMAÇÕES SOCIAIS',
     DESPACHO_DECISAO = 'DESPACHO/DECISÃO',
     SENTENCA = 'SENTENÇA',
     EMBARGOS_DE_DECLARACAO = 'EMBARGOS DE DECLARAÇÃO',
@@ -113,7 +114,8 @@ const pecasRelevantes1aInstancia = [
     T.DESPACHO_DECISAO,
     T.SENTENCA,
     T.LAUDO,
-    T.LAUDO_PERICIA
+    T.LAUDO_PERICIA,
+    T.CADASTRO_NACIONAL_DE_INFORMACOES_SOCIAIS,
 ]
 
 const pecasRelevantesTR = [
@@ -136,8 +138,13 @@ const padroesApelacao = [
 ]
 
 const padroesPeticaoInicialEContestacao = [
-    [ANY(), EXACT(T.PETICAO_INICIAL), ANY({ capture: [...pecasRelevantes1aInstancia] }), OR(T.CONTESTACAO, T.INFORMACAO_EM_MANDADO_DE_SEGURANCA, T.DEFESA_PREVIA_DEFESA_PRELIMINAR_RESPOSTA_DO_REU), ANY()],
+    [ANY(), EXACT(T.PETICAO_INICIAL), ANY({ capture: [...pecasRelevantes1aInstancia] }), OR(...pecasQueRepresentamContestacao), ANY()],
     [ANY(), EXACT(T.PETICAO_INICIAL), ANY({ capture: [...pecasRelevantes1aInstancia] })],
+]
+
+const padroesBasicosPrimeiraInstancia = [
+    [ANY(), EXACT(T.PETICAO_INICIAL), ANY({ capture: [...pecasRelevantes1aInstancia] }), OR(...pecasQueRepresentamContestacao), ANY(), EXACT(T.SENTENCA), ANY()],
+    ...padroesPeticaoInicialEContestacao,
 ]
 
 const padroesBasicos = [
@@ -286,6 +293,7 @@ export interface InfoDeProduto {
 
 const PieceStrategyArray = [
     { id: 1, name: 'MAIS_RELEVANTES', descr: 'Peças mais relevantes', pattern: padroesBasicos },
+    { id: 1, name: 'MAIS_RELEVANTES_PRIMEIRA_INSTANCIA', descr: 'Peças mais relevantes para 1a Instância', pattern: padroesBasicosPrimeiraInstancia },
     { id: 2, name: 'PETICAO_INICIAL', descr: 'Petição inicial', pattern: TipoDeSinteseMap.PEDIDOS.padroes },
     { id: 2, name: 'PETICAO_INICIAL_E_ANEXOS', descr: 'Petição inicial e anexos', pattern: TipoDeSinteseMap.LITIGANCIA_PREDATORIA.padroes },
     { id: 3, name: 'TIPOS_ESPECIFICOS', descr: 'Peças de tipos específicos', pattern: undefined },
