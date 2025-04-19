@@ -30,12 +30,16 @@ export const ModelProvider: ModelProviderType = ModelProviderArray.reduce((acc, 
 }, {} as ModelProviderType)
 
 const ModelArray = [
+    { id: 16, name: 'gpt-4.1-mini', provider: ModelProvider.OPENAI, status: StatusDeLancamento.PUBLICO },
+    { id: 17, name: 'gpt-4.1-nano', provider: ModelProvider.OPENAI, status: StatusDeLancamento.PUBLICO },
+    { id: 15, name: 'gpt-4.1', provider: ModelProvider.OPENAI, status: StatusDeLancamento.PUBLICO },
     { id: 3, name: 'gpt-4o-mini-2024-07-18', provider: ModelProvider.OPENAI, status: StatusDeLancamento.PUBLICO },
     { id: 7, name: 'gpt-4o-2024-11-20', provider: ModelProvider.OPENAI, status: StatusDeLancamento.PUBLICO },
     { id: 1, name: 'gpt-4o-2024-08-06', provider: ModelProvider.OPENAI, status: StatusDeLancamento.PUBLICO },
     { id: 13, name: 'claude-3-7-sonnet-20250219', provider: ModelProvider.ANTHROPIC, status: StatusDeLancamento.PUBLICO },
     { id: 2, name: 'claude-3-5-sonnet-20241022', provider: ModelProvider.ANTHROPIC, status: StatusDeLancamento.PUBLICO },
     { id: 14, name: 'claude-3-5-haiku-20241022', provider: ModelProvider.ANTHROPIC, status: StatusDeLancamento.PUBLICO },
+    { id: 18, name: 'gemini-2.5-flash-preview-04-17', provider: ModelProvider.GOOGLE, status: StatusDeLancamento.PUBLICO },
     { id: 9, name: 'gemini-2.0-flash', provider: ModelProvider.GOOGLE, status: StatusDeLancamento.PUBLICO },
     { id: 10, name: 'gemini-2.5-pro-exp-03-25', provider: ModelProvider.GOOGLE, status: StatusDeLancamento.PUBLICO },
     { id: 4, name: 'gemini-1.5-pro-002', provider: ModelProvider.GOOGLE, status: StatusDeLancamento.PUBLICO },
