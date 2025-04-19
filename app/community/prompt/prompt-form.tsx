@@ -28,7 +28,7 @@ export default function PromptForm(props) {
     const [yaml, setYaml] = useState(yamlps.dump(initialState.content))
     const [formState, setFormState] = useState(EMPTY_FORM_STATE)
     const [tab, setTab] = useState('fields')
-    const [showAdvancedOptions, setShowAdvancedOptions] = useState(false)
+    const [showAdvancedOptions, setShowAdvancedOptions] = useState(initialState?.content?.system_prompt || initialState?.content?.json_schema || initialState?.content?.format ? true : false)
     Frm.update(data, (d) => { setData(d); updateYaml(d) }, formState)
     const pristine = _.isEqual(data, { ...initialState })
 

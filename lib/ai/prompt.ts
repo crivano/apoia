@@ -10,9 +10,12 @@ export const formatText = (txt: TextoType, limit?: number) => {
     return s
 }
 
-export const applyTextsAndVariables = (text: string, data: PromptDataType): string => {
+export const applyTextsAndVariables = (text: string, data: PromptDataType, jsonSchema?: string): string => {
     if (!text) return ''
     const allTexts = `${data.textos.reduce((acc, txt) => acc + formatText(txt), '')}`
+
+    text = text.replace('{{jsonSchema}}', jsonSchema || 'JSON Schema não definido')
+
     text = text.replace('{{textos}}', allTexts)
 
     text = text.replace(/{{textos\.limit\((\d+)\)}}/g, (match, limit) => {
@@ -35,7 +38,7 @@ export const waitForTexts = async (data: PromptDataType): Promise<void> => {
         for (const texto of data.textos) {
             if (!texto.pTexto) continue
             const c = await texto.pTexto
-            if (c === undefined) throw new Error(`Conteúdo não encontrado para ${texto.label} (${texto.descr}) no evento ${texto.event}`)   
+            if (c === undefined) throw new Error(`Conteúdo não encontrado para ${texto.label} (${texto.descr}) no evento ${texto.event}`)
             if (c?.errorMsg) throw new Error(c.errorMsg)
             texto.texto = c?.conteudo
             delete texto.pTexto
@@ -59,14 +62,18 @@ export async function getPiecesWithContent(dadosDoProcesso: DadosDoProcessoType,
 export const promptExecuteBuilder = (definition: PromptDefinitionType, data: PromptDataType): PromptExecuteType => {
     const message: CoreMessage[] = []
     if (definition.systemPrompt)
-        message.push({ role: 'system', content: applyTextsAndVariables(definition.systemPrompt, data) })
+        message.push({ role: 'system', content: applyTextsAndVariables(definition.systemPrompt, data, definition.jsonSchema) })
 
     // add {{textos}} to the prompt if it doesn't have it
     let prompt = definition.prompt
     if (prompt && !prompt.includes('{{') && (!definition.systemPrompt || !definition.systemPrompt.includes('{{')))
         prompt = `${prompt}\n\n{{textos}}`
 
-    const promptContent: string = applyTextsAndVariables(prompt, data)
+    // if (prompt && !definition.jsonSchema) {
+    //     definition.jsonSchema = promptJsonSchemaFromPromptMarkdown(prompt)
+    // }
+
+    const promptContent: string = applyTextsAndVariables(prompt, data, definition.jsonSchema)
     message.push({ role: 'user', content: promptContent })
 
     const params: PromptExecuteParamsType = {}
@@ -87,6 +94,80 @@ export const promptDefinitionFromDefinitionAndOptions = (definition: PromptDefin
         model: options.overrideModel !== undefined ? options.overrideModel : definition.model,
         cacheControl: options.cacheControl !== undefined ? options.cacheControl : definition.cacheControl
     }
+}
+
+type JsonSchemaPropertyType = {
+    type: string
+    description: string
+    properties?: Record<string, JsonSchemaPropertyType>
+}
+
+function mapToOrderedObject(value: any): any {
+    if (value instanceof Map) {
+        const orderedObj: Record<string, any> = {};
+        for (const [key, val] of value.entries()) {
+            orderedObj[key] = mapToOrderedObject(val); // chamada recursiva
+        }
+        return orderedObj;
+    } else if (Array.isArray(value)) {
+        return value.map(item => mapToOrderedObject(item)); // trata arrays que podem conter Maps
+    } else {
+        return value; // valor primitivo ou objeto comum
+    }
+}
+
+function mapToOrderedJson<T>(map: Map<string, T>, pretty: boolean = false): string {
+    const orderedObj = mapToOrderedObject(map);
+    return JSON.stringify(orderedObj, null, pretty ? 2 : 0);
+}
+
+export const promptJsonSchemaFromPromptMarkdown = (md: string): string | undefined => {
+    // Find JSON instructions in the markdown
+    const regex = /^## Instruções para o Preenchimento do JSON de Resposta\s*$/gms;
+    const parts = md.split(regex)
+    if (parts.length < 2) return undefined
+    md = parts[1]
+
+    // Find the end of the JSON instructions
+    const endRegex = /(?:^##? .+\s*)$/gms;
+    const endParts = md.split(endRegex)
+    md = endParts[0]
+
+    const typeFromName = (name: string): string => {
+        if (/^Dt[A-Z0-9_]/.test(name)) return 'string'
+        if (/^Ev[A-Z0-9_]/.test(name)) return 'number'
+        if (/^Nu[A-Z0-9_]/.test(name)) return 'number'
+        if (/^Lo[A-Z0-9_]/.test(name)) return 'boolean'
+        return 'string'
+    }
+
+    // Read every line of the JSON instructions. If it is a level 3 header, add it to the variables, if it is a level 5 header, add it to the properties of the last variable
+    const lines = md.split('\n')
+    const variables = {}
+    for (const line of lines) {
+        const level3Header = line.match(/^(### )(?<name>[^\s]+)$/)
+        const level5Header = line.match(/^(##### )(?<name>[^\s]+)$/)
+        if (level3Header) {
+            const name = level3Header.groups.name
+            variables[name] = { type: typeFromName(name), description: '' }
+        } else if (level5Header) {
+            const lastVariable = variables[Object.keys(variables).pop()]
+            if (lastVariable) {
+                const name = level5Header.groups.name
+                if (lastVariable.properties === undefined) lastVariable.properties = {}
+                lastVariable.properties[name] = { type: typeFromName(name), description: '' }
+            }
+        }
+    }
+
+    // const json = mapToOrderedJson(variables, true)
+    const json = JSON.stringify({
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "type": "object",
+        "properties": variables
+    })
+    // console.log('variables', json)
+    return json
 }
 
 export const promptDefinitionFromMarkdown = (slug, md: string): PromptDefinitionType => {
