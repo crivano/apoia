@@ -125,8 +125,8 @@ const pecasRelevantesTR = [
 ]
 
 const pecasRelevantes2aInstanciaRecursos = [
-    T.APELACAO, 
-    T.RECURSO, 
+    T.APELACAO,
+    T.RECURSO,
     T.AGRAVO,
     T.AGRAVO_INTERNO,
     T.EMBARGOS_DE_DECLARACAO,
@@ -134,13 +134,13 @@ const pecasRelevantes2aInstanciaRecursos = [
 ]
 
 const pecasRelevantes2aInstanciaContrarrazoes = [
-    T.CONTRARRAZOES, 
+    T.CONTRARRAZOES,
     T.CONTRARRAZOES_AO_RECURSO_DE_APELACAO
 ]
 
 const pecasRelevantes2aInstancia = [
     ...pecasRelevantes2aInstanciaRecursos,
-    T.CONTRARRAZOES
+    ...pecasRelevantes2aInstanciaContrarrazoes
 ]
 
 const padroesApelacao = [
