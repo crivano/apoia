@@ -6,6 +6,7 @@ import { redirect } from 'next/navigation'
 import { headers } from "next/headers"
 import { verify } from 'crypto'
 import { verifyJweToken } from './utils/jwt'
+import { envString } from './utils/env'
 
 export type UserType = {
     id?: number, name: string, email: string, preferredUsername?: string, iss?: string, image: { password: string, system: string }, accessToken?: string, corporativo?: any[], roles?: string[]
@@ -35,6 +36,10 @@ export const assertCurrentUser = async () => {
 
 export const isUserCorporativo = async (user: UserType) => {
     return !!user.corporativo || !!user.image?.system || process.env.NODE_ENV === 'development' || user.iss === 'https://sso.stg.cloud.pje.jus.br/auth/realms/pje';
+}
+
+export const isUserModerator = async (user: UserType): Promise<boolean> => {
+    return envString('MODERATOR') && user.preferredUsername && envString('MODERATOR').split(',').includes(user.preferredUsername)
 }
 
 export const assertCurrentUserCorporativo = async () => {

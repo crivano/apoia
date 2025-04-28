@@ -340,6 +340,12 @@ export class Dao {
         return true
     }
 
+    static async setPublic(prompt_id: number): Promise<boolean> {
+        // use knex to set the prompt as standard
+        await knex('ia_prompt').update({ share: 'PUBLICO' }).where({ id: prompt_id })
+        return true
+    }
+
     static async setStandard(prompt_id: number): Promise<boolean> {
         // use knex to set the prompt as standard
         await knex('ia_prompt').update({ share: 'PADRAO' }).where({ id: prompt_id })
@@ -356,7 +362,7 @@ export class Dao {
         return result
     }
 
-    static async retrieveLatestPrompts(user_id: number): Promise<mysqlTypes.IAPromptList[]> {
+    static async retrieveLatestPrompts(user_id: number, moderator?: boolean): Promise<mysqlTypes.IAPromptList[]> {
         if (!knex) return
         const result = await knex('ia_prompt')
             .leftJoin('ia_favorite as f', function () {
@@ -374,6 +380,11 @@ export class Dao {
                 this.where('ia_prompt.created_by', user_id)
                 .orWhere('ia_prompt.share', 'PADRAO')
                 .orWhere('ia_prompt.share', 'PUBLICO')
+                .orWhere(function() {
+                    if (moderator) {
+                        this.orWhere('ia_prompt.share', 'EM_ANALISE')
+                    }
+                })
                 .orWhere(function () {
                         this.where('ia_prompt.share', 'NAO_LISTADO')
                             .whereNotNull('f.prompt_id')

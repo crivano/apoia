@@ -78,7 +78,7 @@ const tableSpecs = (pathname: string, onClick: (kind: string, row: any) => void)
                 { header: 'Segmento', accessorKey: 'content.scope', enableSorting: true, cell: data => data.row.original.content.scope?.length === Object.keys(Scope).length ? 'Todos' : data.row.original.content.scope?.map(i => Scope[i]?.acronym || 'Não Encontrado').join(', '), style: { textAlign: "center" } },
                 { header: 'Instância', accessorKey: 'content.instance', enableSorting: true, cell: data => data.row.original.content.instance?.length === Object.keys(Instance).length ? 'Todas' : data.row.original.content.instance?.map(i => Instance[i]?.acronym || 'Não Encontrado').join(', '), style: { textAlign: "center" } },
                 { header: 'Natureza', accessorKey: 'content.matter', enableSorting: true, cell: data => data.row.original.content.matter?.length === Object.keys(Matter).length ? 'Todas' : data.row.original.content.matter?.map(i => Matter[i]?.acronym || 'Não Encontrado').join(', '), style: { textAlign: "center" } },
-                { header: 'Compart.', accessorKey: 'share', enableSorting: true, cell: data => Share[data.row.original.share]?.descr || 'Não Encontrado', style: { textAlign: "right" } },
+                { header: 'Compart.', accessorKey: 'share', enableSorting: true, cell: data => Share[data.row.original.share]?.descr || 'Não Encontrado', style: { textAlign: "center" } },
                 { header: 'Estrelas', accessorKey: 'favorite_count', enableSorting: true, style: { textAlign: "right" } },
             ],
             tableClassName: 'table table-striped'

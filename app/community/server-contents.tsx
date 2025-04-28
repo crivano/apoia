@@ -2,7 +2,7 @@
 
 import { getSelectedModelParams } from '@/lib/ai/model-server'
 import { Dao } from '@/lib/db/mysql'
-import { assertCurrentUser, isUserCorporativo, UserType } from '@/lib/user'
+import { assertCurrentUser, isUserCorporativo, isUserModerator, UserType } from '@/lib/user'
 import { Contents } from './contents'
 import { Container } from 'react-bootstrap'
 import { cookies } from 'next/headers'
@@ -15,7 +15,7 @@ export default async function ServerContents() {
     const { model, apiKey } = await getSelectedModelParams()
 
     const user_id = await Dao.assertIAUserId(user.preferredUsername || user.name)
-    const prompts = await Dao.retrieveLatestPrompts(user_id)
+    const prompts = await Dao.retrieveLatestPrompts(user_id, await isUserModerator(user))
 
     const listPublicPromptsCookie = !!(await cookies()).get('list-public-prompts')?.value
 
