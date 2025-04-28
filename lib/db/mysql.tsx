@@ -335,19 +335,21 @@ export class Dao {
     }
 
     static async setPrivate(prompt_id: number): Promise<boolean> {
-        // use knex to set the prompt as private
         await knex('ia_prompt').update({ share: 'PRIVADO' }).where({ id: prompt_id })
         return true
     }
 
+    static async setUnlisted(prompt_id: number): Promise<boolean> {
+        await knex('ia_prompt').update({ share: 'NAO_LISTADO' }).where({ id: prompt_id })
+        return true
+    }
+
     static async setPublic(prompt_id: number): Promise<boolean> {
-        // use knex to set the prompt as standard
         await knex('ia_prompt').update({ share: 'PUBLICO' }).where({ id: prompt_id })
         return true
     }
 
     static async setStandard(prompt_id: number): Promise<boolean> {
-        // use knex to set the prompt as standard
         await knex('ia_prompt').update({ share: 'PADRAO' }).where({ id: prompt_id })
         return true
     }
