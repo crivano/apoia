@@ -392,7 +392,7 @@ export class Dao {
                             .whereNotNull('f.prompt_id')
                     })
             })
-            .groupBy('ia_prompt.id');
+            .groupBy('ia_prompt.id')
 
         // const result = await knex('ia_prompt')
         //     .select(
