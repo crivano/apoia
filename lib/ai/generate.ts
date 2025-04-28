@@ -5,12 +5,12 @@ import { IAGenerated } from '../db/mysql-types'
 import { Dao } from '../db/mysql'
 import { assertCurrentUser } from '../user'
 import { PromptDataType, PromptDefinitionType, PromptExecutionResultsType, PromptOptionsType } from '@/lib/ai/prompt-types'
-import { getModel } from './model'
 import { promptExecuteBuilder, waitForTexts } from './prompt'
 import { calcSha256 } from '../utils/hash'
 import { envString } from '../utils/env'
 import { anonymizeNames } from '../anonym/name-anonymizer'
 import { anonymizeText } from '../anonym/anonym'
+import { getModel } from './model-server'
 
 export async function retrieveFromCache(sha256: string, model: string, prompt: string, attempt: number | null): Promise<IAGenerated | undefined> {
     const cached = await Dao.retrieveIAGeneration({ sha256, model, prompt, attempt })

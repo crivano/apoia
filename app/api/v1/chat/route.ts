@@ -1,4 +1,4 @@
-import { getModel } from '@/lib/ai/model'
+import { getModel } from '@/lib/ai/model-server'
 import { anonymizeText } from '@/lib/anonym/anonym'
 import { getCurrentUser } from '@/lib/user'
 import { envString } from '@/lib/utils/env'

@@ -57,7 +57,7 @@ export default function PrefsForm(params) {
 
     const isDisabled = (model): boolean => {
         const providerApiKey = model.value.provider.apiKey
-        const enabled = data.env && !!data.env[providerApiKey] // || params.availableApiKeys.includes(providerApiKey)
+        const enabled = data.env && !!data.env[providerApiKey] || (params.userMayChangeModel && params.availableApiKeys.includes(providerApiKey)) || (!params.userMayChangeModel && model.value.name === params.defaultModel)
 
         return !enabled
     }

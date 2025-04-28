@@ -6,13 +6,12 @@ import { NavDropdown, NavItem } from 'react-bootstrap';
 import Link from 'next/link'
 import UserMenuSignout from './user-menu-signout'
 import { unstable_noStore as noStore } from 'next/cache'
-import { getPrefs } from '../lib/utils/prefs';
 import { NavigationLink } from './NavigationLink';
 import { envString } from '@/lib/utils/env';
 import { maiusculasEMinusculas, primeiroEUltimoNome } from '@/lib/utils/utils';
 import WootricSurvey from './wootric-survey';
 import { assertCurrentUser, isUserCorporativo } from '@/lib/user';
-import { hasApiKey } from '@/lib/ai/model-server';
+import { getSelectedModelName, getSelectedModelParams } from '@/lib/ai/model-server';
 
 
 export default async function UserMenu({ defaultModel }: { defaultModel?: string }) {
@@ -22,12 +21,10 @@ export default async function UserMenu({ defaultModel }: { defaultModel?: string
     //     <NavigationLink href="/auth/signin" text="Login" />
     // </NavItem>
 
-    const byCookie = await getPrefs()
-    const model = byCookie?.model || defaultModel
-
+    const model = await getSelectedModelName()
     const user = session?.user
     const userCorporativo = user && !!await isUserCorporativo(user)
-    const apiKeyProvided = await hasApiKey()
+    const apiKeyProvided = !!(await getSelectedModelParams()).apiKey
 
     return (
         <ul className="navbar-nav me-1 mb-2x mb-lg-0x">
