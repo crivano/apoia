@@ -16,6 +16,17 @@ export default async function ServerContents() {
 
     const user_id = await Dao.assertIAUserId(user.preferredUsername || user.name)
     const prompts = await Dao.retrieveLatestPrompts(user_id, await isUserModerator(user))
+    prompts.sort((a, b) => {
+        if (a.is_favorite > b.is_favorite) return -1
+        if (a.is_favorite < b.is_favorite) return 1
+        if (a.is_mine > b.is_mine) return -1
+        if (a.is_mine < b.is_mine) return 1
+        if (a.favorite_count > b.favorite_count) return -1
+        if (a.favorite_count < b.favorite_count) return 1
+        if (a.created_at > b.created_at) return -1
+        if (a.created_at < b.created_at) return 1
+        return 0
+    })
 
     const listPublicPromptsCookie = !!(await cookies()).get('list-public-prompts')?.value
 
