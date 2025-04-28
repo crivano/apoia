@@ -35,6 +35,7 @@ async function getPromptDefinition(kind: string, promptSlug?: string, promptId?:
             prompt: prompt.content.prompt || '',
             jsonSchema: prompt.content.json_schema || undefined,
             format: prompt.content.format || undefined,
+            template: prompt.content.template || undefined,
         } : getInternalPrompt(kind)
 
     return definition
@@ -84,6 +85,7 @@ export async function POST(request: Request) {
             overridePrompt: body.overridePrompt,
             overrideJsonSchema: body.overrideJsonSchema,
             overrideFormat: body.overrideFormat,
+            overrideTemplate: body.overrideTemplate,
             cacheControl: body.cacheControl,
         }
 

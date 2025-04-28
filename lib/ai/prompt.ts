@@ -10,13 +10,15 @@ export const formatText = (txt: TextoType, limit?: number) => {
     return s
 }
 
-export const applyTextsAndVariables = (text: string, data: PromptDataType, jsonSchema?: string): string => {
+export const applyTextsAndVariables = (text: string, data: PromptDataType, jsonSchema?: string, template?: string): string => {
     if (!text) return ''
     const allTexts = `${data.textos.reduce((acc, txt) => acc + formatText(txt), '')}`
 
     text = text.replace('{{jsonSchema}}', jsonSchema || 'JSON Schema não definido')
 
     text = text.replace('{{textos}}', allTexts)
+
+    text = text.replace('{{template}}', template ? `<template>\n${template}\n</template>` : '')
 
     text = text.replace(/{{textos\.limit\((\d+)\)}}/g, (match, limit) => {
         const limitNumber = parseInt(limit, 10)
@@ -62,7 +64,7 @@ export async function getPiecesWithContent(dadosDoProcesso: DadosDoProcessoType,
 export const promptExecuteBuilder = (definition: PromptDefinitionType, data: PromptDataType): PromptExecuteType => {
     const message: CoreMessage[] = []
     if (definition.systemPrompt)
-        message.push({ role: 'system', content: applyTextsAndVariables(definition.systemPrompt, data, definition.jsonSchema) })
+        message.push({ role: 'system', content: applyTextsAndVariables(definition.systemPrompt, data, definition.jsonSchema, definition.template) })
 
     // add {{textos}} to the prompt if it doesn't have it
     let prompt = definition.prompt
@@ -73,7 +75,7 @@ export const promptExecuteBuilder = (definition: PromptDefinitionType, data: Pro
     //     definition.jsonSchema = promptJsonSchemaFromPromptMarkdown(prompt)
     // }
 
-    const promptContent: string = applyTextsAndVariables(prompt, data, definition.jsonSchema)
+    const promptContent: string = applyTextsAndVariables(prompt, data, definition.jsonSchema, definition.template)
     message.push({ role: 'user', content: promptContent })
 
     const params: PromptExecuteParamsType = {}
@@ -91,6 +93,7 @@ export const promptDefinitionFromDefinitionAndOptions = (definition: PromptDefin
         prompt: options.overridePrompt !== undefined ? options.overridePrompt : definition.prompt,
         jsonSchema: options.overrideJsonSchema !== undefined ? options.overrideJsonSchema : definition.jsonSchema,
         format: options.overrideFormat !== undefined ? options.overrideFormat : definition.format,
+        template: options.overrideTemplate !== undefined ? options.overrideTemplate : definition.template,
         model: options.overrideModel !== undefined ? options.overrideModel : definition.model,
         cacheControl: options.cacheControl !== undefined ? options.cacheControl : definition.cacheControl
     }
@@ -182,11 +185,11 @@ export const promptDefinitionFromMarkdown = (slug, md: string): PromptDefinition
             }
         }
         return acc;
-    }, {} as { prompt: string, system_prompt?: string, json_schema?: string, format?: string })
+    }, {} as { prompt: string, system_prompt?: string, json_schema?: string, format?: string, template?: string })
 
-    const { prompt, system_prompt, json_schema, format } = parts
+    const { prompt, system_prompt, json_schema, format, template } = parts
 
-    return { kind: slug, prompt, systemPrompt: system_prompt, jsonSchema: json_schema, format, cacheControl: true }
+    return { kind: slug, prompt, systemPrompt: system_prompt, jsonSchema: json_schema, format, template, cacheControl: true }
 }
 
 

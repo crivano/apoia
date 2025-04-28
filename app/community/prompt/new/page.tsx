@@ -6,7 +6,7 @@ import { maiusculasEMinusculas } from '@/lib/utils/utils'
 import { Instance, Matter, Scope } from '@/lib/proc/process-types'
 
 export default async function New(
-    props: { params: Promise<{ kind: string }>, searchParams: Promise<{ copyFrom: string }> }
+    props: { params: Promise<{ kind: string }>, searchParams: Promise<{ copyFrom: string, template: string }> }
 ) {
     const searchParams = await props.searchParams;
     const params = await props.params;
@@ -41,7 +41,7 @@ export default async function New(
     }
 
     return (<Container fluid={false}>
-        <h1 className="mt-5 mb-3">Novo Prompt</h1>
-        <PromptForm record={record} />
+        <h1 className="mt-5 mb-3">Novo</h1>
+        <PromptForm record={record} template={!!searchParams.template} />
     </Container>)
 }

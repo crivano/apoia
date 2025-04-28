@@ -113,6 +113,8 @@ export type IAPrompt = {
         prompt: string | null
         json_schema: string | null
         format: string | null
+
+        template: string | null
     }
     created_at: Date | null
     is_latest: number
@@ -130,6 +132,8 @@ export type IAPromptToInsert = {
         prompt: string | null
         json_schema?: string
         format?: string
+
+        template?: string
 
         author?: string
         
@@ -172,6 +176,8 @@ export type IAPromptList = {
         prompt: string | null
         json_schema: string | null
         format: string | null
+
+        template: string | null
     }
     created_at: Date | null
     is_latest: number

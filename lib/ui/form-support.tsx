@@ -3,6 +3,8 @@ import ReactTextareaAutosize from 'react-textarea-autosize'
 import { z, ZodTypeAny, ZodError } from 'zod';
 import _ from 'lodash'
 import { Dispatch } from 'react';
+// import dynamic from 'next/dynamic'
+import Editor from '../../components/EditorComponent';
 
 export const numericString = (schema: ZodTypeAny) => z.preprocess((a) => {
     if (typeof a === 'string') {
@@ -217,6 +219,19 @@ export class FormHelper {
             <Form.Group className={this.colClass(width)} controlId={name}>
                 <Form.Label className={this.compact ? 'mb-0' : ''}>{label}</Form.Label>
                 <ReactTextareaAutosize className="form-control" name={name} value={this.get(name)} onChange={e => this.set(name, e.target.value)} placeholder="" key={name} />
+                <FieldError formState={this.formState} name={name} />
+                {explanation && <Form.Text className="text-muted">{explanation}</Form.Text>}
+            </Form.Group>
+        )
+    }
+
+    public Markdown = ({ label, name, width, maxRows, explanation }: { label: string, name: string, width?: number | string, maxRows?: number, explanation?: string }) => {
+        // const EditorComp = dynamic(() => import('../../components/EditorComponent'), { ssr: false })
+
+        return (
+            <Form.Group className={this.colClass(width)} controlId={name}>
+                <Form.Label className={this.compact ? 'mb-0' : ''}>{label}</Form.Label>
+                <Editor markdown={this.get(name) || ''} onChange={e => this.set(name, e)} key={name} />
                 <FieldError formState={this.formState} name={name} />
                 {explanation && <Form.Text className="text-muted">{explanation}</Form.Text>}
             </Form.Group>

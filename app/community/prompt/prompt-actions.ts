@@ -31,9 +31,11 @@ const promptSchema = z.object({
         summary: z.string().nullable().optional(),
 
         system_prompt: z.string().nullable().optional(),
-        prompt: z.string().min(1),
+        prompt: z.string().nullable().optional(),
         json_schema: z.string().nullable().optional(),
-        format: z.string().nullable().optional()
+        format: z.string().nullable().optional(),
+
+        template: z.string().nullable().optional()
     })
 })
 

@@ -211,7 +211,10 @@ export function Contents({ prompts, user, user_id, apiKeyProvided, model, listPu
                 {!apiKeyProvided && <p className="text-center mt-3 mb-3">Execute os prompts diretamente na ApoIA, cadastrando sua <Link href="/prefs">Chave de API</Link>.</p>}
                 <PromptsTable prompts={filteredPrompts} onClick={promptOnClick} onProcessNumberChange={setNumeroDoProcesso}>
                     <div className="col col-auto">
-                        <Button variant="primary" href="/community/prompt/new">Criar Novo Prompt</Button>
+                        <Button variant="primary" href="/community/prompt/new">Criar Prompt</Button>
+                    </div>
+                    <div className="col col-auto">
+                        <Button variant="success" href="/community/prompt/new?template=true">Criar Modelo</Button>
                     </div>
                     {listarPromptsPublicos &&
                         <div className="col col-auto">

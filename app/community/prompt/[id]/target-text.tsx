@@ -29,6 +29,7 @@ export default function TargetText({ prompt }: { prompt: IAPrompt }) {
         systemPrompt: prompt.content.system_prompt,
         jsonSchema: prompt.content.json_schema,
         format: prompt.content.format,
+        template: prompt.content.template,
         cacheControl: true,
     }
 

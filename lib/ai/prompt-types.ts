@@ -24,6 +24,7 @@ export type PromptDefinitionType = {
     prompt?: string
     jsonSchema?: string
     format?: string
+    template?: string
     model?: string
     cacheControl?: boolean | number
 }
@@ -63,6 +64,7 @@ export type PromptOptionsType = {
     overridePrompt?: string
     overrideJsonSchema?: string
     overrideFormat?: string
+    overrideTemplate?: string
     overrideModel?: string
     cacheControl?: boolean | number
 }

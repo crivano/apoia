@@ -59,18 +59,31 @@ export default async function PromptInfoContents({ pPrompt }: { pPrompt: Promise
                         <Form.Control className="form-control" readOnly defaultValue={prompt.share} />
                     </Col>
                 </Row>
-                <Row className="mb-3">
+                {prompt.content.template !== undefined && (<Row className="mb-3">
+                    <Col>
+                        <Form.Label>Modelo</Form.Label>
+                        <Form.Control className="form-control"
+                            as="textarea"
+                            rows={5}
+                            readOnly
+                            defaultValue={prompt.content.template}
+                        />
+                    </Col>
+                </Row>
+                )}
+                {prompt.content.prompt !== undefined && (<Row className="mb-3">
                     <Col>
                         <Form.Label>Prompt</Form.Label>
                         <Form.Control className="form-control"
                             as="textarea"
                             rows={5}
-                            
+
                             readOnly
                             defaultValue={prompt.content.prompt}
                         />
                     </Col>
                 </Row>
+                )}
                 {prompt.content.system_prompt !== undefined && (
                     <Row className="mb-3">
                         <Col>
@@ -78,7 +91,7 @@ export default async function PromptInfoContents({ pPrompt }: { pPrompt: Promise
                             <Form.Control className="form-control"
                                 as="textarea"
                                 rows={5}
-                                
+
                                 readOnly
                                 defaultValue={prompt.content.system_prompt}
                             />
@@ -93,7 +106,7 @@ export default async function PromptInfoContents({ pPrompt }: { pPrompt: Promise
                                 <Form.Control className="form-control"
                                     as="textarea"
                                     rows={5}
-                                    
+
                                     readOnly
                                     defaultValue={prompt.content.json_schema}
                                 />
@@ -105,7 +118,7 @@ export default async function PromptInfoContents({ pPrompt }: { pPrompt: Promise
                                 <Form.Control className="form-control"
                                     as="textarea"
                                     rows={5}
-                                    
+
                                     readOnly
                                     defaultValue={prompt.content.format}
                                 />
