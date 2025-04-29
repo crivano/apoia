@@ -144,7 +144,7 @@ const pecasRelevantes2aInstancia = [
 ]
 
 const padroesApelacao = [
-    [ANY(), EXACT(T.PETICAO_INICIAL), ANY(), EXACT(T.SENTENCA), ANY(), OR(...pecasRelevantes2aInstanciaRecursos), ANY({ capture: [] }), OR(...pecasRelevantes2aInstanciaContrarrazoes), ANY({ capture: [T.PARECER] })],
+    [ANY(), EXACT(T.PETICAO_INICIAL), ANY(), EXACT(T.SENTENCA), ANY(), OR(...pecasRelevantes2aInstanciaRecursos), ANY(), OR(...pecasRelevantes2aInstanciaContrarrazoes), ANY({ capture: [T.PARECER] })],
     [ANY(), EXACT(T.PETICAO_INICIAL), ANY(), EXACT(T.SENTENCA), ANY(), OR(...pecasRelevantes2aInstanciaRecursos), ANY({ capture: [...pecasRelevantes2aInstanciaContrarrazoes, T.PARECER] })],
     [ANY(), EXACT(T.PETICAO_INICIAL), ANY({ capture: [...pecasRelevantes2aInstancia] })]
 ]
@@ -159,8 +159,12 @@ const padroesBasicosPrimeiraInstancia = [
     ...padroesPeticaoInicialEContestacao,
 ]
 
-const padroesBasicos = [
+const padroesBasicosSegundaInstancia = [
     ...padroesApelacao,
+]
+
+const padroesBasicos = [
+    ...padroesBasicosSegundaInstancia,
     [ANY(), EXACT(T.SENTENCA), ANY(), OR(T.APELACAO, T.RECURSO, T.RECURSO_INOMINADO), ANY()],
     [ANY(), EXACT(T.PETICAO_INICIAL), ANY({ capture: [...pecasRelevantes1aInstancia] }), OR(T.CONTESTACAO, T.INFORMACAO_EM_MANDADO_DE_SEGURANCA, T.DEFESA_PREVIA_DEFESA_PRELIMINAR_RESPOSTA_DO_REU), ANY(), EXACT(T.SENTENCA), ANY()],
     ...padroesPeticaoInicialEContestacao,
@@ -305,7 +309,8 @@ export interface InfoDeProduto {
 
 const PieceStrategyArray = [
     { id: 1, name: 'MAIS_RELEVANTES', descr: 'Peças mais relevantes', pattern: padroesBasicos },
-    { id: 1, name: 'MAIS_RELEVANTES_PRIMEIRA_INSTANCIA', descr: 'Peças mais relevantes para 1a Instância', pattern: padroesBasicosPrimeiraInstancia },
+    { id: 1, name: 'MAIS_RELEVANTES_PRIMEIRA_INSTANCIA', descr: 'Peças mais relevantes para 1ª Instância', pattern: padroesBasicosPrimeiraInstancia },
+    { id: 1, name: 'MAIS_RELEVANTES_SEGUNDA_INSTANCIA', descr: 'Peças mais relevantes para 2ª Instância', pattern: padroesBasicosSegundaInstancia },
     { id: 2, name: 'PETICAO_INICIAL', descr: 'Petição inicial', pattern: TipoDeSinteseMap.PEDIDOS.padroes },
     { id: 2, name: 'PETICAO_INICIAL_E_ANEXOS', descr: 'Petição inicial e anexos', pattern: TipoDeSinteseMap.LITIGANCIA_PREDATORIA.padroes },
     { id: 3, name: 'TIPOS_ESPECIFICOS', descr: 'Peças de tipos específicos', pattern: undefined },
