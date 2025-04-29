@@ -213,9 +213,9 @@ export function Contents({ prompts, user, user_id, apiKeyProvided, model, listPu
                     <div className="col col-auto">
                         <Button variant="primary" href="/community/prompt/new">Criar Prompt</Button>
                     </div>
-                    <div className="col col-auto">
+                    {/* <div className="col col-auto">
                         <Button variant="success" href="/community/prompt/new?template=true">Criar Modelo</Button>
-                    </div>
+                    </div> */}
                     {listarPromptsPublicos &&
                         <div className="col col-auto">
                             <div className="form-check mt-2">
