@@ -236,6 +236,7 @@ import indice from '@/prompts/indice.md'
 import chat from '@/prompts/chat.md'
 import relatorio_completo_criminal from '@/prompts/relatorio-completo-criminal.md'
 import minuta_de_despacho_de_acordo_9_dias from '@/prompts/minuta-de-despacho-de-acordo-9-dias.md'
+import template from '@/prompts/template.md'
 
 // Enum for the different types of prompts
 export const internalPrompts = {
@@ -263,5 +264,6 @@ export const internalPrompts = {
     chat: promptDefinitionFromMarkdown('chat', chat),
     relatorio_completo_criminal: promptDefinitionFromMarkdown('relatorio_completo_criminal', relatorio_completo_criminal),
     minuta_de_despacho_de_acordo_9_dias: promptDefinitionFromMarkdown('minuta_de_despacho_de_acordo_9_dias', minuta_de_despacho_de_acordo_9_dias),
+    template: promptDefinitionFromMarkdown('template', template),
 }
 

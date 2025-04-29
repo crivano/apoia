@@ -17,6 +17,11 @@ async function getPromptDefinition(kind: string, promptSlug?: string, promptId?:
             throw new Error(`Prompt not found: ${promptId}`)
         if (!prompt.kind)
             prompt.kind = `prompt-${prompt.id}`
+        if (prompt.content.template && (!prompt.content.prompt || !prompt.content.system_prompt)) {
+            const promptTemplate = getInternalPrompt('template')
+            if (!prompt.content.prompt) prompt.content.prompt = promptTemplate.prompt
+            if (!prompt.content.system_prompt) prompt.content.system_prompt = promptTemplate.systemPrompt
+        }
     } else if (kind && promptSlug) {
         const prompts = await Dao.retrievePromptsByKindAndSlug(kind, promptSlug)
         if (prompts.length === 0)
