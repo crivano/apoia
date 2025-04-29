@@ -29,6 +29,7 @@ export default function PromptForm(props) {
     const [formState, setFormState] = useState(EMPTY_FORM_STATE)
     const [tab, setTab] = useState('fields')
     const [showAdvancedOptions, setShowAdvancedOptions] = useState(initialState?.content?.system_prompt || initialState?.content?.json_schema || initialState?.content?.format ? true : false)
+    const [isTemplate, setIsTemplate] = useState(initialState?.content?.template || props.template ? true : false)
     Frm.update(data, (d) => { setData(d); updateYaml(d) }, formState)
     const pristine = _.isEqual(data, { ...initialState })
 
@@ -114,7 +115,7 @@ export default function PromptForm(props) {
                 }
                 {tab === 'fields'
                     ? (<>
-                        {data?.content?.template || props.template
+                        {isTemplate
                             ? (<>
                                 {showAdvancedOptions && <>
                                     <div className="row">
