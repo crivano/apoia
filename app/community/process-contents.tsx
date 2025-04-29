@@ -75,7 +75,8 @@ export default function ProcessContents({ prompt, dadosDoProcesso, pieceContent,
         if (!readyToStartAI && elapsedTime < minimumTime) {
             await new Promise(resolve => setTimeout(resolve, minimumTime - elapsedTime))
         }
-        setRequests(buildRequests(contents))
+        if (!choosingPieces)
+            setRequests(buildRequests(contents))
     }
 
     const LoadingPieces = () => {
@@ -143,7 +144,7 @@ export default function ProcessContents({ prompt, dadosDoProcesso, pieceContent,
     return <div>
         <Subtitulo dadosDoProcesso={dadosDoProcesso} />
         {children}
-        <ChoosePieces allPieces={dadosDoProcesso.pecas} selectedPieces={selectedPieces} onSave={changeSelectedPieces} onStartEditing={() => setChoosingPieces(true)} onEndEditing={() => setChoosingPieces(false)} />
+        <ChoosePieces allPieces={dadosDoProcesso.pecas} selectedPieces={selectedPieces} onSave={changeSelectedPieces} onStartEditing={() => { setChoosingPieces(true); setRequests([]) }} onEndEditing={() => setChoosingPieces(false)} />
         <LoadingPieces />
         <ErrorMsg dadosDoProcesso={dadosDoProcesso} />
         <div className="mb-4"></div>
@@ -159,8 +160,8 @@ export default function ProcessContents({ prompt, dadosDoProcesso, pieceContent,
         <hr className="mt-5" />
         <p style={{ textAlign: 'center' }}>Este documento foi gerado pela ApoIA, ferramenta de inteligência artificial desenvolvida exclusivamente para facilitar a triagem de acervo, e não substitui a elaboração de relatório específico em cada processo, a partir da consulta manual aos eventos dos autos. Textos gerados por inteligência artificial podem conter informações imprecisas ou incorretas.</p>
         <p style={{ textAlign: 'center' }}>
-            O prompt {`${prompt.name} (${prompt.id})`} utilizou o modelo {model} 
+            O prompt {`${prompt.name} (${prompt.id})`} utilizou o modelo {model}
             {selectedPieces?.length && <span> e acessou as peças: {joinWithAnd(selectedPieces.map(p => `${p.descr?.toLowerCase()} (e.${p.numeroDoEvento})`))}</span>}
-        .</p>
+            .</p>
     </div >
 }    
