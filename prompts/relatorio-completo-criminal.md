@@ -86,9 +86,6 @@ Formate sua resposta conforme exemplo a seguir, demarcado por <modelo>.
 ## Conclusão
 [Se já houver solução, explique a síntese final da decisão, reafirmando a solução do problema jurídica. Se não houve solução, APENAS sugira direcionamentos e encaminhamentos, sem opinar, nem julgar]
 
-# Fontes
-- [CITE dados e informações estritamente referenciados no caso em análise, sem adicionar materiais externos.]
-
 # Índice
 - [LISTE todos os documentos do processo na ordem em que aparecem. Para cada documento, indique o tipo da peça processual, resuma o contúdo em um parágrafo, indique o número do evento (event), o rótulo do documento (label) e, se houver, a página (pages) onde ele inicia e termina. Se for apenas uma página, basta indicar a página de início. Por exemplo: **Petição Inicial** - [Conteúdo resumido da petição] (evento 1, OUT1, pág. 1/22)].
 
