@@ -31,15 +31,15 @@ const customFilterFn = (rows, columnId, filterValue, addMeta: (meta: FilterMeta)
 
 
 
-export default function Table({ records, spec, linkToAdd, linkToBack, pageSize, selectedIds, onSelectdIdsChanged, onClick, children }: {
+export default function Table({ records, spec, linkToAdd, linkToBack, pageSize, selectedIds, onSelectdIdsChanged, onClick, options, children }: {
     records: any[], spec: string | any, linkToAdd?: string, linkToBack?: string, pageSize?: number,
-    selectedIds?: string[], onSelectdIdsChanged?: (ids: string[]) => void, onClick?: (kind: string, row: any) => void, children?: any
+    selectedIds?: string[], onSelectdIdsChanged?: (ids: string[]) => void, onClick?: (kind: string, row: any) => void, options?: any, children?: any
 }) {
     const [currentPageSize, setCurrentPageSize] = useState(pageSize || 5)
     const [sorting, setSorting] = useState([])
     const [globalFilter, setGlobalFilter] = useState('')
     const pathname = usePathname()
-    const { columns, thead, tr, tableClassName, pageSizes } = typeof (spec) === 'string' ? tableSpecs(pathname, onClick)[spec] : spec
+    const { columns, thead, tr, tableClassName, pageSizes } = typeof (spec) === 'string' ? tableSpecs(pathname, onClick, options)[spec] : spec
     const [rowSelection, setRowSelection] = useState<RowSelectionState>(selectedIds ? selectedIds.reduce((acc, value) => ({ ...acc, [value]: true }), {}) : {})
 
     const table = useReactTable({

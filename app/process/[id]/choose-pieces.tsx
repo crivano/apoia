@@ -61,7 +61,7 @@ function ChoosePiecesForm({ dadosDoProcesso, onSave, onClose, statusDeSintese }:
             </div>
             <div className="row">
                 <div className="col-12">
-                    <TableRecords records={[...dadosDoProcesso.pecas].reverse()} spec="ChoosePieces" pageSize={10} selectedIds={selectedIds} onSelectdIdsChanged={onSelectedIdsChanged}>
+                    <TableRecords records={[...dadosDoProcesso.pecas].reverse()} spec="ChoosePieces" options={{dossierNumber: dadosDoProcesso.numeroDoProcesso}} pageSize={10} selectedIds={selectedIds} onSelectdIdsChanged={onSelectedIdsChanged}>
                         <div className="col col-auto mb-0">
                             {alteredPieces || tipoDeSintese !== dadosDoProcesso.tipoDeSintese
                                 ? <Button onClick={() => onSave(tipoDeSintese, alteredPieces ? selectedIds : [])} variant="primary"><FontAwesomeIcon icon={faRotateRight} className="me-2" />Salvar Alterações e Refazer</Button>

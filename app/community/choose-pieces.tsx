@@ -17,7 +17,7 @@ const Frm = new FormHelper()
 
 const canonicalPieces = (pieces: string[]) => pieces.sort((a, b) => a.localeCompare(b)).join(',')
 
-function ChoosePiecesForm({ allPieces, selectedPieces, onSave, onClose }: { allPieces: PecaType[], selectedPieces: PecaType[], onSave: (pieces: string[]) => void, onClose: () => void }) {
+function ChoosePiecesForm({ allPieces, selectedPieces, onSave, onClose, dossierNumber }: { allPieces: PecaType[], selectedPieces: PecaType[], onSave: (pieces: string[]) => void, onClose: () => void, dossierNumber: string }) {
     const originalPieces: string[] = selectedPieces.map(p => p.id)
     const [selectedIds, setSelectedIds] = useState(originalPieces)
     const [canonicalOriginalPieces, setCanonicalOriginalPieces] = useState(canonicalPieces(originalPieces))
@@ -57,7 +57,7 @@ function ChoosePiecesForm({ allPieces, selectedPieces, onSave, onClose }: { allP
         <div className="alert alert-warning pt-0">
             <div className="row">
                 <div className="col-12">
-                    <TableRecords records={[...allPieces].reverse()} spec="ChoosePieces" pageSize={10} selectedIds={selectedIds} onSelectdIdsChanged={onSelectedIdsChanged}>
+                    <TableRecords records={[...allPieces].reverse()} spec="ChoosePieces" options={{dossierNumber}} pageSize={10} selectedIds={selectedIds} onSelectdIdsChanged={onSelectedIdsChanged}>
                         <div className="col col-auto mb-0">
                             {alteredPieces
                                 ? <Button onClick={() => onSave(alteredPieces ? selectedIds : [])} variant="primary"><FontAwesomeIcon icon={faRotateRight} className="me-2" />Salvar Alterações e Refazer</Button>
@@ -79,7 +79,8 @@ export const ChoosePiecesLoading = () => {
 }
 
 
-export default function ChoosePieces({ allPieces, selectedPieces, onSave, onStartEditing, onEndEditing }: { allPieces: PecaType[], selectedPieces: PecaType[], onSave: (pieces: string[]) => void, onStartEditing: () => void, onEndEditing: () => void }) {       
+export default function ChoosePieces({ allPieces, selectedPieces, onSave, onStartEditing, onEndEditing, dossierNumber }: { allPieces: PecaType[], selectedPieces: PecaType[], onSave: (pieces: string[]) => void, onStartEditing: () => void, onEndEditing: () => void, dossierNumber: string
+ }) {       
     const pathname = usePathname(); // let's get the pathname to make the component reusable - could be used anywhere in the project
     const router = useRouter();
     const currentSearchParams = useSearchParams()
@@ -118,5 +119,5 @@ export default function ChoosePieces({ allPieces, selectedPieces, onSave, onStar
         }
         return <p className="text-muted text-center h-print">{s} - <span onClick={() => { setEditing(true); onStartEditing() }} className="text-primary" style={{ cursor: 'pointer' }}><FontAwesomeIcon icon={faEdit} /> Alterar</span></p>
     }
-    return <ChoosePiecesForm onSave={onSaveLocal} onClose={onClose} allPieces={allPieces} selectedPieces={selectedPieces} />
+    return <ChoosePiecesForm onSave={onSaveLocal} onClose={onClose} allPieces={allPieces} selectedPieces={selectedPieces} dossierNumber={dossierNumber} />
 }
