@@ -9,7 +9,7 @@ export interface Interop {
     init(): Promise<void>
     autenticar(system: string): Promise<boolean>
     consultarProcesso(numeroDoProcesso: string): Promise<DadosDoProcessoType[]>
-    obterPeca(numeroDoProcesso: string, idDaPeca: string): Promise<ObterPecaType>
+    obterPeca(numeroDoProcesso: string, idDaPeca: string, allowBinary?: boolean): Promise<ObterPecaType>
 }
 
 export const getInterop = (username: string, password: string): Interop => {

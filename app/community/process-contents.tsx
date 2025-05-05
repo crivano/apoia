@@ -95,7 +95,7 @@ export default function ProcessContents({ prompt, dadosDoProcesso, pieceContent,
             for (const peca of pecasComConteudo) {
                 const definition = getInternalPrompt(`resumo-${peca.slug}`)
                 const data: PromptDataType = { textos: [peca] }
-                requestArray.push({ documentCode: peca.id || null, documentDescr: peca.descr, data, title: peca.descr, produto: P.RESUMO_PECA, promptSlug: definition.kind, internalPrompt: definition })
+                requestArray.push({ documentCode: peca.id || null, documentDescr: peca.descr, documentLocation: peca.event, documentLink: `/api/v1/process/${dadosDoProcesso.numeroDoProcesso}/piece/${peca.id}/binary`, data, title: peca.descr, produto: P.RESUMO_PECA, promptSlug: definition.kind, internalPrompt: definition })
             }
         }
 

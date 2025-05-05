@@ -41,7 +41,7 @@ export async function summarize(dossierNumber: string, pieceNumber: string): Pro
     return { dossierData: dadosDoProcesso, generatedContent: req }
 }
 
-export function buildRequests(produtos: InfoDeProduto[], pecasComConteudo: TextoType[]): GeneratedContent[] {
+export function buildRequests(dossierNumber: string, produtos: InfoDeProduto[], pecasComConteudo: TextoType[]): GeneratedContent[] {
     const requests: GeneratedContent[] = []
 
     // Add product IARequests
@@ -65,7 +65,7 @@ export function buildRequests(produtos: InfoDeProduto[], pecasComConteudo: Texto
             for (const peca of data.textos) {
                 const definition = getInternalPrompt(`resumo-${peca.slug}`)
                 const data: PromptDataType = { textos: [peca] }
-                requests.push({ documentCode: peca.id || null, documentDescr: peca.descr, documentLocation: peca.event, data, title: peca.descr, produto: produto.produto, promptSlug: definition.kind, internalPrompt: definition })
+                requests.push({ documentCode: peca.id || null, documentDescr: peca.descr, documentLocation: peca.event, documentLink: `/api/v1/process/${dossierNumber}/piece/${peca.id}/binary`, data, title: peca.descr, produto: produto.produto, promptSlug: definition.kind, internalPrompt: definition })
             }
             continue
         }
@@ -109,7 +109,7 @@ export async function analyze(batchName: string | undefined, dossierNumber: stri
 
         // console.log('pecasComConteudo', pecasComConteudo)
 
-        const requests: GeneratedContent[] = buildRequests(produtos.map(p => infoDeProduto(p)), pecasComConteudo)
+        const requests: GeneratedContent[] = buildRequests(dossierNumber, produtos.map(p => infoDeProduto(p)), pecasComConteudo)
 
         // Retrieve from cache or generate
         for (const req of requests) {

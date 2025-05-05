@@ -226,7 +226,7 @@ export class InteropMNI implements Interop {
         return [{ numeroDoProcesso, ajuizamento, codigoDaClasse, classe, nomeOrgaoJulgador, pecas }]
     }
 
-    public obterPeca = async (numeroDoProcesso, idDaPeca): Promise<ObterPecaType> =>
+    public obterPeca = async (numeroDoProcesso, idDaPeca, allowBinary?: boolean): Promise<ObterPecaType> =>
         limit(() => obterPecaSemLimite(numeroDoProcesso, idDaPeca, this.username, this.password))
 }
 

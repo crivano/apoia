@@ -182,13 +182,13 @@ export class InteropPDPJ implements Interop {
         return resp
     }
 
-    public obterPeca = async (numeroDoProcesso, idDaPeca): Promise<ObterPecaType> => {
+    public obterPeca = async (numeroDoProcesso, idDaPeca, allowBinary?: boolean): Promise<ObterPecaType> => {
         const response = await fetch(
-            envString('DATALAKE_API_URL') + `/processos/${numeroDoProcesso}/documentos/${idDaPeca}/texto`,
+            envString('DATALAKE_API_URL') + `/processos/${numeroDoProcesso}/documentos/${idDaPeca}/${allowBinary ? 'binario' : 'texto'}`,
             {
                 method: 'GET',
                 headers: {
-                    'Accept': 'application/json',
+                    'Accept': '*',
                     'Authorization': `Bearer ${this.accessToken}`,
                     'User-Agent': 'curl'
                 }
@@ -207,8 +207,22 @@ export class InteropPDPJ implements Interop {
                 throw new Error(`Não foi possível obter o texto da peça no DataLake/Codex da PDPJ. (${e} - ${numeroDoProcesso}/${idDaPeca})`)
             }
         }
+        const contentType = response.headers.get('Content-Type')
+        if (contentType === 'text/html') {
+            const decoder = new TextDecoder('utf-8')
+            let texto = decoder.decode(b)
+            if (texto) {
+                texto = texto.replace(/encoding="ISO-8859-1"/g, 'encoding="UTF-8"')
+                texto = texto.replace(/<meta charset="ISO-8859-1"\/>/g, '')
+            }
+
+            const encoder = new TextEncoder();
+            const buffer = encoder.encode(texto).buffer;
+            return { contentType, buffer: buffer as ArrayBuffer };
+
+        }
         const ab = b.slice(0, b.byteLength)
-        const resultado = { buffer: ab, contentType: response.headers.get('Content-Type') }
+        const resultado = { buffer: ab, contentType }
         return resultado;
     }
 }

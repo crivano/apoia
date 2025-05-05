@@ -12,6 +12,7 @@ import Chat from './chat'
 import { DadosDoProcessoType } from '@/lib/proc/process-types'
 import { Pedidos } from './pedidos'
 import { PedidosFundamentacoesEDispositivos } from './pedidos-fundamentacoes-e-dispositivos'
+import AiTitle from '@/components/ai-title'
 
 const Frm = new FormHelper(true)
 
@@ -48,7 +49,7 @@ function requestSlot(Frm: FormHelper, requests: GeneratedContent[], idx: number)
     }
 
     return <div key={idx}>
-        <h2>{maiusculasEMinusculas(request.title)}<span style={{fontWeight: 'normal', fontSize: '60%'}}>{request.documentLocation ? ` (e. ${request.documentLocation})` : ``}</span></h2>
+        <AiTitle request={request} />
         <Suspense fallback={ResumoDePecaLoading()}>
             <AiContent definition={request.internalPrompt} data={request.data} key={`prompt: ${request.promptSlug}, data: ${calcSha256(request.data)}`} onBusy={() => onBusy(Frm, requests, idx)} onReady={(content) => onReady(Frm, requests, idx, content)} />
         </Suspense>

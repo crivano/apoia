@@ -21,7 +21,7 @@ export const ListaDeProdutosServer = async ({ pDadosDoProcesso, kind, pieces }) 
         return ''
     }
 
-    const requests = buildRequests(produtos.map(p => infoDeProduto(p), pecasComConteudo), pecasComConteudo)
+    const requests = buildRequests(dadosDoProcesso.numeroDoProcesso, produtos.map(p => infoDeProduto(p), pecasComConteudo), pecasComConteudo)
 
     return <ListaDeProdutos dadosDoProcesso={dadosDoProcesso} requests={requests} />
 }

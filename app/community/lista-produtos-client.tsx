@@ -10,6 +10,7 @@ import { EMPTY_FORM_STATE, FormHelper } from '@/lib/ui/form-support'
 import { P } from '@/lib/proc/combinacoes'
 import Chat from './chat'
 import { DadosDoProcessoType } from '@/lib/proc/process-types'
+import AiTitle from '@/components/ai-title'
 
 const Frm = new FormHelper(true)
 
@@ -108,7 +109,7 @@ function requestSlot(Frm: FormHelper, requests: GeneratedContent[], idx: number)
     }
 
     return <div key={idx}>
-        <h2>{maiusculasEMinusculas(request.title)}</h2>
+        <AiTitle request={request} />
         <Suspense fallback={ResumoDePecaLoading()}>
             <AiContent definition={request.internalPrompt} data={request.data} key={`prompt: ${request.promptSlug} data: ${calcSha256(request.data)}`} onBusy={() => onBusy(Frm, requests, idx)} onReady={(content) => onReady(Frm, requests, idx, content)} />
         </Suspense>
