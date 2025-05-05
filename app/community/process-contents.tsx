@@ -148,7 +148,7 @@ export default function ProcessContents({ prompt, dadosDoProcesso, pieceContent,
     return <div>
         <Subtitulo dadosDoProcesso={dadosDoProcesso} />
         {children}
-        <ChoosePieces allPieces={dadosDoProcesso.pecas} selectedPieces={selectedPieces} onSave={changeSelectedPieces} onStartEditing={() => { setChoosingPieces(true) }} onEndEditing={() => { setRequests([]); setChoosingPieces(false) }} dossierNumber={dadosDoProcesso.numeroDoProcesso} />
+        <ChoosePieces allPieces={dadosDoProcesso.pecas} selectedPieces={selectedPieces} onSave={(pieces) => { setRequests([]); changeSelectedPieces(pieces) }} onStartEditing={() => { setChoosingPieces(true) }} onEndEditing={() => setChoosingPieces(false)} dossierNumber={dadosDoProcesso.numeroDoProcesso} />
         <LoadingPieces />
         <ErrorMsg dadosDoProcesso={dadosDoProcesso} />
         <div className="mb-4"></div>
