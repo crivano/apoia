@@ -13,7 +13,7 @@ import ProcessTitle from "./process-title"
 import { SubtituloLoading } from "./subtitulo"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faEdit } from "@fortawesome/free-solid-svg-icons"
-import { Button, Form, FormGroup, FormLabel, FormSelect, Row, Toast, ToastContainer } from "react-bootstrap"
+import { Button, Dropdown, DropdownButton, Form, FormGroup, FormLabel, FormSelect, Row, Toast, ToastContainer } from "react-bootstrap"
 import { enumSorted } from "@/lib/ai/model-types"
 import { Container, Spinner } from 'react-bootstrap'
 import { tua } from "@/lib/proc/tua"
@@ -207,15 +207,15 @@ export function Contents({ prompts, user, user_id, apiKeyProvided, model, listPu
                     </FormGroup >
                 </Container>
             </div >
-            <Container className="mt-2" fluid={false}>
+            <Container className="mt-2 mb-3" fluid={false}>
                 {!apiKeyProvided && <p className="text-center mt-3 mb-3">Execute os prompts diretamente na ApoIA, cadastrando sua <Link href="/prefs">Chave de API</Link>.</p>}
                 <PromptsTable prompts={filteredPrompts} onClick={promptOnClick} onProcessNumberChange={setNumeroDoProcesso}>
                     <div className="col col-auto">
-                        <Button variant="primary" href="/community/prompt/new">Criar Prompt</Button>
+                        <DropdownButton id="criar-novo-dropdown" title="Criar Novo" variant="primary">
+                            <Dropdown.Item href="/community/prompt/new">Prompt</Dropdown.Item>
+                            <Dropdown.Item href="/community/prompt/new?template=true">Prompt a partir de um modelo</Dropdown.Item>
+                        </DropdownButton>
                     </div>
-                    {/* <div className="col col-auto">
-                        <Button variant="success" href="/community/prompt/new?template=true">Criar Modelo</Button>
-                    </div> */}
                     {listarPromptsPublicos &&
                         <div className="col col-auto">
                             <div className="form-check mt-2">

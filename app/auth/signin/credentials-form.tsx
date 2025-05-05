@@ -37,7 +37,7 @@ const CredentialsForm = (params) => {
                     ? <p className="alert alert-danger mt-3 mb-4">{errorMessage}</p>
                     : <></>
                 }
-                <h4>Login com credenciais do Eproc</h4>
+                <h4>Login com credenciais do Eproc/PJ-e</h4>
                 <form onSubmit={(event) => handleSignInWithCredentials(event)}>
                     <Form.Select aria-label="Selecione o Órgão" value={sistema} onChange={e => setSistema(e.target.value)} className='w-100 mt-2 text-center'>
                         <option value={undefined} hidden>Selecione o Órgão</option>
