@@ -21,6 +21,7 @@ export default function ProcessContents({ prompt, dadosDoProcesso, pieceContent,
     const [requests, setRequests] = useState<GeneratedContent[]>([])
     const [readyToStartAI, setReadyToStartAI] = useState(false)
     const [choosingPieces, setChoosingPieces] = useState(false)
+    const [minimumTimeElapsed, setMinimumTimeElapsed] = useState(false);
 
     const changeSelectedPieces = (pieces: string[]) => {
         setSelectedPieces(dadosDoProcesso.pecas.filter(p => pieces.includes(p.id)))
@@ -72,11 +73,12 @@ export default function ProcessContents({ prompt, dadosDoProcesso, pieceContent,
 
         const minimumTime = 1500
         const elapsedTime = new Date().getTime() - startTime.getTime()
-        if (!readyToStartAI && elapsedTime < minimumTime) {
+        if (!minimumTimeElapsed && elapsedTime < minimumTime) {
             await new Promise(resolve => setTimeout(resolve, minimumTime - elapsedTime))
         }
-        if (!choosingPieces)
-            setRequests(buildRequests(contents))
+        if (!minimumTimeElapsed)
+            setMinimumTimeElapsed(true)
+        setRequests(buildRequests(contents))
     }
 
     const LoadingPieces = () => {
@@ -138,17 +140,19 @@ export default function ProcessContents({ prompt, dadosDoProcesso, pieceContent,
     }, [selectedPieces])
 
     useEffect(() => {
-        if (requests && requests.length && !choosingPieces) setReadyToStartAI(true)
-    }, [choosingPieces, requests])
+        if (requests && requests.length && !choosingPieces && minimumTimeElapsed) {
+            setReadyToStartAI(true)
+        }
+    }, [choosingPieces, requests, minimumTimeElapsed])
 
     return <div>
         <Subtitulo dadosDoProcesso={dadosDoProcesso} />
         {children}
-        <ChoosePieces allPieces={dadosDoProcesso.pecas} selectedPieces={selectedPieces} onSave={changeSelectedPieces} onStartEditing={() => { setChoosingPieces(true); setRequests([]) }} onEndEditing={() => setChoosingPieces(false)} />
+        <ChoosePieces allPieces={dadosDoProcesso.pecas} selectedPieces={selectedPieces} onSave={changeSelectedPieces} onStartEditing={() => { setChoosingPieces(true) }} onEndEditing={() => { setRequests([]); setChoosingPieces(false) }} />
         <LoadingPieces />
         <ErrorMsg dadosDoProcesso={dadosDoProcesso} />
         <div className="mb-4"></div>
-        {readyToStartAI && requests && requests.length && (
+        {readyToStartAI && requests?.length > 0 && (
             apiKeyProvided
                 ? <>
                     <ListaDeProdutos dadosDoProcesso={dadosDoProcesso} requests={requests} />
