@@ -3,7 +3,7 @@
 import { Col, Container, Form, Row, Spinner } from 'react-bootstrap'
 import { IAPrompt } from '@/lib/db/mysql-types'
 
-export default async function PromptInfoContents({ pPrompt }: { pPrompt: Promise<IAPrompt> }) {
+export default async function PromptInfoContents({ pPrompt, isModerator }: { pPrompt: Promise<IAPrompt>, isModerator: boolean }) {
     const prompt = await pPrompt
 
     return (
@@ -64,19 +64,19 @@ export default async function PromptInfoContents({ pPrompt }: { pPrompt: Promise
                         <Form.Label>Modelo</Form.Label>
                         <Form.Control className="form-control"
                             as="textarea"
-                            rows={5}
+                            rows={10}
                             readOnly
                             defaultValue={prompt.content.template}
                         />
                     </Col>
                 </Row>
                 )}
-                {prompt.content.prompt !== undefined && (<Row className="mb-3">
+                {prompt.content.prompt && (<Row className="mb-3">
                     <Col>
                         <Form.Label>Prompt</Form.Label>
                         <Form.Control className="form-control"
                             as="textarea"
-                            rows={5}
+                            rows={10}
 
                             readOnly
                             defaultValue={prompt.content.prompt}
@@ -84,13 +84,13 @@ export default async function PromptInfoContents({ pPrompt }: { pPrompt: Promise
                     </Col>
                 </Row>
                 )}
-                {prompt.content.system_prompt !== undefined && (
+                {prompt.content.system_prompt && (
                     <Row className="mb-3">
                         <Col>
                             <Form.Label>Prompt de Sistema</Form.Label>
                             <Form.Control className="form-control"
                                 as="textarea"
-                                rows={5}
+                                rows={10}
 
                                 readOnly
                                 defaultValue={prompt.content.system_prompt}
@@ -98,26 +98,26 @@ export default async function PromptInfoContents({ pPrompt }: { pPrompt: Promise
                         </Col>
                     </Row>
                 )}
-                {(prompt.content.json_schema !== undefined || prompt.content.format !== undefined) && (
+                {(prompt.content.json_schema || prompt.content.format) && (
                     <Row className="mb-3">
-                        {prompt.content.json_schema !== undefined && (
+                        {prompt.content.json_schema && (
                             <Col md={6}>
                                 <Form.Label>JSON Schema</Form.Label>
                                 <Form.Control className="form-control"
                                     as="textarea"
-                                    rows={5}
+                                    rows={10}
 
                                     readOnly
                                     defaultValue={prompt.content.json_schema}
                                 />
                             </Col>
                         )}
-                        {prompt.content.format !== undefined && (
+                        {prompt.content.format && (
                             <Col md={6}>
                                 <Form.Label>Format</Form.Label>
                                 <Form.Control className="form-control"
                                     as="textarea"
-                                    rows={5}
+                                    rows={10}
 
                                     readOnly
                                     defaultValue={prompt.content.format}
@@ -127,6 +127,14 @@ export default async function PromptInfoContents({ pPrompt }: { pPrompt: Promise
                     </Row>
                 )}
             </Form>
+            {isModerator && (
+                <div className="text-center mt-3">
+                    <a href={`/community/prompt/${prompt.id}/set-private`} className="btn btn-danger ms-2">Tornar Privado</a>
+                    <a href={`/community/prompt/${prompt.id}/set-unlisted`} className="btn btn-danger ms-2">Tornar Não Listado</a>
+                    <a href={`/community/prompt/${prompt.id}/set-public`} className="btn btn-danger ms-2">Tornar Público</a>
+                    <a href={`/community/prompt/${prompt.id}/set-standard`} className="btn btn-danger ms-2">Tornar Padrão</a>
+                </div>)
+            }
         </Container>
     )
 }

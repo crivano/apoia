@@ -89,7 +89,7 @@ export default function ProcessContents({ prompt, dadosDoProcesso, pieceContent,
 
     const buildRequests = (contents: { [key: number]: string }): GeneratedContent[] => {
         const requestArray: GeneratedContent[] = []
-        const pecasComConteudo: TextoType[] = selectedPieces.map(peca => ({ id: peca.id, event: peca.numeroDoEvento, label: peca.rotulo, descr: peca.descr, slug: slugify(peca.descr), texto: contents[peca.id] }))
+        const pecasComConteudo: TextoType[] = selectedPieces.map(peca => ({ id: peca.id, event: peca.numeroDoEvento, idOrigem: peca.idOrigem, label: peca.rotulo, descr: peca.descr, slug: slugify(peca.descr), texto: contents[peca.id] }))
         let produtos: (InfoDeProduto | P)[] = []
         if (prompt.content.summary === 'SIM') {
             for (const peca of pecasComConteudo) {

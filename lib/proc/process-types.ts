@@ -10,6 +10,7 @@ export type PecaConteudoType = {
 
 export type PecaType = {
     id: string
+    idOrigem?: string
     numeroDoEvento: string
     descricaoDoEvento: string
     descr: string

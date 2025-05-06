@@ -32,7 +32,8 @@ export type PromptDefinitionType = {
 // Tipo que define os textos que serão passados para um prompt
 //
 export type TextoType = {
-    id?: string // identificador da peça no Eproc
+    id?: string // identificador da peça no DataLake
+    idOrigem?: string // identificador da peça no sistema de origem
     event?: string
     label?: string
     descr: string

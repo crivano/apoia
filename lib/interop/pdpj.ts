@@ -147,6 +147,7 @@ export class InteropPDPJ implements Interop {
                 if (relatedMov) mov = relatedMov
                 pecas.push({
                     id: doc.id,
+                    idOrigem: doc.idOrigem,
                     numeroDoEvento: mov.sequencia,
                     descricaoDoEvento: mov.descricao,
                     descr: doc.tipo.nome.toUpperCase(),
