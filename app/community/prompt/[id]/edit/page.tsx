@@ -1,8 +1,10 @@
 import { Container } from 'react-bootstrap'
 import PromptForm from '../../prompt-form'
 import { Dao } from '@/lib/db/mysql'
+import { assertCurrentUserCorporativo } from '@/lib/user';
 
 export default async function Edit(props: { params: Promise<{ id: number }> }) {
+    const user = await assertCurrentUserCorporativo()
     const params = await props.params;
     const { id } = params
 

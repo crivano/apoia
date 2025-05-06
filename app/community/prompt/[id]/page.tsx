@@ -5,11 +5,13 @@ import { unstable_noStore as noStore } from 'next/cache'
 import { Dao } from '@/lib/db/mysql'
 import { Container, Spinner } from 'react-bootstrap'
 import PromptInfoContents from './prompt-info-contents'
+import { assertCurrentUser, isUserModerator } from '@/lib/user'
 
 export default async function Home(props: { params: Promise<{ id: number }> }) {
     const params = await props.params;
     noStore()
-
+    const user = await assertCurrentUser()
+    const isModerator = await isUserModerator(user)
     const pPrompt = Dao.retrieveLatestPromptByBaseId(params.id)
 
     return (
@@ -19,6 +21,14 @@ export default async function Home(props: { params: Promise<{ id: number }> }) {
                 <div className="text-center"><Spinner variant='secondary' /></div>
             }>
                 <PromptInfoContents pPrompt={pPrompt} />
+                {isModerator && (
+                    <div className="text-center mt-3">
+                        <a href={`/community/prompt/${params.id}/set-private`} className="btn btn-danger ms-2">Tornar Privado</a>
+                        <a href={`/community/prompt/${params.id}/set-unlisted`} className="btn btn-danger ms-2">Tornar Não Listado</a>
+                        <a href={`/community/prompt/${params.id}/set-public`} className="btn btn-danger ms-2">Tornar Público</a>
+                        <a href={`/community/prompt/${params.id}/set-standard`} className="btn btn-danger ms-2">Tornar Padrão</a>
+                    </div>)
+                }
             </Suspense>
         </Container>
     )
