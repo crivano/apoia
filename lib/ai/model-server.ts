@@ -72,7 +72,7 @@ export type ModelParams = { model: string, apiKey: string, availableApiKeys: str
 export async function getSelectedModelParams(): Promise<ModelParams> {
     const prefs = await getPrefs()
     const user = await getCurrentUser()
-    const seqTribunalPai = user?.corporativo?.[0]?.seqTribunalPai
+    const seqTribunalPai = user?.corporativo?.[0]?.seq_tribunal_pai
 
     let model: string
     let azureResourceName: string
