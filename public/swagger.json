@@ -256,6 +256,55 @@
         }
       }
     },
+    "/api/v1/process/{number}/piece/{piece}/binary": {
+      "get": {
+        "description": "Obtem o conteúdo binário de uma peça processual",
+        "tags": [
+          "process"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "number",
+            "required": true,
+            "description": "Número do processo (apenas números)"
+          },
+          {
+            "in": "path",
+            "name": "piece",
+            "required": true,
+            "description": "Identificador da peça processual (apenas números)"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Análise do processo no formato solicitado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "description": "OK se o conteúdo foi obtido com sucesso"
+                    },
+                    "content": {
+                      "type": "string",
+                      "description": "Conteúdo da peça processual"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/process/{number}/piece/{piece}/content": {
       "get": {
         "description": "Obtem o texto de uma peça processual",
