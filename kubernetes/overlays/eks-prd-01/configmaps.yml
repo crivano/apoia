@@ -42,8 +42,8 @@ data:
   GOOGLE_ANALYTICS_ID: "G-YT91JXZFP9"
   WOOTRIC_ACCOUNT_TOKEN: "NPS-8c9fb077"
   MODERATOR: "00489623760"
-  MODEL: "gpt-4.1-nano"
-
+  
+  # MODEL: "gpt-4.1-nano"
   TRIBUNAL_12_MODEL: "gemini-2.5-flash-preview-04-17"
 
   # SYSTEMS: "TRF2,JFRJ,JFES"
