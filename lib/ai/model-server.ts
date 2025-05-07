@@ -40,20 +40,6 @@ function getApiKeyByModel(model: string, prefs: PrefsCookieType, seqTribunalPai?
     throw new Error(`API Key ${envKey} not found for model ${model}`)
 }
 
-// export const hasApiKey = async (): Promise<boolean> => {
-//     const prefs = await getPrefs()
-//     for (const provider of enumSortById(ModelProvider)) {
-//         if ((envString(provider.value.apiKey) && envString('MODEL')) || prefs?.env[provider.value.apiKey])
-//             return true
-//     }
-//     return false
-// }
-
-// export const hasApiKeyAndModel = async (): Promise<{ hasApiKey: boolean, model: string }> => {
-//     const { model, apiKey } = await getSelectedModelParams()
-//     return { hasApiKey: !!model && !!apiKey, model }
-// }
-
 export const assertModel = async () => {
     if (!await getSelectedModelName()) {
         redirect('/prefs')
@@ -68,7 +54,7 @@ function envStringPrefixed(key: string, seqTribunalPai: string): string {
         s = envString(key)
     return s
 }
-export type ModelParams = { model: string, apiKey: string, availableApiKeys: string[], defaultModel?: string, userMayChangeModel: boolean, azureResourceName: string }
+export type ModelParams = { model: string, apiKey: string, availableApiKeys: string[], defaultModel?: string, selectableModels?: string[], userMayChangeModel: boolean, azureResourceName: string }
 export async function getSelectedModelParams(): Promise<ModelParams> {
     const prefs = await getPrefs()
     const user = await getCurrentUser()
@@ -77,9 +63,18 @@ export async function getSelectedModelParams(): Promise<ModelParams> {
     let model: string
     let azureResourceName: string
 
-    // user may change model if the env variable ends with *
     let defaultModel = envStringPrefixed('MODEL', seqTribunalPai) as string
+    let selectableModels = undefined as string[]
     let userMayChangeModel = false
+    
+    // user may change model if the MODEL env variable ends with * or if it is a list of models
+    // if it is a list of models, the first one is the default model
+    if (defaultModel?.includes(',')) {
+        selectableModels = defaultModel.split(',')
+        defaultModel = selectableModels[0]
+    }
+    
+    // if it is a single model, the user may change it if it ends with *
     if (defaultModel && defaultModel.endsWith('*')) {
         defaultModel = defaultModel.slice(0, -1)
         userMayChangeModel = true
@@ -118,7 +113,7 @@ export async function getSelectedModelParams(): Promise<ModelParams> {
             }
         }
     }
-    return { model, apiKey, availableApiKeys, defaultModel, userMayChangeModel, azureResourceName }
+    return { model, apiKey, availableApiKeys, defaultModel, selectableModels, userMayChangeModel, azureResourceName }
 }
 
 export async function getSelectedModelName(): Promise<string> {

@@ -238,12 +238,12 @@ export class FormHelper {
         )
     }
 
-    public Select = ({ label, name, options, width, visible }: { label: string, name: string, options: { id: number | string, name: string, disabled?: boolean }[], visible?: boolean, width?: number | string }) => {
+    public Select = ({ label, name, options, width, visible }: { label: string, name: string, options: { id: number | string, name: string, disabled?: boolean, hidden?: boolean }[], visible?: boolean, width?: number | string }) => {
         return (
             <Form.Group className={`${this.colClass(width)} ${visible === false ? 'd-none' : ''}`} controlId={name}>
                 <Form.Label className={this.compact ? 'mb-0' : ''}>{label}</Form.Label>
                 <Form.Select name={name} value={this.get(name) || ''} onChange={e => this.set(name, e.target.value)}>
-                    {options.map(c => (<option value={c.id} key={c.id} disabled={c.disabled === true}>{c.name}</option>))}
+                    {options.map(c => (<option value={c.id} key={c.id} disabled={c.disabled === true} hidden={c.hidden === true}>{c.name}</option>))}
                 </Form.Select>
                 <FieldError formState={this.formState} name={name} />
             </Form.Group >

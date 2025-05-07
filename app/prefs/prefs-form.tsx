@@ -57,8 +57,9 @@ export default function PrefsForm(params) {
 
     const isDisabled = (model): boolean => {
         const providerApiKey = model.value.provider.apiKey
-        const enabled = data.env && !!data.env[providerApiKey] || (params.userMayChangeModel && params.availableApiKeys.includes(providerApiKey)) || (!params.userMayChangeModel && model.value.name === params.defaultModel)
-
+        const enabled = data.env && !!data.env[providerApiKey]
+            || ((params.userMayChangeModel || !params.defaultModel) && params.availableApiKeys.includes(providerApiKey))
+            || (!params.userMayChangeModel && (model.value.name === params.defaultModel || params.selectableModels?.includes(model.value.name)))
         return !enabled
     }
 
@@ -77,7 +78,7 @@ export default function PrefsForm(params) {
 
     const modelOptions = enumSorted(Model)
         // .sort((a, b) => a.value.provider.id - b.value.provider.id)
-        .map(e => ({ id: e.value.name, name: e.value.name, disabled: isDisabled(e), visible: params.statusDeLancamento >= e.value.provider.status }))
+        .map(e => ({ id: e.value.name, name: e.value.name, disabled: isDisabled(e), hidden: isDisabled(e), visible: params.statusDeLancamento >= e.value.provider.status }))
         .sort((a, b) => a.disabled ? 1 : b.disabled ? -1 : 0)
     // .filter(e => e.visible)
 

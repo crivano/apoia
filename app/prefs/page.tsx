@@ -19,7 +19,7 @@ export default async function Home() {
   if (prefs)
     initialState = prefs
 
-  const { availableApiKeys, defaultModel, userMayChangeModel } = await getSelectedModelParams()
+  const { availableApiKeys, defaultModel, userMayChangeModel, selectableModels } = await getSelectedModelParams()
 
   const statusCookie = (await cookies()).get('beta-tester')?.value
   const statusDeLancamento = statusCookie ? JSON.parse(statusCookie) : StatusDeLancamento.PUBLICO
@@ -27,7 +27,7 @@ export default async function Home() {
 
   return (<>
     <Container fluid={false}>
-      <PrefsForm initialState={initialState} availableApiKeys={availableApiKeys} defaultModel={defaultModel} userMayChangeModel={userMayChangeModel} statusDeLancamento={statusDeLancamento} />
+      <PrefsForm initialState={initialState} availableApiKeys={availableApiKeys} defaultModel={defaultModel} selectableModels={selectableModels} userMayChangeModel={userMayChangeModel} statusDeLancamento={statusDeLancamento} />
     </Container>
   </>)
 }

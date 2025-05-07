@@ -14,7 +14,7 @@ import { assertCurrentUser, isUserCorporativo } from '@/lib/user';
 import { getSelectedModelName, getSelectedModelParams } from '@/lib/ai/model-server';
 
 
-export default async function UserMenu({ defaultModel }: { defaultModel?: string }) {
+export default async function UserMenu({}: {}) {
     noStore()
     const session = await getServerSession(authOptions);
     // if (!session) return <NavItem>

@@ -46,6 +46,9 @@ const ModelArray = [
     { id: 5, name: 'llama-3.2-90b-text-preview', provider: ModelProvider.GROQ, status: StatusDeLancamento.EM_DESENVOLVIMENTO },
     { id: 6, name: 'llama-3.1-70b-versatile', provider: ModelProvider.GROQ, status: StatusDeLancamento.EM_DESENVOLVIMENTO },
     { id: 8, name: 'deepseek-chat', provider: ModelProvider.DEEPSEEK, status: StatusDeLancamento.EM_DESENVOLVIMENTO },
+    { id: 19, name: 'azure-gpt-4.1-mini', provider: ModelProvider.AZURE, status: StatusDeLancamento.PUBLICO },
+    { id: 20, name: 'azure-gpt-4.1-nano', provider: ModelProvider.AZURE, status: StatusDeLancamento.PUBLICO },
+    { id: 21, name: 'azure-gpt-4.1', provider: ModelProvider.AZURE, status: StatusDeLancamento.PUBLICO },
     { id: 11, name: 'azure-gpt-4o', provider: ModelProvider.AZURE, status: StatusDeLancamento.PUBLICO },
     { id: 12, name: 'azure-gpt-4o-mini', provider: ModelProvider.AZURE, status: StatusDeLancamento.PUBLICO },
 ]
