@@ -10,6 +10,7 @@ import { createGoogleGenerativeAI } from "@ai-sdk/google"
 import { createAzure } from "@ai-sdk/azure"
 import { createGroq } from "@ai-sdk/groq"
 import { createDeepSeek } from "@ai-sdk/deepseek"
+import { createAmazonBedrock } from '@ai-sdk/amazon-bedrock'
 import { LanguageModelV1 } from "ai"
 import { EMPTY_PREFS_COOKIE, PrefsCookieType } from '@/lib/utils/prefs-types'
 import { getCurrentUser } from "../user"
@@ -23,6 +24,8 @@ function getEnvKeyByModel(model: string): string {
         return ModelProvider.GOOGLE.apiKey
     } else if (model.startsWith('azure-')) {
         return ModelProvider.AZURE.apiKey
+    } else if (model.startsWith('aws-')) {
+        return ModelProvider.AWS.apiKey
     } else if (model.startsWith('llama-')) {
         return ModelProvider.GROQ.apiKey
     } else if (model.startsWith('deepseek-')) {
@@ -54,7 +57,7 @@ function envStringPrefixed(key: string, seqTribunalPai: string): string {
         s = envString(key)
     return s
 }
-export type ModelParams = { model: string, apiKey: string, availableApiKeys: string[], defaultModel?: string, selectableModels?: string[], userMayChangeModel: boolean, azureResourceName: string }
+export type ModelParams = { model: string, apiKey: string, availableApiKeys: string[], defaultModel?: string, selectableModels?: string[], userMayChangeModel: boolean, azureResourceName: string, awsRegion?: string, awsAccessKeyId?: string }
 export async function getSelectedModelParams(): Promise<ModelParams> {
     const prefs = await getPrefs()
     const user = await getCurrentUser()
@@ -62,18 +65,20 @@ export async function getSelectedModelParams(): Promise<ModelParams> {
 
     let model: string
     let azureResourceName: string
+    let awsRegion: string
+    let awsAccessKeyId: string
 
     let defaultModel = envStringPrefixed('MODEL', seqTribunalPai) as string
     let selectableModels = undefined as string[]
     let userMayChangeModel = false
-    
+
     // user may change model if the MODEL env variable ends with * or if it is a list of models
     // if it is a list of models, the first one is the default model
     if (defaultModel?.includes(',')) {
         selectableModels = defaultModel.split(',')
         defaultModel = selectableModels[0]
     }
-    
+
     // if it is a single model, the user may change it if it ends with *
     if (defaultModel && defaultModel.endsWith('*')) {
         defaultModel = defaultModel.slice(0, -1)
@@ -83,9 +88,13 @@ export async function getSelectedModelParams(): Promise<ModelParams> {
     if (prefs) {
         model = prefs.model
         azureResourceName = prefs.env[ModelProvider.AZURE.resourceName]
+        awsRegion = prefs.env[ModelProvider.AWS.region]
+        awsAccessKeyId = prefs.env[ModelProvider.AWS.accessKeyId]
     } else {
         model = defaultModel
         azureResourceName = envStringPrefixed(ModelProvider.AZURE.resourceName, seqTribunalPai) as string
+        awsRegion = envStringPrefixed(ModelProvider.AWS.region, seqTribunalPai) as string
+        awsAccessKeyId = envStringPrefixed(ModelProvider.AWS.accessKeyId, seqTribunalPai) as string
     }
 
     const availableApiKeys = Object.values(ModelProvider).filter((model) => envStringPrefixed(model.apiKey, seqTribunalPai)).map((model) => model.apiKey)
@@ -113,7 +122,7 @@ export async function getSelectedModelParams(): Promise<ModelParams> {
             }
         }
     }
-    return { model, apiKey, availableApiKeys, defaultModel, selectableModels, userMayChangeModel, azureResourceName }
+    return { model, apiKey, availableApiKeys, defaultModel, selectableModels, userMayChangeModel, azureResourceName, awsRegion, awsAccessKeyId }
 }
 
 export async function getSelectedModelName(): Promise<string> {
@@ -121,7 +130,7 @@ export async function getSelectedModelName(): Promise<string> {
 }
 
 export async function getModel(params?: { structuredOutputs: boolean, overrideModel?: string }): Promise<{ model: string, modelRef: LanguageModelV1 }> {
-    let { model, apiKey, azureResourceName } = await getSelectedModelParams()
+    let { model, apiKey, azureResourceName, awsRegion, awsAccessKeyId } = await getSelectedModelParams()
     if (params?.overrideModel) model = params.overrideModel
 
 
@@ -142,6 +151,16 @@ export async function getModel(params?: { structuredOutputs: boolean, overrideMo
             ? createAzure({ apiKey, baseURL: azureResourceName })
             : createAzure({ apiKey, resourceName: azureResourceName })
         return { model, modelRef: azure(model.replace('azure-', ''), { structuredOutputs: params?.structuredOutputs }) as unknown as LanguageModelV1 }
+    }
+    if (getEnvKeyByModel(model) === ModelProvider.AWS.apiKey) {
+        const bedrock = createAmazonBedrock({ region: awsRegion, accessKeyId: awsAccessKeyId, secretAccessKey: apiKey })
+        const modelRef = bedrock(model.replace('aws-', ''), {}) as unknown as LanguageModelV1
+        // const { text } = await generateText({
+        //     model: modelRef,
+        //     prompt: 'Write a vegetarian lasagna recipe for 4 people.',
+        //   });
+        // console.log(text)
+        return { model, modelRef }
     }
     if (getEnvKeyByModel(model) === ModelProvider.GROQ.apiKey) {
         const groq = createGroq({ apiKey })

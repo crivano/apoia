@@ -9,11 +9,12 @@ const ModelProviderArray = [
     { id: 1, name: 'Anthropic', apiKey: 'ANTHROPIC_API_KEY', apiKeyRegex: /^sk-[a-zA-Z0-9_-]{100,110}$/, status: StatusDeLancamento.PUBLICO },
     { id: 3, name: 'Google', apiKey: 'GOOGLE_API_KEY', apiKeyRegex: /^AI[a-zA-Z0-9]{37}$/, status: StatusDeLancamento.PUBLICO },
     { id: 4, name: 'Azure', apiKey: 'AZURE_API_KEY', resourceName: 'AZURE_RESOURCE_NAME', apiKeyRegex: /^[a-zA-Z0-9]{32,84}$/, status: StatusDeLancamento.PUBLICO },
+    { id: 7, name: 'AWS', apiKey: 'AWS_SECRET_ACCESS_KEY', accessKeyId: 'AWS_ACCESS_KEY_ID', region: 'AWS_REGION', apiKeyRegex: /^sk-[a-zA-Z0-9]{32}$/, status: StatusDeLancamento.PUBLICO },
     { id: 5, name: 'Groq', apiKey: 'GROQ_API_KEY', apiKeyRegex: /^gsk_[a-zA-Z0-9]{52}$/, status: StatusDeLancamento.EM_DESENVOLVIMENTO },
     { id: 6, name: 'DeepSeek', apiKey: 'DEEPSEEK_API_KEY', apiKeyRegex: /^sk-[a-zA-Z0-9]{32}$/, status: StatusDeLancamento.EM_DESENVOLVIMENTO },
 ]
 
-export type ModelProviderValueType = EnumOfObjectsValueType & { apiKey: string, resourceName?: string, apiKeyRegex: RegExp, status: StatusDeLancamento }
+export type ModelProviderValueType = EnumOfObjectsValueType & { apiKey: string, resourceName?: string, region?: string, accessKeyId?: string, apiKeyRegex: RegExp, status: StatusDeLancamento }
 export type ModelProviderType = { [key: string]: ModelProviderValueType }
 
 // export const ModelProvider: ModelProviderType = {
@@ -51,6 +52,7 @@ const ModelArray = [
     { id: 21, name: 'azure-gpt-4.1', provider: ModelProvider.AZURE, status: StatusDeLancamento.PUBLICO },
     { id: 11, name: 'azure-gpt-4o', provider: ModelProvider.AZURE, status: StatusDeLancamento.PUBLICO },
     { id: 12, name: 'azure-gpt-4o-mini', provider: ModelProvider.AZURE, status: StatusDeLancamento.PUBLICO },
+    { id: 22, name: 'aws-anthropic.claude-3-haiku-20240307-v1:0', provider: ModelProvider.AWS, status: StatusDeLancamento.PUBLICO },
 ]
 
 export type ModelValeuType = EnumOfObjectsValueType & { provider: ModelProviderValueType, status: StatusDeLancamento }

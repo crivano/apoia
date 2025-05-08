@@ -1,6 +1,6 @@
 'use server'
 
-import { CoreTool, streamText, StreamTextResult, LanguageModel, streamObject, StreamObjectResult, DeepPartial, CoreMessage } from 'ai'
+import { CoreTool, streamText, StreamTextResult, LanguageModel, streamObject, StreamObjectResult, DeepPartial, CoreMessage, generateText } from 'ai'
 import { IAGenerated } from '../db/mysql-types'
 import { Dao } from '../db/mysql'
 import { assertCurrentUser } from '../user'
@@ -103,27 +103,40 @@ export async function streamContent(definition: PromptDefinitionType, data: Prom
 
     if (!structuredOutputs) {
         console.log('streaming text', definition.kind) //, messages, modelRef)
-        const pResult = streamText({
-            model: modelRef as LanguageModel,
-            messages,
-            maxRetries: 0,
-            // temperature: 1.5,
-            onFinish: async ({ text }) => {
-                if (definition?.cacheControl !== false) {
-                    const generationId = await saveToCache(sha256, model, definition.kind, text, attempt || null)
-                    if (results) results.generationId = generationId
-                }
-                writeResponseToFile(definition, messages, text)
+        if (model.startsWith('aws-')) {
+            const { text } = await generateText({
+                model: modelRef as LanguageModel,
+                messages,
+                maxRetries: 0,
+                // temperature: 1.5,
+            })
+            if (definition?.cacheControl !== false) {
+                const generationId = await saveToCache(sha256, model, definition.kind, text, attempt || null)
+                if (results) results.generationId = generationId
             }
-        })
-        return pResult
+            writeResponseToFile(definition, messages, text)
+            return text
+        } else {
+            const pResult = streamText({
+                model: modelRef as LanguageModel,
+                messages,
+                maxRetries: 0,
+                onFinish: async ({ text }) => {
+                    if (definition?.cacheControl !== false) {
+                        const generationId = await saveToCache(sha256, model, definition.kind, text, attempt || null)
+                        if (results) results.generationId = generationId
+                    }
+                    writeResponseToFile(definition, messages, text)
+                }
+            })
+            return pResult
+        }
     } else {
         console.log('streaming object', definition.kind) //, messages, modelRef, structuredOutputs.schema)
         const pResult = streamObject({
             model: modelRef as LanguageModel,
             messages,
             maxRetries: 1,
-            // // temperature: 1.5,
             onFinish: async ({ object }) => {
                 if (definition?.cacheControl !== false) {
                     const generationId = await saveToCache(sha256, model, definition.kind, JSON.stringify(object), attempt || null)
