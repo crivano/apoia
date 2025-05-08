@@ -155,11 +155,23 @@ export async function getModel(params?: { structuredOutputs: boolean, overrideMo
     if (getEnvKeyByModel(model) === ModelProvider.AWS.apiKey) {
         const bedrock = createAmazonBedrock({ region: awsRegion, accessKeyId: awsAccessKeyId, secretAccessKey: apiKey })
         const modelRef = bedrock(model.replace('aws-', ''), {}) as unknown as LanguageModelV1
+
         // const { text } = await generateText({
         //     model: modelRef,
         //     prompt: 'Write a vegetarian lasagna recipe for 4 people.',
         //   });
         // console.log(text)
+
+        // const result = streamText({
+        //     model: modelRef,
+        //     messages: [{
+        //         role: 'user',
+        //         content: 'Write a vegetarian lasagna recipe for 4 people.',
+        //     }],
+        // });
+        // for await (const textPart of result.textStream) 
+        //     console.log(textPart);
+
         return { model, modelRef }
     }
     if (getEnvKeyByModel(model) === ModelProvider.GROQ.apiKey) {
