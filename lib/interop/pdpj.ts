@@ -75,7 +75,7 @@ export class InteropPDPJ implements Interop {
         throw new Error('Not implemented')
     }
 
-    public consultarProcesso = async (numeroDoProcesso: string): Promise<DadosDoProcessoType[]> => {
+    public consultarProcesso = async (numeroDoProcesso: string, idClasseParaFiltrar?: number): Promise<DadosDoProcessoType[]> => {
         const response = await fetch(
             envString('DATALAKE_API_URL') + `/processos/${numeroDoProcesso}`,
             {
@@ -107,6 +107,9 @@ export class InteropPDPJ implements Interop {
 
         const resp: DadosDoProcessoType[] = []
         for (const processo of data[0].tramitacoes) {
+            const idClasse = processo?.classe?.[0]?.codigo
+            console.log('idClasse', processo?.classe)
+            if (idClasseParaFiltrar && idClasse !== idClasseParaFiltrar) continue
             if (verificarNivelDeSigilo())
                 assertNivelDeSigilo('' + processo.nivelSigilo)
 
@@ -164,10 +167,26 @@ export class InteropPDPJ implements Interop {
             }
             const classe = tua[codigoDaClasse]
             resp.push({ numeroDoProcesso, ajuizamento, codigoDaClasse, classe, nomeOrgaoJulgador, pecas, segmento, instancia, materia, oabPoloAtivo })
+
+            // Se o processo tem processos relacionados, vamos pegar o originario    
+            if (processo.processosRelacionados?.length && !idClasseParaFiltrar) {
+                const processoOriginario = processo.processosRelacionados.find((p: any) => p.tipoRelacao === 'ORIGINARIO' && p.numeroProcesso !== numeroDoProcesso)
+                if (processoOriginario) {
+                    const numeroDoProcessoOriginario = processoOriginario.numeroProcesso
+                    const idClasseOriginario = processoOriginario.classe?.id
+                    const originario = await this.consultarProcesso(numeroDoProcessoOriginario, idClasseOriginario)
+                    if (originario?.length) {
+                        const originarioProcesso = originario[0]
+                        resp.push({ ...originarioProcesso, classe: originarioProcesso.classe + ' (Originário)' })
+                    }
+                }
+            }
         }
 
         if (resp.length > 1) {
             resp.sort((a, b) => {
+                if (a.classe?.endsWith(' (Originário)') && !b.classe?.endsWith(' (Originário)')) return 1
+                if (!a.classe?.endsWith(' (Originário)') && b.classe?.endsWith(' (Originário)')) return -1
                 const latestPecaDateA = a.pecas.length ? Math.max(...a.pecas.map(p => p.dataHora.getTime())) : 0;
                 const latestPecaDateB = b.pecas.length ? Math.max(...b.pecas.map(p => p.dataHora.getTime())) : 0;
                 return latestPecaDateB - latestPecaDateA;

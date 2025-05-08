@@ -278,7 +278,7 @@ export function Contents({ prompts, user, user_id, apiKeyProvided, model, listPu
                         ? <ProcessNumberForm id={`${prompt.base_id}`} onChange={setNumeroDoProcesso} />
                         : <>
                             <div id="printDiv">
-                                <ProcessTitle id={numeroDoProcesso} />
+                                <ProcessTitle id={dadosDoProcesso.numeroDoProcesso} />
                                 {dadosDoProcesso
                                     ? <ProcessContents prompt={prompt} dadosDoProcesso={dadosDoProcesso} pieceContent={pieceContent} setPieceContent={setPieceContent} apiKeyProvided={apiKeyProvided} model={model}>
                                         <PromptTitle prompt={prompt} />
