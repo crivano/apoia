@@ -144,9 +144,9 @@ const pecasRelevantes2aInstancia = [
 ]
 
 const padroesApelacao = [
-    [ANY(), EXACT(T.PETICAO_INICIAL), ANY(), EXACT(T.SENTENCA), ANY(), OR(...pecasRelevantes2aInstanciaRecursos), ANY(), OR(...pecasRelevantes2aInstanciaContrarrazoes), ANY({ capture: [T.PARECER] })],
-    [ANY(), EXACT(T.PETICAO_INICIAL), ANY(), EXACT(T.SENTENCA), ANY(), OR(...pecasRelevantes2aInstanciaRecursos), ANY({ capture: [...pecasRelevantes2aInstanciaContrarrazoes, T.PARECER] })],
-    [ANY(), EXACT(T.PETICAO_INICIAL), ANY({ capture: [...pecasRelevantes2aInstancia] })]
+    [ANY({ capture: [T.PETICAO_INICIAL] }), EXACT(T.PETICAO_INICIAL), ANY(), EXACT(T.SENTENCA), ANY(), OR(...pecasRelevantes2aInstanciaRecursos), ANY(), OR(...pecasRelevantes2aInstanciaContrarrazoes), ANY({ capture: [T.PARECER] })],
+    [ANY({ capture: [T.PETICAO_INICIAL] }), EXACT(T.PETICAO_INICIAL), ANY(), EXACT(T.SENTENCA), ANY(), OR(...pecasRelevantes2aInstanciaRecursos), ANY({ capture: [...pecasRelevantes2aInstanciaContrarrazoes, T.PARECER] })],
+    [ANY({ capture: [T.PETICAO_INICIAL] }), EXACT(T.PETICAO_INICIAL), ANY({ capture: [...pecasRelevantes2aInstancia] })]
 ]
 
 const padroesPeticaoInicialEContestacao = [
@@ -396,5 +396,77 @@ export const selecionarPecasPorPadrao = (pecas: PecaType[], padroes: MatchOperat
     const pecasSelecionadas = matchSelecionado.map(m => m.captured).flat().map(d => pecas[indexById[d.id]])
 
     if (pecasSelecionadas.length === 0) return null
+
+    return acrescentarAnexosDoPJe(pecas, pecasSelecionadas, indexById)
+}
+
+const isPJeOriginId = (idOriginal: string | undefined | null): boolean => {
+    if (!idOriginal) {
+        return true; // No idOriginal, assume not PJe for this rule.
+    }
+    if (!/^\d+$/.test(idOriginal)) {
+        return true; // Not a string of digits, assume not PJe.
+    }
+    // It's a string of digits. If its length is less than typical PJe ID length, assume not PJe.
+    return idOriginal.length < PJE_ID_MAX_LENGTH
+}
+
+// Incluir a peça seguinte para resolver um problema que afeta o PJe. O critério deve ser o seguinte:
+// A peça deve ser do tipo HTML
+// Deve haver um PDF logo em seguida, e no mesmo evento
+// O idOriginal da peça não deve ser um número muito grande (não é uma peça do PJe)
+const acrescentarAnexosDoPJe = (pecas: PecaType[], pecasSelecionadas: PecaType[], indexById: any) => {
+    console.log('acrescentarAnexosDoPJe', pecasSelecionadas.map(p => p.id))
+    // Use a Set to keep track of IDs in pecasSelecionadas for efficient lookup and to manage additions.
+    const allSelectedPecaIds = new Set(pecasSelecionadas.map(p => p.id))
+    const newlyAddedPecas: PecaType[] = []
+
+    // Iterate through the original `pecas` array to find pairs of (selected HTML, next PDF)
+    for (let i = 0; i < pecas.length - 2; i++) {
+        const currentPeca = pecas[i]
+        const nextPeca = pecas[i + 1]
+
+        // Check if currentPeca is one of the selected pieces (either original or newly added)
+        if (allSelectedPecaIds.has(currentPeca.id)) {
+            // Condition 1: The selected piece is HTML
+            if (currentPeca.tipoDoConteudo === 'text/html') {
+                // Condition 2: The idOriginal of the HTML piece indicates it's not from PJe
+                if (isPJeOriginId(currentPeca.idOrigem)) {
+                    // Condition 3: The next piece is a PDF
+                    // Condition 4: The next piece is in the same event
+                    if (nextPeca.tipoDoConteudo === 'application/pdf' &&
+                        nextPeca.numeroDoEvento === currentPeca.numeroDoEvento) {
+                        // Condition 5: The next piece is not already in the selected set
+                        if (!allSelectedPecaIds.has(nextPeca.id)) {
+                            newlyAddedPecas.push(nextPeca);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    if (newlyAddedPecas.length > 0) {
+        // Add the newly identified pieces to the original list
+        pecasSelecionadas = [...pecasSelecionadas, ...newlyAddedPecas]
+
+        // Sort the combined list based on their original order in the `pecas` array
+        // using the precomputed indexById map.
+        pecasSelecionadas.sort((a, b) => {
+            const indexA = indexById[a.id]
+            const indexB = indexById[b.id]
+
+            // This check is defensive; IDs should always be in indexById if from `pecas`.
+            if (indexA === undefined && indexB === undefined) return 0
+            if (indexA === undefined) return 1 // Put undefined ones at the end
+            if (indexB === undefined) return -1 // Put undefined ones at the end
+
+            return indexA - indexB;
+        })
+    }
+
     return pecasSelecionadas
 }
+
+const PJE_ID_MAX_LENGTH = 12 // Typical PJe IDs are 19 digits. Shorter or non-numeric are considered "not PJe".
+
