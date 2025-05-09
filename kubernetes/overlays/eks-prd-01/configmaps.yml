@@ -44,7 +44,10 @@ data:
   MODERATOR: "00489623760"
   
   # MODEL: "gpt-4.1-nano"
-  TRIBUNAL_12_MODEL: "gemini-2.5-flash-preview-04-17"
+  TRIBUNAL_12_MODEL: "gemini-2.5-flash-preview-04-17,aws-us.anthropic.claude-3-5-haiku-20241022-v1:0,azure-gpt-4.1-mini"
+  TRIBUNAL_12_AZURE_RESOURCE_NAME: "https://apoiatjba-dev-eus2-openai.openai.azure.com/openai/deployments"
+  TRIBUNAL_12_AWS_ACCESS_KEY_ID: "AKIAUCPDLVI2EVH5NUG3"
+  TRIBUNAL_12_AWS_REGION: "sa-east-1"
 
   # SYSTEMS: "TRF2,JFRJ,JFES"
   # TRF2_MNI_WSDL_URL: "https://eproc-ws.trf2.jus.br/eproc/wsdl.php?srv=intercomunicacao2.2"

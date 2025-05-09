@@ -52,7 +52,10 @@ const ModelArray = [
     { id: 21, name: 'azure-gpt-4.1', provider: ModelProvider.AZURE, status: StatusDeLancamento.PUBLICO },
     { id: 11, name: 'azure-gpt-4o', provider: ModelProvider.AZURE, status: StatusDeLancamento.PUBLICO },
     { id: 12, name: 'azure-gpt-4o-mini', provider: ModelProvider.AZURE, status: StatusDeLancamento.PUBLICO },
-    { id: 22, name: 'aws-anthropic.claude-3-haiku-20240307-v1:0', provider: ModelProvider.AWS, status: StatusDeLancamento.PUBLICO },
+    // { id: 22, name: 'aws-anthropic.claude-3-haiku-20240307-v1:0', provider: ModelProvider.AWS, status: StatusDeLancamento.PUBLICO },
+    { id: 22, name: 'aws-us.anthropic.claude-3-5-haiku-20241022-v1:0', provider: ModelProvider.AWS, status: StatusDeLancamento.PUBLICO },
+    
+    
 ]
 
 export type ModelValeuType = EnumOfObjectsValueType & { provider: ModelProviderValueType, status: StatusDeLancamento }

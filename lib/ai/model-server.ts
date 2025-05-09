@@ -85,17 +85,16 @@ export async function getSelectedModelParams(): Promise<ModelParams> {
         userMayChangeModel = true
     }
 
-    if (prefs) {
-        model = prefs.model
-        azureResourceName = prefs.env[ModelProvider.AZURE.resourceName]
-        awsRegion = prefs.env[ModelProvider.AWS.region]
-        awsAccessKeyId = prefs.env[ModelProvider.AWS.accessKeyId]
-    } else {
-        model = defaultModel
-        azureResourceName = envStringPrefixed(ModelProvider.AZURE.resourceName, seqTribunalPai) as string
-        awsRegion = envStringPrefixed(ModelProvider.AWS.region, seqTribunalPai) as string
-        awsAccessKeyId = envStringPrefixed(ModelProvider.AWS.accessKeyId, seqTribunalPai) as string
-    }
+    azureResourceName = envStringPrefixed(ModelProvider.AZURE.resourceName, seqTribunalPai) as string
+    awsRegion = envStringPrefixed(ModelProvider.AWS.region, seqTribunalPai) as string
+    awsAccessKeyId = envStringPrefixed(ModelProvider.AWS.accessKeyId, seqTribunalPai) as string
+
+    if (prefs?.model) model = prefs.model
+    if (prefs?.env[ModelProvider.AZURE.resourceName]) azureResourceName = prefs.env[ModelProvider.AZURE.resourceName]
+    if (prefs?.env[ModelProvider.AWS.region]) awsRegion = prefs.env[ModelProvider.AWS.region]
+    if (prefs?.env[ModelProvider.AWS.accessKeyId]) awsAccessKeyId = prefs.env[ModelProvider.AWS.accessKeyId]
+
+    if (!model) model = defaultModel
 
     const availableApiKeys = Object.values(ModelProvider).filter((model) => envStringPrefixed(model.apiKey, seqTribunalPai)).map((model) => model.apiKey)
 
