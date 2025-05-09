@@ -278,12 +278,13 @@ export function Contents({ prompts, user, user_id, apiKeyProvided, model, listPu
                         ? <ProcessNumberForm id={`${prompt.base_id}`} onChange={setNumeroDoProcesso} />
                         : <>
                             <div id="printDiv">
-                                <ProcessTitle id={dadosDoProcesso.numeroDoProcesso} />
                                 {dadosDoProcesso
-                                    ? <ProcessContents prompt={prompt} dadosDoProcesso={dadosDoProcesso} pieceContent={pieceContent} setPieceContent={setPieceContent} apiKeyProvided={apiKeyProvided} model={model}>
-                                        <PromptTitle prompt={prompt} />
-                                    </ProcessContents>
-                                    : <><SubtituloLoading /><PromptTitle prompt={prompt} /></>}
+                                    ? <><ProcessTitle id={dadosDoProcesso?.numeroDoProcesso} />
+                                        <ProcessContents prompt={prompt} dadosDoProcesso={dadosDoProcesso} pieceContent={pieceContent} setPieceContent={setPieceContent} apiKeyProvided={apiKeyProvided} model={model}>
+                                            <PromptTitle prompt={prompt} />
+                                        </ProcessContents>
+                                    </>
+                                    : <><ProcessTitle id={numeroDoProcesso} /><SubtituloLoading /><PromptTitle prompt={prompt} /></>}
                             </div>
                         </>
                     :
