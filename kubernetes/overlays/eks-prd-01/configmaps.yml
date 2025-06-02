@@ -49,6 +49,9 @@ data:
   TRIBUNAL_12_AWS_ACCESS_KEY_ID: "AKIAUCPDLVI2EVH5NUG3"
   TRIBUNAL_12_AWS_REGION: "sa-east-1"
 
+  TRIBUNAL_29_MODEL: "azure-gpt-4o-mini"
+  TRIBUNAL_29_AZURE_RESOURCE_NAME: "seiiatjrrdes"
+
   # SYSTEMS: "TRF2,JFRJ,JFES"
   # TRF2_MNI_WSDL_URL: "https://eproc-ws.trf2.jus.br/eproc/wsdl.php?srv=intercomunicacao2.2"
   # TRF2_MNI_ENDPOINT_URL: "https://eproc-ws.trf2.jus.br/eproc/ws/controlador_ws.php?srv=intercomunicacao2.2"
