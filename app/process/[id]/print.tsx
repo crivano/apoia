@@ -30,7 +30,7 @@ export default function Print(params) {
 
     return (
         <div className="h-print" style={{ height: '1em' }}>
-            <Form id="printForm" className="float-end" action={`/api/pdf/${params.numeroDoProcesso || 'pagina'}`} method="post" ref={ref} >
+            <Form id="printForm" className="float-end" action={`/api/pdf/${params.numeroDoProcesso || 'pagina'}`} method="post" ref={ref} target="_blank" >
                 <input id="printHtml" type="hidden" name="html" value={html} />
                 <Button variant="primary" type="button" onClick={(e) => handleClick(e)}>PDF</Button>
             </Form>

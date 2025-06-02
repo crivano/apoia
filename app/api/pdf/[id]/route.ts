@@ -1,8 +1,10 @@
-export const runtime = 'edge'
+// export const runtime = 'edge'
+export const runtime = 'nodejs'
 export const maxDuration = 60
 
 import template from '@/lib/pdf/template.html'
-
+import axios from 'axios'
+import https from 'https'
 
 export async function POST(req: Request, props: { params: Promise<{ id: string }> }) {
     const params = await props.params;
@@ -11,20 +13,20 @@ export async function POST(req: Request, props: { params: Promise<{ id: string }
     const html: string = json.get('html') as string
     const formated = template.replace('<div class="content"></div>', html)
 
-    const res = await fetch('https://siga.jfrj.jus.br/sigaex/public/app/util/html-pdf', {
-        method: 'post',
-        body: JSON.stringify({
-            conv: '2',
-            html: formated
-        }),
+    const httpsAgent = new https.Agent({
+        rejectUnauthorized: false, // disables SSL certificate validation
+    });
+
+    const { data } = await axios.post('https://siga.jfrj.jus.br/sigaex/public/app/util/html-pdf', {
+        conv: '2',
+        html: formated
+    }, {
         headers: {
             'Content-Type': 'application/json',
             'Accept': 'application/json',
         },
-        cache: 'no-store'
+        httpsAgent
     })
-    // const data = await res.json()
-    const data = await res.json()
 
     const pdf = Buffer.from(data.pdf, 'base64')
 
