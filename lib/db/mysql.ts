@@ -4,6 +4,7 @@ import * as mysqlTypes from "./mysql-types"
 import knex from './knex'
 import { PromptDataType } from "../ai/prompt-types"
 import { Instance, Matter, Scope } from "../proc/process-types"
+import { envNumber, envString } from "../utils/env"
 
 function getId(returning: number | { id: number }): number {
     return typeof returning === 'number' ? returning : returning.id
@@ -380,14 +381,14 @@ export class Dao {
             .where('ia_prompt.is_latest', 1)
             .andWhere(function () {
                 this.where('ia_prompt.created_by', user_id)
-                .orWhere('ia_prompt.share', 'PADRAO')
-                .orWhere('ia_prompt.share', 'PUBLICO')
-                .orWhere(function() {
-                    if (moderator) {
-                        this.orWhere('ia_prompt.share', 'EM_ANALISE')
-                    }
-                })
-                .orWhere(function () {
+                    .orWhere('ia_prompt.share', 'PADRAO')
+                    .orWhere('ia_prompt.share', 'PUBLICO')
+                    .orWhere(function () {
+                        if (moderator) {
+                            this.orWhere('ia_prompt.share', 'EM_ANALISE')
+                        }
+                    })
+                    .orWhere(function () {
                         this.where('ia_prompt.share', 'NAO_LISTADO')
                             .whereNotNull('f.prompt_id')
                     })
@@ -837,5 +838,77 @@ export class Dao {
         return getId(result)
     }
 
+    static async addToIAUserDailyUsage(user_id: number, court_id: number, input_tokens_count: number, output_tokens_count: number, approximate_cost: number): Promise<void> {
+        if (!knex) return
+        const usage_date = new Date().toISOString().split('T')[0] // YYYY-MM-DD format
+        const userDailyUsageId = await knex('ia_user_daily_usage').select('id').where({ usage_date, user_id }).first()
+        if (userDailyUsageId) {
+            // Update existing record
+            await knex('ia_user_daily_usage').where({ id: userDailyUsageId.id }).update({
+                usage_count: knex.raw('usage_count + ?', [1]),
+                input_tokens_count: knex.raw('input_tokens_count + ?', [input_tokens_count]),
+                output_tokens_count: knex.raw('output_tokens_count + ?', [output_tokens_count]),
+                approximate_cost: knex.raw('approximate_cost + ?', [approximate_cost]),
+                court_id
+            })
+        }
+        else {
+            // Insert new record
+            await knex('ia_user_daily_usage').insert({
+                usage_date,
+                user_id,
+                court_id,
+                usage_count: 1,
+                input_tokens_count,
+                output_tokens_count,
+                approximate_cost
+            })
+        }
+
+        const courtDailyUsageId = await knex('ia_user_daily_usage').select('id').where({ usage_date, court_id, user_id: null }).first()
+        if (courtDailyUsageId) {
+            // Update existing record
+            await knex('ia_user_daily_usage').where({ id: courtDailyUsageId.id }).update({
+                usage_count: knex.raw('usage_count + ?', [1]),
+                input_tokens_count: knex.raw('input_tokens_count + ?', [input_tokens_count]),
+                output_tokens_count: knex.raw('output_tokens_count + ?', [output_tokens_count]),
+                approximate_cost: knex.raw('approximate_cost + ?', [approximate_cost])
+            })
+        }
+        else {
+            // Insert new record
+            await knex('ia_user_daily_usage').insert({
+                usage_date,
+                court_id,
+                usage_count: 1,
+                input_tokens_count,
+                output_tokens_count,
+                approximate_cost
+            })
+        }
+    }
+
+    static async assertIAUserDailyUsageId(user_id: number, court_id: number): Promise<void> {
+        if (!knex) return
+        const usage_date = new Date().toISOString().split('T')[0] // YYYY-MM-DD format
+
+        const userDailyUsageId = await knex('ia_user_daily_usage').select('id', 'usage_count', 'input_tokens_count', 'output_tokens_count', 'approximate_cost')
+            .where({ usage_date, user_id }).first()
+        if (userDailyUsageId) {
+            const usage_count = envNumber(`TRIBUNAL_${court_id}_USER_DAILY_USAGE_COUNT`)
+            if (usage_count && usage_count > 0 && userDailyUsageId.usage_count >= usage_count) {
+                throw new Error(`Limite diário do usuário foi atingido, por favor, aguarde até amanhã para poder usar novamente.`)
+            }
+        }
+
+        const courtDailyUsageId = await knex('ia_user_daily_usage').select('id', 'usage_count', 'input_tokens_count', 'output_tokens_count', 'approximate_cost')
+            .where({ usage_date, court_id, user_id: null }).first()
+        if (courtDailyUsageId) {
+            const usage_count = envNumber(`TRIBUNAL_${court_id}_DAILY_USAGE_COUNT`)
+            if (usage_count && usage_count > 0 && courtDailyUsageId.usage_count >= usage_count) {
+                throw new Error(`Limite diário do tribunal foi atingido, por favor, aguarde até amanhã para poder usar novamente.`)
+            }
+        }
+    }
 }
 

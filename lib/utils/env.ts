@@ -89,6 +89,13 @@ export const envString = (name: string): string | undefined => {
     return process.env[name]
 }
 
+export const envNumber = (name: string): number | undefined => {
+    const str = envString(name)
+    if (str === undefined) return undefined
+    const num = Number(str)
+    return isNaN(num) ? undefined : num
+}
+
 export type System = {
     system: string,
     wsdl: string,

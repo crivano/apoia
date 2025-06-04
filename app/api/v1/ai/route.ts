@@ -6,6 +6,7 @@ import { getInternalPrompt, promptDefinitionFromDefinitionAndOptions } from '@/l
 import { Dao } from '@/lib/db/mysql'
 import { IAPrompt } from '@/lib/db/mysql-types'
 import { getCurrentUser } from '@/lib/user'
+import { envString } from '@/lib/utils/env'
 
 export const maxDuration = 60
 
@@ -70,6 +71,12 @@ export async function POST(request: Request) {
         const user = await getCurrentUser()
         if (!user) return Response.json({ errormsg: 'Unauthorized' }, { status: 401 })
 
+        const user_id = await Dao.assertIAUserId(user.preferredUsername || user.name)
+        const court_id = user?.corporativo?.[0]?.seq_tribunal_pai || envString('NODE_ENV') === 'development' ? 1 : undefined
+
+        if (!court_id) throw new Error('Não foi possível identificar o tribunal do usuário')
+        await Dao.assertIAUserDailyUsageId(user_id, court_id)
+
         // const body = JSON.parse(JSON.stringify(request.body))
         const body = await request.json()
         // console.log('body', JSON.stringify(body))
@@ -103,6 +110,8 @@ export async function POST(request: Request) {
             definitionWithOptions.prompt += '\n\n' + body.extra
 
         const result = await streamContent(definitionWithOptions, data)
+        const [input_tokens, output_tokens, approximate_cost] = [0, 0, 0]
+        Dao.addToIAUserDailyUsage(user_id, court_id, input_tokens, output_tokens, approximate_cost)
         if (typeof result === 'string') {
             return new Response(result, { status: 200 });
         }
