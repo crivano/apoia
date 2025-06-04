@@ -106,25 +106,33 @@ export async function POST(request: Request) {
         if (typeof result === 'string') {
             return new Response(result, { status: 200 });
         }
-        if (result && definitionWithOptions.jsonSchema)
-            return result.toTextStreamResponse()
-        if (result && result.textStream) {
-            const reader: ReadableStreamDefaultReader = result.textStream.getReader()
+        if (result) {
+            const reader: ReadableStreamDefaultReader = (result as any).fullStream.getReader()
             const { value, done } = await reader.read()
-            if (done || !value) {
-                throw new Error('Invalid or empty response at the beginning')
+            if (value?.type === 'error') {
+                const error = value.error;
+                throw new Error(`Erro na comunicação com o provedor de inteligência artificial: ${error}`)
             }
-
             const feederStream = new ReadableStream({
                 start(controller) {
-                    controller.enqueue(value)
+                    if (value?.type === 'text-delta')
+                        controller.enqueue(value)
                     function pump() {
                         reader.read().then(({ done, value }) => {
                             if (done) {
                                 controller.close()
                                 return
                             }
-                            controller.enqueue(value)
+                            switch (value.type) {
+                                case 'text-delta': {
+                                    controller.enqueue(value.textDelta)
+                                    break;
+                                }
+                                case 'error': {
+                                    const error = value.error;
+                                    controller.enqueue(`Erro na comunicação com o provedor de inteligência artificial: ${error}`)
+                                }
+                            }
                             pump()
                         })
                     }
