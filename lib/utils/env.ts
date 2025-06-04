@@ -1,3 +1,5 @@
+import Cryptr from "cryptr";
+
 enum EnvPublicEnum {
     NEXTAUTH_URL_INTERNAL,
     NEXTAUTH_URL,
@@ -10,21 +12,21 @@ enum EnvPublicEnum {
     VERCEL,
     VERCEL_ENV,
     NODE_ENV,
-    
+
     DB_CLIENT,
     DB_PORT,
     DB_USER,
     DB_DATABASE,
     DB_SSL,
     DB_POOL,
-    
+
     KEYCLOAK_ISSUER,
     DATALAKE_API_URL,
-    
+
     APP_CODE,
     APP_PORT,
     APP_REGISTRY_PORT,
-    
+
     SYSTEMS,
     NAVIGATE_TO_PROCESS_URL,
     ACCESS_ARENA,
@@ -43,6 +45,7 @@ enum EnvPrivateEnum {
     NEXTAUTH_REPLACE_EMAIL_AND_PASSWORD,
     JWT_SECRET,
     PWD_SECRET,
+    PROPERTY_SECRET,
     DATALAKE_TOKEN,
     DATALAKE_CLIENT_ID,
     DATALAKE_CLIENT_SECRET,
@@ -86,6 +89,12 @@ const buildParamsList = () => {
 export const paramsList = buildParamsList()
 
 export const envString = (name: string): string | undefined => {
+    if (process.env[`${name}_ENCRYPTED`] !== undefined) {
+        const encryptedValue = process.env[`${name}_ENCRYPTED`]
+        if (!encryptedValue) return undefined
+        const cryptr = new Cryptr(envString('PROPERTY_SECRET') as string, {})
+        return cryptr.decrypt(encryptedValue)
+    }
     return process.env[name]
 }
 
