@@ -138,7 +138,7 @@ export async function getModel(params?: { structuredOutputs: boolean, overrideMo
         return { model, modelRef: anthropic(model) }
     }
     if (getEnvKeyByModel(model) === ModelProvider.OPENAI.apiKey) {
-        const openai = createOpenAI({ apiKey })
+        const openai = createOpenAI({ apiKey, compatibility: 'strict' })
         return { model, modelRef: openai(model, { structuredOutputs: params?.structuredOutputs }) as unknown as LanguageModelV1 }
     }
     if (getEnvKeyByModel(model) === ModelProvider.GOOGLE.apiKey) {

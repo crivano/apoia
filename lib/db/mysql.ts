@@ -897,7 +897,11 @@ export class Dao {
         if (userDailyUsageId) {
             const usage_count = envNumber(`TRIBUNAL_${court_id}_USER_DAILY_USAGE_COUNT`)
             if (usage_count && usage_count > 0 && userDailyUsageId.usage_count >= usage_count) {
-                throw new Error(`Limite diário do usuário foi atingido, por favor, aguarde até amanhã para poder usar novamente.`)
+                throw new Error(`Limite diário de consultas do usuário foi atingido, por favor, aguarde até amanhã para poder usar novamente.`)
+            }
+            const usage_cost = envNumber(`TRIBUNAL_${court_id}_USER_DAILY_USAGE_COST`)
+            if (usage_count && usage_cost > 0 && userDailyUsageId.approximate_cost >= usage_cost) {
+                throw new Error(`Limite diário de gastos do usuário foi atingido, por favor, aguarde até amanhã para poder usar novamente.`)
             }
         }
 
@@ -906,7 +910,11 @@ export class Dao {
         if (courtDailyUsageId) {
             const usage_count = envNumber(`TRIBUNAL_${court_id}_DAILY_USAGE_COUNT`)
             if (usage_count && usage_count > 0 && courtDailyUsageId.usage_count >= usage_count) {
-                throw new Error(`Limite diário do tribunal foi atingido, por favor, aguarde até amanhã para poder usar novamente.`)
+                throw new Error(`Limite diário de consultas do tribunal foi atingido, por favor, aguarde até amanhã para poder usar novamente.`)
+            }
+            const usage_cost = envNumber(`TRIBUNAL_${court_id}_DAILY_USAGE_COST`)
+            if (usage_cost && usage_cost > 0 && courtDailyUsageId.approximate_cost >= usage_cost) {
+                throw new Error(`Limite diário de gastos do tribunal foi atingido, por favor, aguarde até amanhã para poder usar novamente.`)
             }
         }
     }

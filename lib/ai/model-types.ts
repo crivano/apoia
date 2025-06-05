@@ -31,34 +31,32 @@ export const ModelProvider: ModelProviderType = ModelProviderArray.reduce((acc, 
 }, {} as ModelProviderType)
 
 const ModelArray = [
-    { id: 16, name: 'gpt-4.1-mini', provider: ModelProvider.OPENAI, status: StatusDeLancamento.PUBLICO },
-    { id: 17, name: 'gpt-4.1-nano', provider: ModelProvider.OPENAI, status: StatusDeLancamento.PUBLICO },
-    { id: 15, name: 'gpt-4.1', provider: ModelProvider.OPENAI, status: StatusDeLancamento.PUBLICO },
-    { id: 3, name: 'gpt-4o-mini-2024-07-18', provider: ModelProvider.OPENAI, status: StatusDeLancamento.PUBLICO },
-    { id: 7, name: 'gpt-4o-2024-11-20', provider: ModelProvider.OPENAI, status: StatusDeLancamento.PUBLICO },
-    { id: 1, name: 'gpt-4o-2024-08-06', provider: ModelProvider.OPENAI, status: StatusDeLancamento.PUBLICO },
-    { id: 13, name: 'claude-3-7-sonnet-20250219', provider: ModelProvider.ANTHROPIC, status: StatusDeLancamento.PUBLICO },
-    { id: 2, name: 'claude-3-5-sonnet-20241022', provider: ModelProvider.ANTHROPIC, status: StatusDeLancamento.PUBLICO },
-    { id: 14, name: 'claude-3-5-haiku-20241022', provider: ModelProvider.ANTHROPIC, status: StatusDeLancamento.PUBLICO },
-    { id: 18, name: 'gemini-2.5-flash-preview-04-17', provider: ModelProvider.GOOGLE, status: StatusDeLancamento.PUBLICO },
-    { id: 9, name: 'gemini-2.0-flash', provider: ModelProvider.GOOGLE, status: StatusDeLancamento.PUBLICO },
-    { id: 10, name: 'gemini-2.5-pro-exp-03-25', provider: ModelProvider.GOOGLE, status: StatusDeLancamento.PUBLICO },
-    { id: 4, name: 'gemini-1.5-pro-002', provider: ModelProvider.GOOGLE, status: StatusDeLancamento.PUBLICO },
-    { id: 5, name: 'llama-3.2-90b-text-preview', provider: ModelProvider.GROQ, status: StatusDeLancamento.EM_DESENVOLVIMENTO },
-    { id: 6, name: 'llama-3.1-70b-versatile', provider: ModelProvider.GROQ, status: StatusDeLancamento.EM_DESENVOLVIMENTO },
-    { id: 8, name: 'deepseek-chat', provider: ModelProvider.DEEPSEEK, status: StatusDeLancamento.EM_DESENVOLVIMENTO },
-    { id: 19, name: 'azure-gpt-4.1-mini', provider: ModelProvider.AZURE, status: StatusDeLancamento.PUBLICO },
-    { id: 20, name: 'azure-gpt-4.1-nano', provider: ModelProvider.AZURE, status: StatusDeLancamento.PUBLICO },
-    { id: 21, name: 'azure-gpt-4.1', provider: ModelProvider.AZURE, status: StatusDeLancamento.PUBLICO },
-    { id: 11, name: 'azure-gpt-4o', provider: ModelProvider.AZURE, status: StatusDeLancamento.PUBLICO },
-    { id: 12, name: 'azure-gpt-4o-mini', provider: ModelProvider.AZURE, status: StatusDeLancamento.PUBLICO },
+    { id: 16, name: 'gpt-4.1-mini', provider: ModelProvider.OPENAI, inputTokenPPM: 0.4, outputTokenPPM: 1.6, status: StatusDeLancamento.PUBLICO },
+    { id: 17, name: 'gpt-4.1-nano', provider: ModelProvider.OPENAI, inputTokenPPM: 0.1, outputTokenPPM: 0.4, status: StatusDeLancamento.PUBLICO },
+    { id: 15, name: 'gpt-4.1', provider: ModelProvider.OPENAI, inputTokenPPM: 2, outputTokenPPM: 8, status: StatusDeLancamento.PUBLICO },
+    { id: 3, name: 'gpt-4o-mini-2024-07-18', provider: ModelProvider.OPENAI, inputTokenPPM: 0.15, outputTokenPPM: 0.6, status: StatusDeLancamento.PUBLICO },
+    { id: 7, name: 'gpt-4o-2024-11-20', provider: ModelProvider.OPENAI, inputTokenPPM: 2.5, outputTokenPPM: 10, status: StatusDeLancamento.PUBLICO },
+    { id: 1, name: 'gpt-4o-2024-08-06', provider: ModelProvider.OPENAI, inputTokenPPM: 2.5, outputTokenPPM: 10, status: StatusDeLancamento.PUBLICO },
+    { id: 13, name: 'claude-3-7-sonnet-20250219', provider: ModelProvider.ANTHROPIC, inputTokenPPM: 3, outputTokenPPM: 15, status: StatusDeLancamento.PUBLICO },
+    { id: 2, name: 'claude-3-5-sonnet-20241022', provider: ModelProvider.ANTHROPIC, inputTokenPPM: 3, outputTokenPPM: 15, status: StatusDeLancamento.PUBLICO },
+    { id: 14, name: 'claude-3-5-haiku-20241022', provider: ModelProvider.ANTHROPIC, inputTokenPPM: 0.8, outputTokenPPM: 4, status: StatusDeLancamento.PUBLICO },
+    { id: 18, name: 'gemini-2.5-flash-preview-04-17', provider: ModelProvider.GOOGLE, inputTokenPPM: 0.15, outputTokenPPM: 3.5, status: StatusDeLancamento.PUBLICO },
+    { id: 9, name: 'gemini-2.0-flash', provider: ModelProvider.GOOGLE, inputTokenPPM: 0.1, outputTokenPPM: 0.4, status: StatusDeLancamento.PUBLICO },
+    { id: 10, name: 'gemini-2.5-pro-exp-03-25', provider: ModelProvider.GOOGLE, inputTokenPPM: 2.5, outputTokenPPM: 15, status: StatusDeLancamento.PUBLICO },
+    { id: 4, name: 'gemini-1.5-pro-002', provider: ModelProvider.GOOGLE, inputTokenPPM: 2.5, outputTokenPPM: 10, status: StatusDeLancamento.PUBLICO },
+    { id: 5, name: 'llama-3.2-90b-text-preview', provider: ModelProvider.GROQ, inputTokenPPM: 1, outputTokenPPM: 1, status: StatusDeLancamento.EM_DESENVOLVIMENTO },
+    { id: 6, name: 'llama-3.1-70b-versatile', provider: ModelProvider.GROQ, inputTokenPPM: 1, outputTokenPPM: 1, status: StatusDeLancamento.EM_DESENVOLVIMENTO },
+    { id: 8, name: 'deepseek-chat', provider: ModelProvider.DEEPSEEK, inputTokenPPM: 0.27, outputTokenPPM: 1.1, status: StatusDeLancamento.EM_DESENVOLVIMENTO },
+    { id: 19, name: 'azure-gpt-4.1-mini', provider: ModelProvider.AZURE, inputTokenPPM: 0.4, outputTokenPPM: 1.6, status: StatusDeLancamento.PUBLICO },
+    { id: 20, name: 'azure-gpt-4.1-nano', provider: ModelProvider.AZURE, inputTokenPPM: 0.1, outputTokenPPM: 0.4, status: StatusDeLancamento.PUBLICO },
+    { id: 21, name: 'azure-gpt-4.1', provider: ModelProvider.AZURE, inputTokenPPM: 2, outputTokenPPM: 8, status: StatusDeLancamento.PUBLICO },
+    { id: 11, name: 'azure-gpt-4o', provider: ModelProvider.AZURE, inputTokenPPM: 2.5, outputTokenPPM: 10, status: StatusDeLancamento.PUBLICO },
+    { id: 12, name: 'azure-gpt-4o-mini', provider: ModelProvider.AZURE, inputTokenPPM: 0.15, outputTokenPPM: 0.6, status: StatusDeLancamento.PUBLICO },
     // { id: 22, name: 'aws-anthropic.claude-3-haiku-20240307-v1:0', provider: ModelProvider.AWS, status: StatusDeLancamento.PUBLICO },
-    { id: 22, name: 'aws-us.anthropic.claude-3-5-haiku-20241022-v1:0', provider: ModelProvider.AWS, status: StatusDeLancamento.PUBLICO },
-    
-    
+    { id: 22, name: 'aws-us.anthropic.claude-3-5-haiku-20241022-v1:0', provider: ModelProvider.AWS, inputTokenPPM: 0.8, outputTokenPPM: 4, status: StatusDeLancamento.PUBLICO },
 ]
 
-export type ModelValeuType = EnumOfObjectsValueType & { provider: ModelProviderValueType, status: StatusDeLancamento }
+export type ModelValeuType = EnumOfObjectsValueType & { provider: ModelProviderValueType, inputTokenPPM: number, outputTokenPPM: number, status: StatusDeLancamento }
 export type ModelType = { [key: string]: ModelValeuType }
 
 export const Model: ModelType = ModelArray.reduce((acc, cur, idx) => {
@@ -108,3 +106,22 @@ export function enumSorted(e: EnumOfObjectsType): any[] {
     const r: { key: string, value: EnumOfObjectsValueType }[] = Object.entries(e).map(([key, value]) => ({ key, value }))
     return r.sort((a, b) => a.value.sort - b.value.sort)
 }
+
+export function modelCalcUsage(model: string, input_tokens: number, output_tokens: number): { input_tokens: number, output_tokens: number, approximate_cost: number } {
+    const modelDetails: ModelValeuType = Object.values(Model).find(m => m.name === model)
+    if (!modelDetails) {
+        console.warn(`Model not found: ${model}, using default token costs.`)
+    }
+    const inputTokenPPM = modelDetails?.inputTokenPPM || 5
+    const outputTokenPPM = modelDetails?.outputTokenPPM || 15
+    const approximate_cost = Number.isFinite(input_tokens) && Number.isFinite(output_tokens)
+        ? (input_tokens * inputTokenPPM + output_tokens * outputTokenPPM) / 1000000
+        : (200000 * inputTokenPPM + 100000 * outputTokenPPM) / 1000000
+
+    console.log(`Using model: ${modelDetails.name}, inputTokenPPM: ${inputTokenPPM}, outputTokenPPM: ${outputTokenPPM}`)
+    console.log('Input tokens:', input_tokens)
+    console.log('Output tokens:', output_tokens)
+    console.log(`Approximate cost: $${approximate_cost.toFixed(6)}`)
+    return { input_tokens, output_tokens, approximate_cost }
+}
+

@@ -1,7 +1,7 @@
 import { streamContent } from '../../../../lib/ai/generate'
 import { NextResponse } from 'next/server'
 import Fetcher from '../../../../lib/utils/fetcher'
-import { PromptDefinitionType, PromptOptionsType } from '@/lib/ai/prompt-types'
+import { PromptDefinitionType, PromptExecutionResultsType, PromptOptionsType } from '@/lib/ai/prompt-types'
 import { getInternalPrompt, promptDefinitionFromDefinitionAndOptions } from '@/lib/ai/prompt'
 import { Dao } from '@/lib/db/mysql'
 import { IAPrompt } from '@/lib/db/mysql-types'
@@ -109,11 +109,11 @@ export async function POST(request: Request) {
         if (body.extra)
             definitionWithOptions.prompt += '\n\n' + body.extra
 
-        const result = await streamContent(definitionWithOptions, data)
-        const [input_tokens, output_tokens, approximate_cost] = [0, 0, 0]
-        Dao.addToIAUserDailyUsage(user_id, court_id, input_tokens, output_tokens, approximate_cost)
+        const executionResults: PromptExecutionResultsType = { user_id, court_id }
+        const result = await streamContent(definitionWithOptions, data, executionResults)
+
         if (typeof result === 'string') {
-            return new Response(result, { status: 200 });
+            return new Response(result, { status: 200 })
         }
         if (result && definitionWithOptions.jsonSchema)
             return result.toTextStreamResponse()
@@ -147,6 +147,6 @@ export async function POST(request: Request) {
     } catch (error) {
         console.log('error', error)
         const message = Fetcher.processError(error)
-        return NextResponse.json({ errormsg: `${message}` }, { status: 405 });
+        return NextResponse.json({ errormsg: `${message}` }, { status: 405 })
     }
 }
