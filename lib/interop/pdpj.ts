@@ -174,10 +174,14 @@ export class InteropPDPJ implements Interop {
                 if (processoOriginario) {
                     const numeroDoProcessoOriginario = processoOriginario.numeroProcesso
                     const idClasseOriginario = processoOriginario.classe?.id
-                    const originario = await this.consultarProcesso(numeroDoProcessoOriginario, idClasseOriginario)
-                    if (originario?.length) {
-                        const originarioProcesso = originario[0]
-                        resp.push({ ...originarioProcesso, classe: originarioProcesso.classe + ' (Originário)' })
+                    try {
+                        const originario = await this.consultarProcesso(numeroDoProcessoOriginario, idClasseOriginario)
+                        if (originario?.length) {
+                            const originarioProcesso = originario[0]
+                            resp.push({ ...originarioProcesso, classe: originarioProcesso.classe + ' (Originário)' })
+                        }
+                    } catch (e) {
+                        console.error(`Erro ao consultar processo originário ${numeroDoProcessoOriginario}, do processo principal ${numeroDoProcesso}: ${e.message}`)
                     }
                 }
             }
