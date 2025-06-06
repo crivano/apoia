@@ -5,6 +5,7 @@ import knex from './knex'
 import { PromptDataType } from "../ai/prompt-types"
 import { Instance, Matter, Scope } from "../proc/process-types"
 import { envNumber, envString } from "../utils/env"
+import { dailyLimits } from "../utils/limits"
 
 function getId(returning: number | { id: number }): number {
     return typeof returning === 'number' ? returning : returning.id
@@ -888,19 +889,63 @@ export class Dao {
         }
     }
 
+    static async retrieveCourtMonthlyUsage(court_id: number, startDate: string, endDate: string): Promise<mysqlTypes.CourtUsageData[]> {
+        if (!knex) return [];
+
+        const records = await knex('ia_user_daily_usage')
+            .select('usage_date', 'usage_count', 'approximate_cost')
+            .whereNull('user_id') // Ensures we get court-level records, not user-specific ones
+            .andWhere({ court_id })
+            .andWhere('usage_date', '>=', startDate)
+            .andWhere('usage_date', '<', endDate)
+            .orderBy('usage_date', 'asc');
+
+        return records.map(record => ({
+            date: record.usage_date.toISOString().split('T')[0], // Convert to YYYY-MM-DD format
+            usage_count: Number(record.usage_count), // Ensure correct types
+            approximate_cost: Number(record.approximate_cost) // Ensure correct types
+        }));
+    }
+
+    static async retrieveUserMonthlyUsageByCourt(court_id: number, startDate: string, endDate: string): Promise<mysqlTypes.UserUsageData[]> {
+        if (!knex) return [];
+
+        const records = await knex('ia_user_daily_usage as udu')
+            .select(
+                'u.username', 'u.id as user_id',
+                knex.raw('SUM(udu.usage_count) as usage_count'),
+                knex.raw('SUM(udu.approximate_cost) as approximate_cost')
+            )
+            .join('ia_user as u', 'udu.user_id', 'u.id')
+            .whereNotNull('udu.user_id')
+            .andWhere('udu.court_id', court_id)
+            .andWhere('udu.usage_date', '>=', startDate)
+            .andWhere('udu.usage_date', '<', endDate)
+            .groupBy('u.id', 'u.username')
+            .orderBy('approximate_cost', 'desc');
+
+        return records.map(record => ({
+            id: record.user_id,
+            username: record.username,
+            usage_count: Number(record.usage_count),
+            approximate_cost: Number(record.approximate_cost)
+        }));
+    }
+
     static async assertIAUserDailyUsageId(user_id: number, court_id: number): Promise<void> {
         if (!knex) return
         const usage_date = new Date().toISOString().split('T')[0] // YYYY-MM-DD format
 
         const userDailyUsageId = await knex('ia_user_daily_usage').select('id', 'usage_count', 'input_tokens_count', 'output_tokens_count', 'approximate_cost')
             .where({ usage_date, user_id }).first()
+
+        const { user_usage_count, user_usage_cost, court_usage_count, court_usage_cost } = dailyLimits(court_id)
+
         if (userDailyUsageId) {
-            const usage_count = envNumber(`TRIBUNAL_${court_id}_USER_DAILY_USAGE_COUNT`)
-            if (usage_count && usage_count > 0 && userDailyUsageId.usage_count >= usage_count) {
+            if (user_usage_count && user_usage_count > 0 && userDailyUsageId.usage_count >= user_usage_count) {
                 throw new Error(`Limite diário de consultas do usuário foi atingido, por favor, aguarde até amanhã para poder usar novamente.`)
             }
-            const usage_cost = envNumber(`TRIBUNAL_${court_id}_USER_DAILY_USAGE_COST`)
-            if (usage_count && usage_cost > 0 && userDailyUsageId.approximate_cost >= usage_cost) {
+            if (user_usage_count && user_usage_cost > 0 && userDailyUsageId.approximate_cost >= user_usage_cost) {
                 throw new Error(`Limite diário de gastos do usuário foi atingido, por favor, aguarde até amanhã para poder usar novamente.`)
             }
         }
@@ -908,12 +953,10 @@ export class Dao {
         const courtDailyUsageId = await knex('ia_user_daily_usage').select('id', 'usage_count', 'input_tokens_count', 'output_tokens_count', 'approximate_cost')
             .where({ usage_date, court_id, user_id: null }).first()
         if (courtDailyUsageId) {
-            const usage_count = envNumber(`TRIBUNAL_${court_id}_DAILY_USAGE_COUNT`)
-            if (usage_count && usage_count > 0 && courtDailyUsageId.usage_count >= usage_count) {
+            if (court_usage_count && court_usage_count > 0 && courtDailyUsageId.usage_count >= court_usage_count) {
                 throw new Error(`Limite diário de consultas do tribunal foi atingido, por favor, aguarde até amanhã para poder usar novamente.`)
             }
-            const usage_cost = envNumber(`TRIBUNAL_${court_id}_DAILY_USAGE_COST`)
-            if (usage_cost && usage_cost > 0 && courtDailyUsageId.approximate_cost >= usage_cost) {
+            if (court_usage_cost && court_usage_cost > 0 && courtDailyUsageId.approximate_cost >= court_usage_cost) {
                 throw new Error(`Limite diário de gastos do tribunal foi atingido, por favor, aguarde até amanhã para poder usar novamente.`)
             }
         }
