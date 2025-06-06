@@ -40,7 +40,7 @@ export async function POST(req: Request) {
 
     const { messages } = await req.json()
 
-    const { model, modelRef } = await getModel()
+    const { model, modelRef, apiKeyFromEnv } = await getModel()
 
     if (envString('ANONIMYZE')) {
         messages.forEach((message: any) => {
@@ -58,7 +58,9 @@ export async function POST(req: Request) {
         modelRef,
         messages,
         '', // sha256
-        { user_id, court_id } // results
+        { user_id, court_id }, // results
+        null, // attempt
+        apiKeyFromEnv
     )
 
     if (typeof result === 'string') {

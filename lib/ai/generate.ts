@@ -91,7 +91,7 @@ export async function streamContent(definition: PromptDefinitionType, data: Prom
     const exec = promptExecuteBuilder(definition, data)
     const messages = exec.message
     const structuredOutputs = exec.params?.structuredOutputs
-    const { model, modelRef } = await getModel({ structuredOutputs: !!structuredOutputs, overrideModel: definition.model })
+    const { model, modelRef, apiKeyFromEnv } = await getModel({ structuredOutputs: !!structuredOutputs, overrideModel: definition.model })
     if (results) results.model = model
     const sha256 = calcSha256(messages)
     if (results) results.sha256 = sha256
@@ -109,10 +109,10 @@ export async function streamContent(definition: PromptDefinitionType, data: Prom
     // writeResponseToFile(definition, messages, "antes de executar")
     // if (1 == 1) throw new Error('Interrupted')
 
-    return generateAndStreamContent(model, structuredOutputs, definition?.cacheControl, definition?.kind, modelRef, messages, sha256, results, attempt)
+    return generateAndStreamContent(model, structuredOutputs, definition?.cacheControl, definition?.kind, modelRef, messages, sha256, results, attempt, apiKeyFromEnv)
 }
 
-export async function generateAndStreamContent(model: string, structuredOutputs: any, cacheControl: number | boolean, kind: string, modelRef: LanguageModel, messages: CoreMessage[], sha256: string, results?: PromptExecutionResultsType, attempt?: number | null):
+export async function generateAndStreamContent(model: string, structuredOutputs: any, cacheControl: number | boolean, kind: string, modelRef: LanguageModel, messages: CoreMessage[], sha256: string, results?: PromptExecutionResultsType, attempt?: number | null, apiKeyFromEnv?: boolean):
     Promise<StreamTextResult<Record<string, CoreTool<any, any>>, any> | StreamObjectResult<DeepPartial<any>, any, never> | string> {
     if (!structuredOutputs) {//} || model.startsWith('aws-')) {
         console.log('streaming text', kind) //, messages, modelRef)
@@ -136,7 +136,8 @@ export async function generateAndStreamContent(model: string, structuredOutputs:
             messages,
             maxRetries: 0,
             onFinish: async ({ text, usage }) => {
-                writeUsage(usage, model, results?.user_id, results?.court_id)
+                if (apiKeyFromEnv)
+                    writeUsage(usage, model, results?.user_id, results?.court_id)
                 if (cacheControl !== false) {
                     const generationId = await saveToCache(sha256, model, kind, text, attempt || null)
                     if (results) results.generationId = generationId
@@ -153,7 +154,8 @@ export async function generateAndStreamContent(model: string, structuredOutputs:
             messages,
             maxRetries: 1,
             onFinish: async ({ object, usage }) => {
-                writeUsage(usage, model, results?.user_id, results?.court_id)
+                if (apiKeyFromEnv)
+                    writeUsage(usage, model, results?.user_id, results?.court_id)
                 if (cacheControl !== false) {
                     const generationId = await saveToCache(sha256, model, kind, JSON.stringify(object), attempt || null)
                     if (results) results.generationId = generationId

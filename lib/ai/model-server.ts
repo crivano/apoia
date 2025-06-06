@@ -57,7 +57,7 @@ function envStringPrefixed(key: string, seqTribunalPai: string): string {
         s = envString(key)
     return s
 }
-export type ModelParams = { model: string, apiKey: string, availableApiKeys: string[], defaultModel?: string, selectableModels?: string[], userMayChangeModel: boolean, azureResourceName: string, awsRegion?: string, awsAccessKeyId?: string }
+export type ModelParams = { model: string, apiKey: string, availableApiKeys: string[], apiKeyFromEnv: boolean, defaultModel?: string, selectableModels?: string[], userMayChangeModel: boolean, azureResourceName: string, awsRegion?: string, awsAccessKeyId?: string }
 export async function getSelectedModelParams(): Promise<ModelParams> {
     const prefs = await getPrefs()
     const user = await getCurrentUser()
@@ -121,35 +121,39 @@ export async function getSelectedModelParams(): Promise<ModelParams> {
             }
         }
     }
-    return { model, apiKey, availableApiKeys, defaultModel, selectableModels, userMayChangeModel, azureResourceName, awsRegion, awsAccessKeyId }
+
+    const envKey = getEnvKeyByModel(model)
+    const apiKeyFromEnv = apiKey === envStringPrefixed(envKey, seqTribunalPai)
+
+    return { model, apiKey, availableApiKeys, apiKeyFromEnv, defaultModel, selectableModels, userMayChangeModel, azureResourceName, awsRegion, awsAccessKeyId }
 }
 
 export async function getSelectedModelName(): Promise<string> {
     return (await getSelectedModelParams()).model
 }
 
-export async function getModel(params?: { structuredOutputs: boolean, overrideModel?: string }): Promise<{ model: string, modelRef: LanguageModelV1 }> {
-    let { model, apiKey, azureResourceName, awsRegion, awsAccessKeyId } = await getSelectedModelParams()
+export async function getModel(params?: { structuredOutputs: boolean, overrideModel?: string }): Promise<{ model: string, modelRef: LanguageModelV1, apiKeyFromEnv: boolean }> {
+    let { model, apiKey, azureResourceName, awsRegion, awsAccessKeyId, apiKeyFromEnv } = await getSelectedModelParams()
     if (params?.overrideModel) model = params.overrideModel
 
 
     if (getEnvKeyByModel(model) === ModelProvider.ANTHROPIC.apiKey) {
         const anthropic = createAnthropic({ apiKey })
-        return { model, modelRef: anthropic(model) }
+        return { model, modelRef: anthropic(model), apiKeyFromEnv }
     }
     if (getEnvKeyByModel(model) === ModelProvider.OPENAI.apiKey) {
         const openai = createOpenAI({ apiKey, compatibility: 'strict' })
-        return { model, modelRef: openai(model, { structuredOutputs: params?.structuredOutputs }) as unknown as LanguageModelV1 }
+        return { model, modelRef: openai(model, { structuredOutputs: params?.structuredOutputs }) as unknown as LanguageModelV1, apiKeyFromEnv }
     }
     if (getEnvKeyByModel(model) === ModelProvider.GOOGLE.apiKey) {
         const google = createGoogleGenerativeAI({ apiKey })
-        return { model, modelRef: google(model, { structuredOutputs: params?.structuredOutputs }) }
+        return { model, modelRef: google(model, { structuredOutputs: params?.structuredOutputs }), apiKeyFromEnv }
     }
     if (getEnvKeyByModel(model) === ModelProvider.AZURE.apiKey) {
         const azure = azureResourceName?.startsWith('https')
             ? createAzure({ apiKey, baseURL: azureResourceName })
             : createAzure({ apiKey, resourceName: azureResourceName })
-        return { model, modelRef: azure(model.replace('azure-', ''), { structuredOutputs: params?.structuredOutputs }) as unknown as LanguageModelV1 }
+        return { model, modelRef: azure(model.replace('azure-', ''), { structuredOutputs: params?.structuredOutputs }) as unknown as LanguageModelV1, apiKeyFromEnv }
     }
     if (getEnvKeyByModel(model) === ModelProvider.AWS.apiKey) {
         const bedrock = createAmazonBedrock({ region: awsRegion, accessKeyId: awsAccessKeyId, secretAccessKey: apiKey })
@@ -171,15 +175,15 @@ export async function getModel(params?: { structuredOutputs: boolean, overrideMo
         // for await (const textPart of result.textStream) 
         //     console.log(textPart);
 
-        return { model, modelRef }
+        return { model, modelRef, apiKeyFromEnv }
     }
     if (getEnvKeyByModel(model) === ModelProvider.GROQ.apiKey) {
         const groq = createGroq({ apiKey })
-        return { model, modelRef: groq(model, {}) }
+        return { model, modelRef: groq(model, {}), apiKeyFromEnv }
     }
     if (getEnvKeyByModel(model) === ModelProvider.DEEPSEEK.apiKey) {
         const deepseek = createDeepSeek({ apiKey })
-        return { model, modelRef: deepseek(model, {}) }
+        return { model, modelRef: deepseek(model, {}), apiKeyFromEnv }
     }
     throw new Error(`Model ${model} not found`)
 }
