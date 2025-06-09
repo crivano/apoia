@@ -7,6 +7,7 @@ import { PecaType, StatusDeLancamento } from "./process-types"
 export enum T {
     TEXTO = 'TEXTO',
     PETICAO_INICIAL = 'PETIÇÃO INICIAL',
+    PETICAO = 'PETIÇÃO',
     EMENDA_DA_INICIAL = 'EMENDA DA INICIAL',
     CONTESTACAO = 'CONTESTAÇÃO',
     DEFESA_PREVIA_DEFESA_PRELIMINAR_RESPOSTA_DO_REU = 'DEFESA PRÉVIA/DEFESA PRELIMINAR/RESPOSTA DO RÉU',
@@ -109,6 +110,7 @@ const pecasQueRepresentamContestacao = [
 
 const pecasRelevantes1aInstancia = [
     T.PETICAO_INICIAL,
+    T.PETICAO,
     T.EMENDA_DA_INICIAL,
     ...pecasQueRepresentamContestacao,
     T.REPLICA,
@@ -117,6 +119,7 @@ const pecasRelevantes1aInstancia = [
     T.LAUDO,
     T.LAUDO_PERICIA,
     T.CADASTRO_NACIONAL_DE_INFORMACOES_SOCIAIS,
+    T.PARECER,
 ]
 
 const pecasRelevantesTR = [
@@ -146,21 +149,25 @@ const pecasRelevantes2aInstancia = [
 const padroesApelacao = [
     [ANY({ capture: [T.PETICAO_INICIAL] }), EXACT(T.PETICAO_INICIAL), ANY(), EXACT(T.SENTENCA), ANY(), OR(...pecasRelevantes2aInstanciaRecursos), ANY(), OR(...pecasRelevantes2aInstanciaContrarrazoes), ANY({ capture: [T.PARECER] })],
     [ANY({ capture: [T.PETICAO_INICIAL] }), EXACT(T.PETICAO_INICIAL), ANY(), EXACT(T.SENTENCA), ANY(), OR(...pecasRelevantes2aInstanciaRecursos), ANY({ capture: [...pecasRelevantes2aInstanciaContrarrazoes, T.PARECER] })],
-    [ANY({ capture: [T.PETICAO_INICIAL] }), EXACT(T.PETICAO_INICIAL), ANY({ capture: [...pecasRelevantes2aInstancia] })]
 ]
 
 const padroesPeticaoInicialEContestacao = [
-    [ANY(), EXACT(T.PETICAO_INICIAL), ANY({ capture: [...pecasRelevantes1aInstancia] }), OR(...pecasQueRepresentamContestacao), ANY()],
+    [ANY(), EXACT(T.PETICAO_INICIAL), ANY({ capture: [...pecasRelevantes1aInstancia] }), OR(...pecasQueRepresentamContestacao), ANY({ capture: [...pecasRelevantes1aInstancia] })],
     [ANY(), EXACT(T.PETICAO_INICIAL), ANY({ capture: [...pecasRelevantes1aInstancia] })],
 ]
 
 const padroesBasicosPrimeiraInstancia = [
-    [ANY(), EXACT(T.PETICAO_INICIAL), ANY({ capture: [...pecasRelevantes1aInstancia] }), OR(...pecasQueRepresentamContestacao), ANY(), EXACT(T.SENTENCA), ANY()],
+    [ANY(), EXACT(T.PETICAO_INICIAL), ANY({ capture: [...pecasRelevantes1aInstancia] }), OR(...pecasQueRepresentamContestacao), ANY({ capture: [...pecasRelevantes1aInstancia] }), EXACT(T.SENTENCA), ANY({ capture: [...pecasRelevantes1aInstancia] })],
     ...padroesPeticaoInicialEContestacao,
 ]
 
 const padroesBasicosSegundaInstancia = [
     ...padroesApelacao,
+]
+
+const padroesMinimosSegundaInstancia = [
+    ...padroesBasicosSegundaInstancia,
+    [ANY({ capture: [T.PETICAO_INICIAL] }), EXACT(T.PETICAO_INICIAL), ANY({ capture: [...pecasRelevantes2aInstancia] })]
 ]
 
 const padroesBasicos = [
@@ -310,7 +317,7 @@ export interface InfoDeProduto {
 const PieceStrategyArray = [
     { id: 1, name: 'MAIS_RELEVANTES', descr: 'Peças mais relevantes', pattern: padroesBasicos },
     { id: 1, name: 'MAIS_RELEVANTES_PRIMEIRA_INSTANCIA', descr: 'Peças mais relevantes para 1ª Instância', pattern: padroesBasicosPrimeiraInstancia },
-    { id: 1, name: 'MAIS_RELEVANTES_SEGUNDA_INSTANCIA', descr: 'Peças mais relevantes para 2ª Instância', pattern: padroesBasicosSegundaInstancia },
+    { id: 1, name: 'MAIS_RELEVANTES_SEGUNDA_INSTANCIA', descr: 'Peças mais relevantes para 2ª Instância', pattern: padroesMinimosSegundaInstancia },
     { id: 2, name: 'PETICAO_INICIAL', descr: 'Petição inicial', pattern: TipoDeSinteseMap.PEDIDOS.padroes },
     { id: 2, name: 'PETICAO_INICIAL_E_ANEXOS', descr: 'Petição inicial e anexos', pattern: TipoDeSinteseMap.LITIGANCIA_PREDATORIA.padroes },
     { id: 3, name: 'TIPOS_ESPECIFICOS', descr: 'Peças de tipos específicos', pattern: undefined },
