@@ -49,6 +49,14 @@ export const assertModel = async () => {
     }
 }
 
+function getEnvStringPrefixedIfUserIsAllowed(username: string, key: string, seqTribunalPai?: string): string {
+    const usernames = envStringPrefixed('MODEL_ALLOWED_USERS', seqTribunalPai)
+    if (usernames && !usernames.includes(username)) return undefined
+    const apiKey = envStringPrefixed(key, seqTribunalPai)
+    if (!apiKey) return undefined
+    return apiKey
+}
+
 function envStringPrefixed(key: string, seqTribunalPai: string): string {
     let s: string
     if (seqTribunalPai)
@@ -68,7 +76,7 @@ export async function getSelectedModelParams(): Promise<ModelParams> {
     let awsRegion: string
     let awsAccessKeyId: string
 
-    let defaultModel = envStringPrefixed('MODEL', seqTribunalPai) as string
+    let defaultModel = getEnvStringPrefixedIfUserIsAllowed(user.preferredUsername, 'MODEL', seqTribunalPai) as string
     let selectableModels = undefined as string[]
     let userMayChangeModel = false
 
@@ -85,9 +93,9 @@ export async function getSelectedModelParams(): Promise<ModelParams> {
         userMayChangeModel = true
     }
 
-    azureResourceName = envStringPrefixed(ModelProvider.AZURE.resourceName, seqTribunalPai) as string
-    awsRegion = envStringPrefixed(ModelProvider.AWS.region, seqTribunalPai) as string
-    awsAccessKeyId = envStringPrefixed(ModelProvider.AWS.accessKeyId, seqTribunalPai) as string
+    azureResourceName = getEnvStringPrefixedIfUserIsAllowed(user.preferredUsername, ModelProvider.AZURE.resourceName, seqTribunalPai) as string
+    awsRegion = getEnvStringPrefixedIfUserIsAllowed(user.preferredUsername, ModelProvider.AWS.region, seqTribunalPai) as string
+    awsAccessKeyId = getEnvStringPrefixedIfUserIsAllowed(user.preferredUsername, ModelProvider.AWS.accessKeyId, seqTribunalPai) as string
 
     if (prefs?.model) model = prefs.model
     if (prefs?.env[ModelProvider.AZURE.resourceName]) azureResourceName = prefs.env[ModelProvider.AZURE.resourceName]
@@ -96,7 +104,7 @@ export async function getSelectedModelParams(): Promise<ModelParams> {
 
     if (!model) model = defaultModel
 
-    const availableApiKeys = Object.values(ModelProvider).filter((model) => envStringPrefixed(model.apiKey, seqTribunalPai)).map((model) => model.apiKey)
+    const availableApiKeys = Object.values(ModelProvider).filter((model) => getEnvStringPrefixedIfUserIsAllowed(user.preferredUsername, model.apiKey, seqTribunalPai)).map((model) => model.apiKey)
 
     let apiKey: string
     if (model) {
@@ -106,7 +114,7 @@ export async function getSelectedModelParams(): Promise<ModelParams> {
         let provider: ModelProviderType
         for (const p of enumSortById(ModelProvider)) {
             provider = p.value
-            apiKey = envStringPrefixed(p.value.apiKey, seqTribunalPai)
+            apiKey = getEnvStringPrefixedIfUserIsAllowed(user.preferredUsername, p.value.apiKey, seqTribunalPai)
             if (apiKey) break
             apiKey = prefs?.env[p.value.apiKey]
             if (apiKey) break
@@ -123,7 +131,7 @@ export async function getSelectedModelParams(): Promise<ModelParams> {
     }
 
     const envKey = getEnvKeyByModel(model)
-    const apiKeyFromEnv = apiKey === envStringPrefixed(envKey, seqTribunalPai)
+    const apiKeyFromEnv = apiKey === getEnvStringPrefixedIfUserIsAllowed(user.preferredUsername, envKey, seqTribunalPai)
 
     return { model, apiKey, availableApiKeys, apiKeyFromEnv, defaultModel, selectableModels, userMayChangeModel, azureResourceName, awsRegion, awsAccessKeyId }
 }

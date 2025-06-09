@@ -31,7 +31,7 @@ enum EnvPublicEnum {
     MODEL,
     MNI_LIMIT,
     OCR_LIMIT,
-
+    
     WOOTRIC_ACCOUNT_TOKEN,
     GOOGLE_ANALYTICS_ID,
 }
@@ -52,6 +52,7 @@ enum EnvPrivateEnum {
     TESTS_PATH,
     SAVE_PROMPT_RESULTS_PATH,
     OCR_URL,
+    MODEL_ALLOWED_USERS,
 }
 
 type ParamType = { name: string, public: boolean }
