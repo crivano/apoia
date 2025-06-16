@@ -8,9 +8,9 @@ import { PromptDataType, PromptDefinitionType, PromptExecutionResultsType, Promp
 import { promptExecuteBuilder, waitForTexts } from './prompt'
 import { calcSha256 } from '../utils/hash'
 import { envString } from '../utils/env'
-import { anonymizeNames } from '../anonym/name-anonymizer'
 import { anonymizeText } from '../anonym/anonym'
 import { getModel } from './model-server'
+import { modelCalcUsage } from './model-types'
 
 export async function retrieveFromCache(sha256: string, model: string, prompt: string, attempt: number | null): Promise<IAGenerated | undefined> {
     const cached = await Dao.retrieveIAGeneration({ sha256, model, prompt, attempt })
@@ -25,12 +25,12 @@ export async function saveToCache(sha256: string, model: string, prompt: string,
 }
 
 // write response to a file for debugging
-function writeResponseToFile(definition: PromptDefinitionType, messages: CoreMessage[], text: string) {
+function writeResponseToFile(kind: string, messages: CoreMessage[], text: string) {
     const path: string = envString('SAVE_PROMPT_RESULTS_PATH') || ''
     if (envString('NODE_ENV') === 'development' && path) {
         const fs = require('fs')
         const currentDate = new Date().toISOString().replace(/[-:]/g, '').replace('T', '-').split('.')[0]
-        fs.writeFileSync(`${path}/${currentDate}-${definition.kind}.txt`, `${messages[0].content}\n\n${messages[1]?.content}\n\n---\n\n${text}`)
+        fs.writeFileSync(`${path}/${currentDate}-${kind}.txt`, `${messages[0].content}\n\n${messages[1]?.content}\n\n---\n\n${text}`)
     }
 }
 
@@ -60,6 +60,13 @@ export async function generateContent(definition: PromptDefinitionType, data: Pr
     }
 }
 
+export async function writeUsage(usage, model: string, user_id: number | undefined, court_id: number | undefined) {
+    const { promptTokens, completionTokens } = usage
+    const calculedUsage = modelCalcUsage(model, promptTokens, completionTokens)
+    if (user_id && court_id)
+        await Dao.addToIAUserDailyUsage(user_id, court_id, calculedUsage.input_tokens, calculedUsage.output_tokens, calculedUsage.approximate_cost)
+}
+
 export async function streamContent(definition: PromptDefinitionType, data: PromptDataType, results?: PromptExecutionResultsType):
     Promise<StreamTextResult<Record<string, CoreTool<any, any>>, any> | StreamObjectResult<DeepPartial<any>, any, never> | string> {
     // const user = await getCurrentUser()
@@ -84,7 +91,8 @@ export async function streamContent(definition: PromptDefinitionType, data: Prom
     const exec = promptExecuteBuilder(definition, data)
     const messages = exec.message
     const structuredOutputs = exec.params?.structuredOutputs
-    const { model, modelRef } = await getModel({ structuredOutputs: !!structuredOutputs, overrideModel: definition.model })
+    const { model, modelRef, apiKeyFromEnv } = await getModel({ structuredOutputs: !!structuredOutputs, overrideModel: definition.model })
+    if (results) results.model = model
     const sha256 = calcSha256(messages)
     if (results) results.sha256 = sha256
     const attempt = definition?.cacheControl !== true && definition?.cacheControl || null
@@ -101,57 +109,66 @@ export async function streamContent(definition: PromptDefinitionType, data: Prom
     // writeResponseToFile(definition, messages, "antes de executar")
     // if (1 == 1) throw new Error('Interrupted')
 
-    if (!structuredOutputs) {
-        console.log('streaming text', definition.kind) //, messages, modelRef)
-        if (model.startsWith('aws-')) {
-            const { text } = await generateText({
-                model: modelRef as LanguageModel,
-                messages,
-                maxRetries: 0,
-                // temperature: 1.5,
-            })
-            if (definition?.cacheControl !== false) {
-                const generationId = await saveToCache(sha256, model, definition.kind, text, attempt || null)
-                if (results) results.generationId = generationId
-            }
-            writeResponseToFile(definition, messages, text)
-            return text
-        } else {
-            const pResult = streamText({
-                model: modelRef as LanguageModel,
-                messages,
-                maxRetries: 0,
-                onFinish: async ({ text }) => {
-                    if (definition?.cacheControl !== false) {
-                        const generationId = await saveToCache(sha256, model, definition.kind, text, attempt || null)
-                        if (results) results.generationId = generationId
-                    }
-                    writeResponseToFile(definition, messages, text)
+    return generateAndStreamContent(model, structuredOutputs, definition?.cacheControl, definition?.kind, modelRef, messages, sha256, results, attempt, apiKeyFromEnv)
+}
+
+export async function generateAndStreamContent(model: string, structuredOutputs: any, cacheControl: number | boolean, kind: string, modelRef: LanguageModel, messages: CoreMessage[], sha256: string, results?: PromptExecutionResultsType, attempt?: number | null, apiKeyFromEnv?: boolean):
+    Promise<StreamTextResult<Record<string, CoreTool<any, any>>, any> | StreamObjectResult<DeepPartial<any>, any, never> | string> {
+    if (!structuredOutputs) {//} || model.startsWith('aws-')) {
+        console.log('streaming text', kind) //, messages, modelRef)
+        // if (model.startsWith('aws-')) {
+        //     const { text, usage } = await generateText({
+        //         model: modelRef as LanguageModel,
+        //         messages,
+        //         maxRetries: 0,
+        //         // temperature: 1.5,
+        //     })
+        //     writeUsage(usage, model, results?.user_id, results?.court_id)
+        //     if (cacheControl !== false) {
+        //         const generationId = await saveToCache(sha256, model, kind, text, attempt || null)
+        //         if (results) results.generationId = generationId
+        //     }
+        //     writeResponseToFile(kind, messages, text)
+        //     return text
+        // } else {
+        const pResult = streamText({
+            model: modelRef as LanguageModel,
+            messages,
+            maxRetries: 0,
+            onFinish: async ({ text, usage }) => {
+                if (apiKeyFromEnv)
+                    writeUsage(usage, model, results?.user_id, results?.court_id)
+                if (cacheControl !== false) {
+                    const generationId = await saveToCache(sha256, model, kind, text, attempt || null)
+                    if (results) results.generationId = generationId
                 }
-            })
-            return pResult
-        }
+                writeResponseToFile(kind, messages, text)
+            }
+        })
+        return pResult
+        // }
     } else {
-        console.log('streaming object', definition.kind) //, messages, modelRef, structuredOutputs.schema)
+        console.log('streaming object', kind) //, messages, modelRef, structuredOutputs.schema)
         const pResult = streamObject({
             model: modelRef as LanguageModel,
             messages,
             maxRetries: 1,
-            onFinish: async ({ object }) => {
-                if (definition?.cacheControl !== false) {
-                    const generationId = await saveToCache(sha256, model, definition.kind, JSON.stringify(object), attempt || null)
+            onFinish: async ({ object, usage }) => {
+                if (apiKeyFromEnv)
+                    writeUsage(usage, model, results?.user_id, results?.court_id)
+                if (cacheControl !== false) {
+                    const generationId = await saveToCache(sha256, model, kind, JSON.stringify(object), attempt || null)
                     if (results) results.generationId = generationId
                 }
-                writeResponseToFile(definition, messages, JSON.stringify(object))
+                writeResponseToFile(kind, messages, JSON.stringify(object))
             },
-            schemaName: `schema${definition.kind}`,
-            schemaDescription: `A schema for the prompt ${definition.kind}`,
+            schemaName: `schema${kind}`,
+            schemaDescription: `A schema for the prompt ${kind}`,
             schema: structuredOutputs.schema,
         })
         // @ts-ignore-next-line
         return pResult
     }
-
 }
 
 export async function evaluate(definition: PromptDefinitionType, data: PromptDataType, evaluation_id: number, evaluation_descr: string | null):

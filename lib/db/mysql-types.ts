@@ -136,7 +136,7 @@ export type IAPromptToInsert = {
         template?: string
 
         author?: string
-        
+
         scope?: string[]
         instance?: string[]
         matter?: string[]
@@ -299,4 +299,17 @@ export type SelectableItem = { id: string, name: string }
 
 export type PromptByKind = {
     id: number, testset_id: number, model_id: number, kind: string, name: string, slug: string, content: any, created_by: number, created_at: Date, is_official: boolean, testset_slug: string, testset_name: string, model_name: string, user_username: string, score: number
+}
+
+export type CourtUsageData = {
+    date: string
+    usage_count: number
+    approximate_cost: number
+}
+
+export type UserUsageData = {
+    id: string
+    username: string
+    usage_count: number
+    approximate_cost: number
 }

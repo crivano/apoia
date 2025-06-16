@@ -108,7 +108,6 @@ export class InteropPDPJ implements Interop {
         const resp: DadosDoProcessoType[] = []
         for (const processo of data[0].tramitacoes) {
             const idClasse = processo?.classe?.[0]?.codigo
-            console.log('idClasse', processo?.classe)
             if (idClasseParaFiltrar && idClasse !== idClasseParaFiltrar) continue
             if (verificarNivelDeSigilo())
                 assertNivelDeSigilo('' + processo.nivelSigilo)

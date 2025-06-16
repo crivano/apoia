@@ -33,7 +33,7 @@ enum EnvPublicEnum {
     MODEL,
     MNI_LIMIT,
     OCR_LIMIT,
-
+    
     WOOTRIC_ACCOUNT_TOKEN,
     GOOGLE_ANALYTICS_ID,
 }
@@ -55,6 +55,7 @@ enum EnvPrivateEnum {
     TESTS_PATH,
     SAVE_PROMPT_RESULTS_PATH,
     OCR_URL,
+    MODEL_ALLOWED_USERS,
 }
 
 type ParamType = { name: string, public: boolean }
@@ -96,6 +97,13 @@ export const envString = (name: string): string | undefined => {
         return cryptr.decrypt(encryptedValue)
     }
     return process.env[name]
+}
+
+export const envNumber = (name: string): number | undefined => {
+    const str = envString(name)
+    if (str === undefined) return undefined
+    const num = Number(str)
+    return isNaN(num) ? undefined : num
 }
 
 export type System = {

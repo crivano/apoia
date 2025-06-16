@@ -164,4 +164,34 @@ export const removeAccents = (s: string): string => {
 }
 
 
+export const obfuscateString = (str: string): string => {
+  const trimmedStr = str.trim();
+  if (!trimmedStr) {
+    return '';
+  }
 
+  const words = trimmedStr.split(/\s+/);
+
+  if (words.length === 1) {
+    const word = words[0];
+    // Rule: "first 3 letters, followed by asterics and the last 3 letters"
+    // String.prototype.slice(beginIndex, endIndex)
+    // String.prototype.slice(indexStart) (if negative, treated as sourceLength + indexStart)
+    const firstPart = word.slice(0, 3);
+    const lastPart = word.slice(-3); // Extracts the last 3 characters. If word.length < 3, it takes the whole word.
+    
+    return `${firstPart}***${lastPart}`;
+  } else {
+    // Rule: "first word complete and all other words should be replaced by 
+    // the first letter, asteriscs and the last letter."
+    const firstWord = words[0];
+    const otherWordsObfuscated = words.slice(1).map(otherWord => {
+      if (otherWord.length <= 1) { // Handles single character words and empty strings if they somehow pass through
+        return `${otherWord}***${otherWord}`; // e.g. "A" -> "A***A"
+      }
+      return `${otherWord[0]}***${otherWord[otherWord.length - 1]}`; // e.g. "Name" -> "N***e"
+    });
+
+    return [firstWord, ...otherWordsObfuscated].join(' ');
+  }
+};

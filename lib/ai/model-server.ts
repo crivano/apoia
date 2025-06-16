@@ -49,6 +49,14 @@ export const assertModel = async () => {
     }
 }
 
+function getEnvStringPrefixedIfUserIsAllowed(username: string, key: string, seqTribunalPai?: string): string {
+    const usernames = envStringPrefixed('MODEL_ALLOWED_USERS', seqTribunalPai)
+    if (usernames && !usernames.includes(username)) return undefined
+    const apiKey = envStringPrefixed(key, seqTribunalPai)
+    if (!apiKey) return undefined
+    return apiKey
+}
+
 function envStringPrefixed(key: string, seqTribunalPai: string): string {
     let s: string
     if (seqTribunalPai)
@@ -57,7 +65,7 @@ function envStringPrefixed(key: string, seqTribunalPai: string): string {
         s = envString(key)
     return s
 }
-export type ModelParams = { model: string, apiKey: string, availableApiKeys: string[], defaultModel?: string, selectableModels?: string[], userMayChangeModel: boolean, azureResourceName: string, awsRegion?: string, awsAccessKeyId?: string }
+export type ModelParams = { model: string, apiKey: string, availableApiKeys: string[], apiKeyFromEnv: boolean, defaultModel?: string, selectableModels?: string[], userMayChangeModel: boolean, azureResourceName: string, awsRegion?: string, awsAccessKeyId?: string }
 export async function getSelectedModelParams(): Promise<ModelParams> {
     const prefs = await getPrefs()
     const user = await getCurrentUser()
@@ -68,7 +76,7 @@ export async function getSelectedModelParams(): Promise<ModelParams> {
     let awsRegion: string
     let awsAccessKeyId: string
 
-    let defaultModel = envStringPrefixed('MODEL', seqTribunalPai) as string
+    let defaultModel = getEnvStringPrefixedIfUserIsAllowed(user?.preferredUsername, 'MODEL', seqTribunalPai) as string
     let selectableModels = undefined as string[]
     let userMayChangeModel = false
 
@@ -85,9 +93,9 @@ export async function getSelectedModelParams(): Promise<ModelParams> {
         userMayChangeModel = true
     }
 
-    azureResourceName = envStringPrefixed(ModelProvider.AZURE.resourceName, seqTribunalPai) as string
-    awsRegion = envStringPrefixed(ModelProvider.AWS.region, seqTribunalPai) as string
-    awsAccessKeyId = envStringPrefixed(ModelProvider.AWS.accessKeyId, seqTribunalPai) as string
+    azureResourceName = getEnvStringPrefixedIfUserIsAllowed(user?.preferredUsername, ModelProvider.AZURE.resourceName, seqTribunalPai) as string
+    awsRegion = getEnvStringPrefixedIfUserIsAllowed(user?.preferredUsername, ModelProvider.AWS.region, seqTribunalPai) as string
+    awsAccessKeyId = getEnvStringPrefixedIfUserIsAllowed(user?.preferredUsername, ModelProvider.AWS.accessKeyId, seqTribunalPai) as string
 
     if (prefs?.model) model = prefs.model
     if (prefs?.env[ModelProvider.AZURE.resourceName]) azureResourceName = prefs.env[ModelProvider.AZURE.resourceName]
@@ -96,7 +104,7 @@ export async function getSelectedModelParams(): Promise<ModelParams> {
 
     if (!model) model = defaultModel
 
-    const availableApiKeys = Object.values(ModelProvider).filter((model) => envStringPrefixed(model.apiKey, seqTribunalPai)).map((model) => model.apiKey)
+    const availableApiKeys = Object.values(ModelProvider).filter((model) => getEnvStringPrefixedIfUserIsAllowed(user?.preferredUsername, model.apiKey, seqTribunalPai)).map((model) => model.apiKey)
 
     let apiKey: string
     if (model) {
@@ -106,7 +114,7 @@ export async function getSelectedModelParams(): Promise<ModelParams> {
         let provider: ModelProviderType
         for (const p of enumSortById(ModelProvider)) {
             provider = p.value
-            apiKey = envStringPrefixed(p.value.apiKey, seqTribunalPai)
+            apiKey = getEnvStringPrefixedIfUserIsAllowed(user?.preferredUsername, p.value.apiKey, seqTribunalPai)
             if (apiKey) break
             apiKey = prefs?.env[p.value.apiKey]
             if (apiKey) break
@@ -121,35 +129,39 @@ export async function getSelectedModelParams(): Promise<ModelParams> {
             }
         }
     }
-    return { model, apiKey, availableApiKeys, defaultModel, selectableModels, userMayChangeModel, azureResourceName, awsRegion, awsAccessKeyId }
+
+    const envKey = getEnvKeyByModel(model)
+    const apiKeyFromEnv = apiKey === getEnvStringPrefixedIfUserIsAllowed(user?.preferredUsername, envKey, seqTribunalPai)
+
+    return { model, apiKey, availableApiKeys, apiKeyFromEnv, defaultModel, selectableModels, userMayChangeModel, azureResourceName, awsRegion, awsAccessKeyId }
 }
 
 export async function getSelectedModelName(): Promise<string> {
     return (await getSelectedModelParams()).model
 }
 
-export async function getModel(params?: { structuredOutputs: boolean, overrideModel?: string }): Promise<{ model: string, modelRef: LanguageModelV1 }> {
-    let { model, apiKey, azureResourceName, awsRegion, awsAccessKeyId } = await getSelectedModelParams()
+export async function getModel(params?: { structuredOutputs: boolean, overrideModel?: string }): Promise<{ model: string, modelRef: LanguageModelV1, apiKeyFromEnv: boolean }> {
+    let { model, apiKey, azureResourceName, awsRegion, awsAccessKeyId, apiKeyFromEnv } = await getSelectedModelParams()
     if (params?.overrideModel) model = params.overrideModel
 
 
     if (getEnvKeyByModel(model) === ModelProvider.ANTHROPIC.apiKey) {
         const anthropic = createAnthropic({ apiKey })
-        return { model, modelRef: anthropic(model) }
+        return { model, modelRef: anthropic(model), apiKeyFromEnv }
     }
     if (getEnvKeyByModel(model) === ModelProvider.OPENAI.apiKey) {
-        const openai = createOpenAI({ apiKey })
-        return { model, modelRef: openai(model, { structuredOutputs: params?.structuredOutputs }) as unknown as LanguageModelV1 }
+        const openai = createOpenAI({ apiKey, compatibility: 'strict' })
+        return { model, modelRef: openai(model, { structuredOutputs: params?.structuredOutputs }) as unknown as LanguageModelV1, apiKeyFromEnv }
     }
     if (getEnvKeyByModel(model) === ModelProvider.GOOGLE.apiKey) {
         const google = createGoogleGenerativeAI({ apiKey })
-        return { model, modelRef: google(model, { structuredOutputs: params?.structuredOutputs }) }
+        return { model, modelRef: google(model, { structuredOutputs: params?.structuredOutputs }), apiKeyFromEnv }
     }
     if (getEnvKeyByModel(model) === ModelProvider.AZURE.apiKey) {
         const azure = azureResourceName?.startsWith('https')
             ? createAzure({ apiKey, baseURL: azureResourceName })
             : createAzure({ apiKey, resourceName: azureResourceName })
-        return { model, modelRef: azure(model.replace('azure-', ''), { structuredOutputs: params?.structuredOutputs }) as unknown as LanguageModelV1 }
+        return { model, modelRef: azure(model.replace('azure-', ''), { structuredOutputs: params?.structuredOutputs }) as unknown as LanguageModelV1, apiKeyFromEnv }
     }
     if (getEnvKeyByModel(model) === ModelProvider.AWS.apiKey) {
         const bedrock = createAmazonBedrock({ region: awsRegion, accessKeyId: awsAccessKeyId, secretAccessKey: apiKey })
@@ -171,15 +183,15 @@ export async function getModel(params?: { structuredOutputs: boolean, overrideMo
         // for await (const textPart of result.textStream) 
         //     console.log(textPart);
 
-        return { model, modelRef }
+        return { model, modelRef, apiKeyFromEnv }
     }
     if (getEnvKeyByModel(model) === ModelProvider.GROQ.apiKey) {
         const groq = createGroq({ apiKey })
-        return { model, modelRef: groq(model, {}) }
+        return { model, modelRef: groq(model, {}), apiKeyFromEnv }
     }
     if (getEnvKeyByModel(model) === ModelProvider.DEEPSEEK.apiKey) {
         const deepseek = createDeepSeek({ apiKey })
-        return { model, modelRef: deepseek(model, {}) }
+        return { model, modelRef: deepseek(model, {}), apiKeyFromEnv }
     }
     throw new Error(`Model ${model} not found`)
 }

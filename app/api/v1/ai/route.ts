@@ -1,11 +1,12 @@
 import { streamContent } from '../../../../lib/ai/generate'
 import { NextResponse } from 'next/server'
 import Fetcher from '../../../../lib/utils/fetcher'
-import { PromptDefinitionType, PromptOptionsType } from '@/lib/ai/prompt-types'
+import { PromptDefinitionType, PromptExecutionResultsType, PromptOptionsType } from '@/lib/ai/prompt-types'
 import { getInternalPrompt, promptDefinitionFromDefinitionAndOptions } from '@/lib/ai/prompt'
 import { Dao } from '@/lib/db/mysql'
 import { IAPrompt } from '@/lib/db/mysql-types'
 import { getCurrentUser } from '@/lib/user'
+import { envString } from '@/lib/utils/env'
 
 export const maxDuration = 60
 
@@ -70,6 +71,12 @@ export async function POST(request: Request) {
         const user = await getCurrentUser()
         if (!user) return Response.json({ errormsg: 'Unauthorized' }, { status: 401 })
 
+        const user_id = await Dao.assertIAUserId(user.preferredUsername || user.name)
+        const court_id = user?.corporativo?.[0]?.seq_tribunal_pai || envString('NODE_ENV') === 'development' ? 1 : undefined
+
+        if (!court_id) throw new Error('Não foi possível identificar o tribunal do usuário')
+        await Dao.assertIAUserDailyUsageId(user_id, court_id)
+
         // const body = JSON.parse(JSON.stringify(request.body))
         const body = await request.json()
         // console.log('body', JSON.stringify(body))
@@ -102,9 +109,11 @@ export async function POST(request: Request) {
         if (body.extra)
             definitionWithOptions.prompt += '\n\n' + body.extra
 
-        const result = await streamContent(definitionWithOptions, data)
+        const executionResults: PromptExecutionResultsType = { user_id, court_id }
+        const result = await streamContent(definitionWithOptions, data, executionResults)
+
         if (typeof result === 'string') {
-            return new Response(result, { status: 200 });
+            return new Response(result, { status: 200 })
         }
         if (result) {
             const reader: ReadableStreamDefaultReader = (result as any).fullStream.getReader()
@@ -146,6 +155,6 @@ export async function POST(request: Request) {
     } catch (error) {
         console.log('error', error)
         const message = Fetcher.processError(error)
-        return NextResponse.json({ errormsg: `${message}` }, { status: 405 });
+        return NextResponse.json({ errormsg: `${message}` }, { status: 405 })
     }
 }
