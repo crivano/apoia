@@ -34,9 +34,7 @@ export async function POST(req: Request) {
 
     const user_id = await Dao.assertIAUserId(user.preferredUsername || user.name)
     const court_id = user?.corporativo?.[0]?.seq_tribunal_pai || (envString('NODE_ENV') === 'development' || isUserStaging(user)) ? 1 : undefined
-
     if (!court_id) throw new Error('Não foi possível identificar o tribunal do usuário')
-    await Dao.assertIAUserDailyUsageId(user_id, court_id)
 
     const { messages } = await req.json()
 

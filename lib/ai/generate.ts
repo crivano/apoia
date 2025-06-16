@@ -116,6 +116,9 @@ export async function generateAndStreamContent(model: string, structuredOutputs:
     Promise<StreamTextResult<Record<string, CoreTool<any, any>>, any> | StreamObjectResult<DeepPartial<any>, any, never> | string> {
     if (!structuredOutputs) {//} || model.startsWith('aws-')) {
         console.log('streaming text', kind) //, messages, modelRef)
+        if (apiKeyFromEnv) {
+            await Dao.assertIAUserDailyUsageId(results?.user_id, results?.court_id)
+        }
         // if (model.startsWith('aws-')) {
         //     const { text, usage } = await generateText({
         //         model: modelRef as LanguageModel,
@@ -149,6 +152,9 @@ export async function generateAndStreamContent(model: string, structuredOutputs:
         // }
     } else {
         console.log('streaming object', kind) //, messages, modelRef, structuredOutputs.schema)
+        if (apiKeyFromEnv) {
+            await Dao.assertIAUserDailyUsageId(results?.user_id, results?.court_id)
+        }
         const pResult = streamObject({
             model: modelRef as LanguageModel,
             messages,
