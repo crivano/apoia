@@ -16,6 +16,7 @@ import { EMPTY_PREFS_COOKIE, PrefsCookieType } from '@/lib/utils/prefs-types'
 import { getCurrentUser } from "../user"
 
 function getEnvKeyByModel(model: string): string {
+    if (!model) throw new Error('Model is required')
     if (model.startsWith('claude-')) {
         return ModelProvider.ANTHROPIC.apiKey
     } else if (model.startsWith('gpt-')) {
@@ -130,9 +131,11 @@ export async function getSelectedModelParams(): Promise<ModelParams> {
         }
     }
 
-    const envKey = getEnvKeyByModel(model)
-    const apiKeyFromEnv = apiKey === getEnvStringPrefixedIfUserIsAllowed(user?.preferredUsername, envKey, seqTribunalPai)
-
+    let apiKeyFromEnv: boolean = false
+    if (model) {
+        const envKey = getEnvKeyByModel(model)
+        apiKeyFromEnv = apiKey === getEnvStringPrefixedIfUserIsAllowed(user?.preferredUsername, envKey, seqTribunalPai)
+    }
     return { model, apiKey, availableApiKeys, apiKeyFromEnv, defaultModel, selectableModels, userMayChangeModel, azureResourceName, awsRegion, awsAccessKeyId }
 }
 
