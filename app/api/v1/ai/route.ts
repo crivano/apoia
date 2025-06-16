@@ -5,7 +5,7 @@ import { PromptDefinitionType, PromptExecutionResultsType, PromptOptionsType } f
 import { getInternalPrompt, promptDefinitionFromDefinitionAndOptions } from '@/lib/ai/prompt'
 import { Dao } from '@/lib/db/mysql'
 import { IAPrompt } from '@/lib/db/mysql-types'
-import { getCurrentUser } from '@/lib/user'
+import { getCurrentUser, isUserStaging } from '@/lib/user'
 import { envString } from '@/lib/utils/env'
 
 export const maxDuration = 60
@@ -72,7 +72,7 @@ export async function POST(request: Request) {
         if (!user) return Response.json({ errormsg: 'Unauthorized' }, { status: 401 })
 
         const user_id = await Dao.assertIAUserId(user.preferredUsername || user.name)
-        const court_id = user?.corporativo?.[0]?.seq_tribunal_pai || envString('NODE_ENV') === 'development' ? 1 : undefined
+        const court_id = user?.corporativo?.[0]?.seq_tribunal_pai || (envString('NODE_ENV') === 'development' || isUserStaging(user)) ? 1 : undefined
 
         if (!court_id) throw new Error('Não foi possível identificar o tribunal do usuário')
         await Dao.assertIAUserDailyUsageId(user_id, court_id)

@@ -34,8 +34,12 @@ export const assertCurrentUser = async () => {
     return user
 }
 
+export const isUserStaging = async (user: UserType) => {
+    return user.iss === 'https://sso.stg.cloud.pje.jus.br/auth/realms/pje'
+}
+
 export const isUserCorporativo = async (user: UserType) => {
-    return !!user.corporativo || !!user.image?.system || process.env.NODE_ENV === 'development' || user.iss === 'https://sso.stg.cloud.pje.jus.br/auth/realms/pje';
+    return !!user.corporativo || !!user.image?.system || process.env.NODE_ENV === 'development' || isUserStaging(user)
 }
 
 export const isUserModerator = async (user: UserType): Promise<boolean> => {
