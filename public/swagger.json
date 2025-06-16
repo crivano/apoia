@@ -573,6 +573,77 @@
           }
         }
       }
+    },
+    "/api/v1/usage/{court}": {
+      "get": {
+        "description": "Obtem o consumo diário de um tribunal específico, filtrando entre datas.",
+        "tags": [
+          "stats"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "court",
+            "required": true,
+            "description": "Identificador numérico do tribunal conforme o padrão do CNJ"
+          },
+          {
+            "in": "query",
+            "name": "start_date",
+            "required": false,
+            "description": "Data inicial do período a ser consultado, no formato YYYY-MM-DD (intervalo fechado)"
+          },
+          {
+            "in": "query",
+            "name": "end_date",
+            "required": false,
+            "description": "Data final do período a ser consultado, no formato YYYY-MM-DD (intervalo aberto)"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Estatísticas de uso do tribunal no período solicitado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "description": "OK se as informações foram obtidas com sucesso"
+                    },
+                    "usage": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "date": {
+                            "type": "string",
+                            "description": "Data do consumo no formato YYYY-MM-DD"
+                          },
+                          "usage_count": {
+                            "type": "integer",
+                            "description": "Contagem de uso do serviço no dia"
+                          },
+                          "approximate_cost": {
+                            "type": "number",
+                            "description": "Custo aproximado do serviço no dia, em reais (R$)"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
     }
   }
 }
