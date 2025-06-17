@@ -106,6 +106,7 @@ export default function ProcessContents({ prompt, dadosDoProcesso, pieceContent,
                 systemPrompt: prompt.content.system_prompt,
                 jsonSchema: prompt.content.json_schema,
                 format: prompt.content.format,
+                template: prompt.content.template,
                 cacheControl: true,
             }
             const req: GeneratedContent = {

@@ -11,6 +11,7 @@ import { P } from '@/lib/proc/combinacoes'
 import Chat from './chat'
 import { DadosDoProcessoType } from '@/lib/proc/process-types'
 import AiTitle from '@/components/ai-title'
+import { VisualizationEnum } from '@/lib/ui/preprocess'
 
 const Frm = new FormHelper(true)
 
@@ -111,7 +112,8 @@ function requestSlot(Frm: FormHelper, requests: GeneratedContent[], idx: number)
     return <div key={idx}>
         <AiTitle request={request} />
         <Suspense fallback={ResumoDePecaLoading()}>
-            <AiContent definition={request.internalPrompt} data={request.data} key={`prompt: ${request.promptSlug} data: ${calcSha256(request.data)}`} onBusy={() => onBusy(Frm, requests, idx)} onReady={(content) => onReady(Frm, requests, idx, content)} />
+            <AiContent definition={request.internalPrompt} data={request.data} key={`prompt: ${request.promptSlug} data: ${calcSha256(request.data)}`} onBusy={() => onBusy(Frm, requests, idx)} onReady={(content) => onReady(Frm, requests, idx, content)}
+                visualization={request.internalPrompt.template ? VisualizationEnum.DIFF_HIGHLIGHT_INCLUSIONS : undefined} diffSource={request.internalPrompt.template} />
         </Suspense>
     </div>
 }

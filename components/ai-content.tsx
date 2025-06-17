@@ -34,7 +34,7 @@ export const spinner = (s: string, complete: boolean): string => {
     return s
 }
 
-export default function AiContent(params: { definition: PromptDefinitionType, data: PromptDataType, options?: PromptOptionsType, config?: PromptConfigType, visualization?: VisualizationEnum, onBusy?: () => void, onReady?: (content: ContentType) => void }) {
+export default function AiContent(params: { definition: PromptDefinitionType, data: PromptDataType, options?: PromptOptionsType, config?: PromptConfigType, visualization?: VisualizationEnum, diffSource?: string, onBusy?: () => void, onReady?: (content: ContentType) => void }) {
     const [current, setCurrent] = useState('')
     const [complete, setComplete] = useState(false)
     const [errormsg, setErrormsg] = useState('')
@@ -108,7 +108,7 @@ export default function AiContent(params: { definition: PromptDefinitionType, da
                     if (params.onReady)
                         params.onReady({
                             raw: text,
-                            formated: preprocess(text, params.definition, params.data, complete, visualizationId),
+                            formated: preprocess(text, params.definition, params.data, complete, visualizationId, params.diffSource),
                             json
                         })
                     break
@@ -156,7 +156,7 @@ export default function AiContent(params: { definition: PromptDefinitionType, da
                     : null}
                 {errormsg
                     ? <span>{errormsg}</span>
-                    : <div dangerouslySetInnerHTML={{ __html: spinner(preprocess(current, params.definition, params.data, complete, visualizationId), complete) }} />}
+                    : <div dangerouslySetInnerHTML={{ __html: spinner(preprocess(current, params.definition, params.data, complete, visualizationId, params.diffSource), complete) }} />}
                 <EvaluationModal show={show} onClose={handleClose} />
             </div>
             : <ResumoDePecaLoading />

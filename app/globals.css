@@ -319,15 +319,34 @@ div.ai-content table th {
     background-color: #6610f240;
 }
 
-.editOldInline {
+.editOldInline,
+del.diffdel,
+del.diffmod {
     text-decoration: line-through;
     color: #dc3545;
     background-color: #dc354540;
 }
 
-.editNewInline {
+.editNewInline,
+ins.diffins,
+ins.diffmod {
     color: #28a745;
     background-color: #28a74540;
+}
+
+ins.diffins-highlight,
+ins.diffmod-highlight {
+    background-color: #f4f00a;
+    text-decoration: none;
+    ;
+}
+
+del.diffdel-highlight,
+del.diffmod-highlight {
+    display: none;
+    text-decoration: line-through;
+    color: #dc3545;
+    background-color: #dc354540;
 }
 
 .link-active {

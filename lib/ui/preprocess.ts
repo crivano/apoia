@@ -1,14 +1,17 @@
 import showdown from 'showdown'
 import { P } from '../proc/combinacoes'
 import { PromptDataType, PromptDefinitionType, TextoType } from '../ai/prompt-types'
-import { diff, diffAndCollapse as diffAndCompact } from './mddiff'
+import { diff as mddiff, diffAndCollapse as diffAndCompact } from './mddiff'
 import { format as libFormat } from '../ai/format'
+
+import diff from 'html-diff-ts';
 
 const converter = new showdown.Converter({ tables: true })
 
 export const enum VisualizationEnum {
     DIFF,
     DIFF_COMPACT,
+    DIFF_HIGHLIGHT_INCLUSIONS,
     TEXT_EDITED,
     TEXT_ORIGINAL
 }
@@ -16,6 +19,7 @@ export const enum VisualizationEnum {
 export const Visualization = [
     { id: VisualizationEnum.DIFF, descr: 'Diferença' },
     { id: VisualizationEnum.DIFF_COMPACT, descr: 'Diferença Compacta' },
+    { id: VisualizationEnum.DIFF_HIGHLIGHT_INCLUSIONS, descr: 'Destacar Inclusões' },
     { id: VisualizationEnum.TEXT_EDITED, descr: 'Texto Refinado' },
     { id: VisualizationEnum.TEXT_ORIGINAL, descr: 'Texto Original' }
 ]
@@ -39,20 +43,25 @@ export const filterText = (text) => {
     return s.trim()
 }
 
-export const preprocess = (text: string, definition: PromptDefinitionType, data: PromptDataType, complete: boolean, visualization?: VisualizationEnum) => {
+export const preprocess = (text: string, definition: PromptDefinitionType, data: PromptDataType, complete: boolean, visualization?: VisualizationEnum, diffSource?: string) => {
+    console.log('Preprocessing text', diffSource)
     text = filterText(text)
 
     if (definition.format)
         text = libFormat(definition.format, text)
 
     if (complete && visualization !== undefined) {
-        let texto = data.textos[0].texto
+        let texto = diffSource || data.textos[0].texto
 
         switch (visualization) {
             case VisualizationEnum.DIFF:
-                return converter.makeHtml(diff(texto as string, text, true))
+                return converter.makeHtml(mddiff(texto as string, text, true))
             case VisualizationEnum.DIFF_COMPACT:
                 return converter.makeHtml(diffAndCompact(texto as string, text))
+            case VisualizationEnum.DIFF_HIGHLIGHT_INCLUSIONS:
+                return diff(converter.makeHtml(texto as string), converter.makeHtml(text), {
+                    blocksExpression: [{ exp: /\[(.*?)\]/g }]
+                }).replace(/"diff(ins|del|mod)"/g, '"diff$1-highlight"')
             case VisualizationEnum.TEXT_EDITED:
                 return converter.makeHtml(text)
             case VisualizationEnum.TEXT_ORIGINAL:
