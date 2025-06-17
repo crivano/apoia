@@ -3,7 +3,7 @@
 import { CoreTool, streamText, StreamTextResult, LanguageModel, streamObject, StreamObjectResult, DeepPartial, CoreMessage, generateText } from 'ai'
 import { IAGenerated } from '../db/mysql-types'
 import { Dao } from '../db/mysql'
-import { assertCurrentUser } from '../user'
+import { assertCourtId, assertCurrentUser } from '../user'
 import { PromptDataType, PromptDefinitionType, PromptExecutionResultsType, PromptOptionsType } from '@/lib/ai/prompt-types'
 import { promptExecuteBuilder, waitForTexts } from './prompt'
 import { calcSha256 } from '../utils/hash'
@@ -114,10 +114,13 @@ export async function streamContent(definition: PromptDefinitionType, data: Prom
 
 export async function generateAndStreamContent(model: string, structuredOutputs: any, cacheControl: number | boolean, kind: string, modelRef: LanguageModel, messages: CoreMessage[], sha256: string, results?: PromptExecutionResultsType, attempt?: number | null, apiKeyFromEnv?: boolean):
     Promise<StreamTextResult<Record<string, CoreTool<any, any>>, any> | StreamObjectResult<DeepPartial<any>, any, never> | string> {
+    const user = await assertCurrentUser()
+    const user_id = await Dao.assertIAUserId(user.preferredUsername || user.name)
+    const court_id = await assertCourtId(user)
     if (!structuredOutputs) {//} || model.startsWith('aws-')) {
         console.log('streaming text', kind) //, messages, modelRef)
         if (apiKeyFromEnv) {
-            await Dao.assertIAUserDailyUsageId(results?.user_id, results?.court_id)
+            await Dao.assertIAUserDailyUsageId(user_id, court_id)
         }
         // if (model.startsWith('aws-')) {
         //     const { text, usage } = await generateText({
@@ -140,7 +143,7 @@ export async function generateAndStreamContent(model: string, structuredOutputs:
             maxRetries: 0,
             onFinish: async ({ text, usage }) => {
                 if (apiKeyFromEnv)
-                    writeUsage(usage, model, results?.user_id, results?.court_id)
+                    writeUsage(usage, model, user_id, court_id)
                 if (cacheControl !== false) {
                     const generationId = await saveToCache(sha256, model, kind, text, attempt || null)
                     if (results) results.generationId = generationId
@@ -153,7 +156,7 @@ export async function generateAndStreamContent(model: string, structuredOutputs:
     } else {
         console.log('streaming object', kind) //, messages, modelRef, structuredOutputs.schema)
         if (apiKeyFromEnv) {
-            await Dao.assertIAUserDailyUsageId(results?.user_id, results?.court_id)
+            await Dao.assertIAUserDailyUsageId(user_id, court_id)
         }
         const pResult = streamObject({
             model: modelRef as LanguageModel,
@@ -161,7 +164,7 @@ export async function generateAndStreamContent(model: string, structuredOutputs:
             maxRetries: 1,
             onFinish: async ({ object, usage }) => {
                 if (apiKeyFromEnv)
-                    writeUsage(usage, model, results?.user_id, results?.court_id)
+                    writeUsage(usage, model, user_id, court_id)
                 if (cacheControl !== false) {
                     const generationId = await saveToCache(sha256, model, kind, JSON.stringify(object), attempt || null)
                     if (results) results.generationId = generationId

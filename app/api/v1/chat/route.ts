@@ -2,7 +2,7 @@ import { generateAndStreamContent } from '@/lib/ai/generate'
 import { getModel } from '@/lib/ai/model-server'
 import { anonymizeText } from '@/lib/anonym/anonym'
 import { Dao } from '@/lib/db/mysql'
-import { getCurrentUser, isUserStaging } from '@/lib/user'
+import { getCurrentUser } from '@/lib/user'
 import { envString } from '@/lib/utils/env'
 import { CoreTool, StreamTextResult } from 'ai'
 
@@ -33,8 +33,6 @@ export async function POST(req: Request) {
     if (!user) return Response.json({ errormsg: 'Unauthorized' }, { status: 401 })
 
     const user_id = await Dao.assertIAUserId(user.preferredUsername || user.name)
-    const court_id = user?.corporativo?.[0]?.seq_tribunal_pai || (envString('NODE_ENV') === 'development' || isUserStaging(user)) ? 1 : undefined
-    if (!court_id) throw new Error('Não foi possível identificar o tribunal do usuário')
 
     const { messages } = await req.json()
 
@@ -56,7 +54,7 @@ export async function POST(req: Request) {
         modelRef,
         messages,
         '', // sha256
-        { user_id, court_id }, // results
+        {}, // results
         null, // attempt
         apiKeyFromEnv
     )

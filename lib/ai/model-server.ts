@@ -13,7 +13,7 @@ import { createDeepSeek } from "@ai-sdk/deepseek"
 import { createAmazonBedrock } from '@ai-sdk/amazon-bedrock'
 import { LanguageModelV1 } from "ai"
 import { EMPTY_PREFS_COOKIE, PrefsCookieType } from '@/lib/utils/prefs-types'
-import { getCurrentUser } from "../user"
+import { assertCourtId, getCurrentUser } from "../user"
 
 function getEnvKeyByModel(model: string): string {
     if (!model) throw new Error('Model is required')
@@ -70,7 +70,7 @@ export type ModelParams = { model: string, apiKey: string, availableApiKeys: str
 export async function getSelectedModelParams(): Promise<ModelParams> {
     const prefs = await getPrefs()
     const user = await getCurrentUser()
-    const seqTribunalPai = user?.corporativo?.[0]?.seq_tribunal_pai
+    const seqTribunalPai = user ? '' + await assertCourtId(user) : undefined
 
     let model: string
     let azureResourceName: string

@@ -73,8 +73,6 @@ export type PromptOptionsType = {
 // Tipo que permite que a rotina streamContent retorne alguns parâmetros além da stream
 //
 export type PromptExecutionResultsType = {
-    user_id?: number
-    court_id?: number
     sha256?: string
     model?: string
     generationId?: number

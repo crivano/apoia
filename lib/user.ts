@@ -46,6 +46,19 @@ export const isUserModerator = async (user: UserType): Promise<boolean> => {
     return envString('MODERATOR') && user.preferredUsername && envString('MODERATOR').split(',').includes(user.preferredUsername)
 }
 
+export const assertCourtId = async (user: UserType): Promise<number> => {
+    if (user?.corporativo?.[0]?.seq_tribunal_pai) {
+        return user.corporativo[0].seq_tribunal_pai
+    }
+    if (process.env.NODE_ENV === 'development') {
+        return 999998 // Default court ID for development
+    }
+    if (isUserStaging(user)) {
+        return 999999 // Default court ID for staging
+    }
+    throw new Error('Não foi possível identificar o tribunal do usuário')
+}
+
 export const assertCurrentUserCorporativo = async () => {
     const user = await assertCurrentUser()
     if (!await isUserCorporativo(user))
