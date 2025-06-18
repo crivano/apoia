@@ -89,7 +89,7 @@ export async function getSelectedModelParams(): Promise<ModelParams> {
     }
 
     // if it is a single model, the user may change it if it ends with *
-    if (defaultModel && defaultModel.endsWith('*')) {
+    if (defaultModel?.endsWith('*')) {
         defaultModel = defaultModel.slice(0, -1)
         userMayChangeModel = true
     }
@@ -109,8 +109,15 @@ export async function getSelectedModelParams(): Promise<ModelParams> {
 
     let apiKey: string
     if (model) {
-        apiKey = getApiKeyByModel(model, prefs || EMPTY_PREFS_COOKIE, seqTribunalPai)
-    } else {
+        try {
+            apiKey = getApiKeyByModel(model, prefs || EMPTY_PREFS_COOKIE, seqTribunalPai)
+        } catch (e) {
+            console.log(`Error getting API key for model ${model}`)
+            apiKey = undefined
+            model = undefined
+        }
+    }
+    if (!model) {
         // try to find an available api key
         let provider: ModelProviderType
         for (const p of enumSortById(ModelProvider)) {
