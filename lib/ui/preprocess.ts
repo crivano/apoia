@@ -4,7 +4,7 @@ import { PromptDataType, PromptDefinitionType, TextoType } from '../ai/prompt-ty
 import { diff as mddiff, diffAndCollapse as diffAndCompact } from './mddiff'
 import { format as libFormat } from '../ai/format'
 
-import diff from 'html-diff-ts';
+import diff from 'diff-htmls';
 
 const converter = new showdown.Converter({ tables: true })
 
@@ -55,12 +55,15 @@ export const preprocess = (text: string, definition: PromptDefinitionType, data:
 
         switch (visualization) {
             case VisualizationEnum.DIFF:
-                return converter.makeHtml(mddiff(texto as string, text, true))
+                // return converter.makeHtml(mddiff(texto as string, text, true))
+                return diff(converter.makeHtml(texto as string), converter.makeHtml(text), {
+                    blocksExpression: [{ exp: /\[(.*?)\]/g }, { exp: /\{(.*?)\}/g }]
+                })
             case VisualizationEnum.DIFF_COMPACT:
                 return converter.makeHtml(diffAndCompact(texto as string, text))
             case VisualizationEnum.DIFF_HIGHLIGHT_INCLUSIONS:
                 return diff(converter.makeHtml(texto as string), converter.makeHtml(text), {
-                    blocksExpression: [{ exp: /\[(.*?)\]/g }]
+                    blocksExpression: [{ exp: /\[(.*?)\]/g }, { exp: /\{(.*?)\}/g }]
                 }).replace(/"diff(ins|del|mod)"/g, '"diff$1-highlight"')
             case VisualizationEnum.TEXT_EDITED:
                 return converter.makeHtml(text)
