@@ -6,6 +6,7 @@ import { getInternalPrompt, promptDefinitionFromDefinitionAndOptions } from '@/l
 import { Dao } from '@/lib/db/mysql'
 import { IAPrompt } from '@/lib/db/mysql-types'
 import { getCurrentUser } from '@/lib/user'
+import { preprocessTemplate } from '@/lib/ai/template'
 
 export const maxDuration = 60
 
@@ -98,6 +99,10 @@ export async function POST(request: Request) {
 
         const definitionWithOptions = promptDefinitionFromDefinitionAndOptions(definition, options)
 
+        if (definitionWithOptions.template) {
+            definitionWithOptions.template = preprocessTemplate(definitionWithOptions.template)
+        }
+
         if (body.modelSlug)
             definitionWithOptions.model = body.modelSlug
 
@@ -143,7 +148,12 @@ export async function POST(request: Request) {
                     pump()
                 },
             })
-            return new Response(feederStream, { status: 200 })
+            return new Response(feederStream, {
+                status: 200,
+                headers: {
+                    'Content-Type': definitionWithOptions.jsonSchema ? 'application/json' : 'text/plain; charset=utf-8',
+                },
+            })
         } else {
             throw new Error('Invalid response')
         }
