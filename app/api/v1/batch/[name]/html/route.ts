@@ -187,7 +187,7 @@ export async function GET(req: Request, props: { params: Promise<{ name: string 
                 if (g.descr === P.RESUMO) {
                     text = fixText(text, enumMap)
                 }
-                html += `<h2>${g.document_id ? maiusculasEMinusculas(g.descr) : g.descr}</h2><div class="ai-content">${preprocess(text, { kind: g.prompt, prompt: '' }, { textos: [] }, true)}</div>`
+                html += `<h2>${g.document_id ? maiusculasEMinusculas(g.descr) : g.descr}</h2><div class="ai-content">${preprocess(text, { kind: g.prompt, prompt: '' }, { textos: [] }, true).text}</div>`
             }
             html += `</div>`
             html += `<hr style="margin-top: 2em;" />`

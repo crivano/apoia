@@ -108,7 +108,7 @@ export default function AiContent(params: { definition: PromptDefinitionType, da
                     if (params.onReady)
                         params.onReady({
                             raw: text,
-                            formated: preprocess(text, params.definition, params.data, complete, visualizationId, params.diffSource),
+                            formated: preprocess(text, params.definition, params.data, complete, visualizationId, params.diffSource).text,
                             json
                         })
                     break
@@ -145,20 +145,28 @@ export default function AiContent(params: { definition: PromptDefinitionType, da
 
     const color = getColor(current, errormsg)
 
+    const preprocessed = preprocess(current, params.definition, params.data, complete, visualizationId, params.diffSource)
+
     return <>
         {current || errormsg
-            ? <div className={`alert alert-${color} ai-content`}>
-                {color === 'warning' && <h1 className="mt-0">Rascunho</h1>}
-                {complete || errormsg
-                    ? evaluated
-                        ? <button className="btn btn-sm bt float-end d-print-none" onClick={() => { setCurrent(''); run() }}><FontAwesomeIcon icon={faRefresh} /></button>
-                        : <button className="btn btn-sm bt float-end d-print-none" onClick={() => { handleShow() }}><FontAwesomeIcon icon={faThumbsDown} /></button>
-                    : null}
-                {errormsg
-                    ? <span>{errormsg}</span>
-                    : <div dangerouslySetInnerHTML={{ __html: spinner(preprocess(current, params.definition, params.data, complete, visualizationId, params.diffSource), complete) }} />}
-                <EvaluationModal show={show} onClose={handleClose} />
-            </div>
+            ? <>
+                <div className={`alert alert-${color} ai-content`}>
+                    {color === 'warning' && <h1 className="mt-0">Rascunho</h1>}
+                    {complete || errormsg
+                        ? evaluated
+                            ? <button className="btn btn-sm bt float-end d-print-none" onClick={() => { setCurrent(''); run() }}><FontAwesomeIcon icon={faRefresh} /></button>
+                            : <button className="btn btn-sm bt float-end d-print-none" onClick={() => { handleShow() }}><FontAwesomeIcon icon={faThumbsDown} /></button>
+                        : null}
+                    {errormsg
+                        ? <span>{errormsg}</span>
+                        : <div dangerouslySetInnerHTML={{ __html: spinner(preprocessed.text, complete) }} />}
+                    <EvaluationModal show={show} onClose={handleClose} />
+                </div>
+                {preprocessed.templateTable && <div className="h-print">
+                    <h2 className="">Tabela de Expressões</h2>
+                    <div className="ai-content" dangerouslySetInnerHTML={{ __html: preprocessed.templateTable }} />
+                </div>}
+            </>
             : <ResumoDePecaLoading />
         }
 

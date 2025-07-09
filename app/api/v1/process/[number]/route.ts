@@ -1,9 +1,7 @@
-import { summarize } from "@/lib/ai/analysis"
 import fetcher from "@/lib/utils/fetcher"
-import { filterText } from "@/lib/ui/preprocess"
 import { NextResponse } from "next/server"
 import { getCurrentUser } from "@/lib/user"
-import { CargaDeConteudoEnum, obterDadosDoProcesso, obterDadosDoProcesso2 } from "@/lib/proc/process"
+import { CargaDeConteudoEnum, obterDadosDoProcesso2 } from "@/lib/proc/process"
 
 export const maxDuration = 60
 // export const runtime = 'edge'

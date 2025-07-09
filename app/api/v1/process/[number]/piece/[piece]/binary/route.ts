@@ -1,10 +1,6 @@
-import { summarize } from "@/lib/ai/analysis"
 import fetcher from "@/lib/utils/fetcher"
-import { filterText } from "@/lib/ui/preprocess"
 import { NextResponse } from "next/server"
 import { getCurrentUser } from "@/lib/user"
-import { obterDadosDoProcesso } from "@/lib/proc/process"
-import { PecaConteudoType } from "@/lib/proc/process-types"
 import { decrypt } from "@/lib/utils/crypt"
 import { getInterop } from "@/lib/interop/interop"
 

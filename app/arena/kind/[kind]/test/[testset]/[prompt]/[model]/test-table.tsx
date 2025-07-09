@@ -35,7 +35,7 @@ export function TestTable({ testset, test, promptFormat }: { testset: IATestset,
                                                 test.content.tests[idxTest].attempts[idx].result,
                                                 { kind: '', prompt: '', format: promptFormat } as PromptDefinitionType,
                                                 { textos: testset.content.tests[idxTest].texts?.map(t => ({ descr: t.name, slug: t.name, texto: t.value })) },
-                                                true, VisualizationEnum.DIFF)
+                                                true, VisualizationEnum.DIFF).text
                                         }} />
                                     </Popover>
                                 }>
