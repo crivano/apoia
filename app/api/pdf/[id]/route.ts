@@ -11,7 +11,8 @@ export async function POST(req: Request, props: { params: Promise<{ id: string }
     const id: string = (params?.id?.toString() || '') as string
     const json = await req.formData()
     const html: string = json.get('html') as string
-    const formated = template.replace('<div class="content"></div>', html)
+    const skipTemplate: boolean = json.get('skipTemplate') === 'true'
+    const formated = skipTemplate ? html : template.replace('<div class="content"></div>', html)
 
     const httpsAgent = new https.Agent({
         rejectUnauthorized: false, // disables SSL certificate validation
