@@ -20,7 +20,7 @@ export const Visualization = [
     { id: VisualizationEnum.DIFF, descr: 'Diferença' },
     { id: VisualizationEnum.DIFF_COMPACT, descr: 'Diferença Compacta' },
     { id: VisualizationEnum.DIFF_HIGHLIGHT_INCLUSIONS, descr: 'Destacar Inclusões' },
-    { id: VisualizationEnum.TEXT_EDITED, descr: 'Texto Refinado' },
+    { id: VisualizationEnum.TEXT_EDITED, descr: 'Texto Editado' },
     { id: VisualizationEnum.TEXT_ORIGINAL, descr: 'Texto Original' }
 ]
 

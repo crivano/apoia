@@ -37,6 +37,8 @@ Por exemplo: <if id="1" expr="se a parte autora tiver mais de 60 anos">Por se tr
 
 Outro exemplo: <if id="1" expr="se a parte autora tiver mais de 60 anos">Por se tratar de pessoa idosa...</if>, se a pessoa não for idosa, deve ser substituído por <if id="1" justification="A parte autora tem 45 anos de idade conforme laudo pericial (evento 10, laudo.pdf)"/>.
 
+## Detalhes de Formatação
+- Datas devem ser apresentadas no formato DD/MM/AAAA
 
 ## Modelo:
 {{template}}

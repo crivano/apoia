@@ -41,6 +41,7 @@ export default function AiContent(params: { definition: PromptDefinitionType, da
     const [show, setShow] = useState(false)
     const [evaluated, setEvaluated] = useState(false)
     const [visualizationId, setVisualizationId] = useState<number>(params.visualization)
+    const [showTemplateTable, setShowTemplateTable] = useState(false)
     const initialized = useRef(false)
 
     const handleClose = async (evaluation_id: number, descr: string | null) => {
@@ -162,22 +163,28 @@ export default function AiContent(params: { definition: PromptDefinitionType, da
                         : <div dangerouslySetInnerHTML={{ __html: spinner(preprocessed.text, complete) }} />}
                     <EvaluationModal show={show} onClose={handleClose} />
                 </div>
-                {preprocessed.templateTable && <div className="h-print">
-                    <h2 className="">Tabela de Expressões</h2>
-                    <div className="ai-content" dangerouslySetInnerHTML={{ __html: preprocessed.templateTable }} />
-                </div>}
+                {preprocessed.templateTable && showTemplateTable &&
+                    <div className="h-print">
+                        <h2 className="">Tabela de Expressões</h2>
+                        <div className="ai-content mb-3" dangerouslySetInnerHTML={{ __html: preprocessed.templateTable }} />
+                    </div>
+                }
             </>
             : <ResumoDePecaLoading />
         }
 
         {complete && params.visualization !== undefined &&
-            <div className="row d-print-none h-print">
+            <div className="row d-print-none h-print mb-3">
                 <div className="col col-auto">
-                    <Form.Select aria-label="Tipo de Visualização" value={visualizationId} onChange={e => setVisualizationId(parseInt(e.target.value))} className='w-100 mt-2'>
+                    <Form.Select aria-label="Tipo de Visualização" value={visualizationId} onChange={e => setVisualizationId(parseInt(e.target.value))} className='w-100 mt-2x'>
                         {Visualization.map(e => (
                             <option key={e.id} value={e.id}>{e.descr}</option>))}
                     </Form.Select>
                 </div>
+                {preprocessed.templateTable && !showTemplateTable &&
+                    <div className="col">
+                        <button className="btn btn-light float-end d-print-none" onClick={() => setShowTemplateTable(true)}>Ver Tabela de Expressões</button>
+                    </div>}
             </div>
         }
     </>
