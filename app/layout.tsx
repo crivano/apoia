@@ -1,3 +1,5 @@
+'use server'
+
 import "bootstrap/dist/css/bootstrap.min.css"
 import "./globals.css"
 import ImportBsJS from "../components/importBsJS"
@@ -16,14 +18,19 @@ import '@fortawesome/fontawesome-svg-core/styles.css';
 // Prevent fontawesome from adding its CSS since we did it manually above:
 import { config } from '@fortawesome/fontawesome-svg-core';
 import { envString } from "@/lib/utils/env"
+import { getCurrentUser, isUserCorporativo } from "@/lib/user"
+import LayoutLogout from "@/components/layout-logout"
 config.autoAddCss = false; /* eslint-disable import/first */
 
 
-export default function RootLayout({
+export default async function RootLayout({
     children,
 }: {
     children: React.ReactNode;
 }) {
+    const user = await getCurrentUser()
+    const nonCorporateUser = user && !(await isUserCorporativo(user))
+
     return (
         <html lang="pt-BR">
             <head>
@@ -32,7 +39,7 @@ export default function RootLayout({
                 <meta property="og:url" content="https://apoia.vercel.app" />
                 <meta property="og:image" content="https://apoia.vercel.app/apoia-logo-transp.png" />
             </head>
-            <body  className="vsc-initialized">
+            <body className="vsc-initialized">
                 <ImportBsJS />
                 <Navbar bg="light" data-bs-theme="light" expand="lg" style={{ borderBottom: "1px solid rgb(200, 200, 200)" }}>
                     <Container fluid={false}>
@@ -45,12 +52,12 @@ export default function RootLayout({
                         <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                             <span className="navbar-toggler-icon"></span>
                         </button>
-                        <div className="collapse navbar-collapse" id="navbarSupportedContent">
-                            <NavItem>
-                                <NavigationLink href="/" text="Prompts" />
-                            </NavItem>
+                        {user && !nonCorporateUser && <div className="collapse navbar-collapse" id="navbarSupportedContent">
                             <NavItem>
                                 <NavigationLink href="/process" text="Síntese" />
+                            </NavItem>
+                            <NavItem>
+                                <NavigationLink href="/community/reset" text="Prompts" />
                             </NavItem>
                             <NavItem>
                                 <NavigationLink href="/revision" text="Revisão de Texto" />
@@ -58,15 +65,20 @@ export default function RootLayout({
                             <NavItem>
                                 <NavigationLink href="/headnote" text="Ementa" />
                             </NavItem>
-                        </div>
+                        </div>}
                         <UserMenu />
                     </Container>
                 </Navbar>
-                <NextAuthProvider>
-                    <div className="content">
-                        {children}
-                    </div>
-                </NextAuthProvider>
+                {nonCorporateUser
+                    ? <Container><div className="alert alert-danger mt-5 text-center">
+                        Para acessar a Apoia, <LayoutLogout />.<br />
+                        O login via Gov.br não dá acesso à Apoia. <br />
+                        Para mais informações, consulte o <Link href="https://trf2.gitbook.io/apoia/entrando-na-apoia" className="alert-link">Manual da Apoia</Link>.</div></Container>
+                    : <NextAuthProvider>
+                        <div className="content">
+                            {children}
+                        </div>
+                    </NextAuthProvider>}
                 {envString('GOOGLE_ANALYTICS_ID') && <GoogleAnalytics gaId={envString('GOOGLE_ANALYTICS_ID')} />}
             </body>
         </html>
