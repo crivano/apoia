@@ -1,4 +1,5 @@
 import ms from 'ms'
+import React from 'react'
 
 export const timeAgo = (timestamp: Date, timeOnly?: boolean): string => {
   if (!timestamp) return 'never'
@@ -46,13 +47,36 @@ export const maiusculasEMinusculas = (s) => {
 export const joinWithAnd = (arr: string[]): string => {
   if (arr.length === 0) return ''
   if (arr.length === 1) return arr[0]
-  if (arr.length === 2) return `${arr[0]} and ${arr[1]}`
+  if (arr.length === 2) return `${arr[0]} e ${arr[1]}`
 
   const lastItem = arr[arr.length - 1]
   const itemsExceptLast = arr.slice(0, -1)
 
   return `${itemsExceptLast.join(', ')} e ${lastItem}`
 }
+
+export const joinReactElementsWithAnd = (elements: React.ReactElement[]): React.ReactNode => {
+  if (!elements || elements.length === 0) {
+    return null
+  }
+
+  if (elements.length === 1) {
+    return elements[0]
+  }
+
+  return elements.reduce((acc, curr, index) => {
+    if (index === 0) {
+      return [curr]
+    }
+
+    if (index === elements.length - 1) {
+      return [...acc, ' e ', curr]
+    }
+
+    return [...acc, ', ', curr]
+  }, [] as React.ReactNode[])
+}
+
 
 export const getNumberOfDaysInMonth = (year: number, month: number): number => {
   // Create a new Date object with the given year and month (months are zero-based)

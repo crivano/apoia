@@ -5,7 +5,7 @@ import { DadosDoProcessoType, PecaType } from "@/lib/proc/process-types";
 import { ReactNode, useEffect, useState } from "react";
 import { InfoDeProduto, P, PieceStrategy, selecionarPecasPorPadrao, T } from "@/lib/proc/combinacoes";
 import { GeneratedContent, PromptDataType, PromptDefinitionType, TextoType } from "@/lib/ai/prompt-types";
-import { joinWithAnd, slugify } from "@/lib/utils/utils";
+import { joinReactElementsWithAnd, joinWithAnd, slugify } from "@/lib/utils/utils";
 import { getInternalPrompt } from "@/lib/ai/prompt";
 import { ProgressBar } from "react-bootstrap";
 import Print from "@/app/process/[id]/print";
@@ -146,6 +146,11 @@ export default function ProcessContents({ prompt, dadosDoProcesso, pieceContent,
         }
     }, [choosingPieces, requests, minimumTimeElapsed])
 
+    const errorLoadingContent = (id: string): string => {
+        if (pieceContent[id] && pieceContent[id].startsWith('Erro ao carregar'))
+            return pieceContent[id]
+    }
+
     return <div>
         <Subtitulo dadosDoProcesso={dadosDoProcesso} />
         {children}
@@ -166,7 +171,7 @@ export default function ProcessContents({ prompt, dadosDoProcesso, pieceContent,
         <p style={{ textAlign: 'center' }}>Este documento foi gerado pela ApoIA, ferramenta de inteligência artificial desenvolvida exclusivamente para facilitar a triagem de acervo, e não substitui a elaboração de relatório específico em cada processo, a partir da consulta manual aos eventos dos autos. Textos gerados por inteligência artificial podem conter informações imprecisas ou incorretas.</p>
         <p style={{ textAlign: 'center' }}>
             O prompt {`${prompt.name} (${prompt.id})`} utilizou o modelo {model}
-            {selectedPieces?.length && <span> e acessou as peças: {joinWithAnd(selectedPieces.map(p => `${p.descr?.toLowerCase()} (e.${p.numeroDoEvento})`))}</span>}
+            {selectedPieces?.length && <span> e acessou as peças: {joinReactElementsWithAnd(selectedPieces.map(p => <span className={errorLoadingContent(p.id) ? 'text-danger' : ''} title={errorLoadingContent(p.id)}>{`${p.descr?.toLowerCase()} (e.${p.numeroDoEvento})`}</span>))}</span>}
             .</p>
     </div >
 }    

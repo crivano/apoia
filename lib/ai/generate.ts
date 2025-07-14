@@ -122,6 +122,7 @@ export async function generateAndStreamContent(model: string, structuredOutputs:
         if (apiKeyFromEnv) {
             await Dao.assertIAUserDailyUsageId(user_id, court_id)
         }
+        writeResponseToFile(kind, messages, 'antes de executar')
         // if (model.startsWith('aws-')) {
         //     const { text, usage } = await generateText({
         //         model: modelRef as LanguageModel,
