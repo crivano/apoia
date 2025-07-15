@@ -11,6 +11,8 @@ import { envString } from '../utils/env'
 import { anonymizeText } from '../anonym/anonym'
 import { getModel } from './model-server'
 import { modelCalcUsage } from './model-types'
+import { z } from 'zod'
+import { tool } from 'ai'
 
 export async function retrieveFromCache(sha256: string, model: string, prompt: string, attempt: number | null): Promise<IAGenerated | undefined> {
     const cached = await Dao.retrieveIAGeneration({ sha256, model, prompt, attempt })
@@ -111,6 +113,38 @@ export async function streamContent(definition: PromptDefinitionType, data: Prom
 
     return generateAndStreamContent(model, structuredOutputs, definition?.cacheControl, definition?.kind, modelRef, messages, sha256, results, attempt, apiKeyFromEnv)
 }
+
+export const getPieceContentTool = (accessToken: string) => tool({
+    description: 'Obtém o conteúdo de uma peça processual a partir do número do processo e do identificador da peça.',
+    parameters: z.object({
+        processNumber: z.string().describe('O número do processo.'),
+        pieceId: z.string().describe('O identificador da peça processual.'),
+    }),
+    execute: async ({ processNumber, pieceId }) => {
+        try {
+            const baseUrl = envString('NEXT_PUBLIC_URL')
+            const url = `${baseUrl}/api/v1/process/${processNumber}/piece/${pieceId}/content`
+
+            const response = await fetch(url, {
+                headers: {
+                    Authorization: `Bearer ${accessToken}`,
+                },
+            })
+
+            if (!response.ok) {
+                const errorText = await response.text()
+                console.error(`Failed to fetch piece content: ${response.status} ${response.statusText}. Details: ${errorText}`)
+                return `Error fetching content for process ${processNumber}, piece ${pieceId}: ${response.status} ${response.statusText}`
+            }
+
+            const content = await response.text()
+            return content
+        } catch (error) {
+            console.error('Error executing getPieceContentTool:', error)
+            return `Error fetching content for process ${processNumber}, piece ${pieceId}: ${error instanceof Error ? error.message : 'Unknown error'}`
+        }
+    },
+})
 
 export async function generateAndStreamContent(model: string, structuredOutputs: any, cacheControl: number | boolean, kind: string, modelRef: LanguageModel, messages: CoreMessage[], sha256: string, results?: PromptExecutionResultsType, attempt?: number | null, apiKeyFromEnv?: boolean):
     Promise<StreamTextResult<Record<string, CoreTool<any, any>>, any> | StreamObjectResult<DeepPartial<any>, any, never> | string> {

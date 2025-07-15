@@ -6,7 +6,6 @@ import { assertModel } from '@/lib/ai/model-server'
 
 // export const runtime = 'edge'
 export const preferredRegion = 'home'
-export const dynamic = 'force-dynamic'
 
 
 export default async function Home() {

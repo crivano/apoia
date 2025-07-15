@@ -7,6 +7,7 @@ import { P, selecionarPecasPorPadrao, T, TipoDeSinteseEnum, TipoDeSinteseMap } f
 import { infoDeProduto, TiposDeSinteseValido } from './info-de-produto'
 import { getInterop, Interop } from '../interop/interop'
 import { DadosDoProcessoType, PecaType, StatusDeLancamento } from './process-types'
+import { UserType } from '../user'
 
 const selecionarPecas = (pecas: PecaType[], descricoes: string[]) => {
     const pecasRelevantes = pecas.filter(p => descricoes.includes(p.descr))
@@ -83,17 +84,33 @@ export type ObterDadosDoProcessoType = {
     statusDeSintese?: StatusDeLancamento
 }
 
+export const getInteropFromUser = async (user: UserType): Promise<Interop> => {
+    const username = user?.email
+    const password = user?.image?.password ? decrypt(user?.image.password) : undefined
+
+    const interop = getInterop(username, password)
+    await interop.init()
+    return interop
+}
+
+export const getSystemIdAndDossierId = async (user: UserType, numeroDoProcesso: string): Promise<{ system_id: number, dossier_id: number }> => {
+    const system_id = await Dao.assertSystemId(user?.image?.system || 'PDPJ')
+    const dossier_id = await Dao.assertIADossierId(numeroDoProcesso, system_id, undefined, undefined)
+    return { system_id, dossier_id }
+}
+
+export const getPieceContent = async (numeroDoProcesso: string, idDaPeca: string, user: UserType): Promise<PecaType> => {
+    const interop = await getInteropFromUser(user)
+    const peca = await iniciarObtencaoDeConteudo(dossier_id, numeroDoProcesso, pecas, interop)
+    return { ...dadosDoProcesso, pecas: pecasComConteudo }
+}
+
 export const obterDadosDoProcesso = async ({ numeroDoProcesso, pUser, idDaPeca, identificarPecas, completo, kind, pieces, conteudoDasPecasSelecionadas = CargaDeConteudoEnum.ASSINCRONO, statusDeSintese = StatusDeLancamento.PUBLICO }: ObterDadosDoProcessoType): Promise<DadosDoProcessoType> => {
     let pecas: PecaType[] = []
     let errorMsg = undefined
     try {
         const user = await pUser
-        const username = user?.email
-        const password = user?.image?.password ? decrypt(user?.image.password) : undefined
-
-        const interop = getInterop(username, password)
-        await interop.init()
-
+        const interop = await getInteropFromUser(user)
         const arrayDadosDoProcesso = await interop.consultarProcesso(numeroDoProcesso)
         let dadosDoProcesso = arrayDadosDoProcesso[arrayDadosDoProcesso.length - 1]
         if (idDaPeca) {
@@ -106,8 +123,7 @@ export const obterDadosDoProcesso = async ({ numeroDoProcesso, pUser, idDaPeca, 
         // }
 
         // grava os dados do processo no banco
-        const system_id = await Dao.assertSystemId(user?.image?.system || 'PDPJ')
-        const dossier_id = await Dao.assertIADossierId(numeroDoProcesso, system_id, dadosDoProcesso.codigoDaClasse, dadosDoProcesso.ajuizamento)
+        const { system_id, dossier_id } = await getSystemIdAndDossierId(user, numeroDoProcesso)
 
         if (completo) {
             for (const peca of pecas)

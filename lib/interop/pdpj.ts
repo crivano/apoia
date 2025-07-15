@@ -60,7 +60,8 @@ export class InteropPDPJ implements Interop {
                         client_secret: envString('DATALAKE_CLIENT_SECRET'),
                         scope: 'openid',
                         grant_type: 'client_credentials'
-                    })
+                    }),
+                    next: { revalidate: 3600 } // Revalida a cada hora
                 }
             )
 
@@ -84,7 +85,8 @@ export class InteropPDPJ implements Interop {
                     'Accept': 'application/json',
                     'Authorization': `Bearer ${this.accessToken}`,
                     'User-Agent': 'curl'
-                }
+                },
+                next: { revalidate: 3600 } // Revalida a cada hora
             }
         );
 
@@ -214,7 +216,8 @@ export class InteropPDPJ implements Interop {
                     'Accept': '*',
                     'Authorization': `Bearer ${this.accessToken}`,
                     'User-Agent': 'curl'
-                }
+                },
+                next: { revalidate: 3600 } // Revalida a cada hora
             }
         );
         const b = await response.arrayBuffer()

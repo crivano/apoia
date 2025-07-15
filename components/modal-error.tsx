@@ -3,8 +3,6 @@
 import { useState } from 'react';
 import { Button, Modal } from 'react-bootstrap';
 
-// export const dynamic = 'force-dynamic';
-
 export default function MiniAction(params) {
     const [timestamp, setTimestamp] = useState(undefined as string | undefined);
     const handleClose = () => { setTimestamp(params.timestamp) }
