@@ -10,7 +10,9 @@ Escreva de modo CONCISO, mas completo e abrangente, sem redundância
 
 # PROMPT
 
-Você receberá os textos de algumas peças processuais e deverá identificar todos os pedidos que forem realizados pelo autor e que ainda não foram decididos pelo magistrado.
+Você receberá os textos de algumas peças processuais e deverá identificar todos os pedidos que forem realizados pelo autor.
+
+Para cada pedido, quero que você pense profundamente sobre as fundamentações juridicas aplicáveis. Como queremos ser imparciais, se possível, inclua 2 ou 3 fundamentações pela procedência e 2 ou 3 pela improcedência.
 
 ## Formato da Resposta
 
@@ -44,11 +46,15 @@ Sua resposta deve sempre ser formatada em JSON, conforme o padrão abaixo:
 ```json
 {
   "pedidos": [{
-    "texto": "Informe o texto que descreve o pedido, se houver verba associada a esse pedido, cite",
+    "texto": "Informe o texto que descreve o pedido",
     "tipoDePedido": "Utilize uma das opções tabeladas",
     "liminar": "Utilize uma das opções tabeladas",
     "verba": "Utilize uma das opções tabeladas se houver, ou omita esta propriedade",
-    "valor": Informe o valor numérico em Reais se houver ou 0 se não houver
+    "valor": Informe o valor numérico em Reais se houver ou 0 se não houver,
+    "fundamentacoes": [{
+      "tipo": "Utilize uma das opções tabeladas",
+      "texto": "Escreva fundamentação jurídica que possa justificar a procedência ou improcedência, o tipo já foi especificado acima, portanto, basta escrever a fundamentação em si"
+    }]
   }]
 }
 ```
@@ -57,7 +63,7 @@ Sua resposta deve ser um JSON válido. Comece sua resposta com o caractere "{".
 
 ## Tarefa Principal
 
-Identifique os pedidos que ainda não foram decididos pelo magistrado nas peças processuais abaixo:
+Identifique os pedidos na petição abaixo:
 
 {{textos}}
 
@@ -87,6 +93,25 @@ Identifique os pedidos que ainda não foram decididos pelo magistrado nas peças
                     },
                     "valor": {
                         "type": "number"
+                    },
+                    "fundamentacoes": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "texto": {
+                                    "type": "string"
+                                },
+                                "tipo": {
+                                    "type": "string"
+                                }
+                            },
+                            "required": [
+                                "tipo",
+                                "texto"
+                            ],
+                            "additionalProperties": false
+                        }
                     }
                 },
                 "required": [
@@ -94,7 +119,8 @@ Identifique os pedidos que ainda não foram decididos pelo magistrado nas peças
                     "tipoDePedido",
                     "liminar",
                     "verba",
-                    "valor"
+                    "valor",
+                    "fundamentacoes"
                 ],
                 "additionalProperties": false
             }
@@ -118,5 +144,8 @@ Identifique os pedidos que ainda não foram decididos pelo magistrado nas peças
     DECLARAR_INEXISTENCIA_DE_FATO: 'Declarar Inexistência de Fato'
 } %}
 {% for d in pedidos %}{{loop.index}}. {% if d.liminar === 'SIM' %}**Liminar** - {% endif %}{{ tipos[d.tipoDePedido] }}: {{ d.texto }}{% if d.valor %} ({{ d.verba }}: {{ (d.valor).toLocaleString('pt-br',{style: 'currency', currency: 'BRL'}) }}){% endif %}
-{{"\t"}}
-{% endfor %}
+{{"\t"}}- Procedência
+{% if d.fundamentacoes %}{% for f in d.fundamentacoes | deProcedencia %}{{"\t"}}{{"\t"}}- {{f.texto}}
+{% endfor %}{% endif %}{{"\t"}}- Improcedência
+{% if d.fundamentacoes %}{% for f in d.fundamentacoes | deImprocedencia %}{{"\t"}}{{"\t"}}- {{f.texto}}
+{% endfor %}{% endif %}{% endfor %}

@@ -31,15 +31,18 @@ export const PedidosFundamentacoesEDispositivos = ({ pedidos, request, Frm }: { 
     const tiposDeDispositivo = [
         { id: '', name: '' },
         { id: 'PROCEDENTE', name: 'Procedente' },
+        { id: 'PARCIALMENTE_PROCEDENTE', name: 'Parcialmente Procedente' },
         { id: 'IMPROCEDENTE', name: 'Improcedente' },
+        { id: 'DESCONSIDERAR', name: 'Desconsiderar' },
     ]
 
     const pedidosAnalisados = Frm.get('pedidosAnalisados')
     if (pedidosAnalisados) {
-        const data = { ...request.data }
-        const pedidos = [...Frm.get('pedidos')].filter(p => p.dispositivo).map(p => ({ ...p, fundamentacoes: [...p.fundamentacoes.filter(f => f.selecionada).map(f => f.texto)] }))
+        // const pedidos = [...Frm.get('pedidos')].filter(p => p.dispositivo).map(p => ({ ...p, fundamentacoes: [...p.fundamentacoes.filter(f => f.selecionada).map(f => f.texto)] }))
+        const pedidos = [...Frm.get('pedidos')].filter(p => p.dispositivo && p.dispositivo !== 'DESCONSIDERAR')
         // console.log('pedidosAnalisados', pedidos)
-        data.textos.push({ slug: 'pedidos', descr: 'Pedidos', texto: JSON.stringify(pedidos) })
+        const data = { ...request.data }
+        data.textos = [...request.data.textos, { slug: 'pedidos', descr: 'Pedidos', texto: JSON.stringify(pedidos) }]
         const prompt = getInternalPrompt('sentenca')
 
         return <>
@@ -80,23 +83,23 @@ export const PedidosFundamentacoesEDispositivos = ({ pedidos, request, Frm }: { 
         {pedidos.map((pedido, i) =>
             <div className="mb-4" key={i}>
                 <div className="alert alert-warning pt-2 pb-3">
-                    <div className="row">
+                    {false && <div className="row">
                         <Frm.Select label="Liminar" name={`pedidos[${i}].liminar`} options={tiposDeLiminar} width={2} />
                         <Frm.Select label="Tipo de Pedido" name={`pedidos[${i}].tipoDePedido`} options={tiposDePedido} width={2} />
                         <Frm.Select label="Tipo de Verba" name={`pedidos[${i}].verba`} options={tiposDeVerba} width={2} />
                         {Frm.get(`pedidos[${i}].verba`) !== 'NENHUMA' && <Frm.Input label="Valor" name={`pedidos[${i}].valor`} width={2} />}
-                    </div>
+                    </div>}
                     <div className="row mt-1">
-                        <Frm.TextArea label="Descrição" name={`pedidos[${i}].texto`} width={''} />
+                        <Frm.TextArea label={`Pedido ${i + 1}`} name={`pedidos[${i}].texto`} width={''} />
                     </div>
-                    <div className="row mt-1">
+                    {pedidos[i]?.fundamentacoes?.length > 0 && <div className="row mt-1">
                         <div className="col-6">
                             <Frm.CheckBoxes label="Sugestões de fundamentações pró autor" labelsAndNames={pedidos[i].fundamentacoes.map((p, idx) => (p.tipo === 'PROCEDENTE' ? { label: p.texto, name: `pedidos[${i}].fundamentacoes[${idx}].selecionada` } : null))} onClick={(label, name, checked) => { if (checked) Frm.set(`pedidos[${i}].dispositivo`, 'PROCEDENTE') }} width={12} />
                         </div>
                         <div className="col-6">
                             <Frm.CheckBoxes label="Sugestões de fundamentações pró réu" labelsAndNames={pedidos[i].fundamentacoes.map((p, idx) => (p.tipo === 'IMPROCEDENTE' ? { label: p.texto, name: `pedidos[${i}].fundamentacoes[${idx}].selecionada` } : null))} onClick={(label, name, checked) => { if (checked) Frm.set(`pedidos[${i}].dispositivo`, 'IMPROCEDENTE') }} width={12} />
                         </div>
-                    </div>
+                    </div>}
                     <div className="row mt-1">
                         <Frm.TextArea label="Fundamentação (opcional)" name={`pedidos[${i}].fundamentacao`} width={''} />
                         <Frm.Select label="Dispositivo" name={`pedidos[${i}].dispositivo`} options={tiposDeDispositivo} width={2} />
