@@ -427,7 +427,7 @@ const isPJeOriginId = (idOriginal: string | undefined | null): boolean => {
 // Deve haver um PDF logo em seguida, e no mesmo evento
 // O idOriginal da peça não deve ser um número muito grande (não é uma peça do PJe)
 const acrescentarAnexosDoPJe = (pecas: PecaType[], pecasSelecionadas: PecaType[], indexById: any) => {
-    console.log('acrescentarAnexosDoPJe', pecasSelecionadas.map(p => p.id))
+    // console.log('acrescentarAnexosDoPJe', pecasSelecionadas.map(p => p.id))
     // Use a Set to keep track of IDs in pecasSelecionadas for efficient lookup and to manage additions.
     const allSelectedPecaIds = new Set(pecasSelecionadas.map(p => p.id))
     const newlyAddedPecas: PecaType[] = []

@@ -75,7 +75,8 @@ export enum CargaDeConteudoEnum {
 
 export type ObterDadosDoProcessoType = {
     numeroDoProcesso: string
-    pUser: Promise<any>, idDaPeca?: string
+    pUser: Promise<any>,
+    idDaPeca?: string | string[]
     identificarPecas?: boolean
     completo?: boolean
     kind?: TipoDeSinteseEnum
@@ -99,12 +100,6 @@ export const getSystemIdAndDossierId = async (user: UserType, numeroDoProcesso: 
     return { system_id, dossier_id }
 }
 
-export const getPieceContent = async (numeroDoProcesso: string, idDaPeca: string, user: UserType): Promise<PecaType> => {
-    const interop = await getInteropFromUser(user)
-    const peca = await iniciarObtencaoDeConteudo(dossier_id, numeroDoProcesso, pecas, interop)
-    return { ...dadosDoProcesso, pecas: pecasComConteudo }
-}
-
 export const obterDadosDoProcesso = async ({ numeroDoProcesso, pUser, idDaPeca, identificarPecas, completo, kind, pieces, conteudoDasPecasSelecionadas = CargaDeConteudoEnum.ASSINCRONO, statusDeSintese = StatusDeLancamento.PUBLICO }: ObterDadosDoProcessoType): Promise<DadosDoProcessoType> => {
     let pecas: PecaType[] = []
     let errorMsg = undefined
@@ -113,9 +108,22 @@ export const obterDadosDoProcesso = async ({ numeroDoProcesso, pUser, idDaPeca, 
         const interop = await getInteropFromUser(user)
         const arrayDadosDoProcesso = await interop.consultarProcesso(numeroDoProcesso)
         let dadosDoProcesso = arrayDadosDoProcesso[arrayDadosDoProcesso.length - 1]
-        if (idDaPeca) {
-            dadosDoProcesso = arrayDadosDoProcesso.find(d => d.pecas.map(p => p.id).includes(idDaPeca))
+
+        let apenasPecasEspecificas: string[] = []
+        if (typeof idDaPeca === 'string') {
+            if (idDaPeca)
+                apenasPecasEspecificas = [idDaPeca]
+        } else if (Array.isArray(idDaPeca)) {
+            if (idDaPeca.length > 0)
+                apenasPecasEspecificas = idDaPeca
         }
+
+        // localiza a tramitação que contém a peça solicitada
+        if (apenasPecasEspecificas.length > 0) {
+            dadosDoProcesso = arrayDadosDoProcesso.find(d => d.pecas.map(p => p.id).includes(apenasPecasEspecificas[0]))
+            if (!dadosDoProcesso) throw new Error(`Peças específicas ${apenasPecasEspecificas.join(', ')} não encontradas no processo ${numeroDoProcesso}`)
+        }
+
         pecas = [...dadosDoProcesso.pecas]
 
         // for (const peca of pecas) {
@@ -135,33 +143,38 @@ export const obterDadosDoProcesso = async ({ numeroDoProcesso, pUser, idDaPeca, 
             return { ...dadosDoProcesso, pecasSelecionadas: pecasComConteudo, produtos: [infoDeProduto(P.ANALISE_COMPLETA)] }
         }
 
-        if (idDaPeca) {
-            pecas = pecas.filter(p => p.id === idDaPeca)
-            if (pecas.length === 0)
-                throw new Error(`Peça ${idDaPeca} não encontrada`)
+        // Se for especificado o id da peça, filtra as peças
+        if (apenasPecasEspecificas.length > 0) {
+            const pecasFiltradas = pecas.filter(p => apenasPecasEspecificas.includes(p.id))
+            const idsEncontrados = new Set(pecasFiltradas.map(p => p.id))
+            const idsNaoEncontrados = apenasPecasEspecificas.filter(id => !idsEncontrados.has(id))
+            if (idsNaoEncontrados.length > 0) {
+                throw new Error(`Peça(s) com id ${idsNaoEncontrados.join(', ')} não encontrada(s) no processo ${numeroDoProcesso}`)
+            }
+            pecas = pecasFiltradas
             const pecasComConteudo = conteudoDasPecasSelecionadas === CargaDeConteudoEnum.NAO ? pecas : await iniciarObtencaoDeConteudo(dossier_id, numeroDoProcesso, pecas, interop)
-            return { ...dadosDoProcesso, pecas: pecasComConteudo }
+            return { ...dadosDoProcesso, pecas: pecasComConteudo, pecasSelecionadas: pecasComConteudo }
         }
 
         // Localiza pecas with descricao == 'OUTROS' e busca no banco de dados se já foram inferidas por IA
-        const pecasOutros = pecas.filter(p => p.descr === 'OUTROS')
-        if (pecasOutros.length > 0 && conteudoDasPecasSelecionadas !== CargaDeConteudoEnum.NAO) {
-            if (await Dao.verifyIfDossierHasDocumentsWithPredictedCategories(numeroDoProcesso)) {
-                console.log(`Carregando tipos documentais de ${pecasOutros.length} peças marcadas com "OUTROS"`)
-                const pecasComDocumento = iniciarObtencaoDeDocumentoGravado(dossier_id, numeroDoProcesso, pecasOutros)
-                for (const peca of pecasComDocumento) {
-                    if (peca.pDocumento) {
-                        peca.documento = await peca.pDocumento
-                        // console.log('peca recuperada', peca.id, peca.documento.id)
-                        if (peca.documento.predicted_category && peca.documento.predicted_category !== '') {
-                            peca.descr = peca.documento.predicted_category
+        if (identificarPecas === true) {
+            const pecasOutros = pecas.filter(p => p.descr === 'OUTROS')
+            if (pecasOutros.length > 0 && conteudoDasPecasSelecionadas !== CargaDeConteudoEnum.NAO) {
+                if (await Dao.verifyIfDossierHasDocumentsWithPredictedCategories(numeroDoProcesso)) {
+                    console.log(`Carregando tipos documentais de ${pecasOutros.length} peças marcadas com "OUTROS"`)
+                    const pecasComDocumento = iniciarObtencaoDeDocumentoGravado(dossier_id, numeroDoProcesso, pecasOutros)
+                    for (const peca of pecasComDocumento) {
+                        if (peca.pDocumento) {
+                            peca.documento = await peca.pDocumento
+                            // console.log('peca recuperada', peca.id, peca.documento.id)
+                            if (peca.documento.predicted_category && peca.documento.predicted_category !== '') {
+                                peca.descr = peca.documento.predicted_category
+                            }
                         }
                     }
                 }
             }
-        }
 
-        if (identificarPecas === true) {
             // Localiza pecas with descricao == 'OUTROS' e usa IA para determinar quais são os tipos destas peças
             const pecasOutros2 = pecas.filter(p => p.descr === 'OUTROS')
             if (pecasOutros2.length > 0) {

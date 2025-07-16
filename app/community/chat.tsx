@@ -4,6 +4,7 @@ import { applyTextsAndVariables } from '@/lib/ai/prompt';
 import { PromptDataType, PromptDefinitionType } from '@/lib/ai/prompt-types';
 import { faEdit } from '@fortawesome/free-regular-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { ToolInvocation } from 'ai';
 import { Message, useChat } from 'ai/react'
 import showdown from 'showdown'
 
@@ -12,6 +13,17 @@ const converter = new showdown.Converter({ tables: true })
 function preprocessar(texto: string, role: string) {
     if (!texto) return ''
     return converter.makeHtml(`<span class="d-none"><b>${role === 'user' ? 'Usuário' : 'Assistente'}</b>: </span>${texto}`)
+}
+
+function toolMessage(i: ToolInvocation) {
+    if (!i) return ''
+    if (i.toolName === 'getProcessMetadata') {
+        return `<span class="text-secondary">Obtendo metadados do processo: ${i.args.processNumber}</span>`
+    } else if (i.toolName === 'getPiecesText') {
+        return `<span class="text-secondary">Obtendo conteúdo das peças: ${i.args.pieceIdArray.join(', ')}</span>`
+    } else {
+        return `<span class="text-secondary">Ferramenta desconhecida: ${i.toolName}</span>`
+    }
 }
 
 
@@ -26,6 +38,8 @@ export default function Chat(params: { definition: PromptDefinitionType, data: P
             setMessages(messages.slice(0, idx))
         }
     }
+
+    console.log('Chat messages:', messages)
 
     return (
         <div className={messages.find(m => m.role === 'assistant') ? '' : 'd-print-none h-print'}>
@@ -45,6 +59,11 @@ export default function Chat(params: { definition: PromptDefinitionType, data: P
                             </div>
                             : m.role === 'assistant' &&
                             <div className="row justify-content-start me-5" key={m.id}>
+                                {m?.parts?.filter((part) => part.type === 'tool-invocation')?.map((part, index) => (
+                                    <div key={index} className="col col-auto mb-0">
+                                        <div className={`text-wrap mb-3 chat-tool`} dangerouslySetInnerHTML={{ __html: toolMessage(part.toolInvocation) }} />
+                                    </div>
+                                ))}
                                 <div className={`col col-auto mb-0`}>
                                     <div className={`text-wrap mb-3 rounded chat-content chat-ai`} dangerouslySetInnerHTML={{ __html: preprocessar(m.content, m.role) }} />
                                 </div>
