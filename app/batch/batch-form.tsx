@@ -6,6 +6,9 @@ import { Button, Form } from 'react-bootstrap'
 import { useRouter } from 'next/navigation'
 // import { produceContent } from './produce-content'
 import Fetcher from '../../lib/utils/fetcher'
+import { TipoDeSinteseEnum } from '../../lib/proc/combinacoes'
+import { StatusDeLancamento } from '../../lib/proc/process-types'
+import { TiposDeSinteseValido } from '../../lib/proc/info-de-produto'
 
 export default function ProcessNumberForm(params) {
     const router = useRouter()
@@ -13,6 +16,7 @@ export default function ProcessNumberForm(params) {
 
     const [batchName, setBatchName] = useState('')
     const [complete, setComplete] = useState(false)
+    const [tipoDeSintese, setTipoDeSintese] = useState<TipoDeSinteseEnum>('RESUMOS_TRIAGEM')
     const [input, setInput] = useState('')
     const [processing, setProcessing] = useState('')
     const [ready, setReady] = useState('')
@@ -23,6 +27,11 @@ export default function ProcessNumberForm(params) {
     let processingItems: string[] = []
     let readyItems: string[] = []
     let errorItems: string[] = []
+
+    // Obter lista de tipos de síntese válidos para usuários públicos
+    const tiposDeSinteseOptions = TiposDeSinteseValido
+        .filter(t => t.status <= StatusDeLancamento.PUBLICO)
+        .map(tipo => ({ value: tipo.id, label: tipo.nome }))
 
     const updateItems = () => {
         inputItems = input.split('\n').filter((n) => n.length > 0)
@@ -42,7 +51,7 @@ export default function ProcessNumberForm(params) {
         // do the job
         try {
 
-            const result = await Fetcher.post(`/api/v1/batch/${encodeURIComponent(batchName)}/${encodeURIComponent(number)}?complete=${complete ? 'true' : 'false'}`)
+            const result = await Fetcher.post(`/api/v1/batch/${encodeURIComponent(batchName)}/${encodeURIComponent(number)}?complete=${complete ? 'true' : 'false'}&tipoDeSintese=${encodeURIComponent(tipoDeSintese)}`)
             // if (result?.status === 'OK')
             readyItems.unshift(number)
         } catch (e) {
@@ -87,6 +96,11 @@ export default function ProcessNumberForm(params) {
         setTimeout(executeNext)
     }
 
+    const handleShowResultsClick = (e: FormEvent) => {
+        e.preventDefault()
+        window.open(`/api/v1/batch/${encodeURIComponent(batchName)}/html`, '_blank')
+    }
+
     const preprocessInput = (value: string) => {
         value = value.replaceAll(/(:.*?)$/gm, '')
         value = value.replaceAll('\n', ',').replaceAll(/[^\d,]/g, '').replaceAll(',', '\n').replaceAll('\n\n', '\n').trim()
@@ -96,10 +110,29 @@ export default function ProcessNumberForm(params) {
     return (
         <>
             <div className="row">
-                <div className="col col-9">
+                <div className="col col-6">
                     <div className="form-group mb-3">
                         <label className="form-label">Nome do Lote</label>
                         <input id="batchName" name="batchName" placeholder="" className="form-control" onChange={(e) => setBatchName(e.target.value)} value={batchName} disabled={running} />
+                    </div>
+                </div>
+                <div className="col col-3">
+                    <div className="form-group mb-3">
+                        <label className="form-label">Tipo de Síntese</label>
+                        <select
+                            id="tipoDeSintese"
+                            name="tipoDeSintese"
+                            className="form-control"
+                            onChange={(e) => setTipoDeSintese(e.target.value as TipoDeSinteseEnum)}
+                            value={tipoDeSintese}
+                            disabled={running}
+                        >
+                            {tiposDeSinteseOptions.map(option => (
+                                <option key={option.value} value={option.value}>
+                                    {option.label}
+                                </option>
+                            ))}
+                        </select>
                     </div>
                 </div>
                 <div className="col col-3">
@@ -148,8 +181,11 @@ export default function ProcessNumberForm(params) {
             </div>
             <div className="row pt-3">
                 <div className="col">
-                    <button onClick={handleClick} className="btn btn-primary float-end">
+                    <button onClick={handleClick} className="btn btn-primary">
                         {running ? <span>&#x23F8;</span> : <span>&#x23F5;</span>}
+                    </button>
+                    <button onClick={handleShowResultsClick} className="btn btn-success float-end">
+                        <span>Ver Resultado</span>
                     </button>
                 </div>
             </div>

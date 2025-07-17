@@ -36,11 +36,12 @@ export async function POST(req: Request, props: { params: Promise<{ name: string
   const { name, number } = params
   const url = new URL(req.url)
   const complete: boolean = url.searchParams.get('complete') === 'true'
+  const tipoDeSintese: string = url.searchParams.get('tipoDeSintese') || 'RELATORIO_DE_ACERVO'
   try {
     const user = await getCurrentUser()
     if (!user) return Response.json({ errormsg: 'Unauthorized' }, { status: 401 })
 
-    const msg = await analyze(name, number, 'RELATORIO_DE_ACERVO', complete)
+    const msg = await analyze(name, number, tipoDeSintese, complete)
     return Response.json({ status: 'OK', msg })
   } catch (error) {
     console.error('Erro analisando', error)

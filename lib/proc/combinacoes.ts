@@ -53,7 +53,7 @@ export enum P {
     INDICE = 'Índice',
     LITIGANCIA_PREDATORIA = 'Litigância Predatória',
     CHAT = 'Chat',
-    RELATORIO_COMPLETO_CRIMINAL = 'Relatório Completo Criminal',
+    RELATORIO_DE_PROCESSO_COLETIVO_OU_CRIMINAL = 'Relatório de Processo Coletivo ou Criminal',
     MINUTA_DE_DESPACHO_DE_ACORDO_9_DIAS = 'Minuta de Despacho de Acordo 9 dias',
 }
 
@@ -84,7 +84,7 @@ export const ProdutosValidos = {
     [P.INDICE]: { titulo: P.INDICE, prompt: 'indice', plugins: [] },
     [P.LITIGANCIA_PREDATORIA]: { titulo: P.LITIGANCIA_PREDATORIA, prompt: 'litigancia-predatoria', plugins: [] },
     [P.CHAT]: { titulo: P.CHAT, prompt: 'chat', plugins: [] },
-    [P.RELATORIO_COMPLETO_CRIMINAL]: { titulo: P.RELATORIO_COMPLETO_CRIMINAL, prompt: 'relatorio-completo-criminal', plugins: [] },
+    [P.RELATORIO_DE_PROCESSO_COLETIVO_OU_CRIMINAL]: { titulo: P.RELATORIO_DE_PROCESSO_COLETIVO_OU_CRIMINAL, prompt: 'relatorio-de-processo-coletivo-ou-criminal', plugins: [Plugin.TRIAGEM, Plugin.NORMAS, Plugin.PALAVRAS_CHAVE] },
     [P.MINUTA_DE_DESPACHO_DE_ACORDO_9_DIAS]: { titulo: P.MINUTA_DE_DESPACHO_DE_ACORDO_9_DIAS, prompt: 'minuta-de-despacho-de-acordo-9-dias', plugins: [] },
 }
 
@@ -260,14 +260,14 @@ export const TipoDeSinteseMap: Record<string, TipoDeSinteseType> = {
         produtos: [P.INDICE, P.CHAT]
     },
 
-    RELATORIO_CRIMINAL_COMPLETO_COM_INDICE: {
-        status: StatusDeLancamento.EM_DESENVOLVIMENTO,
+    RELATORIO_DE_PROCESSO_COLETIVO_OU_CRIMINAL: {
+        status: StatusDeLancamento.PUBLICO,
         sort: 9,
-        nome: 'Relatório Completo Criminal',
+        nome: 'Relatório de Processo Coletivo ou Criminal',
         padroes: [
             [ANY({ capture: [] })],
         ],
-        produtos: [P.RELATORIO_COMPLETO_CRIMINAL, P.CHAT]
+        produtos: [P.RELATORIO_DE_PROCESSO_COLETIVO_OU_CRIMINAL, P.CHAT]
     },
 
     MINUTA_DE_DESPACHO_DE_ACORDO_9_DIAS: {

@@ -109,7 +109,7 @@ export async function analyze(batchName: string | undefined, dossierNumber: stri
 
         // console.log('pecasComConteudo', pecasComConteudo)
 
-        const requests: GeneratedContent[] = buildRequests(dossierNumber, produtos.map(p => infoDeProduto(p)), pecasComConteudo)
+        const requests: GeneratedContent[] = buildRequests(dossierNumber, produtos.filter(p => p !== P.CHAT).map(p => infoDeProduto(p)), pecasComConteudo)
 
         // Retrieve from cache or generate
         for (const req of requests) {
