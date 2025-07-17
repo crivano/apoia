@@ -1,6 +1,6 @@
 import { Container, Row, Col, Card, CardBody, CardTitle, CardText } from 'react-bootstrap'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faList, faFileText, faDatabase, faAlignJustify } from '@fortawesome/free-solid-svg-icons'
+import { faList, faFileText, faDatabase, faAlignJustify, faComment, faComments } from '@fortawesome/free-solid-svg-icons'
 import Link from 'next/link'
 import ApiKeyMissing from '@/components/api-key-missing'
 import { assertCurrentUser } from '@/lib/user'
@@ -9,6 +9,13 @@ export default async function HomePage() {
     const user = await assertCurrentUser()
 
     const features = [
+        {
+            icon: faComments,
+            title: "Chat",
+            description: "Converse com um Agente de IA sobre processos específicos",
+            href: "/chat",
+            color: "text-primary"
+        },
         {
             icon: faList,
             title: "Síntese",
