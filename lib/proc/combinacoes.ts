@@ -199,9 +199,16 @@ export const TipoDeSinteseMap: Record<string, TipoDeSinteseType> = {
         padroes: padroesBasicos,
         produtos: [P.RESUMOS, P.ANALISE, P.CHAT]
     },
-    RESUMOS: {
+    PEDIDOS_FUNDAMENTACOES_E_DISPOSITIVOS: {
         status: StatusDeLancamento.PUBLICO,
         sort: 3,
+        nome: 'Minuta de Sentença',
+        padroes: padroesPeticaoInicialEContestacao,
+        produtos: [P.RESUMOS, P.PEDIDOS_FUNDAMENTACOES_E_DISPOSITIVOS, P.CHAT]
+    },
+    RESUMOS: {
+        status: StatusDeLancamento.PUBLICO,
+        sort: 4,
         nome: 'Resumos das principais peças',
         padroes: padroesBasicos,
         // tipos: [
@@ -211,7 +218,7 @@ export const TipoDeSinteseMap: Record<string, TipoDeSinteseType> = {
     },
     LITIGANCIA_PREDATORIA: {
         status: StatusDeLancamento.EM_DESENVOLVIMENTO,
-        sort: 4,
+        sort: 5,
         nome: 'Litigância Predatória',
         padroes: [
             [ANY(), EXACT(T.PETICAO_INICIAL, true), ANY()],
@@ -220,19 +227,12 @@ export const TipoDeSinteseMap: Record<string, TipoDeSinteseType> = {
     },
     PEDIDOS: {
         status: StatusDeLancamento.EM_DESENVOLVIMENTO,
-        sort: 5,
+        sort: 6,
         nome: 'Pedidos',
         padroes: [
             [ANY(), EXACT(T.PETICAO_INICIAL), ANY()],
         ],
         produtos: [P.RESUMOS, P.PEDIDOS, P.CHAT]
-    },
-    PEDIDOS_FUNDAMENTACOES_E_DISPOSITIVOS: {
-        status: StatusDeLancamento.EM_DESENVOLVIMENTO,
-        sort: 6,
-        nome: 'Minuta de Sentença',
-        padroes: padroesPeticaoInicialEContestacao,
-        produtos: [P.RESUMOS, P.PEDIDOS_FUNDAMENTACOES_E_DISPOSITIVOS, P.CHAT]
     },
     CHAT: {
         status: StatusDeLancamento.PUBLICO,
