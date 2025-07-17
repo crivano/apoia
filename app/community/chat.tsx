@@ -16,11 +16,35 @@ function preprocessar(texto: string, role: string) {
 }
 
 function toolMessage(i: ToolInvocation) {
+    const regexPiece = /^(.+):$\n<[a-z\-]+ event="([^"]+)"/gm
     if (!i) return ''
     if (i.toolName === 'getProcessMetadata') {
-        return `<span class="text-secondary">Obtendo metadados do processo: ${i.args.processNumber}</span>`
+        return `<span class="text-secondary">Obtendo dados do processo: ${i.args.processNumber}</span>`
     } else if (i.toolName === 'getPiecesText') {
-        return `<span class="text-secondary">Obtendo conteúdo das peças: ${i.args.pieceIdArray.join(', ')}</span>`
+        const result = (i as any).result
+        if (result) {
+            const matches = []
+            let match
+            regexPiece.lastIndex = 0 // Reset regex state
+            while ((match = regexPiece.exec((i as any).result)) !== null) {
+                const kind = match[1].trim()
+                const eventNumber = match[2]
+                matches.push(`${kind} (${eventNumber})`)
+            }
+
+            if (matches.length === 1) {
+                return `<span class="text-secondary">Obtendo conteúdo da peça: ${matches[0]}</span>`
+            }
+            if (matches.length > 1) {
+                return `<span class="text-secondary">Obtendo conteúdo das peças: ${matches.join(', ')}</span>`
+            }
+        }
+        if (i.args.pieceIdArray?.length === 1) {
+            return `<span class="text-secondary">Obtendo conteúdo da peça: ${i.args.pieceIdArray[0]}</span>`
+        }
+        if (i.args.pieceIdArray?.length > 1) {
+            return `<span class="text-secondary">Obtendo conteúdo das peças: ${i.args.pieceIdArray.join(', ')}</span>`
+        }
     } else {
         return `<span class="text-secondary">Ferramenta desconhecida: ${i.toolName}</span>`
     }

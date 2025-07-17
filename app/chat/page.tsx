@@ -10,7 +10,7 @@ import { PromptDataType } from '@/lib/ai/prompt-types'
 export default async function Home() {
     noStore()
 
-    const definition = getInternalPrompt('chat')
+    const definition = getInternalPrompt('chat-standalone')
     const data: PromptDataType = {
         textos: []
     }
