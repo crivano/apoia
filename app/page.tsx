@@ -9,13 +9,13 @@ export default async function HomePage() {
     const user = await assertCurrentUser()
 
     const features = [
-        {
-            icon: faComments,
-            title: "Chat",
-            description: "Converse com um Agente de IA sobre processos específicos",
-            href: "/chat",
-            color: "text-primary"
-        },
+        // {
+        //     icon: faComments,
+        //     title: "Chat",
+        //     description: "Converse com um Agente de IA sobre processos específicos",
+        //     href: "/chat",
+        //     color: "text-primary"
+        // },
         {
             icon: faList,
             title: "Síntese",

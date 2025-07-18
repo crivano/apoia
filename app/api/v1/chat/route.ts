@@ -1,5 +1,6 @@
 import { generateAndStreamContent } from '@/lib/ai/generate'
 import { getModel } from '@/lib/ai/model-server'
+import { getTools } from '@/lib/ai/tools'
 import { anonymizeText } from '@/lib/anonym/anonym'
 import { Dao } from '@/lib/db/mysql'
 import { getCurrentUser } from '@/lib/user'
@@ -29,7 +30,8 @@ export const maxDuration = 60
  *         description: Resposta do assistente
  */
 export async function POST(req: Request) {
-    const user = await getCurrentUser()
+    const pUser = getCurrentUser()
+    const user = await pUser
     if (!user) return Response.json({ errormsg: 'Unauthorized' }, { status: 401 })
 
     const user_id = await Dao.assertIAUserId(user.preferredUsername || user.name)
@@ -46,6 +48,9 @@ export async function POST(req: Request) {
         })
     }
 
+    const { searchParams } = new URL(req.url)
+    const withTools = searchParams.get('withTools') === 'true'
+
     const result = await generateAndStreamContent(
         model,
         undefined, // structuredOutputs
@@ -56,7 +61,8 @@ export async function POST(req: Request) {
         '', // sha256
         {}, // results
         null, // attempt
-        apiKeyFromEnv
+        apiKeyFromEnv,
+        withTools ? getTools(pUser) : undefined
     )
 
     if (typeof result === 'string') {

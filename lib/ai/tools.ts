@@ -1,14 +1,11 @@
 import { tool, ToolExecutionOptions } from "ai"
 import { UserType } from "../user"
-import { CargaDeConteudoEnum, getInteropFromUser, obterDadosDoProcesso } from "../proc/process"
+import { getInteropFromUser } from "../proc/process"
 import { TextoType } from "./prompt-types"
 import { slugify } from "../utils/utils"
 import { formatText } from "./prompt"
 import { z } from "zod"
-import ProcessContents from "@/app/community/process-contents"
-import { PecaConteudoType } from "../proc/process-types"
 import { Interop, ObterPecaType } from "../interop/interop"
-import { get } from "http"
 import { InteropProcessoType } from "../interop/interop-types"
 
 export const getProcessMetadata = async (processNumber: string, interop: Interop): Promise<InteropProcessoType[]> => {
@@ -102,4 +99,11 @@ export const getPieceContentTool = (pUser: Promise<UserType>) => tool({
         }
     },
 })
+
+export const getTools = (pUser: Promise<UserType>, options?: ToolExecutionOptions) => {
+    return {
+        getProcessMetadata: getProcessMetadataTool(pUser),
+        getPiecesText: getPieceContentTool(pUser),
+    }
+}
 

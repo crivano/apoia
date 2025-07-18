@@ -117,7 +117,7 @@ export async function streamContent(definition: PromptDefinitionType, data: Prom
     return generateAndStreamContent(model, structuredOutputs, definition?.cacheControl, definition?.kind, modelRef, messages, sha256, results, attempt, apiKeyFromEnv)
 }
 
-export async function generateAndStreamContent(model: string, structuredOutputs: any, cacheControl: number | boolean, kind: string, modelRef: LanguageModel, messages: CoreMessage[], sha256: string, results?: PromptExecutionResultsType, attempt?: number | null, apiKeyFromEnv?: boolean):
+export async function generateAndStreamContent(model: string, structuredOutputs: any, cacheControl: number | boolean, kind: string, modelRef: LanguageModel, messages: CoreMessage[], sha256: string, results?: PromptExecutionResultsType, attempt?: number | null, apiKeyFromEnv?: boolean, tools?: Record<string, CoreTool<any, any>>):
     Promise<StreamTextResult<Record<string, CoreTool<any, any>>, any> | StreamObjectResult<DeepPartial<any>, any, never> | string> {
     const pUser = assertCurrentUser()
     const user = await pUser
@@ -160,11 +160,8 @@ export async function generateAndStreamContent(model: string, structuredOutputs:
                 }
                 writeResponseToFile(kind, messages, text)
             },
-            tools: {
-                getProcessMetadata: getProcessMetadataTool(pUser),
-                getPiecesText: getPiecesTextTool(pUser),
-            },
-            maxSteps: 5, // Limit the number of steps to avoid infinite loops
+            tools,
+            maxSteps: tools ? 10 : undefined, // Limit the number of steps to avoid infinite loops
         })
         return pResult as any
         // }

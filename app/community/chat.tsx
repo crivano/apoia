@@ -60,13 +60,13 @@ function toolMessage(i: ToolInvocation) {
 }
 
 
-export default function Chat(params: { definition: PromptDefinitionType, data: PromptDataType, suggestions?: SuggestionType[], footer?: ReactElement }) {
+export default function Chat(params: { definition: PromptDefinitionType, data: PromptDataType, suggestions?: SuggestionType[], footer?: ReactElement, withTools?: boolean }) {
     const [showModal, setShowModal] = useState(false);
     const [processNumber, setProcessNumber] = useState('');
     const [currentSuggestion, setCurrentSuggestion] = useState('');
 
     const initialMessages: Message[] = [{ id: "system", role: 'system', content: applyTextsAndVariables(params.definition.systemPrompt, params.data) }]
-    const { messages, setMessages, input, setInput, handleInputChange, handleSubmit } = useChat({ api: '/api/v1/chat', initialMessages })
+    const { messages, setMessages, input, setInput, handleInputChange, handleSubmit } = useChat({ api: `/api/v1/chat${params.withTools ? '?withTools=true' : ''}`, initialMessages })
 
     const handleEditMessage = (idx: number) => {
         const message = messages[idx]
