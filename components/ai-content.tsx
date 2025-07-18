@@ -12,8 +12,6 @@ import { faThumbsDown } from '@fortawesome/free-regular-svg-icons'
 import { faRefresh } from '@fortawesome/free-solid-svg-icons'
 import { Form } from 'react-bootstrap'
 
-export const dynamic = 'force-dynamic'
-
 export const getColor = (text, errormsg) => {
     let color = 'info'
     if (text && text.includes('<scratchpad>'))

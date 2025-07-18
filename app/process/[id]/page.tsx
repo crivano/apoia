@@ -6,7 +6,6 @@ import ProcessTitle from './process-title'
 import { Container } from 'react-bootstrap'
 
 export const maxDuration = 60 // seconds
-export const dynamic = 'force-dynamic'
 
 export default async function ShowProcess(props) {
     const searchParams = await props.searchParams;

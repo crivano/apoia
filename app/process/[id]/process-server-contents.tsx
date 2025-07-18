@@ -13,7 +13,6 @@ import { DadosDoProcessoType, StatusDeLancamento } from '@/lib/proc/process-type
 import { cookies } from 'next/headers'
 
 export const maxDuration = 60 // seconds
-export const dynamic = 'force-dynamic'
 
 const canonicalPieces = (pieces: string[]) => pieces.sort((a, b) => a.localeCompare(b)).join(',')
 

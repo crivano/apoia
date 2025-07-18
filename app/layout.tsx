@@ -53,6 +53,9 @@ export default async function RootLayout({
                             <span className="navbar-toggler-icon"></span>
                         </button>
                         {user && !nonCorporateUser && <div className="collapse navbar-collapse" id="navbarSupportedContent">
+                            {/* <NavItem>
+                                <NavigationLink href="/chat" text="Chat" />
+                            </NavItem> */}
                             <NavItem>
                                 <NavigationLink href="/process" text="Síntese" />
                             </NavItem>

@@ -147,7 +147,7 @@ export default function ProcessNumberForm(params) {
                             disabled={running}
                         />
                         <label className="form-check-label ms-2">Completo</label>
-                        <p className="text-muted">O custo é bem superior quando é realizada a análise completa.</p>
+                        <p className="text-body-tertiary">O custo é bem superior quando é realizada a análise completa.</p>
                     </div>
                 </div>
             </div>

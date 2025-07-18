@@ -3,7 +3,7 @@
 import { Form, Button, Accordion, Nav } from 'react-bootstrap'
 import { useRouter } from 'next/navigation'
 // import { DeleteForm } from "./record-delete-form"
-import dynamic from 'next/dynamic'
+// import dynamic from 'next/dynamic'
 import TextareaAutosize from 'react-textarea-autosize'
 import { removeOfficial, save, setOfficial } from './prompt-actions'
 import { EMPTY_FORM_STATE, FormHelper, FormError } from '@/lib/ui/form-support'

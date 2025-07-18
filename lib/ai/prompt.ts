@@ -235,6 +235,8 @@ import pedidos_fundamentacoes_e_dispositivos from '@/prompts/pedidos-fundamentac
 import indice from '@/prompts/indice.md'
 import chat from '@/prompts/chat.md'
 import relatorio_de_processo_coletivo_ou_criminal from '@/prompts/relatorio-de-processo-coletivo-ou-criminal.md'
+import chat_standalone from '@/prompts/chat-standalone.md'
+import relatorio_completo_criminal from '@/prompts/relatorio-completo-criminal.md'
 import minuta_de_despacho_de_acordo_9_dias from '@/prompts/minuta-de-despacho-de-acordo-9-dias.md'
 import template from '@/prompts/template.md'
 
@@ -263,6 +265,8 @@ export const internalPrompts = {
     indice: promptDefinitionFromMarkdown('indice', indice),
     chat: promptDefinitionFromMarkdown('chat', chat),
     relatorio_de_processo_coletivo_ou_criminal: promptDefinitionFromMarkdown('relatorio_de_processo_coletivo_ou_criminal', relatorio_de_processo_coletivo_ou_criminal),
+    chat_standalone: promptDefinitionFromMarkdown('chat_standalone', chat_standalone),
+    relatorio_completo_criminal: promptDefinitionFromMarkdown('relatorio_completo_criminal', relatorio_completo_criminal),
     minuta_de_despacho_de_acordo_9_dias: promptDefinitionFromMarkdown('minuta_de_despacho_de_acordo_9_dias', minuta_de_despacho_de_acordo_9_dias),
     template: promptDefinitionFromMarkdown('template', template),
 }

@@ -5,6 +5,8 @@ import { assertNivelDeSigilo, verificarNivelDeSigilo } from '../proc/sigilo'
 import { getCurrentUser } from '../user'
 import { envString } from '../utils/env'
 import { tua } from '../proc/tua'
+import { InteropProcessoType } from './interop-types'
+import { mapPdpjToSimplified, PdpjInput } from './pdpj-mapping'
 
 const mimeTypyFromTipo = (tipo: string): string => {
     switch (tipo) {
@@ -60,7 +62,8 @@ export class InteropPDPJ implements Interop {
                         client_secret: envString('DATALAKE_CLIENT_SECRET'),
                         scope: 'openid',
                         grant_type: 'client_credentials'
-                    })
+                    }),
+                    next: { revalidate: 3600 } // Revalida a cada hora
                 }
             )
 
@@ -75,7 +78,9 @@ export class InteropPDPJ implements Interop {
         throw new Error('Not implemented')
     }
 
-    public consultarProcesso = async (numeroDoProcesso: string, idClasseParaFiltrar?: number): Promise<DadosDoProcessoType[]> => {
+
+
+    private consultarProcessoPdpj = async (numeroDoProcesso: string) => {
         const response = await fetch(
             envString('DATALAKE_API_URL') + `/processos/${numeroDoProcesso}`,
             {
@@ -84,9 +89,10 @@ export class InteropPDPJ implements Interop {
                     'Accept': 'application/json',
                     'Authorization': `Bearer ${this.accessToken}`,
                     'User-Agent': 'curl'
-                }
+                },
+                next: { revalidate: 3600 } // Revalida a cada hora
             }
-        );
+        )
 
 
         let data: any = {}
@@ -104,6 +110,25 @@ export class InteropPDPJ implements Interop {
                 throw new Error(`Não foi possível acessar o processo ${numeroDoProcesso} no DataLake/Codex da PDPJ (${e})`)
             }
         }
+        return data
+    }
+
+    public consultarMetadadosDoProcesso = async (numeroDoProcesso: string): Promise<InteropProcessoType[]> => {
+        const data: PdpjInput = await this.consultarProcessoPdpj(numeroDoProcesso)
+
+        if (!data || !data[0] || !data[0].tramitacoes || !data[0].tramitacoes.length) {
+            throw new Error(`Não foi possível encontrar o processo ${numeroDoProcesso} no DataLake/Codex da PDPJ`)
+        }
+
+        const processos: InteropProcessoType[] = mapPdpjToSimplified(data[0])
+        if (!processos || !processos.length) {
+            throw new Error(`Não foi possível mapear o processo ${numeroDoProcesso} no DataLake/Codex da PDPJ`)
+        }
+        return processos
+    }
+
+    public consultarProcesso = async (numeroDoProcesso: string, idClasseParaFiltrar?: number): Promise<DadosDoProcessoType[]> => {
+        let data: any = await this.consultarProcessoPdpj(numeroDoProcesso)
 
         const resp: DadosDoProcessoType[] = []
         for (const processo of data[0].tramitacoes) {
@@ -205,16 +230,17 @@ export class InteropPDPJ implements Interop {
         return resp
     }
 
-    public obterPeca = async (numeroDoProcesso, idDaPeca, allowBinary?: boolean): Promise<ObterPecaType> => {
+    public obterPeca = async (numeroDoProcesso, idDaPeca, binary?: boolean): Promise<ObterPecaType> => {
         const response = await fetch(
-            envString('DATALAKE_API_URL') + `/processos/${numeroDoProcesso}/documentos/${idDaPeca}/${allowBinary ? 'binario' : 'texto'}`,
+            envString('DATALAKE_API_URL') + `/processos/${numeroDoProcesso}/documentos/${idDaPeca}/${binary ? 'binario' : 'texto'}`,
             {
                 method: 'GET',
                 headers: {
                     'Accept': '*',
                     'Authorization': `Bearer ${this.accessToken}`,
                     'User-Agent': 'curl'
-                }
+                },
+                next: { revalidate: 3600 } // Revalida a cada hora
             }
         );
         const b = await response.arrayBuffer()

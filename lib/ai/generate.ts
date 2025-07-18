@@ -3,14 +3,19 @@
 import { CoreTool, streamText, StreamTextResult, LanguageModel, streamObject, StreamObjectResult, DeepPartial, CoreMessage, generateText } from 'ai'
 import { IAGenerated } from '../db/mysql-types'
 import { Dao } from '../db/mysql'
-import { assertCourtId, assertCurrentUser } from '../user'
-import { PromptDataType, PromptDefinitionType, PromptExecutionResultsType, PromptOptionsType } from '@/lib/ai/prompt-types'
-import { promptExecuteBuilder, waitForTexts } from './prompt'
+import { assertCourtId, assertCurrentUser, UserType } from '../user'
+import { PromptDataType, PromptDefinitionType, PromptExecutionResultsType, PromptOptionsType, TextoType } from '@/lib/ai/prompt-types'
+import { formatText, promptExecuteBuilder, waitForTexts } from './prompt'
 import { calcSha256 } from '../utils/hash'
 import { envString } from '../utils/env'
 import { anonymizeText } from '../anonym/anonym'
 import { getModel } from './model-server'
 import { modelCalcUsage } from './model-types'
+import { z } from 'zod'
+import { tool } from 'ai'
+import { CargaDeConteudoEnum, obterDadosDoProcesso } from '../proc/process'
+import { slugify } from '../utils/utils'
+import { getPieceContentTool as getPiecesTextTool, getProcessMetadataTool } from './tools'
 
 export async function retrieveFromCache(sha256: string, model: string, prompt: string, attempt: number | null): Promise<IAGenerated | undefined> {
     const cached = await Dao.retrieveIAGeneration({ sha256, model, prompt, attempt })
@@ -112,9 +117,10 @@ export async function streamContent(definition: PromptDefinitionType, data: Prom
     return generateAndStreamContent(model, structuredOutputs, definition?.cacheControl, definition?.kind, modelRef, messages, sha256, results, attempt, apiKeyFromEnv)
 }
 
-export async function generateAndStreamContent(model: string, structuredOutputs: any, cacheControl: number | boolean, kind: string, modelRef: LanguageModel, messages: CoreMessage[], sha256: string, results?: PromptExecutionResultsType, attempt?: number | null, apiKeyFromEnv?: boolean):
+export async function generateAndStreamContent(model: string, structuredOutputs: any, cacheControl: number | boolean, kind: string, modelRef: LanguageModel, messages: CoreMessage[], sha256: string, results?: PromptExecutionResultsType, attempt?: number | null, apiKeyFromEnv?: boolean, tools?: Record<string, CoreTool<any, any>>):
     Promise<StreamTextResult<Record<string, CoreTool<any, any>>, any> | StreamObjectResult<DeepPartial<any>, any, never> | string> {
-    const user = await assertCurrentUser()
+    const pUser = assertCurrentUser()
+    const user = await pUser
     const user_id = await Dao.assertIAUserId(user.preferredUsername || user.name)
     const court_id = await assertCourtId(user)
     if (!structuredOutputs) {//} || model.startsWith('aws-')) {
@@ -142,6 +148,9 @@ export async function generateAndStreamContent(model: string, structuredOutputs:
             model: modelRef as LanguageModel,
             messages,
             maxRetries: 0,
+            onStepFinish: ({ text, usage }) => {
+                process.stdout.write(text)
+            },
             onFinish: async ({ text, usage }) => {
                 if (apiKeyFromEnv)
                     writeUsage(usage, model, user_id, court_id)
@@ -150,9 +159,11 @@ export async function generateAndStreamContent(model: string, structuredOutputs:
                     if (results) results.generationId = generationId
                 }
                 writeResponseToFile(kind, messages, text)
-            }
+            },
+            tools,
+            maxSteps: tools ? 10 : undefined, // Limit the number of steps to avoid infinite loops
         })
-        return pResult
+        return pResult as any
         // }
     } else {
         console.log('streaming object', kind) //, messages, modelRef, structuredOutputs.schema)
