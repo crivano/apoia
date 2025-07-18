@@ -171,7 +171,7 @@ export default function ProcessContents({ prompt, dadosDoProcesso, pieceContent,
         <p style={{ textAlign: 'center' }}>Este documento foi gerado pela ApoIA, ferramenta de inteligência artificial desenvolvida exclusivamente para facilitar a triagem de acervo, e não substitui a elaboração de relatório específico em cada processo, a partir da consulta manual aos eventos dos autos. Textos gerados por inteligência artificial podem conter informações imprecisas ou incorretas.</p>
         <p style={{ textAlign: 'center' }}>
             O prompt {`${prompt.name} (${prompt.id})`} utilizou o modelo {model}
-            {selectedPieces?.length && <span> e acessou as peças: {joinReactElementsWithAnd(selectedPieces.map(p => <span className={errorLoadingContent(p.id) ? 'text-danger' : ''} title={errorLoadingContent(p.id)}>{`${p.descr?.toLowerCase()} (e.${p.numeroDoEvento})`}</span>))}</span>}
+            {selectedPieces?.length && <span> e acessou as peças: {joinReactElementsWithAnd(selectedPieces.map(p => <span key={p.id} className={errorLoadingContent(p.id) ? 'text-danger' : ''} title={errorLoadingContent(p.id)}>{`${p.descr?.toLowerCase()} (e.${p.numeroDoEvento})`}</span>))}</span>}
             .</p>
     </div >
 }    
