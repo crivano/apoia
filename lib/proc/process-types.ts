@@ -1,5 +1,6 @@
 import { EnumOfObjectsValueType } from "../ai/model-types"
 import { IADocument } from "../db/mysql-types"
+import { InteropProcessoType } from "../interop/interop-types"
 import { slugify } from "../utils/utils"
 import { P, ProdutoCompleto, TipoDeSinteseEnum } from "./combinacoes"
 

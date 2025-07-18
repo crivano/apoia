@@ -10,6 +10,7 @@ import { DadosDoProcessoType, PecaType } from '../proc/process-types'
 import { parseYYYYMMDDHHMMSS } from '../utils/utils'
 import { assertNivelDeSigilo, verificarNivelDeSigilo } from '../proc/sigilo'
 import { tua } from '../proc/tua'
+import { InteropProcessoType } from './interop-types'
 
 const limit = pLimit(envString('MNI_LIMIT') ? parseInt(envString('MNI_LIMIT')) : 1)
 
@@ -226,8 +227,12 @@ export class InteropMNI implements Interop {
         return [{ numeroDoProcesso, ajuizamento, codigoDaClasse, classe, nomeOrgaoJulgador, pecas }]
     }
 
-    public obterPeca = async (numeroDoProcesso, idDaPeca, allowBinary?: boolean): Promise<ObterPecaType> =>
+    public obterPeca = async (numeroDoProcesso, idDaPeca, binary?: boolean): Promise<ObterPecaType> =>
         limit(() => obterPecaSemLimite(numeroDoProcesso, idDaPeca, this.username, this.password))
+
+    public consultarMetadadosDoProcesso = async (numeroDoProcesso: string): Promise<InteropProcessoType[]> => {
+        throw new Error('Método consultarMetadadosDoProcesso não implementado para MNI')
+    }
 }
 
 

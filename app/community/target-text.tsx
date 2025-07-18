@@ -61,7 +61,7 @@ export default function TargetText({ prompt, visualization, apiKeyProvided }: { 
                 </Suspense>
             </div>
             {hidden && <>
-                <div className="text-muted">Cole o texto acima e clique em prosseguir.</div>
+                <div className="text-body-tertiary">Cole o texto acima e clique em prosseguir.</div>
             </>}
             {hidden && <>
                 {/* <Button disabled={!markdown || !orgaoJulgador} className="mt-3" onClick={() => setHidden(false)}>Gerar Ementa</Button> */}

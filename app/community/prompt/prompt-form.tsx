@@ -136,7 +136,7 @@ export default function PromptForm(props) {
                                         Marcação não fechada: <strong>{unclosedMarking.kind}</strong> na linha <strong>{unclosedMarking.lineNumber}</strong> - <span className="template-error" dangerouslySetInnerHTML={{ __html: unclosedMarking.lineContent }} />
                                     </div>
 
-                                    : <div className="text-muted">Utilize &#39;&#123;&#39; para inclusões e &#39;&#123;&#123;&#39; para condicionais. Mais detalhes no <a href="https://trf2.gitbook.io/apoia/criar-prompt-a-partir-de-um-modelo" target="_blank">manual</a>.</div>
+                                    : <div className="text-body-tertiary">Utilize &#39;&#123;&#39; para inclusões e &#39;&#123;&#123;&#39; para condicionais. Mais detalhes no <a href="https://trf2.gitbook.io/apoia/criar-prompt-a-partir-de-um-modelo" target="_blank">manual</a>.</div>
                                 }
                             </>)
                                 : (<>

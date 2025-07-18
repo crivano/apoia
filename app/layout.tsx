@@ -54,6 +54,9 @@ export default async function RootLayout({
                         </button>
                         {user && !nonCorporateUser && <div className="collapse navbar-collapse" id="navbarSupportedContent">
                             <NavItem>
+                                <NavigationLink href="/chat" text="Chat" />
+                            </NavItem>
+                            <NavItem>
                                 <NavigationLink href="/process" text="Síntese" />
                             </NavItem>
                             <NavItem>

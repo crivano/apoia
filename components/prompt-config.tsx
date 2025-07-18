@@ -90,7 +90,7 @@ export default function PromptConfig({ kind, setPromptConfig }: { kind: string, 
         if (current.extra)
             a.push(`Personalização do Prompt: ${current.extra}`)
         const s = a.join(', ') || 'Prompt'
-        return <p className="text-muted">{s} - <FontAwesomeIcon onClick={() => { setEditing(true) }} icon={faEdit} /></p>
+        return <p className="text-body-tertiary">{s} - <FontAwesomeIcon onClick={() => { setEditing(true) }} icon={faEdit} /></p>
     }
     return <PromptConfigForm kind={kind} config={current} onSave={onSave} />
 }

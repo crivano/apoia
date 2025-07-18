@@ -143,7 +143,7 @@ export function Contents({ prompts, user, user_id, apiKeyProvided, model, listPu
 
 
 
-    const PromptTitle = ({ prompt }: { prompt: IAPromptList }) => <div className="text-muted text-center h-print">Prompt: {prompt.name} - <span onClick={() => { setPromptParam(undefined); setPrompt(null) }} className="text-primary" style={{ cursor: 'pointer' }}><FontAwesomeIcon icon={faEdit} /> Alterar</span></div>
+    const PromptTitle = ({ prompt }: { prompt: IAPromptList }) => <div className="text-body-tertiary text-center h-print">Prompt: {prompt.name} - <span onClick={() => { setPromptParam(undefined); setPrompt(null) }} className="text-primary" style={{ cursor: 'pointer' }}><FontAwesomeIcon icon={faEdit} /> Alterar</span></div>
 
     const filteredPrompts = prompts.filter((p) => {
         if (!listarPromptsPublicos && p.share === 'PUBLICO' && !p.is_mine) return false
@@ -238,7 +238,7 @@ export function Contents({ prompts, user, user_id, apiKeyProvided, model, listPu
                 {!listarPromptsPublicos && <>
                     <div className="mb-3">
                         <div className="mt-5 pt-2 border-top">
-                            <p className="text-muted">
+                            <p className="text-body-tertiary">
                                 Deseja visualizar prompts compartilhados publicamente por outros usuários?
                                 Esses prompts não passam por nenhum tipo de validação e podem gerar respostas imprecisas,
                                 inconsistentes ou inadequadas para seu contexto.

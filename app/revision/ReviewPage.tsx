@@ -36,7 +36,7 @@ export default function Revison() {
                 </Suspense>
             </div>
             {hidden && <>
-                <div className="text-muted">Cole o texto a ser revisado na caixa acima e clique em &quot;Revisar&quot;.</div>
+                <div className="text-body-tertiary">Cole o texto a ser revisado na caixa acima e clique em &quot;Revisar&quot;.</div>
                 <Button disabled={!markdown} className="mt-3" onClick={() => setHidden(false)}>Revisar</Button>
             </>}
             {!hidden && markdown && <>

@@ -209,7 +209,7 @@ export class FormHelper {
                 <Form.Label className={this.compact ? 'mb-0' : ''}>{label}</Form.Label>
                 <Form.Control name={name} type="text" value={this.get(name)} onChange={e => { this.set(name, e.target.value); validator && validator(e.target.value, name) }} placeholder="" key={name} />
                 <FieldError formState={this.formState} name={name} />
-                {explanation && <Form.Text className="text-muted">{explanation}</Form.Text>}
+                {explanation && <Form.Text className="text-body-tertiary">{explanation}</Form.Text>}
             </Form.Group>
         )
     }
@@ -220,7 +220,7 @@ export class FormHelper {
                 <Form.Label className={this.compact ? 'mb-0' : ''}>{label}</Form.Label>
                 <ReactTextareaAutosize className="form-control" name={name} value={this.get(name)} onChange={e => this.set(name, e.target.value)} placeholder="" key={name} />
                 <FieldError formState={this.formState} name={name} />
-                {explanation && <Form.Text className="text-muted">{explanation}</Form.Text>}
+                {explanation && <Form.Text className="text-body-tertiary">{explanation}</Form.Text>}
             </Form.Group>
         )
     }
@@ -233,7 +233,7 @@ export class FormHelper {
                 <Form.Label className={this.compact ? 'mb-0' : ''}>{label}</Form.Label>
                 <Editor markdown={this.get(name) || ''} onChange={e => this.set(name, e)} key={name} />
                 <FieldError formState={this.formState} name={name} />
-                {explanation && <Form.Text className="text-muted">{explanation}</Form.Text>}
+                {explanation && <Form.Text className="text-body-tertiary">{explanation}</Form.Text>}
             </Form.Group>
         )
     }

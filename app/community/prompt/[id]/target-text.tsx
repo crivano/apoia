@@ -46,7 +46,7 @@ export default function TargetText({ prompt }: { prompt: IAPrompt }) {
                 </Suspense>
             </div>
             {hidden && <>
-                <div className="text-muted">Cole o texto do voto na caixa acima e clique em &quot;Gerar Ementa&quot;.</div>
+                <div className="text-body-tertiary">Cole o texto do voto na caixa acima e clique em &quot;Gerar Ementa&quot;.</div>
             </>}
             {hidden && <>
                 {/* <Button disabled={!markdown || !orgaoJulgador} className="mt-3" onClick={() => setHidden(false)}>Gerar Ementa</Button> */}

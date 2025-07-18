@@ -117,7 +117,7 @@ export default function ChoosePieces({ allPieces, selectedPieces, onSave, onStar
         } else {
             s += l[0] + ' + ' + (l.length - 1)
         }
-        return <p className="text-muted text-center h-print">{s} - <span onClick={() => { setEditing(true); onStartEditing() }} className="text-primary" style={{ cursor: 'pointer' }}><FontAwesomeIcon icon={faEdit} /> Alterar</span></p>
+        return <p className="text-body-tertiary text-center h-print">{s} - <span onClick={() => { setEditing(true); onStartEditing() }} className="text-primary" style={{ cursor: 'pointer' }}><FontAwesomeIcon icon={faEdit} /> Alterar</span></p>
     }
     return <ChoosePiecesForm onSave={onSaveLocal} onClose={onClose} allPieces={allPieces} selectedPieces={selectedPieces} dossierNumber={dossierNumber} />
 }

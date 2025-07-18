@@ -345,7 +345,7 @@ export default function AbusiveLitigationPage(params: { NAVIGATE_TO_PROCESS_URL?
                         onPaste={handlePaste} />
                 </div>
                 {hidden && <>
-                    <div className="text-muted">Informe o número do processo suspeito, a lista de outros processos a serem analisados e clique em &quot;Analisar&quot;.</div>
+                    <div className="text-body-tertiary">Informe o número do processo suspeito, a lista de outros processos a serem analisados e clique em &quot;Analisar&quot;.</div>
                 </>}
                 {hidden && <>
                     <Button disabled={!numeroDoProcesso.trim()} className="mt-3" onClick={() => startAnalysis()}>Analisar</Button>

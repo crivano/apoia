@@ -51,7 +51,7 @@ export default async function HomePage() {
             {/* Header Section */}
             <div className="text-center mb-4">
                 <h1 className="display-4 mb-0">Bem-vindo à Apoia</h1>
-                <p className="lead text-muted">
+                <p className="lead text-body-tertiary">
                     Plataforma de Inteligência Artificial para magistrados e servidores do Poder Judiciário
                 </p>
                 <ApiKeyMissing />
@@ -76,7 +76,7 @@ export default async function HomePage() {
                                             <CardTitle className="h5 mb-3">
                                                 <span className="alert-link">{feature.title}</span>
                                             </CardTitle>
-                                            <CardText className="text-muted flex-grow-1">
+                                            <CardText className="text-body-tertiary flex-grow-1">
                                                 {feature.description}
                                             </CardText>
                                         </CardBody>
