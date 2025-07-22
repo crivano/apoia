@@ -239,6 +239,7 @@ import chat_standalone from '@/prompts/chat-standalone.md'
 import relatorio_completo_criminal from '@/prompts/relatorio-completo-criminal.md'
 import minuta_de_despacho_de_acordo_9_dias from '@/prompts/minuta-de-despacho-de-acordo-9-dias.md'
 import template from '@/prompts/template.md'
+import sentenca_prev_bi_laudo_favoravel from '@/prompts/sentenca-prev-bi-laudo-favoravel.md'
 
 // Enum for the different types of prompts
 export const internalPrompts = {
@@ -269,5 +270,6 @@ export const internalPrompts = {
     relatorio_completo_criminal: promptDefinitionFromMarkdown('relatorio_completo_criminal', relatorio_completo_criminal),
     minuta_de_despacho_de_acordo_9_dias: promptDefinitionFromMarkdown('minuta_de_despacho_de_acordo_9_dias', minuta_de_despacho_de_acordo_9_dias),
     template: promptDefinitionFromMarkdown('template', template),
+    sentenca_prev_bi_laudo_favoravel: promptDefinitionFromMarkdown('sentenca_prev_bi_laudo_favoravel', sentenca_prev_bi_laudo_favoravel)
 }
 

@@ -55,6 +55,7 @@ export enum P {
     CHAT = 'Chat',
     RELATORIO_DE_PROCESSO_COLETIVO_OU_CRIMINAL = 'Relatório de Processo Coletivo ou Criminal',
     MINUTA_DE_DESPACHO_DE_ACORDO_9_DIAS = 'Minuta de Despacho de Acordo 9 dias',
+    SENTENCA_PREV_BI_LAUDO_FAVORAVEL = 'Sentença BI (Laudo Favorável)',
 }
 
 export enum Plugin {
@@ -86,6 +87,7 @@ export const ProdutosValidos = {
     [P.CHAT]: { titulo: P.CHAT, prompt: 'chat', plugins: [] },
     [P.RELATORIO_DE_PROCESSO_COLETIVO_OU_CRIMINAL]: { titulo: P.RELATORIO_DE_PROCESSO_COLETIVO_OU_CRIMINAL, prompt: 'relatorio-de-processo-coletivo-ou-criminal', plugins: [Plugin.TRIAGEM, Plugin.NORMAS, Plugin.PALAVRAS_CHAVE] },
     [P.MINUTA_DE_DESPACHO_DE_ACORDO_9_DIAS]: { titulo: P.MINUTA_DE_DESPACHO_DE_ACORDO_9_DIAS, prompt: 'minuta-de-despacho-de-acordo-9-dias', plugins: [] },
+    [P.SENTENCA_PREV_BI_LAUDO_FAVORAVEL]: { titulo: P.SENTENCA_PREV_BI_LAUDO_FAVORAVEL, prompt: 'sentenca-prev-bi-laudo-favoravel', plugins: [] },
 }
 
 export interface ProdutoCompleto { produto: P, dados: T[] }
@@ -286,6 +288,14 @@ export const TipoDeSinteseMap: Record<string, TipoDeSinteseType> = {
         nome: 'Relatório de Acervo',
         padroes: padroesBasicos,
         produtos: [P.RESUMOS, P.RESUMO]
+    },
+
+    SENTENCA_BI_LAUDO_FAVORAVEL: {
+        status: StatusDeLancamento.EM_DESENVOLVIMENTO,
+        sort: 1000,
+        nome: 'Sentença Bi-Laudo Favorável',
+        padroes: padroesBasicosPrimeiraInstancia,
+        produtos: [P.SENTENCA_PREV_BI_LAUDO_FAVORAVEL]
     },
 
 
