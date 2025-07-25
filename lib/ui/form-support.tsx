@@ -214,6 +214,23 @@ export class FormHelper {
         )
     }
 
+    public Checkbox = ({ label, name, width, visible, explanation }: { label: string, name: string, width?: number | string, visible?: boolean, explanation?: string }) => {
+        return (
+            <Form.Group className={`${this.colClass(width)} ${visible === false ? 'd-none' : ''}`} controlId={name}>
+                <Form.Label className={this.compact ? 'mb-0' : ''}>&nbsp;</Form.Label>
+                <Form.Check
+                    type="checkbox"
+                    id={name}
+                    label={label}
+                    checked={!!this.get(name)}
+                    onChange={e => this.set(name, e.target.checked)}
+                />
+                <FieldError formState={this.formState} name={name} />
+                {explanation && <Form.Text className="text-body-tertiary">{explanation}</Form.Text>}
+            </Form.Group>
+        )
+    }
+
     public TextArea = ({ label, name, width, maxRows, explanation }: { label: string, name: string, width?: number | string, maxRows?: number, explanation?: string }) => {
         return (
             <Form.Group className={this.colClass(width)} controlId={name}>
@@ -305,7 +322,7 @@ export class FormHelper {
                 <Form.Label>{label}</Form.Label>
                 {labelsAndNames.filter(c => c != null).map((c, idx) => {
                     return (
-                        <Form.Check key={c.name} type="checkbox" label={c.label} checked={this.get(c.name)} onChange={e => {this.set(c.name, e.target.checked); if (onClick) onClick(c.label, c.name, e.target.checked)}} />
+                        <Form.Check key={c.name} type="checkbox" label={c.label} checked={this.get(c.name)} onChange={e => { this.set(c.name, e.target.checked); if (onClick) onClick(c.label, c.name, e.target.checked) }} />
                     )
                 })}
             </div>

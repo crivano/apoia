@@ -13,6 +13,9 @@ import { DadosDoProcessoType } from '@/lib/proc/process-types'
 import { Pedidos } from './pedidos'
 import { PedidosFundamentacoesEDispositivos } from './pedidos-fundamentacoes-e-dispositivos'
 import AiTitle from '@/components/ai-title'
+import { InformationExtractionForm } from '@/components/InformationExtractionForm'
+import { format } from '@/lib/ai/format'
+import { preprocess } from '@/lib/ui/preprocess'
 
 const Frm = new FormHelper(true)
 
@@ -31,6 +34,9 @@ const onReady = (Frm: FormHelper, requests: GeneratedContent[], idx: number, con
     if (requests[idx].produto === P.PEDIDOS_FUNDAMENTACOES_E_DISPOSITIVOS && content.json) {
         Frm.set('pedidos', content.json.pedidos)
     }
+    if (requests[idx].produto === P.SENTENCA_PREV_BI_LAUDO_FAVORAVEL && content.json) {
+        Frm.set('information_extraction', content.json)
+    }
 }
 
 function requestSlot(Frm: FormHelper, requests: GeneratedContent[], idx: number) {
@@ -39,10 +45,13 @@ function requestSlot(Frm: FormHelper, requests: GeneratedContent[], idx: number)
     // console.log('requestSlot', Frm.data, requests, idx, Frm.get('pedidos_fundamentacoes_e_dispositivos'))
 
     const pedidos = Frm.get('pedidos')
+    const information_extraction = Frm.get('information_extraction')
     if (request.produto === P.PEDIDOS && pedidos) {
         return <Pedidos pedidos={pedidos} request={request} Frm={Frm} />
-    } if (request.produto === P.PEDIDOS_FUNDAMENTACOES_E_DISPOSITIVOS && pedidos) {
+    } else if (request.produto === P.PEDIDOS_FUNDAMENTACOES_E_DISPOSITIVOS && pedidos) {
         return <PedidosFundamentacoesEDispositivos pedidos={pedidos} request={request} Frm={Frm} />
+    } else if (request.produto === P.SENTENCA_PREV_BI_LAUDO_FAVORAVEL && information_extraction) {
+        return <><AiTitle request={request} /><InformationExtractionForm promptMarkdown={request.internalPrompt.prompt} promptFormat={request.internalPrompt.format} Frm={Frm} /></>
     } else if (request.produto === P.CHAT) {
         if (Frm.get('pending') > 0) return null
         return <Chat definition={request.internalPrompt} data={request.data} key={calcSha256(request.data)} />
