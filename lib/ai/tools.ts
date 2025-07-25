@@ -1,5 +1,5 @@
 import { tool, ToolExecutionOptions } from "ai"
-import { UserType } from "../user"
+import { assertCourtId, UserType } from "../user"
 import { getInteropFromUser } from "../proc/process"
 import { TextoType } from "./prompt-types"
 import { slugify } from "../utils/utils"
@@ -7,6 +7,8 @@ import { formatText } from "./prompt"
 import { z } from "zod"
 import { Interop, ObterPecaType } from "../interop/interop"
 import { InteropProcessoType } from "../interop/interop-types"
+import { getPrecedentTool } from "./tools-juris"
+
 
 export const getProcessMetadata = async (processNumber: string, interop: Interop): Promise<InteropProcessoType[]> => {
     const processMetadata = await interop.consultarMetadadosDoProcesso(processNumber)
@@ -100,10 +102,17 @@ export const getPieceContentTool = (pUser: Promise<UserType>) => tool({
     },
 })
 
-export const getTools = (pUser: Promise<UserType>, options?: ToolExecutionOptions) => {
-    return {
+export const getTools = async (pUser: Promise<UserType>, options?: ToolExecutionOptions) => {
+    const toools = {
         getProcessMetadata: getProcessMetadataTool(pUser),
         getPiecesText: getPieceContentTool(pUser),
     }
+    const user = await pUser
+
+    const courtId = await assertCourtId(user)
+    if (courtId === 999998 || courtId === 999999 || courtId === 4) {
+        (toools as any).getPrecedent = getPrecedentTool(pUser)
+    }
+    return toools
 }
 

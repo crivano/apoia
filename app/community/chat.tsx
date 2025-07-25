@@ -54,6 +54,8 @@ function toolMessage(i: ToolInvocation) {
         if (i.args.pieceIdArray?.length > 1) {
             return `<span class="text-secondary">Obtendo conteúdo das peças: ${i.args.pieceIdArray.join(', ')}</span>`
         }
+    } else if (i.toolName === 'getPrecedent') {
+        return `<span class="text-secondary">Obtendo dados do precedente: ${i.args.searchQuery}</span>`
     } else {
         return `<span class="text-secondary">Ferramenta desconhecida: ${i.toolName}</span>`
     }

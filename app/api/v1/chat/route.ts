@@ -62,7 +62,7 @@ export async function POST(req: Request) {
         {}, // results
         null, // attempt
         apiKeyFromEnv,
-        withTools ? getTools(pUser) : undefined
+        withTools ? await getTools(pUser) : undefined
     )
 
     if (typeof result === 'string') {
