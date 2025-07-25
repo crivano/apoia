@@ -1,9 +1,4 @@
-import { removeAccents } from '@/lib/utils/utils'
-import commonFirstNames from './common-first-names.json'
-import commonLastNames from './common-last-names.json'
 import { anonymizeNames } from './name-anonymizer';
-
-const names = [...commonFirstNames, ...commonLastNames]
 
 const NUMERIC_PATTERN = /\b(?:\d[\.\-/()]?){9,20}\b/;
 
@@ -31,9 +26,36 @@ const CRM_PATTERN = /\b(?:CRM(?:\/RJ|RJ|ERJ)?|CREMERJ)\s*(?:\d{2,10}|\d{2,3}\.\d
  * @param text The text to anonymize
  * @returns The anonymized text and the number of substitutions made
  */
-export function anonymizeText(text: string): { text: string; substitutions: number } {
+export function anonymizeText(
+    text: string,
+    options: {
+        numeric?: boolean;
+        identidade?: boolean;
+        endereco?: boolean;
+        telefoneFixo?: boolean;
+        telefoneMovel?: boolean;
+        email?: boolean;
+        oab?: boolean;
+        url?: boolean;
+        crm?: boolean;
+        names?: boolean;
+    } = {}
+): { text: string; substitutions: number } {
     let currentText = text;
     let totalSubstitutions = 0;
+
+    const {
+        numeric = true,
+        identidade = true,
+        endereco = true,
+        telefoneFixo = true,
+        telefoneMovel = true,
+        email = true,
+        oab = true,
+        url = true,
+        crm = true,
+        names = true,
+    } = options;
 
     // Helper function to replace all matches and count them
     function replaceAndCount(pattern: RegExp, replacement: string): void {
@@ -50,17 +72,21 @@ export function anonymizeText(text: string): { text: string; substitutions: numb
         totalSubstitutions += subs;
     }
 
-    replaceAndCount(NUMERIC_PATTERN, '000');
-    replaceAndCount(IDENTIDADE_PATTERN, '000');
-    replaceAndCount(ENDERECO_PATTERN, '---');
-    replaceAndCount(TELEFONE_FIXO_PATTERN, '000');
-    replaceAndCount(EMAIL_PATTERN, '---');
-    replaceAndCount(OAB_PATTERN, '000');
-    replaceAndCount(URL_PATTERN, '---');
-    replaceAndCount(CRM_PATTERN, '000');
-    const r = anonymizeNames(currentText);
-    totalSubstitutions += r.substitutions;
-    currentText = r.text;
+    if (numeric) replaceAndCount(NUMERIC_PATTERN, '000');
+    if (identidade) replaceAndCount(IDENTIDADE_PATTERN, '000');
+    if (endereco) replaceAndCount(ENDERECO_PATTERN, '---');
+    if (telefoneFixo) replaceAndCount(TELEFONE_FIXO_PATTERN, '000');
+    if (telefoneMovel) replaceAndCount(TELEFONE_MOVEL_PATTERN, '000');
+    if (email) replaceAndCount(EMAIL_PATTERN, '---');
+    if (oab) replaceAndCount(OAB_PATTERN, '000');
+    if (url) replaceAndCount(URL_PATTERN, '---');
+    if (crm) replaceAndCount(CRM_PATTERN, '000');
+
+    if (names) {
+        const r = anonymizeNames(currentText);
+        totalSubstitutions += r.substitutions;
+        currentText = r.text;
+    }
 
     return { text: currentText, substitutions: totalSubstitutions };
 }

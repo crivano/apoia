@@ -40,7 +40,8 @@ export async function POST(req: Request) {
 
     const { model, modelRef, apiKeyFromEnv } = await getModel()
 
-    if (envString('ANONIMYZE')) {
+    const anonymize = req.headers.get('cookie')?.includes('anonymize=true')
+    if (anonymize) {
         messages.forEach((message: any) => {
             if (message.role === 'user' && message.content) {
                 message.content = anonymizeText(message.content).text

@@ -14,6 +14,7 @@ import { isUserCorporativo } from '@/lib/user';
 import { getSelectedModelName, getSelectedModelParams } from '@/lib/ai/model-server';
 import ErrorSpan from './error-span';
 import Cryptr from 'cryptr';
+import UserMenuAnonymize from './user-menu-anonymize';
 
 export default async function UserMenu({ }: {}) {
     noStore()
@@ -44,8 +45,9 @@ export default async function UserMenu({ }: {}) {
                             Configurações
                         </a>}
                     <ul className="dropdown-menu  dropdown-menu-end" aria-labelledby="navbarDropdown">
-                        {!user && <li><Link className="dropdown-item" href="/auth/signin">Login</Link></li>}
                         <li><Link className="dropdown-item" href="/prefs">Modelo de IA{model && ` (${model})`}</Link></li>
+                        <UserMenuAnonymize />
+                        {!user && <li><Link className="dropdown-item" href="/auth/signin">Login</Link></li>}
                         {user && <li><UserMenuSignout /></li>}
                         {user && userCorporativo && apiKeyProvided && envString('WOOTRIC_ACCOUNT_TOKEN') && <WootricSurvey user={user} token={envString('WOOTRIC_ACCOUNT_TOKEN')} />}
                     </ul>
@@ -53,7 +55,7 @@ export default async function UserMenu({ }: {}) {
             </ul>
         );
     } catch (error) {
-        const cryptr = new Cryptr(envString('PROPERTY_SECRET') as string, {  })
+        const cryptr = new Cryptr(envString('PROPERTY_SECRET') as string, {})
         const encrypted = cryptr.encrypt(error.stack as string)
         return (
             <ul className="navbar-nav me-1 mb-2x mb-lg-0x">

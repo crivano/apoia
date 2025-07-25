@@ -8,6 +8,8 @@ import { z } from "zod"
 import { Interop, ObterPecaType } from "../interop/interop"
 import { InteropProcessoType } from "../interop/interop-types"
 import { getPrecedentTool } from "./tools-juris"
+import { cookies } from "next/headers"
+import { anonymizeText } from "../anonym/anonym"
 
 
 export const getProcessMetadata = async (processNumber: string, interop: Interop): Promise<InteropProcessoType[]> => {
@@ -29,7 +31,31 @@ export const getProcessMetadataTool = (pUser: Promise<UserType>) => tool({
         try {
             processNumber = processNumber.trim().replace(/[^0-9]/g, '')
             const interop = await getInteropFromUser(await pUser)
-            return getProcessMetadata(processNumber, interop)
+            let metadata = await getProcessMetadata(processNumber, interop)
+
+            // Anonymize metadata if the cookie is set
+            const cookiesList = await (cookies());
+            const anonymize = cookiesList.get('anonymize')?.value === 'true'
+            if (anonymize) {
+                const anonymizeRecursively = (data: any): any => {
+                    if (Array.isArray(data)) {
+                        return data.map(item => anonymizeRecursively(item));
+                    }
+                    if (data !== null && typeof data === 'object') {
+                        return Object.entries(data).reduce((acc, [key, value]) => {
+                            acc[key] = anonymizeRecursively(value);
+                            return acc;
+                        }, {} as { [key: string]: any });
+                    }
+                    if (typeof data === 'string') {
+                        return anonymizeText(data, { endereco: true, email: true, names: true }).text;
+                    }
+                    return data;
+                };
+                metadata = anonymizeRecursively(metadata);
+            }
+
+            return metadata
         } catch (error) {
             console.error('Error executing getProcessMetadataTool:', error)
             return `Error fetching metadata for process ${processNumber}: ${error instanceof Error ? error.message
@@ -78,10 +104,17 @@ export const getPieceContentTool = (pUser: Promise<UserType>) => tool({
                 }
 
                 // Extract text from the buffer
-                const texto = decoder.decode(p.buffer)
+                let texto = decoder.decode(p.buffer)
                 const descr = documentInfo?.doc?.tipoDocumento
                 const label = documentInfo?.movimento?.descricao
                 const event = documentInfo?.movimento?.sequencia
+
+                // Anonymize text if the cookie is set
+                const cookiesList = await (cookies());
+                const anonymize = cookiesList.get('anonymize')?.value === 'true'
+                if (anonymize) {
+                    texto = anonymizeText(texto).text
+                }
 
                 return {
                     id: pieceId,

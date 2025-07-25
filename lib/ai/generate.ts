@@ -3,19 +3,15 @@
 import { CoreTool, streamText, StreamTextResult, LanguageModel, streamObject, StreamObjectResult, DeepPartial, CoreMessage, generateText } from 'ai'
 import { IAGenerated } from '../db/mysql-types'
 import { Dao } from '../db/mysql'
-import { assertCourtId, assertCurrentUser, UserType } from '../user'
+import { assertCourtId, assertCurrentUser } from '../user'
 import { PromptDataType, PromptDefinitionType, PromptExecutionResultsType, PromptOptionsType, TextoType } from '@/lib/ai/prompt-types'
-import { formatText, promptExecuteBuilder, waitForTexts } from './prompt'
+import { promptExecuteBuilder, waitForTexts } from './prompt'
 import { calcSha256 } from '../utils/hash'
 import { envString } from '../utils/env'
 import { anonymizeText } from '../anonym/anonym'
 import { getModel } from './model-server'
 import { modelCalcUsage } from './model-types'
-import { z } from 'zod'
-import { tool } from 'ai'
-import { CargaDeConteudoEnum, obterDadosDoProcesso } from '../proc/process'
-import { slugify } from '../utils/utils'
-import { getPieceContentTool as getPiecesTextTool, getProcessMetadataTool } from './tools'
+import { cookies } from 'next/headers';
 
 export async function retrieveFromCache(sha256: string, model: string, prompt: string, attempt: number | null): Promise<IAGenerated | undefined> {
     const cached = await Dao.retrieveIAGeneration({ sha256, model, prompt, attempt })
@@ -79,7 +75,10 @@ export async function streamContent(definition: PromptDefinitionType, data: Prom
     console.log('will build prompt', definition.kind)
     await waitForTexts(data)
 
-    if (envString('ANONIMYZE')) {
+    // Anonymize text if the cookie is set
+    const cookiesList = await (cookies());
+    const anonymize = cookiesList.get('anonymize')?.value === 'true'
+    if (anonymize) {
         data.textos = data.textos.map((datum: any) => {
             let l = datum.label
             if (l) {
@@ -123,6 +122,7 @@ export async function generateAndStreamContent(model: string, structuredOutputs:
     const user = await pUser
     const user_id = await Dao.assertIAUserId(user.preferredUsername || user.name)
     const court_id = await assertCourtId(user)
+
     if (!structuredOutputs) {//} || model.startsWith('aws-')) {
         console.log('streaming text', kind) //, messages, modelRef)
         if (apiKeyFromEnv) {
