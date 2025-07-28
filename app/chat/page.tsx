@@ -21,7 +21,9 @@ export default async function Home() {
         { suggestion: 'Resuma o processo em um parágrafo.', icon: faFileLines, label: 'Resumir o processo' },
         { suggestion: 'Liste as partes e seus advogados.', icon: faUsers, label: 'Listar as partes' },
         { suggestion: 'Qual o valor da causa?', icon: faSackDollar, label: 'Valor da causa' },
-        { suggestion: 'Quais são os pontos ainda controvertidos?', icon: faQuestionCircle, label: 'Pontos controvertidos' }
+        { suggestion: 'Quais são os pontos ainda controvertidos?', icon: faQuestionCircle, label: 'Pontos controvertidos' },
+        { suggestion: 'Quais são os principais argumentos das partes?', icon: faFileLines, label: 'Argumentos das partes' },
+        { suggestion: 'Pesquise e liste os principais precedentes relevantes para a controvérsia, apresentando cada um em um único parágrafo, com número do processo, tribunal, órgão julgador, relator, data do julgamento e, em seguida, a justificativa de por que o precedente se aplica ao caso, sem incluir a ementa.', icon: faFileLines, label: 'Precedentes relacionados' }
     ]
 
     return (

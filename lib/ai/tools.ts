@@ -10,6 +10,7 @@ import { InteropProcessoType } from "../interop/interop-types"
 import { getPrecedentTool } from "./tools-juris"
 import { cookies } from "next/headers"
 import { anonymizeText } from "../anonym/anonym"
+import { isAllowedUser } from "../utils/env"
 
 
 export const getProcessMetadata = async (processNumber: string, interop: Interop): Promise<InteropProcessoType[]> => {
@@ -140,11 +141,17 @@ export const getTools = async (pUser: Promise<UserType>, options?: ToolExecution
         getProcessMetadata: getProcessMetadataTool(pUser),
         getPiecesText: getPieceContentTool(pUser),
     }
-    const user = await pUser
-
-    const courtId = await assertCourtId(user)
-    if (courtId === 999998 || courtId === 999999 || courtId === 4) {
-        (toools as any).getPrecedent = getPrecedentTool(pUser)
+    try {
+        // Check if the user is allowed to access the precedent tool, must be TRF2 and have a specific CPF
+        const user = await pUser
+        const courtId = await assertCourtId(user)
+        if (courtId === 999998 || courtId === 999999 || courtId === 4) {
+            if (isAllowedUser(user.preferredUsername, courtId)) {
+                (toools as any).getPrecedent = getPrecedentTool(pUser)
+            }
+        }
+    } catch (error) {
+        console.error('Error getting tools:', error)
     }
     return toools
 }

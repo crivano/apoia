@@ -33,7 +33,7 @@ enum EnvPublicEnum {
     MODEL,
     MNI_LIMIT,
     OCR_LIMIT,
-    
+
     WOOTRIC_ACCOUNT_TOKEN,
     GOOGLE_ANALYTICS_ID,
 }
@@ -104,6 +104,28 @@ export const envNumber = (name: string): number | undefined => {
     if (str === undefined) return undefined
     const num = Number(str)
     return isNaN(num) ? undefined : num
+}
+
+export const isAllowedUser = (username: string, countId?: number): boolean => {
+    const usernames = envStringPrefixed('MODEL_ALLOWED_USERS', countId ? `${countId}` : undefined)?.split(',')
+    if (!usernames) return true // no restriction
+    return usernames.includes(username)
+}
+
+export const envStringPrefixed = (key: string, seqTribunalPai: string): string => {
+    let s: string
+    if (seqTribunalPai)
+        s = envString(`TRIBUNAL_${seqTribunalPai}_${key}`)
+    if (!s)
+        s = envString(key)
+    return s
+}
+
+export const getEnvStringPrefixedIfUserIsAllowed = (username: string, key: string, seqTribunalPai?: string): string => {
+    if (!isAllowedUser(username, seqTribunalPai ? Number(seqTribunalPai) : undefined)) return undefined
+    const apiKey = envStringPrefixed(key, seqTribunalPai)
+    if (!apiKey) return undefined
+    return apiKey
 }
 
 export type System = {

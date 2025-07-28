@@ -3,7 +3,7 @@
 import { redirect } from "next/navigation"
 import { enumSortById, enumSorted, Model, ModelProvider, ModelProviderType } from "./model-types"
 import { getPrefs } from "../utils/prefs"
-import { envString } from "../utils/env"
+import { envString, envStringPrefixed, getEnvStringPrefixedIfUserIsAllowed } from "../utils/env"
 import { createAnthropic } from "@ai-sdk/anthropic"
 import { createOpenAI } from "@ai-sdk/openai"
 import { createGoogleGenerativeAI } from "@ai-sdk/google"
@@ -50,22 +50,6 @@ export const assertModel = async () => {
     }
 }
 
-function getEnvStringPrefixedIfUserIsAllowed(username: string, key: string, seqTribunalPai?: string): string {
-    const usernames = envStringPrefixed('MODEL_ALLOWED_USERS', seqTribunalPai)
-    if (usernames && !usernames.includes(username)) return undefined
-    const apiKey = envStringPrefixed(key, seqTribunalPai)
-    if (!apiKey) return undefined
-    return apiKey
-}
-
-function envStringPrefixed(key: string, seqTribunalPai: string): string {
-    let s: string
-    if (seqTribunalPai)
-        s = envString(`TRIBUNAL_${seqTribunalPai}_${key}`)
-    if (!s)
-        s = envString(key)
-    return s
-}
 export type ModelParams = { model: string, apiKey: string, availableApiKeys: string[], apiKeyFromEnv: boolean, defaultModel?: string, selectableModels?: string[], userMayChangeModel: boolean, azureResourceName: string, awsRegion?: string, awsAccessKeyId?: string }
 export async function getSelectedModelParams(): Promise<ModelParams> {
     const prefs = await getPrefs()
