@@ -1,4 +1,5 @@
 import { removeAccents } from "../utils/utils"
+import auto_json from './auto-json.md'
 
 export const INFORMATION_EXTRACTION_TITLE = '## Instruções para o Preenchimento do JSON de Resposta'
 
@@ -130,7 +131,7 @@ export const promptJsonSchemaFromPromptMarkdown = (md: string): string | undefin
     // Converte as variáveis para o formato do JSON Schema
     const properties: Record<string, any> = {}
     for (const variable of variables) {
-        const variableSchema: any = { type: mapTypeToJsonSchema(variable.type), description: variable.description, additionalProperties: false }
+        const variableSchema: any = { type: mapTypeToJsonSchema(variable.type) }
         if (variable.properties && Object.keys(variable.properties).length > 0) {
             variableSchema.properties = {}
             for (const [propName, prop] of Object.entries(variable.properties)) {
@@ -154,8 +155,9 @@ export const promptJsonSchemaFromPromptMarkdown = (md: string): string | undefin
         if (obj.type === 'object' && obj.properties) {
             const requiredProperties = Object.keys(obj.properties);
             if (requiredProperties.length > 0) {
-                obj.required = requiredProperties;
+                obj.required = requiredProperties
             }
+            obj.additionalProperties = false
             for (const key in obj.properties) {
                 addRequiredFields(obj.properties[key]);
             }
@@ -177,3 +179,8 @@ function fixVariableName(name: string) {
     return fixed
 }
 
+// Função para corrigir o prompt, substituindo o título de instruções pelo JSON auto-gerado
+export function fixPromptForAutoJson(prompt: string): string {
+    const titleRegex = new RegExp(`^${INFORMATION_EXTRACTION_TITLE}\\s*$`, 'gms')
+    return prompt.replace(titleRegex, auto_json)
+}

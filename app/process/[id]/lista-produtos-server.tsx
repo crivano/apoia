@@ -2,7 +2,7 @@ import { buildRequests } from '@/lib/ai/analysis'
 import { getPiecesWithContent, waitForTexts } from '@/lib/ai/prompt'
 import { DadosDoProcessoType } from '@/lib/proc/process-types'
 import { infoDeProduto } from '@/lib/proc/info-de-produto'
-import { ListaDeProdutos } from './lista-produtos-client'
+import { ListaDeProdutos } from '@/components/slots/lista-produtos-client'
 
 export const ListaDeProdutosServer = async ({ pDadosDoProcesso, kind, pieces }) => {
     const dadosDoProcesso: DadosDoProcessoType = await pDadosDoProcesso

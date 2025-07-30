@@ -1,7 +1,7 @@
 'use client'
 
 import { Suspense, useState } from 'react'
-import { maiusculasEMinusculas } from '../../../lib/utils/utils'
+import { maiusculasEMinusculas } from '@/lib/utils/utils'
 import { ResumoDePecaLoading } from '@/components/loading'
 import { calcSha256 } from '@/lib/utils/hash'
 import { ContentType, GeneratedContent } from '@/lib/ai/prompt-types'
@@ -10,13 +10,13 @@ import { EMPTY_FORM_STATE, FormHelper } from '@/lib/ui/form-support'
 import { P } from '@/lib/proc/combinacoes'
 import Chat from './chat'
 import { DadosDoProcessoType } from '@/lib/proc/process-types'
+import AiTitle from '@/components/ai-title'
+import { VisualizationEnum } from '@/lib/ui/preprocess'
+import { preprocessTemplate } from '@/lib/ai/template'
+import { isInformationExtractionPrompt } from '@/lib/ai/auto-json'
+import { InformationExtractionForm } from '@/components/InformationExtractionForm'
 import { Pedidos } from './pedidos'
 import { PedidosFundamentacoesEDispositivos } from './pedidos-fundamentacoes-e-dispositivos'
-import AiTitle from '@/components/ai-title'
-import { InformationExtractionForm } from '@/components/InformationExtractionForm'
-import { format } from '@/lib/ai/format'
-import { preprocess } from '@/lib/ui/preprocess'
-import { isInformationExtractionPrompt } from '@/lib/ai/auto-json'
 
 const Frm = new FormHelper(true)
 
@@ -27,27 +27,30 @@ const onBusy = (Frm: FormHelper, requests: GeneratedContent[], idx: number) => {
 const onReady = (Frm: FormHelper, requests: GeneratedContent[], idx: number, content: ContentType) => {
     const request = requests[idx]
     Frm.set('pending', Frm.get('pending') - 1)
-    // console.log('onReady', idx, request.produto, content)
 
     // Frm.set(`flow.ready[${idx}]`, content)
     if (requests[idx].produto === P.PEDIDOS && content.json) {
         Frm.set('pedidos', content.json.pedidos)
     }
-    if (requests[idx].produto === P.PEDIDOS_FUNDAMENTACOES_E_DISPOSITIVOS && content.json) {
-        Frm.set('pedidos', content.json.pedidos)
-    }
     if (content.json && isInformationExtractionPrompt(requests[idx].internalPrompt?.prompt)) {
-        Frm.set('information_extraction', content.json)
+        const informationExtractionVariableName = `_information_extraction_${idx}`
+        Frm.set(informationExtractionVariableName, content.json)
     }
 }
 
 function requestSlot(Frm: FormHelper, requests: GeneratedContent[], idx: number) {
     const request = requests[idx]
 
-    // console.log('requestSlot', Frm.data, requests, idx, Frm.get('pedidos_fundamentacoes_e_dispositivos'))
+    const informationExtractionVariableName = `_information_extraction_${idx}`
+    const dataHash = calcSha256(request.data)
+    const lastDataHash = Frm.get(`_lastDataHash_${idx}`)
+    if (lastDataHash !== dataHash) {
+        Frm.set(`_lastDataHash_${idx}`, dataHash)
+        Frm.set(informationExtractionVariableName, undefined)
+    }
+    const information_extraction = Frm.get(informationExtractionVariableName)
 
     const pedidos = Frm.get('pedidos')
-    const information_extraction = Frm.get('information_extraction')
     if (request.produto === P.PEDIDOS && pedidos) {
         return <Pedidos pedidos={pedidos} request={request} Frm={Frm} key={idx} />
     } else if (request.produto === P.PEDIDOS_FUNDAMENTACOES_E_DISPOSITIVOS && pedidos) {
@@ -56,17 +59,18 @@ function requestSlot(Frm: FormHelper, requests: GeneratedContent[], idx: number)
         // console.log('requestSlot: information_extraction', request.internalPrompt?.prompt, information_extraction)
         return <div key={idx}>
             <AiTitle request={request} />
-            <InformationExtractionForm promptMarkdown={request.internalPrompt.prompt} promptFormat={request.internalPrompt.format} Frm={Frm} />
+            <InformationExtractionForm promptMarkdown={request.internalPrompt.prompt} promptFormat={request.internalPrompt.format} Frm={Frm} variableName={informationExtractionVariableName} />
         </div>
     } else if (request.produto === P.CHAT) {
         if (Frm.get('pending') > 0) return null
-        return <Chat definition={request.internalPrompt} data={request.data} key={calcSha256(request.data)} />
+        return <Chat definition={request.internalPrompt} data={request.data} key={dataHash} />
     }
 
     return <div key={idx}>
         <AiTitle request={request} />
         <Suspense fallback={ResumoDePecaLoading()}>
-            <AiContent definition={request.internalPrompt} data={request.data} key={`prompt: ${request.promptSlug}, data: ${calcSha256(request.data)}`} onBusy={() => onBusy(Frm, requests, idx)} onReady={(content) => onReady(Frm, requests, idx, content)} />
+            <AiContent definition={request.internalPrompt} data={request.data} key={`prompt: ${request.promptSlug} data: ${dataHash}`} onBusy={() => onBusy(Frm, requests, idx)} onReady={(content) => onReady(Frm, requests, idx, content)}
+                visualization={request.internalPrompt.template ? VisualizationEnum.DIFF_HIGHLIGHT_INCLUSIONS : undefined} diffSource={request.internalPrompt.template ? preprocessTemplate(request.internalPrompt.template) : undefined} />
         </Suspense>
     </div>
 }
@@ -76,10 +80,9 @@ export const ListaDeProdutos = ({ dadosDoProcesso, requests }: { dadosDoProcesso
 
     if (!dadosDoProcesso || dadosDoProcesso.errorMsg) return ''
 
-    const tipoDeSintese = dadosDoProcesso.tipoDeSintese
-    const produtos = dadosDoProcesso.produtos
-    if (!tipoDeSintese || !produtos || produtos.length === 0) return ''
-
+    // const tipoDeSintese = dadosDoProcesso.tipoDeSintese
+    // const produtos = dadosDoProcesso.produtos
+    // if (!tipoDeSintese || !produtos || produtos.length === 0) return ''
 
     Frm.update(data, setData, EMPTY_FORM_STATE)
 

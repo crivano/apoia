@@ -11,16 +11,17 @@ export type PromptFormProps = {
     promptMarkdown: string
     promptFormat: string
     Frm: FormHelper
+    variableName: string
 }
 
-const PromptField = (variable: PromptVariableType, Frm: FormHelper) => {
+const PromptField = (variable: PromptVariableType, Frm: FormHelper, variableName: string) => {
     switch (variable.type) {
         case 'boolean':
             return (
                 <Frm.Checkbox
                     key={variable.name}
                     label={variable.label || variable.name}
-                    name={`information_extraction.${variable.name}`}
+                    name={`${variableName}.${variable.name}`}
                     width={6}
                 />
             )
@@ -30,7 +31,7 @@ const PromptField = (variable: PromptVariableType, Frm: FormHelper) => {
                 <Frm.Input
                     key={variable.name}
                     label={variable.label || variable.name}
-                    name={`information_extraction.${variable.name}`}
+                    name={`${variableName}.${variable.name}`}
                     width={6}
                 />
             )
@@ -39,7 +40,7 @@ const PromptField = (variable: PromptVariableType, Frm: FormHelper) => {
                 <Frm.TextArea
                     key={variable.name}
                     label={variable.label || variable.name}
-                    name={`information_extraction.${variable.name}`}
+                    name={`${variableName}.${variable.name}`}
                     width={12}
                 />
             )
@@ -49,14 +50,21 @@ const PromptField = (variable: PromptVariableType, Frm: FormHelper) => {
                 <Frm.Input
                     key={variable.name}
                     label={variable.label || variable.name}
-                    name={`information_extraction.${variable.name}`}
+                    name={`${variableName}.${variable.name}`}
                     width={6}
                 />
             )
     }
 }
 
-export const InformationExtractionForm: React.FC<PromptFormProps> = ({ promptMarkdown, promptFormat, Frm }) => {
+const Variable: React.FC<{ variable: PromptVariableType; index: number, Frm: FormHelper, variableName: string }> = ({ variable, index, Frm, variableName }) => {
+    return <>
+        {variable.separatorName && <div className="col-12"><h4 className={`${index ? 'mt-3' : 'mt-0'} mb-1`}>{variable.separatorName.replace(/_/g, ' ')}</h4></div>}
+        {PromptField(variable, Frm, variableName)}
+    </>
+}
+
+export const InformationExtractionForm: React.FC<PromptFormProps> = ({ promptMarkdown, promptFormat, Frm, variableName }) => {
     const variables = flatternPromptVariables(parsePromptVariablesFromMarkdown(promptMarkdown))
     // if (!variables || variables.length === 0) return null
     // console.log(`InformationExtractionForm: variables: ${JSON.stringify(variables, null, 2)}`)
@@ -68,7 +76,8 @@ export const InformationExtractionForm: React.FC<PromptFormProps> = ({ promptMar
         promptFormatPreprocessed = promptFormatPreprocessed.replace(/{=/g, '{{')
         promptFormatPreprocessed = promptFormatPreprocessed.replace(/=}/g, '}}')
         // console.log(`Prompt format preprocessed: ${promptFormatPreprocessed}`)
-        const html = preprocess(JSON.stringify(Frm.get('information_extraction')), { format: promptFormatPreprocessed } as PromptDefinitionType, undefined, true).text
+        // console.log('information_extraction', Frm.get(variableName) )
+        const html = preprocess(JSON.stringify(Frm.get(variableName)), { format: promptFormatPreprocessed } as PromptDefinitionType, undefined, true).text
         return <>
             <div className="alert alert-info ai-content mb-3" dangerouslySetInnerHTML={{ __html: html }} />
             <div className="row h-print mb-3">
@@ -85,14 +94,11 @@ export const InformationExtractionForm: React.FC<PromptFormProps> = ({ promptMar
         <div className="alert alert-warning">
             <div className="row">
                 {variables.map((variable, index) => (
-                    <>
-                        {variable.separatorName && <div className="col-12"><h4 className={`${index ? 'mt-3' : 'mt-0'} mb-1`}>{variable.separatorName.replace(/_/g, ' ')}</h4></div>}
-                        {PromptField(variable, Frm)}
-                    </>
+                    <Variable key={index} variable={variable} index={index} Frm={Frm} variableName={variableName} />
                 ))}
             </div>
         </div>
-        {Frm.get('information_extraction') &&
+        {Frm.get(variableName) &&
             <div className="row h-print">
                 <div className="col">
                     <Button className="float-end mb-3" variant="warning" onClick={() => Frm.set('information_extraction_editing', false)}>

@@ -1,4 +1,4 @@
-import Print from './print'
+import Print from '../../../components/slots/print'
 
 const PrintServerContents = async ({ pDadosDoProcesso, numeroDoProcesso }) => {
     const dadosDoProcesso = await pDadosDoProcesso

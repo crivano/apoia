@@ -8,11 +8,11 @@ import { GeneratedContent, PromptDataType, PromptDefinitionType, TextoType } fro
 import { joinReactElementsWithAnd, joinWithAnd, slugify } from "@/lib/utils/utils";
 import { getInternalPrompt } from "@/lib/ai/prompt";
 import { ProgressBar } from "react-bootstrap";
-import Print from "@/app/process/[id]/print";
-import Subtitulo from "./subtitulo";
+import Print from "@/components/slots/print";
+import Subtitulo from "../../components/slots/subtitulo";
 import ChoosePieces from "./choose-pieces";
 import ErrorMsg from "./error-msg";
-import { ListaDeProdutos } from "./lista-produtos-client";
+import { ListaDeProdutos } from "../../components/slots/lista-produtos-client";
 import { PromptParaCopiar } from "./prompt-to-copy";
 
 export default function ProcessContents({ prompt, dadosDoProcesso, pieceContent, setPieceContent, apiKeyProvided, model, children }: { prompt: IAPrompt, dadosDoProcesso: DadosDoProcessoType, pieceContent: any, setPieceContent: (pieceContent: any) => void, apiKeyProvided: boolean, model?: string, children?: ReactNode }) {

@@ -16,44 +16,6 @@ Comece lendo atentamente o conteúdo dos documentos fornecidos. Estes documentos
 - Se houver outros laudos do INSS, serão considerados laudos complementares.
 - Os laudos complementares devem ser incluídos na análise como esclarecimentos, correções ou complementação do laudo pericial original.
 
-## Estrutura do JSON:
-A estrutura do JSON que você deve preencher está definida na variável:
-
-<estrutura_json>
-{{jsonSchema}}
-</estrutura_json>
-
-Familiarize-se com esta estrutura, pois você precisará preenchê-la com as informações extraídas dos documentos.
-
-## Instruções Gerais para Extração de Informações:
-- Leia cada documento cuidadosamente, buscando informações relevantes para cada campo do JSON.
-- Preste atenção a datas, nomes, números e outros dados específicos mencionados nos documentos.
-- Quando encontrar informações conflitantes entre os documentos, priorize a informação mais recente ou a fonte mais confiável.
-- Se uma informação não puder ser encontrada, deixe o campo correspondente vazio no JSON.
-- Todas as datas devem ser informadas no formato dd/mm/yyyy.
-- Datas:
-  - Todos os campos que são prefixados com "Dt_" são datas.
-  - Todas as datas devem ser informada no formato dd/mm/yyyy.
-  - Dia e mês devem sempre ser informados com dois dígitos.
-- Mês e Ano:
-  - Todos os campos que são prefixados com "Ma_" são para serem preenchidos com o mês e o ano no formato mm/aaaa.
-  - Mês deve sempre ser informado com dois dígitos.
-- Booleanos:
-  - Todos os campos que são prefixados com "Lo_" são booleanos.
-- Eventos:
-  - Todos os campos que são prefixados com "Ev_" são eventos.
-  - O evento deve ser preenchido apenas com o número do evento.
-  - Caso o evento não seja localizado, preencher com "".
-- Texto Pequeno:
-  - Todos os campos que são prefixados com "Tx_" são textos de uma linha (strings).
-  - Estes campos deve sem preenchidos com um texto de no máximo 300 caracteres.
-- Texto Grande:
-  - Todos os campos que são prefixados com "Tg_" são textos grandes e podem conter múltiplas linhas.
-- Informações faltantes:
-  - Caso não encontre alguma informação nos documentos fornecidos, deixe o campo em branco.
-  - Nunca invente informações. Use apenas as que estiverem disponíveis nos documentos fornecidos.
-
-
 ## Instruções para o Preenchimento do JSON de Resposta
 Conforme visto acima, o JSON é composto de alguns objetos principais, cada um com suas propriedades.
 Descreverei, abaixo, informações gerais sobre cada um desses objetos principais e depois como informar
@@ -69,28 +31,39 @@ cada uma de suas propriedades.
 Este objeto reflete informações constantes nos documentos petição inicial e contestação que foram disponibilizados acima.
 
 ###### Lo_APIN - Pedido de Benefício por Incapacidade Permanente
-- Indica se a petição inicial contém pedido de benefício por incapacidade permanente (aposentadoria por invalidez).
+- Indica se há pedido de benefício por incapacidade permanente (aposentadoria por invalidez).
 
 ###### Lo_AC25 - Pedido de Acréscimo de 25%
-- Indica se a petição inicial contém pedido de acréscimo de 25% em benefício por incapacidade.
+- Indica se há pedido de acréscimo de 25% em benefício por incapacidade.
 
 ###### Lo_DM - Pedido de Dano Moral
-- Indica se a petição inicial contém pedido de indenização por danos morais.
+- Indica se há pedido de indenização por danos morais.
 
 ###### Lo_Revel - Revelia
 - Se não houver peça de contestação, informe "true", caso o contrário, informe "false".
 
 ###### Lo_Interesse - Falta de Interesse de Agir
 - Se a contestação alegar falta de interesse de agir, informe "true", caso contrário ou caso não haja contestação, informe "false".
+- Se não houver contestação, informe "false".
 
 ###### Lo_Prescricao - Aplicação de Prescrição
-- Indica se a contestação requer aplicação de prescrição, caso não haja contestação, informe "false".
+- Se houver pedido de prescrição (ainda que só mencionado nos requerimentos), informe "true", caso contrário ou caso não haja contestação, informe "false".
+- Se não houver contestação, informe "false".
 
 ###### Tg_Resumo_Inicial - Resumo da Petição Inicial
-- Faça um resumo da petição inicial em um parágrafo
+- O resumo deve: 
+  - começar obrigatoriamente com: "Trata-se de ação previdenciária, por meio da qual a parte autora pretende a condenação do INSS a” completando a frase com os pedidos (ex: concessão / restabelecimento do benefício de auxílio por incapacidade temporária e sua conversão em aposentadora por invalidez permanente). Também devem ser citados eventuais pedidos de acréscimo de 25% e/ou dano moral. 
+  - mencionar, se presentes, o número do benefício (NB) no formato nnn.nnn.nnn-n e a data de início dos atrasados pretendidos (no caso de restabelecimento, geralmente a DCB, e, no caso de concessão, geralmente a DER).
+  - indicar os principais fundamentos, mas sem mencionar nominalmente as patologias, evitando reproduzir linguagem estigmatizante ou sensacionalista.
+- Se não houver petição inicial, deixe o campo em branco.
 
 ###### Tg_Resumo_Contestacao - Resumo da Contestação
-- Faça um resumo da contestação em um parágrafo
+- O resumo deve indicar, de forma objetiva e concisa:
+  - as preliminares (ex: coisa julgada, interesse de agir, prescrição, ausência de documentos);
+  - as alegações de mérito (ex: ausência de incapacidade, perícia administrativa, inexistência de qualidade de segurado etc.);
+  - Evitar repetir argumentos irrelevantes ou puramente formais.
+- Se não houver contestação, deixe o campo em branco.
+
 
 ###### Ev_Cessacao_Benef - Evento que Comprova a Cessação do Benefício
 - Em que evento se comprova a cessação do benefício?
@@ -230,8 +203,10 @@ Afasto a preliminar de falta de interesse de agir diante da comprovação de ces
 Rejeito a alegação de prescrição quinquenal, pois, apesar da previsão legal no art. 103, parágrafo único, da Lei 8.213/91, não há, nos presentes autos, requerimento que ultrapasse o período de 5 anos contados da propositura da inicial. 
 {% endif %}
 
-Para o recebimento de auxílio por incapacidade temporária, mister se faz que a parte demandante atenda aos requisitos legais ditados pelo art. 59 da Lei nº 8.213/91, quais sejam: ostentar a qualidade de segurado, atender o prazo de carência fixado em lei e constatação de incapacidade para o seu trabalho ou para a sua atividade habitual por mais de 15 dias consecutivos. Já em relação à aposentadoria por incapacidade permanente é necessário, além do preenchimento dos dois primeiros requisitos acima descritos, que haja incapacidade insuscetível de reabilitação para o exercício de atividade que garanta subsistência, nos termos do art. 42 da Lei nº 8.213/91. 
+Para o recebimento de auxílio por incapacidade temporária, mister se faz que a parte demandante atenda aos requisitos legais ditados pelo art. 59 da Lei nº 8.213/91, quais sejam: ostentar a qualidade de segurado, atender o prazo de carência fixado em lei e constatação de incapacidade para o seu trabalho ou para a sua atividade habitual por mais de 15 dias consecutivos. Já em relação à aposentadoria por incapacidade permanente é necessário, além do preenchimento dos dois primeiros requisitos acima descritos, que haja incapacidade insuscetível de reabilitação para o exercício de atividade que garanta subsistência, nos termos do art. 42 da Lei nº 8.213/91.
+
 A perícia judicial realizada em {{Dt_Pericia}} atestou que a parte autora encontra-se apta ao exercício de suas atividades laborais. Pelas conclusões médicas constantes no laudo de evento {{Ev_Laudo}}, a situação fática vivida pela parte autora não atende ao requisito legal de incapacidade para a concessão do benefício pretendido. 
+
 Acolho e fundamento a ausência de incapacidade nos termos do laudo pericial, o qual utilizo como razões de decidir, passando a analisar a impugnação juntada no evento {{Ev_Impug}}. 
 
 {% call condicao(Lo_Impug_Docs_Contrarios, Tx_Impug_Docs_Contrarios_Justificativa) -%}
@@ -318,26 +293,26 @@ Diante dos elementos probatórios adunados aos autos, restou comprovado que a si
 Por fim, não há que se falar em dano moral. A uma porque não há nos autos prova de que a parte autora tenha sido tratada de forma desrespeitosa, com específico desprestígio, ou algo em especial que justifique a imposição da reparação pretendida, e, a duas, por decorrência lógica do indeferimento do benefício em juízo, o que revela acerto da Administração no caso em tela. 
 {% endif %}
 
-Dispositivo
+**DISPOSITIVO**
 
 {% if not Lo_APIN and not Lo_AC25 %}
-Diante do exposto, com fulcro no art. 487, I, do CPC, JULGO IMPROCEDENTE o pedido de concessão do auxílio por incapacidade temporária, nos termos da fundamentação.
+Diante do exposto, com fulcro no art. 487, I, do CPC, **JULGO IMPROCEDENTE o pedido** de concessão do auxílio por incapacidade temporária, nos termos da fundamentação.
 {% endif %}
 
 {% if Lo_APIN and not Lo_AC25 %}
-Diante do exposto, com fulcro no art. 487, I, do CPC, JULGO IMPROCEDENTES os pedidos de concessão do auxílio por incapacidade temporária e conversão em aposentadoria por incapacidade permanente, nos termos da fundamentação.
+Diante do exposto, com fulcro no art. 487, I, do CPC, **JULGO IMPROCEDENTES os pedidos** de concessão do auxílio por incapacidade temporária e conversão em aposentadoria por incapacidade permanente, nos termos da fundamentação.
 {% endif %}
 
 {% if not Lo_APIN and Lo_AC25 %}
-Diante do exposto, com fulcro no art. 487, I, do CPC, JULGO IMPROCEDENTES os pedidos de concessão do auxílio por incapacidade temporária e acréscimo de 25% referente ao auxílio permanente de terceiros, nos termos da fundamentação.
+Diante do exposto, com fulcro no art. 487, I, do CPC, **JULGO IMPROCEDENTES os pedidos** de concessão do auxílio por incapacidade temporária e acréscimo de 25% referente ao auxílio permanente de terceiros, nos termos da fundamentação.
 {% endif %}
 
 {% if Lo_APIN and Lo_AC25 %}
-Diante do exposto, com fulcro no art. 487, I, do CPC, JULGO IMPROCEDENTES os pedidos de concessão do auxílio por incapacidade temporária, conversão em aposentadoria por incapacidade permanente e acréscimo de 25% referente ao auxílio permanente de terceiros, nos termos da fundamentação.
+Diante do exposto, com fulcro no art. 487, I, do CPC, **JULGO IMPROCEDENTES os pedidos** de concessão do auxílio por incapacidade temporária, conversão em aposentadoria por incapacidade permanente e acréscimo de 25% referente ao auxílio permanente de terceiros, nos termos da fundamentação.
 {% endif %}
 
 {% if Lo_DM %}
-JULGO igualmente IMPROCEDENTE o pedido de condenação em danos morais.
+**JULGO igualmente IMPROCEDENTE o pedido** de condenação em danos morais.
 {% endif %}
 
 Sem custas e honorários advocatícios, conforme artigos 55 da Lei 9.099/95 c/c art. 1º da Lei 10.259/01. 

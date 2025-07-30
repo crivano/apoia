@@ -3,7 +3,7 @@
 import { Suspense } from 'react'
 import { unstable_noStore as noStore } from 'next/cache'
 import { Container, Spinner } from 'react-bootstrap'
-import Chat, { SuggestionType } from '../community/chat'
+import Chat, { SuggestionType } from '../../components/slots/chat'
 import { getInternalPrompt } from '@/lib/ai/prompt'
 import { PromptDataType } from '@/lib/ai/prompt-types'
 import { faFileLines, faQuestionCircle } from '@fortawesome/free-regular-svg-icons'

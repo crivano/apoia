@@ -6,7 +6,7 @@ import { ProdutoLoading } from '@/components/loading'
 import { obterDadosDoProcesso } from '@/lib/proc/process'
 import PrintServerContents from './print-server-contents'
 import ErrorMsg from './error-msg'
-import Subtitulo, { SubtituloLoading } from './subtitulo'
+import { SubtituloAsync, SubtituloLoading } from '@/components/slots/subtitulo'
 import ChoosePieces from './choose-pieces'
 import { ListaDeProdutosServer } from './lista-produtos-server'
 import { DadosDoProcessoType, StatusDeLancamento } from '@/lib/proc/process-types'
@@ -42,7 +42,7 @@ export default async function ProcessServerContents({ id, kind, pieces }) {
         <div className="mb-3">
             <div className="">
                 <Suspense fallback={SubtituloLoading()}>
-                    <Subtitulo pDadosDoProcesso={pDadosDoProcesso} />
+                    <SubtituloAsync pDadosDoProcesso={pDadosDoProcesso} />
                 </Suspense>
                 <Suspense fallback=''>
                     <ChoosePiecesServer pDadosDoProcesso={pDadosDoProcesso} statusDeSintese={statusDeSintese} />

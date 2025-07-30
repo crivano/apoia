@@ -51,7 +51,9 @@ export type PromptExecuteParamsType = {
     cacheControl?: boolean | number
 }
 export type PromptExecuteType = {
-    message: CoreMessage[], params?: PromptExecuteParamsType
+    message: CoreMessage[], 
+    params?: PromptExecuteParamsType,
+    fixedPrompt: string
 }
 
 // Tipo de dados que podem ser armazenados para a configuração de um prompt pelo usuário

@@ -3,7 +3,7 @@ import { slugify } from "@/lib/utils/utils"
 import { PromptDataType, PromptExecuteType, PromptExecuteParamsType, PromptDefinitionType, PromptOptionsType, TextoType } from "@/lib/ai/prompt-types"
 import { buildFormatter } from "@/lib/ai/format"
 import { DadosDoProcessoType } from "@/lib/proc/process-types"
-import { promptJsonSchemaFromPromptMarkdown } from "./auto-json"
+import { fixPromptForAutoJson, promptJsonSchemaFromPromptMarkdown } from "./auto-json"
 
 export const formatText = (txt: TextoType, limit?: number) => {
     let s: string = txt.descr
@@ -72,6 +72,8 @@ export const promptExecuteBuilder = (definition: PromptDefinitionType, data: Pro
     if (prompt && !prompt.includes('{{') && (!definition.systemPrompt || !definition.systemPrompt.includes('{{')))
         prompt = `${prompt}\n\n{{textos}}`
 
+    prompt = fixPromptForAutoJson(prompt)
+
     if (prompt && !definition.jsonSchema) {
         definition.jsonSchema = promptJsonSchemaFromPromptMarkdown(prompt)
     }
@@ -84,7 +86,7 @@ export const promptExecuteBuilder = (definition: PromptDefinitionType, data: Pro
         params.structuredOutputs = { schemaName: 'structuredOutputs', schemaDescription: 'Structured Outputs', schema: jsonSchema(JSON.parse(definition.jsonSchema)) }
     if (definition.format)
         params.format = buildFormatter(definition.format)
-    return { message, params }
+    return { message, params, fixedPrompt: promptContent }
 }
 
 export const promptDefinitionFromDefinitionAndOptions = (definition: PromptDefinitionType, options: PromptOptionsType): PromptDefinitionType => {

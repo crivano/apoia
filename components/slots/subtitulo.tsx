@@ -1,10 +1,19 @@
-import { formatBrazilianDate } from "@/lib/utils/utils"
 import { tua } from '@/lib/proc/tua'
+import { DadosDoProcessoType } from "@/lib/proc/process-types"
+import { ReactNode } from 'react'
+import { formatBrazilianDate } from '@/lib/utils/utils'
 
-const Subtitulo = async ({ pDadosDoProcesso }) => {
+export const SubtituloAsync = async ({ pDadosDoProcesso }) => {
     const dadosDoProcesso = await pDadosDoProcesso
+
+    return <Subtitulo dadosDoProcesso={dadosDoProcesso} />
+}
+
+export const Subtitulo = ({ dadosDoProcesso }: { dadosDoProcesso: DadosDoProcessoType }) => {
     const ajuizamento = dadosDoProcesso?.ajuizamento
     const nomeDaClasse = tua[dadosDoProcesso?.codigoDaClasse]
+
+    if (!ajuizamento || !nomeDaClasse) return <></>
 
     // return SubtituloLoading()
 
@@ -20,7 +29,7 @@ const Subtitulo = async ({ pDadosDoProcesso }) => {
 }
 
 export const SubtituloLoading = () => {
-    return <div className="placeholder-glow mb-4">
+    return <div className="placeholder-glow">
         <div className="row justify-content-center">
             <div className="col-4"><div className="placeholder w-100"></div></div>
         </div>

@@ -8,7 +8,7 @@ import { PromptConfigType, PromptDefinitionType } from '@/lib/ai/prompt-types'
 import { slugify } from '@/lib/utils/utils'
 import { IAPrompt } from '@/lib/db/mysql-types'
 import { VisualizationEnum } from '@/lib/ui/preprocess'
-import Print from '../process/[id]/print'
+import Print from '../../components/slots/print'
 import { promptExecuteBuilder } from '@/lib/ai/prompt'
 
 const EditorComp = dynamic(() => import('@/components/EditorComponent'), { ssr: false })

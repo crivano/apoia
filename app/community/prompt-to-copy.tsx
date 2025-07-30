@@ -8,7 +8,7 @@ import { ContentType, GeneratedContent, PromptDefinitionType } from '@/lib/ai/pr
 import AiContent from '@/components/ai-content'
 import { EMPTY_FORM_STATE, FormHelper } from '@/lib/ui/form-support'
 import { P } from '@/lib/proc/combinacoes'
-import Chat from './chat'
+import Chat from '../../components/slots/chat'
 import { DadosDoProcessoType } from '@/lib/proc/process-types'
 import { IAPromptList } from '@/lib/db/mysql-types'
 import { promptExecuteBuilder } from '@/lib/ai/prompt'

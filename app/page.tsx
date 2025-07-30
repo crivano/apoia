@@ -52,7 +52,7 @@ export default async function HomePage() {
             <div className="text-center mb-4">
                 <h1 className="display-4 mb-0">Bem-vindo à Apoia</h1>
                 <p className="lead text-body-tertiary">
-                    Plataforma de Inteligência Artificial para magistrados e servidores do Poder Judiciário
+                    Plataforma de Inteligência Artificial para Magistrados e Servidores do Poder Judiciário
                 </p>
                 <ApiKeyMissing />
 
