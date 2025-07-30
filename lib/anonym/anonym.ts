@@ -44,6 +44,10 @@ export function anonymizeText(
     let currentText = text;
     let totalSubstitutions = 0;
 
+    if (!currentText) {
+        return { text: currentText, substitutions: totalSubstitutions }
+    }
+
     const {
         numeric = true,
         identidade = true,

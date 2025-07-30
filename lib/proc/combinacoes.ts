@@ -55,7 +55,9 @@ export enum P {
     CHAT = 'Chat',
     RELATORIO_DE_PROCESSO_COLETIVO_OU_CRIMINAL = 'Relatório de Processo Coletivo ou Criminal',
     MINUTA_DE_DESPACHO_DE_ACORDO_9_DIAS = 'Minuta de Despacho de Acordo 9 dias',
-    SENTENCA_PREV_BI_LAUDO_FAVORAVEL = 'Sentença BI (Laudo Favorável)',
+    PREV_BI_ANALISE_DE_LAUDO = 'Análise de Laudo Pericial BI',
+    PREV_BI_SENTENCA_LAUDO_FAVORAVEL = 'Sentença BI (Laudo Favorável)',
+    PREV_BI_SENTENCA_LAUDO_DESFAVORAVEL = 'Sentença BI (Laudo Desfavorável)',
 }
 
 export enum Plugin {
@@ -87,7 +89,9 @@ export const ProdutosValidos = {
     [P.CHAT]: { titulo: P.CHAT, prompt: 'chat', plugins: [] },
     [P.RELATORIO_DE_PROCESSO_COLETIVO_OU_CRIMINAL]: { titulo: P.RELATORIO_DE_PROCESSO_COLETIVO_OU_CRIMINAL, prompt: 'relatorio-de-processo-coletivo-ou-criminal', plugins: [Plugin.TRIAGEM, Plugin.NORMAS, Plugin.PALAVRAS_CHAVE] },
     [P.MINUTA_DE_DESPACHO_DE_ACORDO_9_DIAS]: { titulo: P.MINUTA_DE_DESPACHO_DE_ACORDO_9_DIAS, prompt: 'minuta-de-despacho-de-acordo-9-dias', plugins: [] },
-    [P.SENTENCA_PREV_BI_LAUDO_FAVORAVEL]: { titulo: P.SENTENCA_PREV_BI_LAUDO_FAVORAVEL, prompt: 'sentenca-prev-bi-laudo-favoravel', plugins: [] },
+    [P.PREV_BI_ANALISE_DE_LAUDO]: { titulo: P.PREV_BI_ANALISE_DE_LAUDO, prompt: 'prev-bi-analise-de-laudo', plugins: [] },
+    [P.PREV_BI_SENTENCA_LAUDO_FAVORAVEL]: { titulo: P.PREV_BI_SENTENCA_LAUDO_FAVORAVEL, prompt: 'prev-bi-sentenca-laudo-favoravel', plugins: [] },
+    [P.PREV_BI_SENTENCA_LAUDO_DESFAVORAVEL]: { titulo: P.PREV_BI_SENTENCA_LAUDO_DESFAVORAVEL, prompt: 'prev-bi-sentenca-laudo-desfavoravel', plugins: [] },
 }
 
 export interface ProdutoCompleto { produto: P, dados: T[] }
@@ -290,12 +294,31 @@ export const TipoDeSinteseMap: Record<string, TipoDeSinteseType> = {
         produtos: [P.RESUMOS, P.RESUMO]
     },
 
+    PREV_BI_ANALISE_DE_LAUDO: {
+        status: StatusDeLancamento.EM_DESENVOLVIMENTO,
+        sort: 1000,
+        nome: 'Análise de Laudo Pericial BI',
+        padroes: padroesBasicosPrimeiraInstancia,
+        // padroes: [
+        //     [ANY(), ANY({ capture: [T.LAUDO, T.LAUDO_PERICIA] })],
+        // ],
+        produtos: [PC(P.PREV_BI_ANALISE_DE_LAUDO, [T.LAUDO, T.LAUDO_PERICIA]), P.CHAT]
+    },
+
     SENTENCA_BI_LAUDO_FAVORAVEL: {
         status: StatusDeLancamento.EM_DESENVOLVIMENTO,
         sort: 1000,
-        nome: 'Sentença Bi-Laudo Favorável',
+        nome: 'Sentença BI - Laudo Favorável',
         padroes: padroesBasicosPrimeiraInstancia,
-        produtos: [P.SENTENCA_PREV_BI_LAUDO_FAVORAVEL]
+        produtos: [P.PREV_BI_SENTENCA_LAUDO_FAVORAVEL]
+    },
+
+    SENTENCA_BI_LAUDO_DESFAVORAVEL: {
+        status: StatusDeLancamento.EM_DESENVOLVIMENTO,
+        sort: 1000,
+        nome: 'Sentença BI - Laudo Desfavorável',
+        padroes: padroesBasicosPrimeiraInstancia,
+        produtos: [P.PREV_BI_SENTENCA_LAUDO_DESFAVORAVEL]
     },
 
 

@@ -16,6 +16,7 @@ import AiTitle from '@/components/ai-title'
 import { InformationExtractionForm } from '@/components/InformationExtractionForm'
 import { format } from '@/lib/ai/format'
 import { preprocess } from '@/lib/ui/preprocess'
+import { isInformationExtractionPrompt } from '@/lib/ai/auto-json'
 
 const Frm = new FormHelper(true)
 
@@ -26,6 +27,7 @@ const onBusy = (Frm: FormHelper, requests: GeneratedContent[], idx: number) => {
 const onReady = (Frm: FormHelper, requests: GeneratedContent[], idx: number, content: ContentType) => {
     const request = requests[idx]
     Frm.set('pending', Frm.get('pending') - 1)
+    // console.log('onReady', idx, request.produto, content)
 
     // Frm.set(`flow.ready[${idx}]`, content)
     if (requests[idx].produto === P.PEDIDOS && content.json) {
@@ -34,7 +36,7 @@ const onReady = (Frm: FormHelper, requests: GeneratedContent[], idx: number, con
     if (requests[idx].produto === P.PEDIDOS_FUNDAMENTACOES_E_DISPOSITIVOS && content.json) {
         Frm.set('pedidos', content.json.pedidos)
     }
-    if (requests[idx].produto === P.SENTENCA_PREV_BI_LAUDO_FAVORAVEL && content.json) {
+    if (content.json && isInformationExtractionPrompt(requests[idx].internalPrompt?.prompt)) {
         Frm.set('information_extraction', content.json)
     }
 }
@@ -47,11 +49,15 @@ function requestSlot(Frm: FormHelper, requests: GeneratedContent[], idx: number)
     const pedidos = Frm.get('pedidos')
     const information_extraction = Frm.get('information_extraction')
     if (request.produto === P.PEDIDOS && pedidos) {
-        return <Pedidos pedidos={pedidos} request={request} Frm={Frm} />
+        return <Pedidos pedidos={pedidos} request={request} Frm={Frm} key={idx} />
     } else if (request.produto === P.PEDIDOS_FUNDAMENTACOES_E_DISPOSITIVOS && pedidos) {
-        return <PedidosFundamentacoesEDispositivos pedidos={pedidos} request={request} Frm={Frm} />
-    } else if (request.produto === P.SENTENCA_PREV_BI_LAUDO_FAVORAVEL && information_extraction) {
-        return <><AiTitle request={request} /><InformationExtractionForm promptMarkdown={request.internalPrompt.prompt} promptFormat={request.internalPrompt.format} Frm={Frm} /></>
+        return <PedidosFundamentacoesEDispositivos pedidos={pedidos} request={request} Frm={Frm} key={idx} />
+    } else if (isInformationExtractionPrompt(request.internalPrompt?.prompt) && information_extraction) {
+        // console.log('requestSlot: information_extraction', request.internalPrompt?.prompt, information_extraction)
+        return <div key={idx}>
+            <AiTitle request={request} />
+            <InformationExtractionForm promptMarkdown={request.internalPrompt.prompt} promptFormat={request.internalPrompt.format} Frm={Frm} />
+        </div>
     } else if (request.produto === P.CHAT) {
         if (Frm.get('pending') > 0) return null
         return <Chat definition={request.internalPrompt} data={request.data} key={calcSha256(request.data)} />

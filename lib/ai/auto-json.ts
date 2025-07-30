@@ -1,3 +1,7 @@
+import { removeAccents } from "../utils/utils"
+
+export const INFORMATION_EXTRACTION_TITLE = '## Instruções para o Preenchimento do JSON de Resposta'
+
 // Tipo para representar as variáveis do prompt
 export type PromptVariableType = {
     separatorName?: string // Nome do separador, se houver
@@ -8,10 +12,15 @@ export type PromptVariableType = {
     properties?: PromptVariableType[]
 }
 
+export const isInformationExtractionPrompt = (prompt: string): boolean => {
+    if (!prompt) return false
+    return prompt.includes(INFORMATION_EXTRACTION_TITLE)
+}
+
 // Função para extrair a estrutura de variáveis do markdown
 export const parsePromptVariablesFromMarkdown = (md: string): PromptVariableType[] | undefined => {
     // Primeiro, tenta o formato padrão com instruções JSON
-    const jsonInstructionsRegex = /^## Instruções para o Preenchimento do JSON de Resposta\s*$/gms;
+    const jsonInstructionsRegex = new RegExp(`^${INFORMATION_EXTRACTION_TITLE}\\s*$`, 'gms');
     const jsonParts = md.split(jsonInstructionsRegex)
 
     if (jsonParts.length < 2) return undefined
@@ -29,7 +38,8 @@ export const parsePromptVariablesFromMarkdown = (md: string): PromptVariableType
         if (/^Ev[A-Z0-9_]/.test(name)) return 'string'
         if (/^Nr[A-Z0-9_]/.test(name)) return 'number'
         if (/^Lo[A-Z0-9_]/.test(name)) return 'boolean'
-        if (/^Tx[A-Z0-9_]/.test(name)) return 'string-long'
+        if (/^Tx[A-Z0-9_]/.test(name)) return 'string'
+        if (/^Tg[A-Z0-9_]/.test(name)) return 'string-long'
         if (name.toLowerCase().includes('texto') || name.toLowerCase().includes('resumo') || name.toLowerCase().includes('conclusão')) return 'string-long'
         return 'string'
     }
@@ -40,21 +50,28 @@ export const parsePromptVariablesFromMarkdown = (md: string): PromptVariableType
     let currentVariable: PromptVariableType | null = null
 
     for (const line of lines) {
-        const level3Header = line.match(/^(### )(?<name>[^\s]+)$/)
-        const level6Header = line.match(/^(###### )(?<name>[^\s]+)(?:\s+-\s+(?<label>[^\s].+[^\s])\s*)$/)
+        // console.log(`Parsing line: ${line}`)
+        const level3Header = line.match(/^(###\s+)(?<name>[^\s].+)\s*$/)
+        const level6Header = line.match(/^(###### )(?<name>[^\s]+)(?:\s+-\s+(?<label>[^\s].*[^\s]))?\s*$/)
         const description = line.match(/^(?!#{1,6}\s)[^\s].*$/)
 
         if (level3Header) {
-            const name = level3Header.groups.name
+            const label = level3Header.groups.name
+            const name = fixVariableName(label) // Garante que o nome não exceda 64 caracteres
             currentVariable = {
                 name,
-                type: typeFromName(name),
+                label,
+                type: 'object',
                 description: ''
             }
             variables.push(currentVariable)
         } else if (level6Header && currentVariable) {
             const name = level6Header.groups.name
-            const label = level6Header.groups.label
+            const fixedName = fixVariableName(name) // Garante que o nome não exceda 64 caracteres
+            if (name !== fixedName) {
+                throw new Error(`Nome da variável "${name}" é inválido, tente substituir por "${fixedName}".`)
+            }
+            const label = level6Header.groups.label || name
             if (!currentVariable.properties) currentVariable.properties = []
             currentVariable.properties.push({
                 name,
@@ -86,12 +103,12 @@ export const flatternPromptVariables = (variables: PromptVariableType[]): Prompt
 
     const flattern = variables.flatMap(variable => {
         if (variable.type === 'object' && variable.properties && variable.properties.length > 0) {
-            variable.properties[0].separatorName = variable.name
+            variable.properties[0].separatorName = variable.label
             return Object.values(variable.properties)
         }
         return variable
     })
-    console.log(`Flattened variables: ${JSON.stringify(flattern, null, 2)}`)
+    // console.log(`Flattened variables: ${JSON.stringify(flattern, null, 2)}`)
     return flattern
 }
 
@@ -148,7 +165,15 @@ export const promptJsonSchemaFromPromptMarkdown = (md: string): string | undefin
     addRequiredFields(schema);
 
     const json = JSON.stringify(schema, null, 2)
-    console.log(`JSON Schema gerado: ${json}`)
+    // console.log(`JSON Schema gerado: ${json}`)
     return json
+}
+
+function fixVariableName(name: string) {
+    const fixed = removeAccents(name)
+        .replace(/\s+/g, '_') // Substitui espaços por underscores
+        .replace(/[^a-zA-Z0-9_.-]/g, '') // Remove caracteres inválidos
+        .substring(0, 64) // Garante que o nome não exceda 64 caracteres
+    return fixed
 }
 

@@ -6,7 +6,13 @@ import { format as libFormat } from '../ai/format'
 
 import diff from 'diff-htmls';
 
-const converter = new showdown.Converter({ tables: true })
+const divExtension = () => [{
+  type: 'output',
+  regex: /<!--(<.*>)-->/g,
+  replace: '$1'
+}]
+
+const converter = new showdown.Converter({ tables: true, extensions: [divExtension] })
 
 export const enum VisualizationEnum {
     DIFF,
@@ -169,6 +175,7 @@ export const preprocess = (text: string, definition: PromptDefinitionType, data:
     }
 
     text = converter.makeHtml(text)
+    // console.log(`Preprocessed text: ${text}`) // Debugging output
     return { text }
 }
 

@@ -79,16 +79,8 @@ export async function streamContent(definition: PromptDefinitionType, data: Prom
     const cookiesList = await (cookies());
     const anonymize = cookiesList.get('anonymize')?.value === 'true'
     if (anonymize) {
-        data.textos = data.textos.map((datum: any) => {
-            let l = datum.label
-            if (l) {
-                l = anonymizeText(l).text
-            }
-            let t = datum.texto
-            if (t) {
-                t = anonymizeText(t).text
-            }
-            return { ...datum, label: l, texto: t }
+        data.textos = data.textos.map((texto: TextoType) => {
+            return { ...texto, texto: anonymizeText(texto.texto).text }
         })
     }
 

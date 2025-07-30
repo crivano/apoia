@@ -97,15 +97,14 @@ export default async function HomePage() {
                                 A Apoia é uma ferramenta de Inteligência Artificial Generativa que oferece diversas funcionalidades para otimizar o trabalho de magistrados, servidores e operadores do Direito.
                                 Integrada a sistemas do Judiciário, como o DataLake/Codex, a Apoia permite acesso seguro às peças dos processos e oferece recursos de análise e automação de atividades complexas.
                             </p>
-                            <p>As principais vantagens da Apoia incluem:
-                                <ul className="list-unstyled">
-                                    <li>• Obtenção de peças diretamente pelo número do processo</li>
-                                    <li>• Decisão de próximos passos com base na lista de peças</li>
-                                    <li>• Repositório de prompts cuidadosamente preparados</li>
-                                    <li>• Centralização de custos e controle de limites de uso</li>
-                                    <li>• Proteção de informações sigilosas por meio de APIs próprias</li>
-                                </ul>
-                            </p>
+                            <p>As principais vantagens da Apoia incluem:</p>
+                            <ul className="list-unstyled">
+                                <li>• Obtenção de peças diretamente pelo número do processo</li>
+                                <li>• Decisão de próximos passos com base na lista de peças</li>
+                                <li>• Repositório de prompts cuidadosamente preparados</li>
+                                <li>• Centralização de custos e controle de limites de uso</li>
+                                <li>• Proteção de informações sigilosas por meio de APIs próprias</li>
+                            </ul>
                             <p className="mb-0">
                                 Para saber mais e explorar todas as funcionalidades, consulte o <Link href="https://trf2.gitbook.io/apoia">Manual da Apoia</Link>.
                             </p>

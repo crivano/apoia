@@ -20,7 +20,7 @@ export default function WootricSurvey( {user, token}:  {user: any, token: string
                     // product_name: 'ApoIA',
                     // custom_questions: [{ question: 'What can we improve?', type: 'open-ended' }]
                 }
-                console.log('wootric',  window.wootricSettings)
+                // console.log('wootric',  window.wootricSettings)
                 window.wootric('run');
             }
         };

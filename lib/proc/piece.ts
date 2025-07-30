@@ -141,7 +141,7 @@ export const obterConteudoDaPeca = async (dossier_id: number, numeroDoProcesso: 
             case 'video/mp4':
                 return { conteudo: await atualizarConteudoDeDocumento(document_id, IADocumentContentSource.VIDEO, 'Peça no formato de vídeo MP4, conteúdo não acessado.') }
             default:
-                throw new Error(`Tipo de conteúdo não suportado: ${contentType}`)
+                throw new Error(`Peça ${idDaPeca} (${descrDaPeca}) - Tipo de conteúdo não suportado: ${contentType}`)
         }
     } catch (error) {
         return { conteudo: undefined, errorMsg: error }

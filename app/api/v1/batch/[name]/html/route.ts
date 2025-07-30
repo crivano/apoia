@@ -58,7 +58,7 @@ export async function GET(req: Request, props: { params: Promise<{ name: string 
 
     const items = await Dao.retrieveByBatchIdAndEnumId(batch_id, enum_id)
 
-    console.log('items', items.length)
+    // console.log('items', items.length)
 
     // use main item if available
     for (const item of items)
@@ -129,19 +129,19 @@ export async function GET(req: Request, props: { params: Promise<{ name: string 
     // index
     if (false && triageItems.length === 1 && triageItems[0].descr === '') {
         const originalTriageItems = triageItems
-        console.log('originalIndex', JSON.stringify(originalTriageItems.map(ti => ({ descr: ti.descr, count: ti.items.length }))))
+        // console.log('originalIndex', JSON.stringify(originalTriageItems.map(ti => ({ descr: ti.descr, count: ti.items.length }))))
         const mappedTriageItems = mapping.map(m => ({ ...m, items: [] }))
         for (const ti of originalTriageItems) {
             const mappedBy = mappedTriageItems.find(m => m.groupedItems.find(g => g === ti.descr))
             if (mappedBy) {
                 mappedBy.items = [...mappedBy.items, ...ti.items]
             } else {
-                console.log('mapping not found', ti.descr)
+                // console.log('mapping not found', ti.descr)
                 mappedTriageItems.push({ descr: ti.descr, items: ti.items, groupedItems: [ti.descr] })
             }
         }
         triageItems = mappedTriageItems //.filter(ti => ti.items.length > 0)
-        console.log('\n\nmappedTriageItems', JSON.stringify(mappedTriageItems.map(ti => ({ descr: ti.descr, count: ti.items.length }))))
+        // console.log('\n\nmappedTriageItems', JSON.stringify(mappedTriageItems.map(ti => ({ descr: ti.descr, count: ti.items.length }))))
     }
 
     html += `<div class="page"><h2>Índice</h2>`
@@ -197,7 +197,7 @@ export async function GET(req: Request, props: { params: Promise<{ name: string 
             count++
         }
     }
-    console.log('count', count)
+    // console.log('count', count)
 
     return new Response(formated(html), { headers: { 'Content-Type': 'text/html; charset=utf-8' } })
 }

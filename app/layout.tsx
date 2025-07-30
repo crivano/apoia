@@ -39,7 +39,7 @@ export default async function RootLayout({
                 <meta property="og:url" content="https://apoia.vercel.app" />
                 <meta property="og:image" content="https://apoia.vercel.app/apoia-logo-transp.png" />
             </head>
-            <body className="vsc-initialized">
+            <body suppressHydrationWarning={true}>
                 <ImportBsJS />
                 <Navbar bg="light" data-bs-theme="light" expand="lg" style={{ borderBottom: "1px solid rgb(200, 200, 200)" }}>
                     <Container fluid={false}>

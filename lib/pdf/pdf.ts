@@ -38,7 +38,7 @@ export async function pdfToText(blob: ArrayBuffer, options): Promise<string> {
         .replace(/\s+\<\/page\>/gm, '\n</page>')
         .replace(/\<page number="(\d+)"\>\s+/gm, '<page number="$1">\n')
 
-    console.log('pdfToText', text)
+    // console.log('pdfToText', text)
 
     return text
 }

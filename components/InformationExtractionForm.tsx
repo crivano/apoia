@@ -58,13 +58,16 @@ const PromptField = (variable: PromptVariableType, Frm: FormHelper) => {
 
 export const InformationExtractionForm: React.FC<PromptFormProps> = ({ promptMarkdown, promptFormat, Frm }) => {
     const variables = flatternPromptVariables(parsePromptVariablesFromMarkdown(promptMarkdown))
-    if (!variables || variables.length === 0) return null
+    // if (!variables || variables.length === 0) return null
+    // console.log(`InformationExtractionForm: variables: ${JSON.stringify(variables, null, 2)}`)
 
     if (!Frm.get('information_extraction_editing')) {
         let promptFormatPreprocessed = promptFormat
         promptFormatPreprocessed = promptFormatPreprocessed.replace(/{{/g, '<ins class="diffins-highlight">{{')
         promptFormatPreprocessed = promptFormatPreprocessed.replace(/}}/g, '}}</ins>')
-        console.log(`Prompt format preprocessed: ${promptFormatPreprocessed}`)
+        promptFormatPreprocessed = promptFormatPreprocessed.replace(/{=/g, '{{')
+        promptFormatPreprocessed = promptFormatPreprocessed.replace(/=}/g, '}}')
+        // console.log(`Prompt format preprocessed: ${promptFormatPreprocessed}`)
         const html = preprocess(JSON.stringify(Frm.get('information_extraction')), { format: promptFormatPreprocessed } as PromptDefinitionType, undefined, true).text
         return <>
             <div className="alert alert-info ai-content mb-3" dangerouslySetInnerHTML={{ __html: html }} />
