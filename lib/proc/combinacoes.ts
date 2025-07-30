@@ -310,7 +310,7 @@ export const TipoDeSinteseMap: Record<string, TipoDeSinteseType> = {
         sort: 1000,
         nome: 'Sentença BI - Laudo Favorável',
         padroes: padroesBasicosPrimeiraInstancia,
-        produtos: [P.PREV_BI_SENTENCA_LAUDO_FAVORAVEL]
+        produtos: [P.PREV_BI_SENTENCA_LAUDO_FAVORAVEL, P.CHAT]
     },
 
     SENTENCA_BI_LAUDO_DESFAVORAVEL: {
@@ -318,7 +318,7 @@ export const TipoDeSinteseMap: Record<string, TipoDeSinteseType> = {
         sort: 1000,
         nome: 'Sentença BI - Laudo Desfavorável',
         padroes: padroesBasicosPrimeiraInstancia,
-        produtos: [P.PREV_BI_SENTENCA_LAUDO_DESFAVORAVEL]
+        produtos: [P.PREV_BI_SENTENCA_LAUDO_DESFAVORAVEL, P.CHAT]
     },
 
 
