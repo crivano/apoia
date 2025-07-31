@@ -116,7 +116,11 @@ Para gerar o relatório de cobertura, execute o comando `npm run test:coverage`.
 
 ## Relatório de análise estática de código (SONAR)
 
+Ainda não foi realizado.
+
 ## Relatório de testes de capacidade
+
+Ainda não foi realizado.
 
 ## Arquitetura (diagrama)
 
