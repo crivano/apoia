@@ -122,36 +122,38 @@ Para gerar o relatório de cobertura, execute o comando `npm run test:coverage`.
 
 ```mermaid
 graph TD
-    subgraph "Usuário"
-        A[Usuário via Browser]
+    %% Usuario
+    subgraph Usuario
+        A[Usuario via Browser]
     end
 
-    subgraph "ApoIA (Aplicação Next.js)"
-        B[Frontend (React/Next.js)]
-        C[Backend (Next.js API Routes)]
-        D[Autenticação (NextAuth.js)]
-        E[Lógica de Negócio (lib/)]
-        F[(Banco de Dados<br/>MySQL/PostgreSQL)]
+    %% ApoIA (Aplicacao Next.js)
+    subgraph ApoIA
+        B[Frontend React NextJS]
+        C[Backend API Routes]
+        D[Autenticacao NextAuthJS]
+        E[Logica de Negocio lib]
+        F[Banco de Dados MySQL ou PostgreSQL]
     end
 
-    subgraph "Serviços Externos"
-        G[Sistemas Judiciais (Eproc/MNI)]
-        H[Modelos de IA (OpenAI, Google, etc.)]
-        I[Service Discovery (Eureka)]
-        J[Provedor de Identidade (Keycloak)]
+    %% Servicos Externos
+    subgraph Servicos Externos
+        G[Sistemas Judiciais Eproc MNI]
+        H[Modelos de IA OpenAI Google]
+        I[Service Discovery Eureka]
+        J[Provedor de Identidade Keycloak]
     end
 
-    A -- HTTPS --> B
-    B -- Chamadas API --> C
-    C -- Autenticação --> D
-    D -- Provedor --> J
-    C -- Utiliza --> E
-
-    E -- Consultas --> G
-    E -- Chamadas API --> H
-    E -- Leitura/Escrita --> F
-    
-    C -- Registra-se em --> I
+    %% Fluxos
+    A -->|HTTPS| B
+    B -->|Chamadas API| C
+    C -->|Fluxo de login| D
+    D -->|Autentica com| J
+    C -->|Executa| E
+    E -->|Consulta dados judiciais| G
+    E -->|Chamada IA| H
+    E -->|Leitura Escrita| F
+    C -->|Registra-se| I
 ```
 
 ### Como o Diagrama Funciona:
