@@ -1,0 +1,1 @@
+- Nunca acesse o conteúdo do arquivo .env.local
