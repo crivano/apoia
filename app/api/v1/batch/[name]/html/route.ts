@@ -193,7 +193,8 @@ export async function GET(req: Request, props: { params: Promise<{ name: string 
             }
             html += `</div>`
             html += `<hr style="margin-top: 2em;" />`
-            html += `<div class="rodape">Este documento foi gerado pela ApoIA, ferramenta de inteligência artificial desenvolvida exclusivamente para facilitar a triagem de acervo, e não substitui a elaboração de relatório específico em cada processo, a partir da consulta manual aos eventos dos autos. Textos gerados por inteligência artificial podem conter informações imprecisas ou incorretas.</div>`
+            html += `<p style="text-align: center; font-size: 0.8em; color: #666;">Este documento foi gerado pela ApoIA, ferramenta de inteligência artificial desenvolvida exclusivamente para facilitar a triagem de acervo, e não substitui a elaboração de relatório específico em cada processo, a partir da consulta manual aos eventos dos autos. Textos gerados por inteligência artificial podem conter informações imprecisas ou incorretas.</p>`
+            html += item.batch_dossier_footer ? `<p style="text-align: center; font-size: 0.8em; color: #666;">${item.batch_dossier_footer}</p>` : ''
             count++
         }
     }
@@ -292,6 +293,16 @@ const formated = (html: string) => {
 
     div.center {
         text-align: center;
+    }
+
+    .peca-sigilosa {
+        color: #ff9800;
+    }
+    .peca-inacessivel {
+        color: #f44336;
+    }
+    .peca-vazia {
+        color: #2196f3;
     }
 </style>
 <style type="text/css" media="print">

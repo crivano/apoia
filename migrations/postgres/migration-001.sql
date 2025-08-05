@@ -191,5 +191,3 @@ CREATE TABLE ia_batch_dossier_enum_item (
     CONSTRAINT ia_enum_item_batch_dossier_id_fk FOREIGN KEY (batch_dossier_id) REFERENCES ia_batch_dossier (id) ON UPDATE NO ACTION ON DELETE CASCADE,
     CONSTRAINT ia_enum_item_id_fk FOREIGN KEY (enum_item_id) REFERENCES ia_enum_item (id) ON UPDATE NO ACTION ON DELETE CASCADE
 );
-
-

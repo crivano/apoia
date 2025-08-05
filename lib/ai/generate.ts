@@ -12,6 +12,7 @@ import { anonymizeText } from '../anonym/anonym'
 import { getModel } from './model-server'
 import { modelCalcUsage } from './model-types'
 import { cookies } from 'next/headers';
+import { clipPieces } from './clip-pieces'
 
 export async function retrieveFromCache(sha256: string, model: string, prompt: string, attempt: number | null): Promise<IAGenerated | undefined> {
     const cached = await Dao.retrieveIAGeneration({ sha256, model, prompt, attempt })
@@ -44,10 +45,15 @@ export async function generateContent(definition: PromptDefinitionType, data: Pr
     if (typeof stream === 'string') {
         text = stream
     } else {
-        text = ''
-        for await (const textPart of stream.textStream) {
-            process.stdout.write(textPart)
-            text += textPart
+        try {
+            text = ''
+            for await (const textPart of stream.textStream) {
+                process.stdout.write(textPart)
+                text += textPart
+            }
+        } catch (error) {
+            console.error('Error while streaming text:', error)
+            throw new Error(`Error while streaming text: ${error.message}`)
         }
     }
 
@@ -84,10 +90,15 @@ export async function streamContent(definition: PromptDefinitionType, data: Prom
         })
     }
 
+    // Get the model so that we can clip the pieces if necessary
+    const { model: modelPreSelected } = await getModel({ structuredOutputs: false, overrideModel: definition.model })
+    data.textos = clipPieces(modelPreSelected, data.textos)
+
     const exec = promptExecuteBuilder(definition, data)
     const messages = exec.message
     const structuredOutputs = exec.params?.structuredOutputs
     const { model, modelRef, apiKeyFromEnv } = await getModel({ structuredOutputs: !!structuredOutputs, overrideModel: definition.model })
+
     if (results) results.model = model
     const sha256 = calcSha256(messages)
     if (results) results.sha256 = sha256
@@ -142,6 +153,9 @@ export async function generateAndStreamContent(model: string, structuredOutputs:
             maxRetries: 0,
             onStepFinish: ({ text, usage }) => {
                 process.stdout.write(text)
+            },
+            onError: (error) => {
+                console.error('Error during streaming:', error)
             },
             onFinish: async ({ text, usage }) => {
                 if (apiKeyFromEnv)

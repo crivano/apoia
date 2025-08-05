@@ -9,6 +9,19 @@ import { getInterop, Interop } from '../interop/interop'
 import { DadosDoProcessoType, PecaType, StatusDeLancamento } from './process-types'
 import { UserType } from '../user'
 
+export const TEXTO_PECA_SIGILOSA = 'Peça sigilosa, conteúdo não acessado.'
+export const TEXTO_PECA_COM_ERRO = 'Não foi possível obter o conteúdo.'
+export const TEXTO_PECA_IMAGEM_JPEG = 'Peça no formato de imagem JPEG, conteúdo não acessado.'
+export const TEXTO_PECA_IMAGEM_PNG = 'Peça no formato de imagem PNG, conteúdo não acessado.'
+export const TEXTO_PECA_VIDEO_XMS_WMV = 'Peça no formato de vídeo X-MS-WMV, conteúdo não acessado.'
+export const TEXTO_PECA_VIDEO_MP4 = 'Peça no formato de vídeo MP4, conteúdo não acessado.'
+export const TEXTO_PECA_PDF_OCR_VAZIO = 'Peça no formato PDF, conteúdo não acessado. O OCR não retornou texto.'
+export const TEXTO_PECA_PDF_OCR_ERRO = 'Peça no formato PDF, conteúdo não acessado. Ocorreu um erro ao processar o OCR.'
+export const REGEX_TIPO_DE_CONTEUDO_NAO_SUPORTADO = /^Peça (.+) \((.+)\) - Tipo de conteúdo não suportado: (.+)$/
+export const formatarMensagemDeConteudoNaoSuportado = (idDaPeca: string, descrDaPeca: string, contentType: string) => {
+    return `Peça ${idDaPeca} (${descrDaPeca}) - Tipo de conteúdo não suportado: ${contentType}`
+}
+
 const selecionarPecas = (pecas: PecaType[], descricoes: string[]) => {
     const pecasRelevantes = pecas.filter(p => descricoes.includes(p.descr))
 
@@ -133,16 +146,6 @@ export const obterDadosDoProcesso = async ({ numeroDoProcesso, pUser, idDaPeca, 
         // grava os dados do processo no banco
         const { system_id, dossier_id } = await getSystemIdAndDossierId(user, numeroDoProcesso)
 
-        if (completo) {
-            for (const peca of pecas)
-                if (peca.sigilo && peca.sigilo !== '0') {
-                    console.log('removendo conteúdo de peca com sigilo', peca.id, peca.sigilo)
-                    peca.conteudo = 'Peça sigilosa, conteúdo não acessado.'
-                }
-            const pecasComConteudo = conteudoDasPecasSelecionadas === CargaDeConteudoEnum.NAO ? pecas : await iniciarObtencaoDeConteudo(dossier_id, numeroDoProcesso, pecas, interop)
-            return { ...dadosDoProcesso, pecasSelecionadas: pecasComConteudo, produtos: [infoDeProduto(P.ANALISE_COMPLETA)] }
-        }
-
         // Se for especificado o id da peça, filtra as peças
         if (apenasPecasEspecificas.length > 0) {
             const pecasFiltradas = pecas.filter(p => apenasPecasEspecificas.includes(p.id))
@@ -228,11 +231,8 @@ export const obterDadosDoProcesso = async ({ numeroDoProcesso, pUser, idDaPeca, 
         if (kind === '0') kind = undefined
         if (kind) {
             tipoDeSinteseSelecionado = kind
-            if (tipoDeSinteseSelecionado === undefined)
-                throw new Error(`Tipo de síntese ${kind} não reconhecido`)
             const pecasAcessiveis = pecas.filter(p => nivelDeSigiloPermitido(p.sigilo))
             pecasSelecionadas = selecionarPecasPorPadrao(pecasAcessiveis, TipoDeSinteseMap[kind].padroes)
-
         }
         if (!tipoDeSinteseSelecionado) tipoDeSinteseSelecionado = 'RESUMOS'
 
@@ -241,23 +241,46 @@ export const obterDadosDoProcesso = async ({ numeroDoProcesso, pUser, idDaPeca, 
             pecasSelecionadas = pecas.filter(p => pieces.includes(p.id))
         }
 
-        // console.log('tipo de síntese', `${tipoDeSinteseSelecionado}`)
-        // console.log('peças selecionadas', pecasSelecionadas?.map(p => p.id))
-        // console.log('produtos', TipoDeSinteseMap[`${tipoDeSinteseSelecionado}`]?.produtos)
 
-        if (pecasSelecionadas !== null) {
+        if (completo) {
+            for (const peca of pecas)
+                // Se a peça for sigilosa, remove o conteúdo
+                if (!nivelDeSigiloPermitido(peca.sigilo)) {
+                    console.log('removendo conteúdo de peca com sigilo', peca.id, peca.sigilo)
+                    peca.pConteudo = undefined
+                    peca.conteudo = TEXTO_PECA_SIGILOSA
+                }
+            pecasSelecionadas = pecas
+        } else if (pecasSelecionadas !== null) {
             if (verificarNivelDeSigilo())
                 for (const peca of pecasSelecionadas)
                     assertNivelDeSigilo(peca.sigilo, `${peca.descr} (${peca.id})`)
         }
+
+        // console.log('tipo de síntese', `${tipoDeSinteseSelecionado}`)
+        // console.log('peças selecionadas', pecasSelecionadas?.map(p => p.id))
+        // console.log('produtos', TipoDeSinteseMap[`${tipoDeSinteseSelecionado}`]?.produtos)
+
         let pecasComConteudo: PecaType[] = []
         if (pecasSelecionadas)
             pecasComConteudo = conteudoDasPecasSelecionadas === CargaDeConteudoEnum.NAO ? pecasSelecionadas : await iniciarObtencaoDeConteudo(dossier_id, numeroDoProcesso, pecasSelecionadas, interop)
         if (pecasComConteudo?.length > 0 && conteudoDasPecasSelecionadas === CargaDeConteudoEnum.SINCRONO) {
+            console.log(`\n\nProcessando ${pecasComConteudo.length} peças selecionadas para o processo ${numeroDoProcesso}`)
+            let i = 0
             for (const peca of pecasComConteudo) {
-                const c = await peca.pConteudo
-                if (c?.errorMsg) throw new Error(c.errorMsg)
-                peca.conteudo = c?.conteudo
+                i++
+                console.log(`processando peça ${i}`, peca.id, peca.descr)
+                if (!peca.conteudo && peca.pConteudo) {
+                    const c = await peca.pConteudo
+                    if (c?.errorMsg) {
+                        if (completo) {
+                            peca.conteudo = `${TEXTO_PECA_COM_ERRO} - ${c.errorMsg}`
+                        } else {
+                            throw new Error(c.errorMsg)
+                        }
+                    }
+                    peca.conteudo = c?.conteudo
+                }
                 delete peca.pConteudo
             }
         }

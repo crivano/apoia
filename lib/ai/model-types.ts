@@ -30,7 +30,17 @@ export const ModelProvider: ModelProviderType = ModelProviderArray.reduce((acc, 
     return acc
 }, {} as ModelProviderType)
 
-const ModelArray = [
+type ModelArrayType = {
+    id: number
+    name: string
+    provider: ModelProviderValueType
+    inputTokenPPM: number
+    outputTokenPPM: number
+    status: StatusDeLancamento
+    clip?: number
+}
+
+const ModelArray: ModelArrayType[] = [
     { id: 16, name: 'gpt-4.1-mini', provider: ModelProvider.OPENAI, inputTokenPPM: 0.4, outputTokenPPM: 1.6, status: StatusDeLancamento.PUBLICO },
     { id: 17, name: 'gpt-4.1-nano', provider: ModelProvider.OPENAI, inputTokenPPM: 0.1, outputTokenPPM: 0.4, status: StatusDeLancamento.PUBLICO },
     { id: 15, name: 'gpt-4.1', provider: ModelProvider.OPENAI, inputTokenPPM: 2, outputTokenPPM: 8, status: StatusDeLancamento.PUBLICO },
@@ -41,7 +51,7 @@ const ModelArray = [
     { id: 13, name: 'claude-3-7-sonnet-20250219', provider: ModelProvider.ANTHROPIC, inputTokenPPM: 3, outputTokenPPM: 15, status: StatusDeLancamento.PUBLICO },
     { id: 2, name: 'claude-3-5-sonnet-20241022', provider: ModelProvider.ANTHROPIC, inputTokenPPM: 3, outputTokenPPM: 15, status: StatusDeLancamento.PUBLICO },
     { id: 14, name: 'claude-3-5-haiku-20241022', provider: ModelProvider.ANTHROPIC, inputTokenPPM: 0.8, outputTokenPPM: 4, status: StatusDeLancamento.PUBLICO },
-    { id: 18, name: 'gemini-2.5-flash', provider: ModelProvider.GOOGLE, inputTokenPPM: 0.30, outputTokenPPM: 2.5, status: StatusDeLancamento.PUBLICO },
+    { id: 18, name: 'gemini-2.5-flash', provider: ModelProvider.GOOGLE, inputTokenPPM: 0.30, outputTokenPPM: 2.5, status: StatusDeLancamento.PUBLICO, clip: 2000 },
     // { id: 9, name: 'gemini-2.0-flash', provider: ModelProvider.GOOGLE, inputTokenPPM: 0.1, outputTokenPPM: 0.4, status: StatusDeLancamento.PUBLICO },
     { id: 10, name: 'gemini-2.5-pro', provider: ModelProvider.GOOGLE, inputTokenPPM: 2.5, outputTokenPPM: 15, status: StatusDeLancamento.PUBLICO },
     // { id: 4, name: 'gemini-1.5-pro-002', provider: ModelProvider.GOOGLE, inputTokenPPM: 2.5, outputTokenPPM: 10, status: StatusDeLancamento.PUBLICO },
@@ -58,7 +68,7 @@ const ModelArray = [
     { id: 22, name: 'aws-us.anthropic.claude-sonnet-4-20250514-v1:0', provider: ModelProvider.AWS, inputTokenPPM: 3, outputTokenPPM: 15, status: StatusDeLancamento.PUBLICO },
 ]
 
-export type ModelValeuType = EnumOfObjectsValueType & { provider: ModelProviderValueType, inputTokenPPM: number, outputTokenPPM: number, status: StatusDeLancamento }
+export type ModelValeuType = EnumOfObjectsValueType & { provider: ModelProviderValueType, inputTokenPPM: number, outputTokenPPM: number, status: StatusDeLancamento, clip?: number }
 export type ModelType = { [key: string]: ModelValeuType }
 
 export const Model: ModelType = ModelArray.reduce((acc, cur, idx) => {

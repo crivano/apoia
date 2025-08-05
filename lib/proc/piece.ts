@@ -12,6 +12,7 @@ import { assertNivelDeSigilo, verificarNivelDeSigilo } from './sigilo'
 import { Interop } from '../interop/interop'
 import { envString } from '../utils/env'
 import { PecaConteudoType } from './process-types'
+import { TEXTO_PECA_IMAGEM_JPEG, TEXTO_PECA_IMAGEM_PNG, TEXTO_PECA_PDF_OCR_ERRO, TEXTO_PECA_PDF_OCR_VAZIO, TEXTO_PECA_VIDEO_MP4, TEXTO_PECA_VIDEO_XMS_WMV } from './process'
 
 const limit = pLimit(envString('OCR_LIMIT') ? parseInt(envString('OCR_LIMIT')) : 1)
 
@@ -77,17 +78,26 @@ const obterTextoDePdf = async (buffer: ArrayBuffer, documentId: number) => {
         return atualizarConteudoDeDocumento(documentId, IADocumentContentSource.PDF, texto)
     }
 
-    const ocrBuffer = await ocrPdf(bufferCopy, documentId)
+    let ocrBuffer
+    try {
+        ocrBuffer = await ocrPdf(bufferCopy, documentId)
+    } catch (error) {
+        console.warn(`Erro ao processar OCR para o documento ${documentId}:`, error)
+        return atualizarConteudoDeDocumento(documentId, IADocumentContentSource.OCR_ERRO, TEXTO_PECA_PDF_OCR_ERRO)
+    }
     const ocrTexto = await pdfToText(ocrBuffer, {})
     const { pages: ocrPages, chars: ocrChars } = obterPaginasECaracteres(ocrTexto)
-
+    
     // PDF processado pelo OCR tem mais texto que o original
     if (ocrChars) {
         return atualizarConteudoDeDocumento(documentId, IADocumentContentSource.OCR, ocrTexto)
     } else if (chars) {
         return atualizarConteudoDeDocumento(documentId, IADocumentContentSource.PDF, texto)
+    }    
+    if (!ocrTexto || ocrTexto.trim().length < 500) {
+        console.warn(`OCR não retornou texto para o documento ${documentId}. Considerando como OCR_VAZIO.`)
+        return atualizarConteudoDeDocumento(documentId, IADocumentContentSource.OCR_VAZIO, TEXTO_PECA_PDF_OCR_VAZIO)
     }
-
     return undefined
 }
 
@@ -133,17 +143,18 @@ export const obterConteudoDaPeca = async (dossier_id: number, numeroDoProcesso: 
             case 'application/pdf':
                 return { conteudo: await obterTextoDePdf(buffer, document_id) }
             case 'image/jpeg':
-                return { conteudo: await atualizarConteudoDeDocumento(document_id, IADocumentContentSource.IMAGE, 'Peça no formato de imagem JPEG, conteúdo não acessado.') }
+                return { conteudo: await atualizarConteudoDeDocumento(document_id, IADocumentContentSource.IMAGE, TEXTO_PECA_IMAGEM_JPEG) }
             case 'image/png':
-                return { conteudo: await atualizarConteudoDeDocumento(document_id, IADocumentContentSource.IMAGE, 'Peça no formato de imagem PNG, conteúdo não acessado.') }
+                return { conteudo: await atualizarConteudoDeDocumento(document_id, IADocumentContentSource.IMAGE, TEXTO_PECA_IMAGEM_PNG) }
+            case 'video/x-ms-wmv':
+                return { conteudo: await atualizarConteudoDeDocumento(document_id, IADocumentContentSource.VIDEO, TEXTO_PECA_VIDEO_XMS_WMV) }
             case 'video/mp4':
-                return { conteudo: await atualizarConteudoDeDocumento(document_id, IADocumentContentSource.VIDEO, 'Peça no formato de vídeo X-MS-WMV, conteúdo não acessado.') }
-            case 'video/mp4':
-                return { conteudo: await atualizarConteudoDeDocumento(document_id, IADocumentContentSource.VIDEO, 'Peça no formato de vídeo MP4, conteúdo não acessado.') }
+                return { conteudo: await atualizarConteudoDeDocumento(document_id, IADocumentContentSource.VIDEO, TEXTO_PECA_VIDEO_MP4) }
             default:
                 throw new Error(`Peça ${idDaPeca} (${descrDaPeca}) - Tipo de conteúdo não suportado: ${contentType}`)
         }
     } catch (error) {
+        console.log(`Erro ao obter conteúdo da peça ${idDaPeca} (${descrDaPeca}):`, error)
         return { conteudo: undefined, errorMsg: error }
     }
 }

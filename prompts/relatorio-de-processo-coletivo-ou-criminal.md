@@ -37,7 +37,7 @@ ANALISE EM DETALHE o caso jurídico fornecido TODOS OS DOCUMENTOS, INCORPORE NUA
 
 ## EXEMPLO E MODELO E ESTRUTURA
 
-Formate sua resposta conforme exemplo a seguir, demarcado por <modelo>.
+Formate sua resposta conforme exemplo a seguir, demarcado por <modelo>. Preste atenção ao modelos, veja que usamos títulos do tipo Heading 1 (#) e as listas são marcadas com hífen (-) ou números (1., 2., 3.).
 
 <modelo>
 [Descrição geral do crime.]
@@ -64,31 +64,29 @@ Formate sua resposta conforme exemplo a seguir, demarcado por <modelo>.
 # Pontos Controvertidos
 1. [Delimite os pontos controvertidos, se há houver decisão, informe também a decisão e a referência ao documento onde ela pode ser encontrada.]
 
-# Direito Aplicável
-- [Defina as normas aplicáveis ao caso, referenciadas nos documentos]
-
 # Análise e Aplicação
 ## Argumentos e Provas do Autor
-1. [LISTE os argumentos e provas do autor COM INFERÊNCIA LÓGICA]
+1. [Liste os argumentos e provas do autor COM INFERÊNCIA LÓGICA]
 
 ## Argumentos e Provas do Réu
-1. [LISTE os argumentos e provas do réu COM INFERÊNCIA LÓGICA]
+1. [Liste os argumentos e provas do réu COM INFERÊNCIA LÓGICA]
 
 ## Aplicação da Norma
 [Analise cada elemento da norma, dos argumentos e dos fatos para verificar se as normas se aplicam ao caso]
 
 # Índice
-- [Aqui você vai fazer uma lista bem longa com todos os documentos do processo na ordem em que aparecem. Para cada documento, indique o tipo da peça processual, resuma o contúdo em um parágrafo, indique o número do evento (event) e o rótulo do documento (label). Por exemplo:
+- [Aqui você vai fazer uma lista com os principais documentos do processo na ordem em que aparecem. Não inclua nessa listagem documentos que representam atos processuais de menor relevância ou documentos nos quais o conteúdo não pode ser acessado. Para cada documento relevante, indique o tipo da peça processual, resuma o contúdo em um parágrafo, indique o número do evento (event) e o rótulo do documento (label). Por exemplo:
 - **Petição Inicial** - [Conteúdo resumido da petição] (evento 1, OUT1).
 - **Contestação** - [Conteúdo resumido da contestação] (evento 2, CONT1).
+Esta lista não deve ter mais de 50 linhas, cite apenas os documentos mais relevantes.]
 
 # Normas/Jurisprudência Invocadas
-- [CITE as normas que foram citadas na sentença ou no recurso inominado, apenas uma norma por linha, use uma maneira compacta e padronizada de se referir a norma, se houver referência ao número do artigo, inclua após uma vírgula, por exemplo: L 1234/2010, Art. 1º.]
+- [Cite as principais normas que foram citadas na sentença ou no recurso inominado, apenas uma norma por linha, use uma maneira compacta e padronizada de se referir a norma, se houver referência ao número do artigo, inclua após uma vírgula, por exemplo: L 1234/2010, Art. 1º. Esta lista não deve ter mais de 50 linhas, cite apenas as normas mais relevantes.]
 
 # Palavras-Chave
 - [Inclua palavras-chave que possam caracterizar o caso ou as entidades envolvidas. Apenas uma palavra-chave por linha. Comece com a primeira letra maiúscula, como se fosse um título. Não inclua "Recurso Inominado" ou "Sentença". Não inclua referências à normas legais.]
 
 # Triagem
-[Escreva um título que será utilizado para agrupar processos semelhantes. O título deve ir direto ao ponto e ser bem compacto, como por exemplo: "Benefício por incapacidade", "Benefício de prestação continuada - LOAS", "Seguro desemprego", "Salário maternidade", "Aposentadoria por idade", "Aposentadoria por idade rural", "Aposentadoria por tempo de contribuição", "Tempo especial", "Auxílio reclusão", "Pensão por morte", "Revisão da vida toda", "Revisão teto EC 20/98 e EC 41/03".]
+[Escreva um título que será utilizado para agrupar processos semelhantes. O título deve ir direto ao ponto e ser bem compacto, como por exemplo: "Benefício por incapacidade", "Benefício de prestação continuada - LOAS", "Seguro desemprego", "Salário maternidade", "Aposentadoria por idade", "Aposentadoria por idade rural", "Aposentadoria por tempo de contribuição", "Tempo especial", "Auxílio reclusão", "Pensão por morte", "Revisão da vida toda", "Revisão teto EC 20/98 e EC 41/03", "Improbidade Administrativa - Falsidade Documental", "Improbidade Administrativa - Desvio de Verba Federal", "Improbidade Administrativa - Corrupção Passiva", "Improbidade Administrativa - Fraude em Financiamento", "Improbidade Administrativa - Lesão ao Erário", "Improbidade Administrativa - Prestação de Contas".]
 
 </modelo>

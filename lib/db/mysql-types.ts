@@ -25,7 +25,8 @@ export type AIBatchIdAndEnumId = {
     enum_item_id: number,
     enum_item_descr: string,
     enum_item_descr_main: string | null,
-    batch_dossier_id: number
+    batch_dossier_id: number,
+    batch_dossier_footer: string | null,
 }
 
 export type AICountByBatchIdAndEnumId = {
@@ -72,7 +73,9 @@ export enum IADocumentContentSource {
     PDF = 2,
     OCR = 3,
     IMAGE = 4,
-    VIDEO = 5
+    VIDEO = 5,
+    OCR_VAZIO = 6,
+    OCR_ERRO = 7,
 }
 
 export type IADocument = {

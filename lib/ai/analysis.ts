@@ -1,6 +1,6 @@
 import { getInternalPrompt, getPiecesWithContent } from '@/lib/ai/prompt'
 import { GeneratedContent, PromptDataType, PromptDefinitionType, TextoType } from '@/lib/ai/prompt-types'
-import { obterDadosDoProcesso } from '@/lib/proc/process'
+import { CargaDeConteudoEnum, obterDadosDoProcesso, TEXTO_PECA_COM_ERRO, TEXTO_PECA_IMAGEM_JPEG, TEXTO_PECA_IMAGEM_PNG, TEXTO_PECA_SIGILOSA, TEXTO_PECA_VIDEO_MP4, TEXTO_PECA_VIDEO_XMS_WMV } from '@/lib/proc/process'
 import { assertCurrentUser } from '@/lib/user'
 import { T, P, ProdutosValidos, Plugin, ProdutoCompleto, InfoDeProduto } from '@/lib/proc/combinacoes'
 import { slugify } from '@/lib/utils/utils'
@@ -82,26 +82,41 @@ export function buildRequests(dossierNumber: string, produtos: InfoDeProduto[], 
     return requests
 }
 
+const buildFooter = (model: string, pecasComConteudo: TextoType[]): string => {
+    let pecasStr = ''
+    if (pecasComConteudo?.length) {
+        const pecasNomes = pecasComConteudo.map(p => {
+            const sigilosa = p.texto === TEXTO_PECA_SIGILOSA
+            const inacessivel = p.texto?.startsWith(TEXTO_PECA_COM_ERRO)
+            const vazia = !p.texto || p.texto === TEXTO_PECA_IMAGEM_JPEG || p.texto === TEXTO_PECA_IMAGEM_PNG || p.texto === TEXTO_PECA_VIDEO_XMS_WMV || p.texto === TEXTO_PECA_VIDEO_MP4
+            return `<span class="${sigilosa ? 'peca-sigilosa' : inacessivel ? 'peca-inacessivel' : vazia ? 'peca-vazia' : ''}">${p.descr?.toLowerCase()} (e.${p.event}${sigilosa ? ', sigilosa' : inacessivel ? ', inacessível' : vazia ? ', vazia' : ''})</span>`
+        })
+        if (pecasNomes.length === 1) {
+            pecasStr = pecasNomes[0]
+        } else if (pecasNomes.length > 1) {
+            const last = pecasNomes.pop()
+            pecasStr = `${pecasNomes.join(', ')} e ${last}`;
+        }
+    }
+    const info = `Utilizou o modelo ${model}${pecasStr ? ` e acessou as peças: ${pecasStr}` : ''}.`
+    return info
+}
+
 export async function analyze(batchName: string | undefined, dossierNumber: string, kind: string | undefined, complete: boolean): Promise<{ dossierData: any, generatedContent: GeneratedContent[] }> {
     console.log('analyze', batchName, dossierNumber)
     try {
         const pUser = assertCurrentUser()
 
         // Obter peças
-        const pDadosDoProcesso = obterDadosDoProcesso({ numeroDoProcesso: dossierNumber, pUser, completo: complete, kind })
+        const pDadosDoProcesso = obterDadosDoProcesso({ numeroDoProcesso: dossierNumber, pUser, completo: complete, kind, conteudoDasPecasSelecionadas: CargaDeConteudoEnum.SINCRONO })
         const dadosDoProcesso = await pDadosDoProcesso
         if (dadosDoProcesso.errorMsg) throw new Error(dadosDoProcesso.errorMsg)
         if (!dadosDoProcesso?.tipoDeSintese) throw new Error(`${dossierNumber}: Nenhum tipo de síntese válido`)
         const produtos = dadosDoProcesso?.produtos
 
-        let pecasComConteudo = await getPiecesWithContent(dadosDoProcesso, dossierNumber)
+        let pecasComConteudo = await getPiecesWithContent(dadosDoProcesso, dossierNumber, true)
 
         if (complete) {
-            //     // Remove as informações sobre os documentos que, para esses processos mais antigos, não são confiáveis
-            //     for (const peca of pecasComConteudo) {
-            //         peca.descr = 'DOCUMENTO'
-            //         peca.slug = 'document'
-            //     }
             // Limita aos primeiros N documentos, para não ficar muito caro nos testes
             if (envString('COMPLETE_ANALYSIS_LIMIT'))
                 pecasComConteudo = pecasComConteudo.slice(0, parseInt(envString('COMPLETE_ANALYSIS_LIMIT') as string))
@@ -116,8 +131,10 @@ export async function analyze(batchName: string | undefined, dossierNumber: stri
             req.result = generateContent(getInternalPrompt(req.promptSlug), req.data)
         }
 
+        let model: string | undefined = undefined
         for (const req of requests) {
             const result = await req.result as IAGenerated
+            if (!model) model = result.model
             req.generated = result.generation
             req.id = result.id
             if (!req.generated || !req.id) {
@@ -130,7 +147,8 @@ export async function analyze(batchName: string | undefined, dossierNumber: stri
             const user = await pUser
             const systemCode = user?.image?.system || 'PDPJ'
             const systemId = await Dao.assertSystemId(systemCode)
-            storeBatchItem(systemId, batchName, dossierNumber, requests, dadosDoProcesso)
+            const footer = buildFooter(model || '-', pecasComConteudo)
+            storeBatchItem(systemId, batchName, dossierNumber, requests, dadosDoProcesso, footer)
         }
 
         return { dossierData: dadosDoProcesso, generatedContent: requests }
@@ -142,11 +160,11 @@ export async function analyze(batchName: string | undefined, dossierNumber: stri
 
 
 // Insert into database as part of a batch
-async function storeBatchItem(systemId: number, batchName: string, dossierNumber: string, requests: GeneratedContent[], dadosDoProcesso: any) {
+async function storeBatchItem(systemId: number, batchName: string, dossierNumber: string, requests: GeneratedContent[], dadosDoProcesso: any, footer: string) {
     const batch_id = await Dao.assertIABatchId(batchName)
     const dossier_id = await Dao.assertIADossierId(dossierNumber, systemId, dadosDoProcesso.codigoDaClasse, dadosDoProcesso.ajuizamento)
     await Dao.deleteIABatchDossierId(batch_id, dossier_id)
-    const batch_dossier_id = await Dao.assertIABatchDossierId(batch_id, dossier_id)
+    const batch_dossier_id = await Dao.assertIABatchDossierId(batch_id, dossier_id, footer)
     let seq = 0
     for (const req of requests) {
         const document_id = req.documentCode ? await Dao.assertIADocumentId(dossier_id, req.documentCode, req.documentDescr) : null

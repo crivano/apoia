@@ -579,7 +579,8 @@ export class Dao {
                 'ei.id as enum_item_id',
                 'ei.descr as enum_item_descr',
                 'ei2.descr as enum_item_descr_main',
-                'bd.id as batch_dossier_id'
+                'bd.id as batch_dossier_id',
+                'bd.footer as batch_dossier_footer',
             )
             .innerJoin('ia_batch_dossier as bd', 'bd.batch_id', 'b.id')
             .innerJoin('ia_dossier as d', 'd.id', 'bd.dossier_id')
@@ -718,7 +719,7 @@ export class Dao {
         if (!knex) return
         await knex('ia_document').update({
             content_source_id,
-            content
+            content: content?.replace(/\u0000/g, ''), // Remove null characters
         }).where({ id: document_id })
     }
 
@@ -747,7 +748,7 @@ export class Dao {
         return result
     }
 
-    static async assertIABatchDossierId(batch_id: number, dossier_id: number): Promise<number> {
+    static async assertIABatchDossierId(batch_id: number, dossier_id: number, footer: string): Promise<number> {
         if (!knex) return
         // Check or insert document
         let batch_dossier_id: number | null = null
@@ -759,7 +760,7 @@ export class Dao {
         }
 
         const [inserted] = await knex('ia_batch_dossier').insert({
-            batch_id, dossier_id
+            batch_id, dossier_id, footer
         }).returning('id')
         return getId(inserted)
     }
