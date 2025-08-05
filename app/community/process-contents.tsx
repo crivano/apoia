@@ -1,6 +1,6 @@
 'use client'
 
-import { IAPrompt } from "@/lib/db/mysql-types";
+import { IAPrompt, IAPromptList, PromptChainType } from "@/lib/db/mysql-types";
 import { DadosDoProcessoType, PecaType } from "@/lib/proc/process-types";
 import { ReactNode, useEffect, useState } from "react";
 import { InfoDeProduto, P, PieceStrategy, selecionarPecasPorPadrao, T } from "@/lib/proc/combinacoes";
@@ -15,16 +15,51 @@ import ErrorMsg from "./error-msg";
 import { ListaDeProdutos } from "../../components/slots/lista-produtos-client";
 import { PromptParaCopiar } from "./prompt-to-copy";
 
-export default function ProcessContents({ prompt, dadosDoProcesso, pieceContent, setPieceContent, apiKeyProvided, model, children }: { prompt: IAPrompt, dadosDoProcesso: DadosDoProcessoType, pieceContent: any, setPieceContent: (pieceContent: any) => void, apiKeyProvided: boolean, model?: string, children?: ReactNode }) {
+export default function ProcessContents({ prompt, prompts, dadosDoProcesso, pieceContent, setPieceContent, apiKeyProvided, model, children }: { prompt: IAPrompt, prompts?: IAPromptList[], dadosDoProcesso: DadosDoProcessoType, pieceContent: any, setPieceContent: (pieceContent: any) => void, apiKeyProvided: boolean, model?: string, children?: ReactNode }) {
     const [selectedPieces, setSelectedPieces] = useState<PecaType[]>([])
+    const [chainSelectedPieces, setChainSelectedPieces] = useState<{[promptId: string]: PecaType[]}>({})
     const [loadingPiecesProgress, setLoadingPiecesProgress] = useState(-1)
     const [requests, setRequests] = useState<GeneratedContent[]>([])
     const [readyToStartAI, setReadyToStartAI] = useState(false)
     const [choosingPieces, setChoosingPieces] = useState(false)
-    const [minimumTimeElapsed, setMinimumTimeElapsed] = useState(false);
+    const [choosingChainPieces, setChoosingChainPieces] = useState<string | null>(null)
+    const [minimumTimeElapsed, setMinimumTimeElapsed] = useState(false)
+    const [predecessorPrompts, setPredecessorPrompts] = useState<{ identifier: string | number, prompt: IAPromptList }[]>([])
+    const [successorPrompts, setSuccessorPrompts] = useState<{ identifier: string | number, prompt: IAPromptList }[]>([])
+    const [promptResults, setPromptResults] = useState<{[key: string]: any}>({});
 
     const changeSelectedPieces = (pieces: string[]) => {
         setSelectedPieces(dadosDoProcesso.pecas.filter(p => pieces.includes(p.id)))
+    }
+
+    const changeChainSelectedPieces = (promptId: string, pieces: string[]) => {
+        setChainSelectedPieces(prev => ({
+            ...prev,
+            [promptId]: dadosDoProcesso.pecas.filter(p => pieces.includes(p.id))
+        }))
+    }
+
+    const getPromptFromChain = async (chainItem: { type: PromptChainType, identifier: string | number }): Promise<IAPromptList | null> => {
+        if (chainItem.type === PromptChainType.BANCO_DE_PROMPTS) {
+            // Buscar do banco de prompts
+            return prompts?.find(p => p.id === chainItem.identifier) || null
+        } else {
+            // Buscar prompt interno - implementar conforme necessário
+            return null
+        }
+    }
+
+    const evaluateCondition = (condition: { variable: string, value: string | boolean }, contextData: any): boolean => {
+        // Implementar lógica de avaliação de condições
+        // Por enquanto, retorna true. A lógica real dependeria do contexto dos dados gerados
+        if (condition.variable.startsWith('Lo_')) {
+            // Variáveis booleanas
+            return contextData[condition.variable] === condition.value
+        } else if (condition.variable.startsWith('Tx_')) {
+            // Variáveis de texto
+            return contextData[condition.variable] === condition.value
+        }
+        return true
     }
 
     const nivelDeSigiloPermitido = (nivel: string, descrDaPeca?) => {
@@ -78,7 +113,9 @@ export default function ProcessContents({ prompt, dadosDoProcesso, pieceContent,
         }
         if (!minimumTimeElapsed)
             setMinimumTimeElapsed(true)
-        setRequests(buildRequests(contents))
+        
+        const newRequests = await buildRequests(contents)
+        setRequests(newRequests)
     }
 
     const LoadingPieces = () => {
@@ -87,8 +124,52 @@ export default function ProcessContents({ prompt, dadosDoProcesso, pieceContent,
         return <div className="alert alert-info mt-4">{`Carregando peça ${loadingPiecesProgress} de ${selectedPieces.length}`}</div>
     }
 
-    const buildRequests = (contents: { [key: number]: string }): GeneratedContent[] => {
+    const buildRequests = async (contents: { [key: number]: string }): Promise<GeneratedContent[]> => {
         const requestArray: GeneratedContent[] = []
+        
+        // Adicionar predecessores
+        if (prompt.content.predecessors && prompt.content.predecessors.length > 0) {
+            for (const predecessor of prompt.content.predecessors) {
+                const predecessorPrompt = await getPromptFromChain(predecessor)
+                if (predecessorPrompt) {
+                    const predecessorPieces = chainSelectedPieces[`predecessor-${predecessor.identifier}`] || selectedPieces
+                    const pecasComConteudo: TextoType[] = predecessorPieces.map(peca => ({ 
+                        id: peca.id, 
+                        event: peca.numeroDoEvento, 
+                        idOrigem: peca.idOrigem, 
+                        label: peca.rotulo, 
+                        descr: peca.descr, 
+                        slug: slugify(peca.descr), 
+                        texto: contents[peca.id] 
+                    }))
+
+                    const definition: PromptDefinitionType = {
+                        kind: `prompt-${predecessorPrompt.id}`,
+                        prompt: predecessorPrompt.content.prompt,
+                        systemPrompt: predecessorPrompt.content.system_prompt,
+                        jsonSchema: predecessorPrompt.content.json_schema,
+                        format: predecessorPrompt.content.format,
+                        template: predecessorPrompt.content.template,
+                        cacheControl: true,
+                    }
+                    
+                    const req: GeneratedContent = {
+                        documentCode: null,
+                        documentDescr: null,
+                        data: { textos: pecasComConteudo },
+                        produto: P.RESUMO,
+                        promptSlug: slugify(predecessorPrompt.name),
+                        internalPrompt: definition,
+                        title: `[Predecessor] ${predecessorPrompt.name}`,
+                        plugins: [],
+                        chainType: 'predecessor',
+                        chainId: `predecessor-${predecessor.identifier}`
+                    }
+                    requestArray.push(req)
+                }
+            }
+        }
+
         const pecasComConteudo: TextoType[] = selectedPieces.map(peca => ({ id: peca.id, event: peca.numeroDoEvento, idOrigem: peca.idOrigem, label: peca.rotulo, descr: peca.descr, slug: slugify(peca.descr), texto: contents[peca.id] }))
         let produtos: (InfoDeProduto | P)[] = []
         if (prompt.content.summary === 'SIM') {
@@ -99,6 +180,7 @@ export default function ProcessContents({ prompt, dadosDoProcesso, pieceContent,
             }
         }
 
+        // Prompt principal
         {
             const definition: PromptDefinitionType = {
                 kind: `prompt-${prompt.id}`,
@@ -117,11 +199,65 @@ export default function ProcessContents({ prompt, dadosDoProcesso, pieceContent,
                 promptSlug: slugify(prompt.name),
                 internalPrompt: definition,
                 title: prompt.name,
-                plugins: []
+                plugins: [],
+                chainType: 'main'
             }
             requestArray.push(req)
         }
 
+        // Adicionar sucessores (condicionalmente baseado nos resultados)
+        if (prompt.content.successors && prompt.content.successors.length > 0) {
+            for (const successor of prompt.content.successors) {
+                // Avaliar condição se existe
+                let shouldIncludeSuccessor = true
+                if (successor.condition && successor.condition.variable) {
+                    shouldIncludeSuccessor = evaluateCondition(successor.condition, promptResults)
+                }
+
+                if (shouldIncludeSuccessor) {
+                    const successorPrompt = await getPromptFromChain(successor)
+                    if (successorPrompt) {
+                        const successorPieces = chainSelectedPieces[`successor-${successor.identifier}`] || selectedPieces
+                        const pecasComConteudo: TextoType[] = successorPieces.map(peca => ({ 
+                            id: peca.id, 
+                            event: peca.numeroDoEvento, 
+                            idOrigem: peca.idOrigem, 
+                            label: peca.rotulo, 
+                            descr: peca.descr, 
+                            slug: slugify(peca.descr), 
+                            texto: contents[peca.id] 
+                        }))
+
+                        const definition: PromptDefinitionType = {
+                            kind: `prompt-${successorPrompt.id}`,
+                            prompt: successorPrompt.content.prompt,
+                            systemPrompt: successorPrompt.content.system_prompt,
+                            jsonSchema: successorPrompt.content.json_schema,
+                            format: successorPrompt.content.format,
+                            template: successorPrompt.content.template,
+                            cacheControl: true,
+                        }
+                        
+                        const req: GeneratedContent = {
+                            documentCode: null,
+                            documentDescr: null,
+                            data: { textos: pecasComConteudo },
+                            produto: P.RESUMO,
+                            promptSlug: slugify(successorPrompt.name),
+                            internalPrompt: definition,
+                            title: `[Sucessor] ${successorPrompt.name}`,
+                            plugins: [],
+                            chainType: 'successor',
+                            chainId: `successor-${successor.identifier}`,
+                            chainCondition: successor.condition
+                        }
+                        requestArray.push(req)
+                    }
+                }
+            }
+        }
+
+        // Chat
         {
             const definition = getInternalPrompt(`chat`)
             const data: PromptDataType = { textos: pecasComConteudo }
@@ -136,25 +272,96 @@ export default function ProcessContents({ prompt, dadosDoProcesso, pieceContent,
     }, [prompt])
 
     useEffect(() => {
-        setLoadingPiecesProgress(0)
-        getSelectedPiecesContents()
-    }, [selectedPieces])
+        // Carregar prompts predecessores
+        const loadChainPrompts = async () => {
+            if (prompt.content.predecessors && prompt.content.predecessors.length > 0) {
+                const predecessors = []
+                for (const predecessor of prompt.content.predecessors) {
+                    const promptFromChain = await getPromptFromChain(predecessor)
+                    if (promptFromChain) {
+                        predecessors.push({ identifier: predecessor.identifier, prompt: promptFromChain })
+                    }
+                }
+                setPredecessorPrompts(predecessors)
+            }
+
+            if (prompt.content.successors && prompt.content.successors.length > 0) {
+                const successors = []
+                for (const successor of prompt.content.successors) {
+                    const promptFromChain = await getPromptFromChain(successor)
+                    if (promptFromChain) {
+                        successors.push({ identifier: successor.identifier, prompt: promptFromChain })
+                    }
+                }
+                setSuccessorPrompts(successors)
+            }
+        }
+        
+        loadChainPrompts()
+    }, [prompt, prompts])
 
     useEffect(() => {
-        if (requests && requests.length && !choosingPieces && minimumTimeElapsed) {
+        setLoadingPiecesProgress(0)
+        getSelectedPiecesContents()
+    }, [selectedPieces, chainSelectedPieces])
+
+    useEffect(() => {
+        if (requests && requests.length && !choosingPieces && !choosingChainPieces && minimumTimeElapsed) {
             setReadyToStartAI(true)
         }
-    }, [choosingPieces, requests, minimumTimeElapsed])
+    }, [choosingPieces, choosingChainPieces, requests, minimumTimeElapsed])
 
     const errorLoadingContent = (id: string): string => {
         if (pieceContent[id] && pieceContent[id].startsWith('Erro ao carregar'))
             return pieceContent[id]
     }
 
+    // Componente para escolher peças de prompts encadeados
+    const ChainChoosePieces = ({ chainPrompts, type }: { chainPrompts: { identifier: string | number, prompt: IAPromptList }[], type: 'predecessor' | 'successor' }) => {
+        if (!chainPrompts || chainPrompts.length === 0) return null
+
+        return (
+            <div className="mt-3">
+                <h6 className="text-primary">
+                    {type === 'predecessor' ? 'Seleção de Peças para Prompts Predecessores' : 'Seleção de Peças para Prompts Sucessores'}
+                </h6>
+                <p className="text-muted small">
+                    {type === 'predecessor' 
+                        ? 'Estes prompts serão executados antes do prompt principal.'
+                        : 'Estes prompts serão executados após o prompt principal, baseado nas condições definidas.'
+                    }
+                </p>
+                {chainPrompts.map((item, index) => {
+                    const chainId = `${type}-${item.identifier}`
+                    const pieces = chainSelectedPieces[chainId] || selectedPieces
+                    
+                    return (
+                        <div key={chainId} className="mb-3 border-start border-primary ps-3">
+                            <h6 className="mb-2">{item.prompt.name}</h6>
+                            <ChoosePieces 
+                                allPieces={dadosDoProcesso.pecas} 
+                                selectedPieces={pieces} 
+                                onSave={(pieces) => { 
+                                    setRequests([])
+                                    changeChainSelectedPieces(chainId, pieces)
+                                }} 
+                                onStartEditing={() => { setChoosingChainPieces(chainId) }} 
+                                onEndEditing={() => setChoosingChainPieces(null)} 
+                                dossierNumber={dadosDoProcesso.numeroDoProcesso}
+                            />
+                        </div>
+                    )
+                })}
+            </div>
+        )
+    }
+
     return <div>
         <Subtitulo dadosDoProcesso={dadosDoProcesso} />
         {children}
         <ChoosePieces allPieces={dadosDoProcesso.pecas} selectedPieces={selectedPieces} onSave={(pieces) => { setRequests([]); changeSelectedPieces(pieces) }} onStartEditing={() => { setChoosingPieces(true) }} onEndEditing={() => setChoosingPieces(false)} dossierNumber={dadosDoProcesso.numeroDoProcesso} />
+        <ChainChoosePieces chainPrompts={predecessorPrompts} type="predecessor" />
+        <ChainChoosePieces chainPrompts={successorPrompts} type="successor" />
         <LoadingPieces />
         <ErrorMsg dadosDoProcesso={dadosDoProcesso} />
         <div className="mb-4"></div>

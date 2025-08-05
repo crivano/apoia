@@ -106,5 +106,13 @@ export type GeneratedContent = {
     result?: Promise<IAGenerated | undefined>,
     generated?: string,
     peca?: T,
+    
+    // Propriedades para encadeamento de prompts
+    chainType?: 'predecessor' | 'main' | 'successor',
+    chainId?: string,
+    chainCondition?: {
+        variable: string,
+        value: string | boolean
+    }
 }
 
