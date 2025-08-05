@@ -24,11 +24,11 @@ const Frm = new FormHelper()
 export default function PromptForm(props) {
     const router = useRouter()
     const initialState = props.record || { content: {} }
-    
+
     // Inicializar arrays vazios para encadeamento se não existirem
     if (!initialState.content.predecessors) initialState.content.predecessors = []
     if (!initialState.content.successors) initialState.content.successors = []
-    
+
     // if (!initialState.model_id || (props.models && props.models[0] && !props.models.map(i => i.id).includes(initialState.model_id))) initialState.model_id = props.models && props.models[0] ? props.models[0].id : null
     // if (!initialState.testset_id || (props.testsets && props.testsets[0] && !props.testsets.map(i => i.id).includes(initialState.testset_id))) initialState.testset_id = props.testsets && props.testsets[0] ? props.testsets[0].id : null
     const [data, setData] = useState(_.cloneDeep(initialState))
@@ -37,12 +37,11 @@ export default function PromptForm(props) {
     const [tab, setTab] = useState('fields')
     const [showAdvancedOptions, setShowAdvancedOptions] = useState(initialState?.content?.system_prompt || initialState?.content?.json_schema || initialState?.content?.format ? true : false)
     const [isTemplate, setIsTemplate] = useState(initialState?.content?.template || props.template ? true : false)
-    Frm.update(data, (d) => { setData(d); updateYaml(d) }, formState)
-    const pristine = _.isEqual(data, { ...initialState })
+    const updateYaml = (newData) => { setYaml(yamlps.dump(newData.content)) }
+    const setDataAndUpdateYaml = (newData) => { setData(newData); updateYaml(newData) }
 
-    const updateYaml = (newData) => {
-        setYaml(yamlps.dump(newData.content))
-    }
+    Frm.update(data, (d) => { setDataAndUpdateYaml(d) }, formState)
+    const pristine = _.isEqual(data, { ...initialState })
 
     const handleYamlChanged = (value: string) => {
         setYaml(value)
@@ -114,7 +113,7 @@ export default function PromptForm(props) {
             {/* Seção de Encadeamento de Prompts */}
             <div className="col-12 mt-4">
                 <h5>Encadeamento de Prompts</h5>
-                
+
                 {/* Predecessores */}
                 <div className="row mb-3">
                     <div className="col-12">
@@ -122,13 +121,13 @@ export default function PromptForm(props) {
                         {(data.content.predecessors || []).map((predecessor, index) => (
                             <div key={index} className="row align-items-center mb-2">
                                 <div className="col-3">
-                                    <select 
-                                        className="form-select" 
-                                        value={predecessor.type} 
+                                    <select
+                                        className="form-select"
+                                        value={predecessor.type}
                                         onChange={(e) => {
                                             const newPredecessors = [...(data.content.predecessors || [])];
                                             newPredecessors[index].type = e.target.value as PromptChainType;
-                                            setData({...data, content: {...data.content, predecessors: newPredecessors}});
+                                            setDataAndUpdateYaml({ ...data, content: { ...data.content, predecessors: newPredecessors } });
                                         }}
                                     >
                                         <option value={PromptChainType.INTERNO}>Interno</option>
@@ -136,26 +135,26 @@ export default function PromptForm(props) {
                                     </select>
                                 </div>
                                 <div className="col-6">
-                                    <input 
+                                    <input
                                         type={predecessor.type === PromptChainType.BANCO_DE_PROMPTS ? 'number' : 'text'}
-                                        className="form-control" 
+                                        className="form-control"
                                         placeholder={predecessor.type === PromptChainType.BANCO_DE_PROMPTS ? 'ID do Prompt' : 'Identificador interno'}
-                                        value={predecessor.identifier} 
+                                        value={predecessor.identifier}
                                         onChange={(e) => {
                                             const newPredecessors = [...(data.content.predecessors || [])];
                                             newPredecessors[index].identifier = predecessor.type === PromptChainType.BANCO_DE_PROMPTS ? parseInt(e.target.value) || 0 : e.target.value;
-                                            setData({...data, content: {...data.content, predecessors: newPredecessors}});
+                                            setDataAndUpdateYaml({ ...data, content: { ...data.content, predecessors: newPredecessors } });
                                         }}
                                     />
                                 </div>
                                 <div className="col-2">
-                                    <Button 
-                                        variant="outline-danger" 
+                                    <Button
+                                        variant="outline-danger"
                                         size="sm"
                                         onClick={() => {
                                             const newPredecessors = [...(data.content.predecessors || [])];
                                             newPredecessors.splice(index, 1);
-                                            setData({...data, content: {...data.content, predecessors: newPredecessors}});
+                                            setDataAndUpdateYaml({ ...data, content: { ...data.content, predecessors: newPredecessors } });
                                         }}
                                     >
                                         <FontAwesomeIcon icon={faRemove} />
@@ -163,12 +162,12 @@ export default function PromptForm(props) {
                                 </div>
                             </div>
                         ))}
-                        <Button 
-                            variant="outline-primary" 
+                        <Button
+                            variant="outline-primary"
                             size="sm"
                             onClick={() => {
                                 const newPredecessors = [...(data.content.predecessors || []), { type: PromptChainType.INTERNO, identifier: '' }];
-                                setData({...data, content: {...data.content, predecessors: newPredecessors}});
+                                setDataAndUpdateYaml({ ...data, content: { ...data.content, predecessors: newPredecessors } });
                             }}
                         >
                             <FontAwesomeIcon icon={faAdd} /> Adicionar Predecessor
@@ -183,13 +182,13 @@ export default function PromptForm(props) {
                         {(data.content.successors || []).map((successor, index) => (
                             <div key={index} className="row align-items-center mb-2">
                                 <div className="col-2">
-                                    <select 
-                                        className="form-select" 
-                                        value={successor.type} 
+                                    <select
+                                        className="form-select"
+                                        value={successor.type}
                                         onChange={(e) => {
                                             const newSuccessors = [...(data.content.successors || [])];
                                             newSuccessors[index].type = e.target.value as PromptChainType;
-                                            setData({...data, content: {...data.content, successors: newSuccessors}});
+                                            setDataAndUpdateYaml({ ...data, content: { ...data.content, successors: newSuccessors } });
                                         }}
                                     >
                                         <option value={PromptChainType.INTERNO}>Interno</option>
@@ -197,67 +196,67 @@ export default function PromptForm(props) {
                                     </select>
                                 </div>
                                 <div className="col-3">
-                                    <input 
+                                    <input
                                         type={successor.type === PromptChainType.BANCO_DE_PROMPTS ? 'number' : 'text'}
-                                        className="form-control" 
+                                        className="form-control"
                                         placeholder={successor.type === PromptChainType.BANCO_DE_PROMPTS ? 'ID do Prompt' : 'Identificador interno'}
-                                        value={successor.identifier} 
+                                        value={successor.identifier}
                                         onChange={(e) => {
                                             const newSuccessors = [...(data.content.successors || [])];
                                             newSuccessors[index].identifier = successor.type === PromptChainType.BANCO_DE_PROMPTS ? parseInt(e.target.value) || 0 : e.target.value;
-                                            setData({...data, content: {...data.content, successors: newSuccessors}});
+                                            setDataAndUpdateYaml({ ...data, content: { ...data.content, successors: newSuccessors } });
                                         }}
                                     />
                                 </div>
                                 <div className="col-3">
-                                    <input 
+                                    <input
                                         type="text"
-                                        className="form-control" 
+                                        className="form-control"
                                         placeholder="Nome da variável (Lo_ ou Tx_)"
-                                        value={successor.condition.variable} 
+                                        value={successor.condition.variable}
                                         onChange={(e) => {
                                             const newSuccessors = [...(data.content.successors || [])];
                                             newSuccessors[index].condition.variable = e.target.value;
-                                            setData({...data, content: {...data.content, successors: newSuccessors}});
+                                            setDataAndUpdateYaml({ ...data, content: { ...data.content, successors: newSuccessors } });
                                         }}
                                     />
                                 </div>
                                 <div className="col-3">
                                     {successor.condition.variable.startsWith('Lo_') ? (
-                                        <select 
-                                            className="form-select" 
-                                            value={successor.condition.value.toString()} 
+                                        <select
+                                            className="form-select"
+                                            value={successor.condition.value.toString()}
                                             onChange={(e) => {
                                                 const newSuccessors = [...(data.content.successors || [])];
                                                 newSuccessors[index].condition.value = e.target.value === 'true';
-                                                setData({...data, content: {...data.content, successors: newSuccessors}});
+                                                setDataAndUpdateYaml({ ...data, content: { ...data.content, successors: newSuccessors } });
                                             }}
                                         >
                                             <option value="true">true</option>
                                             <option value="false">false</option>
                                         </select>
                                     ) : (
-                                        <input 
+                                        <input
                                             type="text"
-                                            className="form-control" 
+                                            className="form-control"
                                             placeholder="Valor da condição"
-                                            value={successor.condition.value.toString()} 
+                                            value={successor.condition.value.toString()}
                                             onChange={(e) => {
                                                 const newSuccessors = [...(data.content.successors || [])];
                                                 newSuccessors[index].condition.value = e.target.value;
-                                                setData({...data, content: {...data.content, successors: newSuccessors}});
+                                                setDataAndUpdateYaml({ ...data, content: { ...data.content, successors: newSuccessors } });
                                             }}
                                         />
                                     )}
                                 </div>
                                 <div className="col-1">
-                                    <Button 
-                                        variant="outline-danger" 
+                                    <Button
+                                        variant="outline-danger"
                                         size="sm"
                                         onClick={() => {
                                             const newSuccessors = [...(data.content.successors || [])];
                                             newSuccessors.splice(index, 1);
-                                            setData({...data, content: {...data.content, successors: newSuccessors}});
+                                            setDataAndUpdateYaml({ ...data, content: { ...data.content, successors: newSuccessors } });
                                         }}
                                     >
                                         <FontAwesomeIcon icon={faRemove} />
@@ -265,16 +264,16 @@ export default function PromptForm(props) {
                                 </div>
                             </div>
                         ))}
-                        <Button 
-                            variant="outline-primary" 
+                        <Button
+                            variant="outline-primary"
                             size="sm"
                             onClick={() => {
-                                const newSuccessors = [...(data.content.successors || []), { 
-                                    type: PromptChainType.INTERNO, 
-                                    identifier: '', 
-                                    condition: { variable: '', value: '' } 
+                                const newSuccessors = [...(data.content.successors || []), {
+                                    type: PromptChainType.INTERNO,
+                                    identifier: '',
+                                    condition: { variable: '', value: '' }
                                 }];
-                                setData({...data, content: {...data.content, successors: newSuccessors}});
+                                setDataAndUpdateYaml({ ...data, content: { ...data.content, successors: newSuccessors } });
                             }}
                         >
                             <FontAwesomeIcon icon={faAdd} /> Adicionar Sucessor
@@ -317,38 +316,38 @@ export default function PromptForm(props) {
                                     : <div className="text-body-tertiary">Utilize &#39;&#123;&#39; para inclusões e &#39;&#123;&#123;&#39; para condicionais. Mais detalhes no <a href="https://trf2.gitbook.io/apoia/criar-prompt-a-partir-de-um-modelo" target="_blank">manual</a>.</div>
                                 }
                             </>)
-                                : (<>
-                                    {showAdvancedOptions && <>
-                                        <div className="row">
-                                            {data.content.json_schema !== undefined && <Frm.TextArea label="JSON Schema (opcional)" name="content.json_schema" maxRows={5} width={""} />}
-                                            {data.content.json_schema !== undefined && <Frm.Button variant="light" onClick={() => { data.content.json_schema = undefined; setData({ ...data }) }}><FontAwesomeIcon icon={faRemove} /> Schema</Frm.Button>}
-                                        </div>
-                                        <div className="row">
-                                            {data.content.format !== undefined && <Frm.TextArea label="Format (opcional)" name="content.format" maxRows={5} width={""} />}
-                                            {data.content.format !== undefined && <Frm.Button variant="light" onClick={() => { data.content.format = undefined; setData({ ...data }) }}><FontAwesomeIcon icon={faRemove} /> Format</Frm.Button>}
-                                        </div>
-                                        <div className="row">
-                                            <Frm.TextArea label="Prompt de Sistema (opcional)" name="content.system_prompt" maxRows={5} width={""} />
-                                            {data.content.json_schema === undefined && <Frm.Button variant="light" onClick={() => { data.content.json_schema = ''; setData({ ...data }) }}><FontAwesomeIcon icon={faAdd} /> Schema</Frm.Button>}
-                                            {data.content.format === undefined && <Frm.Button variant="light" onClick={() => { data.content.format = ''; setData({ ...data }) }}><FontAwesomeIcon icon={faAdd} /> Format</Frm.Button>}
-                                        </div>
-                                    </>}
-                                    <Frm.TextArea label="Prompt" name="content.prompt" maxRows={20} explanation={`Utilize {{textos}} onde devem ser incluídos os textos capturados ${Target.PROCESSO.name === data.content.target ? 'das peças do processo' : 'do editor de textos'}, ou serão automaticamente incluídos no final.`} />
-                                </>)}
-                            </>)
-                            : (<TextareaAutosize className="form-control" value={yaml} onChange={(e) => handleYamlChanged(e.target.value)} />)}
-                    </div>
-                <div className="col col-auto mt-3 mb-3">
-                    <Button variant="light" className="" onClick={handleBack}>Voltar</Button>
-                </div>
+                            : (<>
+                                {showAdvancedOptions && <>
+                                    <div className="row">
+                                        {data.content.json_schema !== undefined && <Frm.TextArea label="JSON Schema (opcional)" name="content.json_schema" maxRows={5} width={""} />}
+                                        {data.content.json_schema !== undefined && <Frm.Button variant="light" onClick={() => { data.content.json_schema = undefined; setData({ ...data }) }}><FontAwesomeIcon icon={faRemove} /> Schema</Frm.Button>}
+                                    </div>
+                                    <div className="row">
+                                        {data.content.format !== undefined && <Frm.TextArea label="Format (opcional)" name="content.format" maxRows={5} width={""} />}
+                                        {data.content.format !== undefined && <Frm.Button variant="light" onClick={() => { data.content.format = undefined; setData({ ...data }) }}><FontAwesomeIcon icon={faRemove} /> Format</Frm.Button>}
+                                    </div>
+                                    <div className="row">
+                                        <Frm.TextArea label="Prompt de Sistema (opcional)" name="content.system_prompt" maxRows={5} width={""} />
+                                        {data.content.json_schema === undefined && <Frm.Button variant="light" onClick={() => { data.content.json_schema = ''; setData({ ...data }) }}><FontAwesomeIcon icon={faAdd} /> Schema</Frm.Button>}
+                                        {data.content.format === undefined && <Frm.Button variant="light" onClick={() => { data.content.format = ''; setData({ ...data }) }}><FontAwesomeIcon icon={faAdd} /> Format</Frm.Button>}
+                                    </div>
+                                </>}
+                                <Frm.TextArea label="Prompt" name="content.prompt" maxRows={20} explanation={`Utilize {{textos}} onde devem ser incluídos os textos capturados ${Target.PROCESSO.name === data.content.target ? 'das peças do processo' : 'do editor de textos'}, ou serão automaticamente incluídos no final.`} />
+                            </>)}
+                    </>)
+                    : (<TextareaAutosize className="form-control" value={yaml} onChange={(e) => handleYamlChanged(e.target.value)} />)}
+            </div>
+            <div className="col col-auto mt-3 mb-3">
+                <Button variant="light" className="" onClick={handleBack}>Voltar</Button>
+            </div>
 
-                <div className="col col-auto mt-3 mb-3 ms-auto">
-                    {showAdvancedOptions
-                        ? <Button variant="light" className="me-3" disabled={data.content.system_prompt || data.content.json_schema || data.content.format} onClick={() => { setShowAdvancedOptions(false) }}>Ocultar Opções Avançadas</Button>
-                        : <Button variant="light" className="me-3" onClick={() => { setShowAdvancedOptions(true) }}>Exibir Opções Avançadas</Button>}
-                    <Button variant="primary" disabled={pending || pristine} className="" onClick={handleSave}>Salvar</Button>
-                    <FormError formState={formState} />
-                </div>
-            </div >
-            )
+            <div className="col col-auto mt-3 mb-3 ms-auto">
+                {showAdvancedOptions
+                    ? <Button variant="light" className="me-3" disabled={data.content.system_prompt || data.content.json_schema || data.content.format} onClick={() => { setShowAdvancedOptions(false) }}>Ocultar Opções Avançadas</Button>
+                    : <Button variant="light" className="me-3" onClick={() => { setShowAdvancedOptions(true) }}>Exibir Opções Avançadas</Button>}
+                <Button variant="primary" disabled={pending || pristine} className="" onClick={handleSave}>Salvar</Button>
+                <FormError formState={formState} />
+            </div>
+        </div >
+    )
 }

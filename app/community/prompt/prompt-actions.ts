@@ -35,7 +35,22 @@ const promptSchema = z.object({
         json_schema: z.string().nullable().optional(),
         format: z.string().nullable().optional(),
 
-        template: z.string().nullable().optional()
+        template: z.string().nullable().optional(),
+        
+        // Chaining support - predecessors and successors
+        predecessors: z.array(z.object({
+            type: z.enum(['interno', 'banco_de_prompts']),
+            identifier: z.union([z.string(), numericString(z.number())])
+        })).nullable().optional(),
+        
+        successors: z.array(z.object({
+            type: z.enum(['interno', 'banco_de_prompts']),
+            identifier: z.union([z.string(), numericString(z.number())]),
+            condition: z.object({
+                variable: z.string(),
+                value: z.union([z.string(), z.boolean()])
+            })
+        })).nullable().optional()
     })
 })
 
