@@ -78,6 +78,11 @@ export enum IADocumentContentSource {
     OCR_ERRO = 7,
 }
 
+export enum PromptChainType {
+    INTERNO = 'interno',
+    BANCO_DE_PROMPTS = 'banco_de_prompts'
+}
+
 export type IADocument = {
     id: number
     dossier_id: number
@@ -118,6 +123,19 @@ export type IAPrompt = {
         format: string | null
 
         template: string | null
+
+        predecessors?: {
+            type: PromptChainType
+            identifier: string | number
+        }[]
+        successors?: {
+            type: PromptChainType
+            identifier: string | number
+            condition: {
+                variable: string
+                value: string | boolean
+            }
+        }[]
     }
     created_at: Date | null
     is_latest: number
@@ -149,6 +167,19 @@ export type IAPromptToInsert = {
         piece_strategy?: string
         piece_descr?: string
         summary?: string
+
+        predecessors?: {
+            type: PromptChainType
+            identifier: string | number
+        }[]
+        successors?: {
+            type: PromptChainType
+            identifier: string | number
+            condition: {
+                variable: string
+                value: string | boolean
+            }
+        }[]
     }
 }
 
@@ -181,6 +212,19 @@ export type IAPromptList = {
         format: string | null
 
         template: string | null
+
+        predecessors?: {
+            type: PromptChainType
+            identifier: string | number
+        }[]
+        successors?: {
+            type: PromptChainType
+            identifier: string | number
+            condition: {
+                variable: string
+                value: string | boolean
+            }
+        }[]
     }
     created_at: Date | null
     is_latest: number

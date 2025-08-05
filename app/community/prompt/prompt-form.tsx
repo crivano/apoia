@@ -14,6 +14,7 @@ import { faAdd, faRemove } from '@fortawesome/free-solid-svg-icons'
 import { enumSorted } from '@/lib/ai/model-types'
 import { Instance, Matter, Scope, Target } from '@/lib/proc/process-types'
 import { PieceDescr, PieceStrategy } from '@/lib/proc/combinacoes'
+import { PromptChainType } from '@/lib/db/mysql-types'
 import { findUnclosedMarking } from '@/lib/ai/template'
 
 // const EditorComp = dynamic(() => import('@/components/EditorComponent'), { ssr: false })
@@ -23,6 +24,11 @@ const Frm = new FormHelper()
 export default function PromptForm(props) {
     const router = useRouter()
     const initialState = props.record || { content: {} }
+    
+    // Inicializar arrays vazios para encadeamento se não existirem
+    if (!initialState.content.predecessors) initialState.content.predecessors = []
+    if (!initialState.content.successors) initialState.content.successors = []
+    
     // if (!initialState.model_id || (props.models && props.models[0] && !props.models.map(i => i.id).includes(initialState.model_id))) initialState.model_id = props.models && props.models[0] ? props.models[0].id : null
     // if (!initialState.testset_id || (props.testsets && props.testsets[0] && !props.testsets.map(i => i.id).includes(initialState.testset_id))) initialState.testset_id = props.testsets && props.testsets[0] ? props.testsets[0].id : null
     const [data, setData] = useState(_.cloneDeep(initialState))
@@ -104,6 +110,178 @@ export default function PromptForm(props) {
             <Frm.MultiSelect label="Tipos de Peças" name="content.piece_descr" options={pieceDescrOptions} width={2} visible={Target.PROCESSO.name === data.content.target && PieceStrategy.TIPOS_ESPECIFICOS.name === data.content.piece_strategy} />
             <Frm.Select label="Resumir Selecionadas" name="content.summary" options={summaryOptions} width={2} visible={Target.PROCESSO.name === data.content.target} />
             <Frm.Select label="Compartilhamento" name="share" options={shareOptions} width={2} />
+
+            {/* Seção de Encadeamento de Prompts */}
+            <div className="col-12 mt-4">
+                <h5>Encadeamento de Prompts</h5>
+                
+                {/* Predecessores */}
+                <div className="row mb-3">
+                    <div className="col-12">
+                        <label className="form-label">Prompts Predecessores</label>
+                        {(data.content.predecessors || []).map((predecessor, index) => (
+                            <div key={index} className="row align-items-center mb-2">
+                                <div className="col-3">
+                                    <select 
+                                        className="form-select" 
+                                        value={predecessor.type} 
+                                        onChange={(e) => {
+                                            const newPredecessors = [...(data.content.predecessors || [])];
+                                            newPredecessors[index].type = e.target.value as PromptChainType;
+                                            setData({...data, content: {...data.content, predecessors: newPredecessors}});
+                                        }}
+                                    >
+                                        <option value={PromptChainType.INTERNO}>Interno</option>
+                                        <option value={PromptChainType.BANCO_DE_PROMPTS}>Banco de Prompts</option>
+                                    </select>
+                                </div>
+                                <div className="col-6">
+                                    <input 
+                                        type={predecessor.type === PromptChainType.BANCO_DE_PROMPTS ? 'number' : 'text'}
+                                        className="form-control" 
+                                        placeholder={predecessor.type === PromptChainType.BANCO_DE_PROMPTS ? 'ID do Prompt' : 'Identificador interno'}
+                                        value={predecessor.identifier} 
+                                        onChange={(e) => {
+                                            const newPredecessors = [...(data.content.predecessors || [])];
+                                            newPredecessors[index].identifier = predecessor.type === PromptChainType.BANCO_DE_PROMPTS ? parseInt(e.target.value) || 0 : e.target.value;
+                                            setData({...data, content: {...data.content, predecessors: newPredecessors}});
+                                        }}
+                                    />
+                                </div>
+                                <div className="col-2">
+                                    <Button 
+                                        variant="outline-danger" 
+                                        size="sm"
+                                        onClick={() => {
+                                            const newPredecessors = [...(data.content.predecessors || [])];
+                                            newPredecessors.splice(index, 1);
+                                            setData({...data, content: {...data.content, predecessors: newPredecessors}});
+                                        }}
+                                    >
+                                        <FontAwesomeIcon icon={faRemove} />
+                                    </Button>
+                                </div>
+                            </div>
+                        ))}
+                        <Button 
+                            variant="outline-primary" 
+                            size="sm"
+                            onClick={() => {
+                                const newPredecessors = [...(data.content.predecessors || []), { type: PromptChainType.INTERNO, identifier: '' }];
+                                setData({...data, content: {...data.content, predecessors: newPredecessors}});
+                            }}
+                        >
+                            <FontAwesomeIcon icon={faAdd} /> Adicionar Predecessor
+                        </Button>
+                    </div>
+                </div>
+
+                {/* Sucessores */}
+                <div className="row mb-3">
+                    <div className="col-12">
+                        <label className="form-label">Prompts Sucessores</label>
+                        {(data.content.successors || []).map((successor, index) => (
+                            <div key={index} className="row align-items-center mb-2">
+                                <div className="col-2">
+                                    <select 
+                                        className="form-select" 
+                                        value={successor.type} 
+                                        onChange={(e) => {
+                                            const newSuccessors = [...(data.content.successors || [])];
+                                            newSuccessors[index].type = e.target.value as PromptChainType;
+                                            setData({...data, content: {...data.content, successors: newSuccessors}});
+                                        }}
+                                    >
+                                        <option value={PromptChainType.INTERNO}>Interno</option>
+                                        <option value={PromptChainType.BANCO_DE_PROMPTS}>Banco de Prompts</option>
+                                    </select>
+                                </div>
+                                <div className="col-3">
+                                    <input 
+                                        type={successor.type === PromptChainType.BANCO_DE_PROMPTS ? 'number' : 'text'}
+                                        className="form-control" 
+                                        placeholder={successor.type === PromptChainType.BANCO_DE_PROMPTS ? 'ID do Prompt' : 'Identificador interno'}
+                                        value={successor.identifier} 
+                                        onChange={(e) => {
+                                            const newSuccessors = [...(data.content.successors || [])];
+                                            newSuccessors[index].identifier = successor.type === PromptChainType.BANCO_DE_PROMPTS ? parseInt(e.target.value) || 0 : e.target.value;
+                                            setData({...data, content: {...data.content, successors: newSuccessors}});
+                                        }}
+                                    />
+                                </div>
+                                <div className="col-3">
+                                    <input 
+                                        type="text"
+                                        className="form-control" 
+                                        placeholder="Nome da variável (Lo_ ou Tx_)"
+                                        value={successor.condition.variable} 
+                                        onChange={(e) => {
+                                            const newSuccessors = [...(data.content.successors || [])];
+                                            newSuccessors[index].condition.variable = e.target.value;
+                                            setData({...data, content: {...data.content, successors: newSuccessors}});
+                                        }}
+                                    />
+                                </div>
+                                <div className="col-3">
+                                    {successor.condition.variable.startsWith('Lo_') ? (
+                                        <select 
+                                            className="form-select" 
+                                            value={successor.condition.value.toString()} 
+                                            onChange={(e) => {
+                                                const newSuccessors = [...(data.content.successors || [])];
+                                                newSuccessors[index].condition.value = e.target.value === 'true';
+                                                setData({...data, content: {...data.content, successors: newSuccessors}});
+                                            }}
+                                        >
+                                            <option value="true">true</option>
+                                            <option value="false">false</option>
+                                        </select>
+                                    ) : (
+                                        <input 
+                                            type="text"
+                                            className="form-control" 
+                                            placeholder="Valor da condição"
+                                            value={successor.condition.value.toString()} 
+                                            onChange={(e) => {
+                                                const newSuccessors = [...(data.content.successors || [])];
+                                                newSuccessors[index].condition.value = e.target.value;
+                                                setData({...data, content: {...data.content, successors: newSuccessors}});
+                                            }}
+                                        />
+                                    )}
+                                </div>
+                                <div className="col-1">
+                                    <Button 
+                                        variant="outline-danger" 
+                                        size="sm"
+                                        onClick={() => {
+                                            const newSuccessors = [...(data.content.successors || [])];
+                                            newSuccessors.splice(index, 1);
+                                            setData({...data, content: {...data.content, successors: newSuccessors}});
+                                        }}
+                                    >
+                                        <FontAwesomeIcon icon={faRemove} />
+                                    </Button>
+                                </div>
+                            </div>
+                        ))}
+                        <Button 
+                            variant="outline-primary" 
+                            size="sm"
+                            onClick={() => {
+                                const newSuccessors = [...(data.content.successors || []), { 
+                                    type: PromptChainType.INTERNO, 
+                                    identifier: '', 
+                                    condition: { variable: '', value: '' } 
+                                }];
+                                setData({...data, content: {...data.content, successors: newSuccessors}});
+                            }}
+                        >
+                            <FontAwesomeIcon icon={faAdd} /> Adicionar Sucessor
+                        </Button>
+                    </div>
+                </div>
+            </div>
 
             <div className='col col-12'>
                 {showAdvancedOptions &&
