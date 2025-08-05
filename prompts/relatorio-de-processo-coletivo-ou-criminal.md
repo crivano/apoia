@@ -55,6 +55,7 @@ Formate sua resposta conforme exemplo a seguir, demarcado por <modelo>. Preste a
 
 [Descrição das defesas e provas apresentadas por cada réu de forma detalhada.]
 
+[Resumo da fundamentação jurídica da réplica, sem omitir argumentos e sem analisar o mérito. Descrição os principais atos processuais relevantes em ordem cronológica, como decisão interlocutória, sentença, apelação e contrarrazões de apelação, sempre referenciando as peças correspondentes.]
 
 # Problema Jurídico
 

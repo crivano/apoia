@@ -234,6 +234,17 @@ const formated = (html: string) => {
 <head>
 <script src="/wordcloud2.js"></script>
 <style>
+    body {
+        font-family: 'Times New Roman', Times, serif;
+        font-size: 16pt;
+    }
+    h1 { font-size: 26pt; }
+    h2 { font-size: 24pt; }
+    h3 { font-size: 22pt; }
+    h4 { font-size: 20pt; }
+    h5 { font-size: 18pt; }
+    h6 { font-size: 16pt; }
+
     button { display: none; }
     a.back-button { display: none; }
     h1 { text-align: center; }
