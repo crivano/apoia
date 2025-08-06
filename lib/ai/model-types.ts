@@ -51,7 +51,7 @@ const ModelArray: ModelArrayType[] = [
     { id: 13, name: 'claude-3-7-sonnet-20250219', provider: ModelProvider.ANTHROPIC, inputTokenPPM: 3, outputTokenPPM: 15, status: StatusDeLancamento.PUBLICO },
     { id: 2, name: 'claude-3-5-sonnet-20241022', provider: ModelProvider.ANTHROPIC, inputTokenPPM: 3, outputTokenPPM: 15, status: StatusDeLancamento.PUBLICO },
     { id: 14, name: 'claude-3-5-haiku-20241022', provider: ModelProvider.ANTHROPIC, inputTokenPPM: 0.8, outputTokenPPM: 4, status: StatusDeLancamento.PUBLICO },
-    { id: 18, name: 'gemini-2.5-flash', provider: ModelProvider.GOOGLE, inputTokenPPM: 0.30, outputTokenPPM: 2.5, status: StatusDeLancamento.PUBLICO, clip: 2000 },
+    { id: 18, name: 'gemini-2.5-flash', provider: ModelProvider.GOOGLE, inputTokenPPM: 0.30, outputTokenPPM: 2.5, status: StatusDeLancamento.PUBLICO, clip: 1000 },
     // { id: 9, name: 'gemini-2.0-flash', provider: ModelProvider.GOOGLE, inputTokenPPM: 0.1, outputTokenPPM: 0.4, status: StatusDeLancamento.PUBLICO },
     { id: 10, name: 'gemini-2.5-pro', provider: ModelProvider.GOOGLE, inputTokenPPM: 2.5, outputTokenPPM: 15, status: StatusDeLancamento.PUBLICO },
     // { id: 4, name: 'gemini-1.5-pro-002', provider: ModelProvider.GOOGLE, inputTokenPPM: 2.5, outputTokenPPM: 10, status: StatusDeLancamento.PUBLICO },

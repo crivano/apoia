@@ -1,5 +1,29 @@
+import { T } from "../proc/combinacoes";
 import { Model, ModelValeuType } from "./model-types";
 import { TextoType } from "./prompt-types";
+
+const UNCLIPPABLE_PIECES: string[] = [
+    T.PETICAO_INICIAL,
+    // T.PETICAO,
+    T.EMENDA_DA_INICIAL,
+    T.CONTESTACAO,
+    T.DEFESA_PREVIA_DEFESA_PRELIMINAR_RESPOSTA_DO_REU,
+    T.INFORMACAO_EM_MANDADO_DE_SEGURANCA,
+    T.REPLICA,
+    T.DESPACHO_DECISAO,
+    T.SENTENCA,
+    T.EMBARGOS_DE_DECLARACAO,
+    T.APELACAO,
+    T.CONTRARRAZOES_AO_RECURSO_DE_APELACAO,
+    T.AGRAVO,
+    T.AGRAVO_INTERNO,
+    T.RECURSO,
+    T.RECURSO_INOMINADO,
+    T.CONTRARRAZOES,
+    T.VOTO,
+    T.ACORDAO,
+]
+
 
 /**
  * Representa uma peça com seu tamanho e sua posição original na lista.
@@ -129,27 +153,74 @@ function clipNumericAndSymbolicPieces(textos: TextoType[]): TextoType[] {
 }
 
 export function clipPieces(model: string, textos: TextoType[]): TextoType[] {
+    // Primeiro, aplica o clip para peças numéricas/simbólicas, respeitando as unclippables.
+    const initialClipedTextos = clipNumericAndSymbolicPieces(textos);
 
-    textos = clipNumericAndSymbolicPieces(textos)
+    const K_TOKENS_TO_CHARS = 1500; // Aproximadamente 0.75 tokens por caractere
+    const modelDetails: ModelValeuType = Object.values(Model).find(m => m.name === model);
+    const maxTotalSize = modelDetails?.clip ? modelDetails.clip * K_TOKENS_TO_CHARS : null;
 
-    const K_TOKENS_PER_CHAR = 1500 / 2000 * 1000
-    const modelDetails: ModelValeuType = Object.values(Model).find(m => m.name === model)
-    const clipSize = modelDetails?.clip * K_TOKENS_PER_CHAR
-    if (!clipSize) return textos
+    // Se não há limite de tamanho, retorna as peças após o primeiro clip.
+    if (maxTotalSize === null) {
+        return initialClipedTextos;
+    }
 
-    // Calcula os tamanhos das peças.
-    const pieceSizes = textos.map(piece => piece.texto?.length || 0)
+    const currentTotalSize = initialClipedTextos.reduce((sum, p) => sum + (p.texto?.length || 0), 0);
 
-    // Calcula o novo tamanho de cada peça para que o total se ajuste ao limite.
-    const newSizes = computePiecesClipping(pieceSizes, clipSize)
+    // Se o tamanho total já está dentro do limite, não há mais nada a fazer.
+    if (currentTotalSize <= maxTotalSize) {
+        return initialClipedTextos;
+    }
 
-    // Retorna as peças com os novos tamanhos.
-    return textos.map((piece, index) => {
-        if (newSizes[index] >= (piece.texto?.length || 0)) return piece; // Não clipa se o novo tamanho é maior ou igual ao original.
-        console.log(`Clipando peça ${index + 1} de ${textos.length} de tamanho ${piece.texto?.length} para ${newSizes[index]} caracteres.`);
-        return {
-            ...piece,
-            texto: piece.texto.slice(0, newSizes[index]) + '...',
+    // Separa as peças em "clippable" e "unclippable".
+    const clippablePieces: { piece: TextoType; index: number }[] = [];
+    const unclippablePieces: { piece: TextoType; index: number }[] = [];
+
+    initialClipedTextos.forEach((piece, index) => {
+        if (UNCLIPPABLE_PIECES.includes(piece.descr)) {
+            unclippablePieces.push({ piece, index });
+        } else {
+            clippablePieces.push({ piece, index });
         }
-    })
+    });
+
+    // Calcula o tamanho total das peças que não podem ser cortadas.
+    const unclippableSize = unclippablePieces.reduce((sum, p) => sum + (p.piece.texto?.length || 0), 0);
+
+    // O novo limite de tamanho para as peças que podem ser cortadas.
+    const clippableMaxTotalSize = maxTotalSize - unclippableSize;
+
+    // Se o tamanho das peças que não podem ser cortadas já excede o limite total, não há o que fazer.
+    if (clippableMaxTotalSize <= 0) {
+        throw new Error('O tamanho das peças que não podem ser cortadas excede o limite total permitido pelo modelo.');
+    }
+
+    // Se não há peças para cortar, não podemos prosseguir.
+    if (clippablePieces.length === 0) {
+        throw new Error('Não há peças que possam ser cortadas para ajustar ao limite do modelo.');
+    }
+
+    // Extrai os tamanhos das peças que podem ser cortadas.
+    const clippablePieceSizes = clippablePieces.map(p => p.piece.texto?.length || 0);
+
+    // Calcula os novos tamanhos apenas para as peças "clippable".
+    const newClippableSizes = computePiecesClipping(clippablePieceSizes, clippableMaxTotalSize);
+
+    // Monta o resultado final na ordem original.
+    const resultTextos = [...initialClipedTextos];
+
+    clippablePieces.forEach(({ piece, index }, i) => {
+        const originalSize = piece.texto?.length || 0;
+        const newSize = newClippableSizes[i];
+
+        if (newSize < originalSize) {
+            console.log(`Clipando peça ${index + 1} de ${textos.length} de tamanho ${originalSize} para ${newSize} caracteres.`);
+            resultTextos[index] = {
+                ...piece,
+                texto: piece.texto.slice(0, newSize) + '...',
+            };
+        }
+    });
+
+    return resultTextos;
 }
