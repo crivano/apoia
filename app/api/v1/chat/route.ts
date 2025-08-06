@@ -40,14 +40,15 @@ export async function POST(req: Request) {
 
     const { model, modelRef, apiKeyFromEnv } = await getModel()
 
-    const anonymize = req.headers.get('cookie')?.includes('anonymize=true')
-    if (anonymize) {
-        messages.forEach((message: any) => {
-            if (message.role === 'user' && message.content) {
-                message.content = anonymizeText(message.content).text
-            }
-        })
-    }
+    // const anonymize = req.headers.get('cookie')?.includes('anonymize=true')
+    // if (anonymize) {
+    //     messages.forEach((message: any) => {
+    //         if (message.role === 'user' && message.content) {
+    //             console.log('Anonymizing user message content:', message.content)
+    //             message.content = anonymizeText(message.content).text
+    //         }
+    //     })
+    // }
 
     const { searchParams } = new URL(req.url)
     const withTools = searchParams.get('withTools') === 'true'

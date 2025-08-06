@@ -53,9 +53,31 @@ export const getProcessMetadataTool = (pUser: Promise<UserType>) => tool({
                     }
                     return data;
                 };
-                metadata = anonymizeRecursively(metadata);
+                for (const processo of metadata) {
+                    processo.partes = anonymizeRecursively(processo.partes);
+                    for (const parte of processo.partes?.poloAtivo || []) {
+                        if (parte.representantes) {
+                            for (const rep of parte.representantes) {
+                                delete rep.oab
+                            }
+                        }
+                    }
+                    for (const parte of processo.partes?.poloPassivo || []) {
+                        if (parte.representantes) {
+                            for (const rep of parte.representantes) {
+                                delete rep.oab
+                            }
+                        }
+                    }
+                    for (const movimento of processo.movimentosEDocumentos) {
+                        movimento.documentos = movimento.documentos.map(doc => ({
+                            ...doc,
+                            nome: anonymizeText(doc.nome, { endereco: true, email: true, names: true }).text,
+                            signatarios: doc.signatarios.map(sig => anonymizeText(sig, { endereco: true, email: true, names: true }).text)
+                        }));
+                    }
+                }
             }
-
             return metadata
         } catch (error) {
             console.error('Error executing getProcessMetadataTool:', error)
