@@ -207,7 +207,7 @@ export function mapPdpjToSimplified(processo: PdpjInput): InteropProcessoType[] 
                 sequencia: movimento.sequencia,
                 dataHora: movimento.dataHora,
                 descricao: movimento.descricao,
-                orgaoJulgador: movimento.orgaoJulgador.nome,
+                orgaoJulgador: movimento.orgaoJulgador?.nome,
                 responsavel: movimento.magistrado?.nome || movimento.usuario?.nome,
                 tipo: {
                     nome: movimento.tipo.nome,
@@ -235,12 +235,12 @@ export function mapPdpjToSimplified(processo: PdpjInput): InteropProcessoType[] 
                     id: doc.id,
                     nome: doc.nome,
                     nivelSigilo: doc.nivelSigilo,
-                    tipoDocumento: doc.tipo.nome,
-                    tipoArquivo: doc.arquivo.tipo,
-                    quantidadePaginas: doc.arquivo.quantidadePaginas,
-                    tamanho: doc.arquivo.tamanho,
-                    tamanhoTexto: formatFileSize(doc.arquivo.tamanhoTexto),
-                    signatarios: doc.signatarios.map(sig => sig.nome),
+                    tipoDocumento: doc.tipo?.nome,
+                    tipoArquivo: doc.arquivo?.tipo,
+                    quantidadePaginas: doc.arquivo?.quantidadePaginas,
+                    tamanho: doc.arquivo?.tamanho,
+                    tamanhoTexto: formatFileSize(doc.arquivo?.tamanhoTexto),
+                    signatarios: doc.signatarios?.map(sig => sig.nome),
                     dataHoraJuntada: doc.dataHoraJuntada
                 });
             }
