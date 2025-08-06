@@ -29,7 +29,7 @@ const onReady = (Frm: FormHelper, requests: GeneratedContent[], idx: number, con
     Frm.set('pending', Frm.get('pending') - 1)
 
     // Frm.set(`flow.ready[${idx}]`, content)
-    if (requests[idx].produto === P.PEDIDOS && content.json) {
+    if (requests[idx].produto === P.PEDIDOS_FUNDAMENTACOES_E_DISPOSITIVOS && content.json) {
         Frm.set('pedidos', content.json.pedidos)
     }
     if (content.json && isInformationExtractionPrompt(requests[idx].internalPrompt?.prompt)) {
@@ -49,6 +49,8 @@ function requestSlot(Frm: FormHelper, requests: GeneratedContent[], idx: number)
         Frm.set(informationExtractionVariableName, undefined)
     }
     const information_extraction = Frm.get(informationExtractionVariableName)
+
+    console.log('requestSlot: request', request.produto)
 
     const pedidos = Frm.get('pedidos')
     if (request.produto === P.PEDIDOS && pedidos) {
