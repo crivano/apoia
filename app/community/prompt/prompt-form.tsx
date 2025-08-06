@@ -7,19 +7,23 @@ import TextareaAutosize from 'react-textarea-autosize'
 import { removeOfficial, save, setOfficial } from './prompt-actions'
 import { EMPTY_FORM_STATE, FormHelper, FormError } from '@/lib/ui/form-support'
 import yamlps from 'js-yaml'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import _ from 'lodash'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faAdd, faRemove } from '@fortawesome/free-solid-svg-icons'
 import { enumSorted } from '@/lib/ai/model-types'
 import { Instance, Matter, Scope, Target } from '@/lib/proc/process-types'
-import { PieceDescr, PieceStrategy } from '@/lib/proc/combinacoes'
+import { P, PieceDescr, PieceStrategy, ProdutosValidos } from '@/lib/proc/combinacoes'
 import { PromptChainType } from '@/lib/db/mysql-types'
 import { findUnclosedMarking } from '@/lib/ai/template'
+import { getEnumKeyByValue } from '@/lib/utils/utils'
 
 // const EditorComp = dynamic(() => import('@/components/EditorComponent'), { ssr: false })
 
 const Frm = new FormHelper()
+
+const ProdutosValidosAntes = [P.RESUMOS]
+const ProdutosValidosDepois = [P.REVISAO]
 
 export default function PromptForm(props) {
     const router = useRouter()
@@ -37,8 +41,28 @@ export default function PromptForm(props) {
     const [tab, setTab] = useState('fields')
     const [showAdvancedOptions, setShowAdvancedOptions] = useState(initialState?.content?.system_prompt || initialState?.content?.json_schema || initialState?.content?.format ? true : false)
     const [isTemplate, setIsTemplate] = useState(initialState?.content?.template || props.template ? true : false)
+    const [availablePrompts, setAvailablePrompts] = useState([])
     const updateYaml = (newData) => { setYaml(yamlps.dump(newData.content)) }
     const setDataAndUpdateYaml = (newData) => { setData(newData); updateYaml(newData) }
+
+    // Load available prompts for chaining
+    useEffect(() => {
+        const loadPrompts = async () => {
+            try {
+                // For simplicity, we'll use props.prompts if available, otherwise fetch from database
+                if (props.prompts) {
+                    setAvailablePrompts(props.prompts)
+                } else {
+                    // Fallback: we could create an API endpoint or pass prompts as props
+                    // For now, we'll leave it empty and rely on the internal prompts
+                    setAvailablePrompts([])
+                }
+            } catch (error) {
+                console.error('Error loading prompts:', error)
+            }
+        }
+        loadPrompts()
+    }, [props.prompts])
 
     Frm.update(data, (d) => { setDataAndUpdateYaml(d) }, formState)
     const pristine = _.isEqual(data, { ...initialState })
@@ -117,7 +141,7 @@ export default function PromptForm(props) {
                 {/* Predecessores */}
                 <div className="row mb-3">
                     <div className="col-12">
-                        <label className="form-label">Prompts Predecessores</label>
+                        <label className="form-label">Antes</label>
                         {(data.content.predecessors || []).map((predecessor, index) => (
                             <div key={index} className="row align-items-center mb-2">
                                 <div className="col-3">
@@ -127,6 +151,7 @@ export default function PromptForm(props) {
                                         onChange={(e) => {
                                             const newPredecessors = [...(data.content.predecessors || [])];
                                             newPredecessors[index].type = e.target.value as PromptChainType;
+                                            newPredecessors[index].identifier = ''; // Reset identifier when type changes
                                             setDataAndUpdateYaml({ ...data, content: { ...data.content, predecessors: newPredecessors } });
                                         }}
                                     >
@@ -135,17 +160,33 @@ export default function PromptForm(props) {
                                     </select>
                                 </div>
                                 <div className="col-6">
-                                    <input
-                                        type={predecessor.type === PromptChainType.BANCO_DE_PROMPTS ? 'number' : 'text'}
-                                        className="form-control"
-                                        placeholder={predecessor.type === PromptChainType.BANCO_DE_PROMPTS ? 'ID do Prompt' : 'Identificador interno'}
-                                        value={predecessor.identifier}
-                                        onChange={(e) => {
-                                            const newPredecessors = [...(data.content.predecessors || [])];
-                                            newPredecessors[index].identifier = predecessor.type === PromptChainType.BANCO_DE_PROMPTS ? parseInt(e.target.value) || 0 : e.target.value;
-                                            setDataAndUpdateYaml({ ...data, content: { ...data.content, predecessors: newPredecessors } });
-                                        }}
-                                    />
+                                    {predecessor.type === PromptChainType.BANCO_DE_PROMPTS ? (
+                                        <select
+                                            className="form-select"
+                                            value={predecessor.identifier}
+                                            onChange={(e) => {
+                                                const newPredecessors = [...(data.content.predecessors || [])];
+                                                newPredecessors[index].identifier = parseInt(e.target.value) || 0;
+                                                setDataAndUpdateYaml({ ...data, content: { ...data.content, predecessors: newPredecessors } });
+                                            }}
+                                        >
+                                            <option value="">Selecione um prompt...</option>
+                                            {availablePrompts.length > 0 ? (
+                                                availablePrompts.map(prompt => (
+                                                    <option key={prompt.id} value={prompt.id}>{prompt.name}</option>
+                                                ))
+                                            ) : (
+                                                <option value="" disabled>Nenhum prompt disponível</option>
+                                            )}
+                                        </select>
+                                    ) : (
+                                        <Frm.Select name={'content.predecessors[' + index + '].identifier'} label='Produto' options={
+                                            Object.values(ProdutosValidosAntes).map(prod => ({
+                                                id: getEnumKeyByValue(P, prod),
+                                                name: ProdutosValidos[prod].titulo
+                                            }))
+                                        }/>
+                                    )}
                                 </div>
                                 <div className="col-2">
                                     <Button
@@ -170,7 +211,7 @@ export default function PromptForm(props) {
                                 setDataAndUpdateYaml({ ...data, content: { ...data.content, predecessors: newPredecessors } });
                             }}
                         >
-                            <FontAwesomeIcon icon={faAdd} /> Adicionar Predecessor
+                            <FontAwesomeIcon icon={faAdd} /> Adicionar
                         </Button>
                     </div>
                 </div>
@@ -178,7 +219,7 @@ export default function PromptForm(props) {
                 {/* Sucessores */}
                 <div className="row mb-3">
                     <div className="col-12">
-                        <label className="form-label">Prompts Sucessores</label>
+                        <label className="form-label">Depois</label>
                         {(data.content.successors || []).map((successor, index) => (
                             <div key={index} className="row align-items-center mb-2">
                                 <div className="col-2">
@@ -188,6 +229,7 @@ export default function PromptForm(props) {
                                         onChange={(e) => {
                                             const newSuccessors = [...(data.content.successors || [])];
                                             newSuccessors[index].type = e.target.value as PromptChainType;
+                                            newSuccessors[index].identifier = ''; // Reset identifier when type changes
                                             setDataAndUpdateYaml({ ...data, content: { ...data.content, successors: newSuccessors } });
                                         }}
                                     >
@@ -196,17 +238,41 @@ export default function PromptForm(props) {
                                     </select>
                                 </div>
                                 <div className="col-3">
-                                    <input
-                                        type={successor.type === PromptChainType.BANCO_DE_PROMPTS ? 'number' : 'text'}
-                                        className="form-control"
-                                        placeholder={successor.type === PromptChainType.BANCO_DE_PROMPTS ? 'ID do Prompt' : 'Identificador interno'}
-                                        value={successor.identifier}
-                                        onChange={(e) => {
-                                            const newSuccessors = [...(data.content.successors || [])];
-                                            newSuccessors[index].identifier = successor.type === PromptChainType.BANCO_DE_PROMPTS ? parseInt(e.target.value) || 0 : e.target.value;
-                                            setDataAndUpdateYaml({ ...data, content: { ...data.content, successors: newSuccessors } });
-                                        }}
-                                    />
+                                    {successor.type === PromptChainType.BANCO_DE_PROMPTS ? (
+                                        <select
+                                            className="form-select"
+                                            value={successor.identifier}
+                                            onChange={(e) => {
+                                                const newSuccessors = [...(data.content.successors || [])];
+                                                newSuccessors[index].identifier = parseInt(e.target.value) || 0;
+                                                setDataAndUpdateYaml({ ...data, content: { ...data.content, successors: newSuccessors } });
+                                            }}
+                                        >
+                                            <option value="">Selecione um prompt...</option>
+                                            {availablePrompts.length > 0 ? (
+                                                availablePrompts.map(prompt => (
+                                                    <option key={prompt.id} value={prompt.id}>{prompt.name}</option>
+                                                ))
+                                            ) : (
+                                                <option value="" disabled>Nenhum prompt disponível</option>
+                                            )}
+                                        </select>
+                                    ) : (
+                                        <select
+                                            className="form-select"
+                                            value={successor.identifier}
+                                            onChange={(e) => {
+                                                const newSuccessors = [...(data.content.successors || [])];
+                                                newSuccessors[index].identifier = e.target.value;
+                                                setDataAndUpdateYaml({ ...data, content: { ...data.content, successors: newSuccessors } });
+                                            }}
+                                        >
+                                            <option value="">Selecione um prompt interno...</option>
+                                            {Object.values(ProdutosValidos).map(prompt => (
+                                                <option key={prompt.prompt} value={prompt.prompt}>{prompt.titulo}</option>
+                                            ))}
+                                        </select>
+                                    )}
                                 </div>
                                 <div className="col-3">
                                     <input
