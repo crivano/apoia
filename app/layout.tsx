@@ -34,8 +34,8 @@ export default async function RootLayout({
     return (
         <html lang="pt-BR">
             <head>
-                <meta property="og:title" content="ApoIA" />
-                <meta property="og:description" content="ApoIA" />
+                <meta property="og:title" content="Apoia" />
+                <meta property="og:description" content="Apoia" />
                 <meta property="og:url" content="https://apoia.vercel.app" />
                 <meta property="og:image" content="https://apoia.vercel.app/apoia-logo-transp.png" />
             </head>
@@ -45,8 +45,8 @@ export default async function RootLayout({
                     <Container fluid={false}>
                         <div className="navbar-brand pt-0 pb-0" style={{ overflow: "hidden" }}>
                             <Link href="/" className="ms-0 me-0" style={{ verticalAlign: "middle" }}>
-                                {/* <Image src="/trf2-logo.png" width={34 * 27 / 32} height={34} alt="ApoIA Logo" className="me-0" /> */}
-                                <Image src="/apoia-logo-vertical-transp.png" width={48 * 1102 / 478} height={48} alt="ApoIA Logo" className="me-0" style={{}} />
+                                {/* <Image src="/trf2-logo.png" width={34 * 27 / 32} height={34} alt="Apoia Logo" className="me-0" /> */}
+                                <Image src="/apoia-logo-vertical-transp.png" width={48 * 1102 / 478} height={48} alt="Apoia Logo" className="me-0" style={{}} />
                             </Link>
                         </div>
                         <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">

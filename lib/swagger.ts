@@ -6,7 +6,7 @@ export const getApiDocs = async () => {
         definition: {
             openapi: "3.0.0",
             info: {
-                title: "ApoIA API",
+                title: "Apoia API",
                 version: "1.0",
             },
             tags: [

@@ -208,7 +208,7 @@ export function Contents({ prompts, user, user_id, apiKeyProvided, model, listPu
                 </Container>
             </div >
             <Container className="mt-2 mb-3" fluid={false}>
-                {!apiKeyProvided && <p className="text-center mt-3 mb-3">Execute os prompts diretamente na ApoIA, cadastrando sua <Link href="/prefs">Chave de API</Link>.</p>}
+                {!apiKeyProvided && <p className="text-center mt-3 mb-3">Execute os prompts diretamente na Apoia, cadastrando sua <Link href="/prefs">Chave de API</Link>.</p>}
                 <PromptsTable prompts={filteredPrompts} onClick={promptOnClick} onProcessNumberChange={setNumeroDoProcesso}>
                     <div className="col col-auto">
                         <DropdownButton id="criar-novo-dropdown" title="Criar Novo" variant="primary">

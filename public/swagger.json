@@ -1,649 +1,610 @@
 {
-  "openapi": "3.0.0",
-  "info": {
-    "title": "ApoIA API",
-    "version": "1.0"
-  },
-  "tags": [
-    {
-      "name": "auth"
+    "openapi": "3.0.0",
+    "info": {
+        "title": "Apoia API",
+        "version": "1.0"
     },
-    {
-      "name": "ai"
-    },
-    {
-      "name": "batch"
-    }
-  ],
-  "components": {
-    "securitySchemes": {
-      "BearerAuth": {
-        "type": "http",
-        "scheme": "bearer",
-        "bearerFormat": "JWE"
-      }
-    }
-  },
-  "paths": {
-    "/api/v1/ai": {
-      "post": {
-        "description": "Gera uma resposta a partir de diversos parâmetros de configuração de prompt e dados obtido de um processo",
-        "tags": [
-          "ai"
-        ],
-        "security": [
-          {
-            "BearerAuth": []
-          }
-        ],
-        "parameters": [
-          {
-            "in": "body",
-            "name": "body",
-            "required": true,
-            "description": "Parâmetros de configuração do prompt e dados"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Resposta do assistente"
-          }
-        }
-      }
-    },
-    "/api/v1/batch/{name}/{number}": {
-      "post": {
-        "description": "Seleciona a combinação de peças e produtos para um processo e gera os resumos e o conteúdo de cada produto",
-        "tags": [
-          "batch"
-        ],
-        "security": [
-          {
-            "BearerAuth": []
-          }
-        ],
-        "parameters": [
-          {
-            "in": "path",
-            "name": "name",
-            "required": true
-          },
-          {
-            "in": "path",
-            "name": "number",
-            "required": true
-          },
-          {
-            "in": "header",
-            "name": "model-and-api-key",
-            "schema": {
-              "type": "string"
-            },
-            "description": "Modelo e chave de API separados por ':', codificados em base64"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK, processo analisado e resultado armazenado no banco de dados"
-          }
-        }
-      }
-    },
-    "/api/v1/batch/{name}/html": {
-      "get": {
-        "description": "Obtem um relatório em HTML para um lote de processos",
-        "tags": [
-          "batch"
-        ],
-        "security": [
-          {
-            "BearerAuth": []
-          }
-        ],
-        "parameters": [
-          {
-            "in": "path",
-            "name": "name",
-            "required": true,
-            "description": "Nome do lote"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Relatório em HTML"
-          }
-        }
-      }
-    },
-    "/api/v1/chat": {
-      "post": {
-        "description": "Executa uma operação de chat com o modelo de linguagem padrão",
-        "tags": [
-          "ai"
-        ],
-        "security": [
-          {
-            "BearerAuth": []
-          }
-        ],
-        "parameters": [
-          {
-            "in": "body",
-            "name": "messages",
-            "required": true,
-            "description": "Mensagens do chat"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Resposta do assistente"
-          }
-        }
-      }
-    },
-    "/api/v1/identify-pieces/{number}": {
-      "post": {
-        "description": "Utiliza IA para identificar o tipo das peças que estão marcadas como \"OUTROS\"",
-        "tags": [
-          "batch"
-        ],
-        "security": [
-          {
-            "BearerAuth": []
-          }
-        ],
-        "parameters": [
-          {
-            "in": "path",
-            "name": "number",
-            "required": true
-          },
-          {
-            "in": "header",
-            "name": "model-and-api-key",
-            "schema": {
-              "type": "string"
-            },
-            "description": "Modelo e chave de API separados por ':', codificados em base64"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK, processo analisado e resultado armazenado no banco de dados"
-          }
-        }
-      }
-    },
-    "/api/v1/process/{number}/analysis": {
-      "get": {
-        "description": "Analisa um processo judicial, produzindo resumo das principais peças e gerando o conteúdo dos produtos pertinentes",
-        "tags": [
-          "ai"
-        ],
-        "security": [
-          {
-            "BearerAuth": []
-          }
-        ],
-        "parameters": [
-          {
-            "in": "path",
-            "name": "number",
-            "required": true,
-            "description": "Número do processo (apenas números)"
-          },
-          {
-            "in": "header",
-            "name": "model-and-api-key",
-            "schema": {
-              "type": "string"
-            },
-            "description": "Modelo e chave de API separados por ':', codificados em base64"
-          },
-          {
-            "in": "query",
-            "name": "format",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "enum": [
-                "json",
-                "markdown",
-                "html",
-                "pdf"
-              ]
-            },
-            "description": "Formato do resultado (json, markdown, html, pdf)"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Análise do processo no formato solicitado",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "status": {
-                      "type": "string",
-                      "description": "OK se a análise foi realizada com sucesso"
-                    },
-                    "products": {
-                      "type": "array",
-                      "items": {
-                        "type": "object",
-                        "properties": {
-                          "descr": {
-                            "type": "string",
-                            "description": "Descrição do produto"
-                          },
-                          "prompt": {
-                            "type": "string",
-                            "description": "Prompt para geração do produto"
-                          },
-                          "generated": {
-                            "type": "string",
-                            "description": "Conteúdo gerado"
-                          }
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/process/{number}/piece/{piece}/binary": {
-      "get": {
-        "description": "Obtem o conteúdo binário de uma peça processual",
-        "tags": [
-          "process"
-        ],
-        "security": [
-          {
-            "BearerAuth": []
-          }
-        ],
-        "parameters": [
-          {
-            "in": "path",
-            "name": "number",
-            "required": true,
-            "description": "Número do processo (apenas números)"
-          },
-          {
-            "in": "path",
-            "name": "piece",
-            "required": true,
-            "description": "Identificador da peça processual (apenas números)"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Análise do processo no formato solicitado",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "status": {
-                      "type": "string",
-                      "description": "OK se o conteúdo foi obtido com sucesso"
-                    },
-                    "content": {
-                      "type": "string",
-                      "description": "Conteúdo da peça processual"
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/process/{number}/piece/{piece}/content": {
-      "get": {
-        "description": "Obtem o texto de uma peça processual",
-        "tags": [
-          "process"
-        ],
-        "security": [
-          {
-            "BearerAuth": []
-          }
-        ],
-        "parameters": [
-          {
-            "in": "path",
-            "name": "number",
-            "required": true,
-            "description": "Número do processo (apenas números)"
-          },
-          {
-            "in": "path",
-            "name": "piece",
-            "required": true,
-            "description": "Identificador da peça processual (apenas números)"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Análise do processo no formato solicitado",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "status": {
-                      "type": "string",
-                      "description": "OK se o conteúdo foi obtido com sucesso"
-                    },
-                    "content": {
-                      "type": "string",
-                      "description": "Conteúdo da peça processual"
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/process/{number}/piece/{piece}/summary": {
-      "get": {
-        "description": "Resume uma peça processual",
-        "tags": [
-          "ai"
-        ],
-        "security": [
-          {
-            "BearerAuth": []
-          }
-        ],
-        "parameters": [
-          {
-            "in": "path",
-            "name": "number",
-            "required": true,
-            "description": "Número do processo (apenas números)"
-          },
-          {
-            "in": "path",
-            "name": "piece",
-            "required": true,
-            "description": "Identificador da peça processual (apenas números)"
-          },
-          {
-            "in": "header",
-            "name": "model-and-api-key",
-            "schema": {
-              "type": "string"
-            },
-            "description": "Modelo e chave de API separados por ':', codificados em base64"
-          },
-          {
-            "in": "query",
-            "name": "format",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "enum": [
-                "json",
-                "markdown",
-                "html",
-                "pdf"
-              ]
-            },
-            "description": "Formato do resultado (json, markdown, html, pdf)"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Análise do processo no formato solicitado",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "status": {
-                      "type": "string",
-                      "description": "OK se a análise foi realizada com sucesso"
-                    },
-                    "product": {
-                      "type": "object",
-                      "properties": {
-                        "descr": {
-                          "type": "string",
-                          "description": "Descrição do produto"
-                        },
-                        "prompt": {
-                          "type": "string",
-                          "description": "Prompt para geração do produto"
-                        },
-                        "generated": {
-                          "type": "string",
-                          "description": "Conteúdo gerado"
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/process/{number}": {
-      "get": {
-        "200": {
-          "description": "Dados do processo",
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object"
-              }
-            }
-          }
+    "tags": [{
+            "name": "auth"
         },
-        "description": "Obtem as informações de um processo",
-        "tags": [
-          "process"
-        ],
-        "security": [
-          {
-            "BearerAuth": []
-          }
-        ],
-        "parameters": [
-          {
-            "in": "path",
-            "name": "number",
-            "required": true,
-            "description": "Número do processo (apenas números)"
-          },
-          {
-            "in": "query",
-            "name": "kind",
-            "required": false,
-            "type": "string",
-            "description": "Tipo de síntese para seleção de peças"
-          }
-        ]
-      }
+        {
+            "name": "ai"
+        },
+        {
+            "name": "batch"
+        }
+    ],
+    "components": {
+        "securitySchemes": {
+            "BearerAuth": {
+                "type": "http",
+                "scheme": "bearer",
+                "bearerFormat": "JWE"
+            }
+        }
     },
-    "/api/v1/select-pieces": {
-      "post": {
-        "description": "Seleciona as peças que serão utilizadas na síntese",
-        "tags": [
-          "process"
-        ],
-        "parameters": [
-          {
-            "in": "body",
-            "name": "body",
-            "schema": {
-              "properties": {
-                "pieces": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "id": {
-                        "type": "string"
-                      },
-                      "descr": {
-                        "type": "string"
-                      }
+    "paths": {
+        "/api/v1/ai": {
+            "post": {
+                "description": "Gera uma resposta a partir de diversos parâmetros de configuração de prompt e dados obtido de um processo",
+                "tags": [
+                    "ai"
+                ],
+                "security": [{
+                    "BearerAuth": []
+                }],
+                "parameters": [{
+                    "in": "body",
+                    "name": "body",
+                    "required": true,
+                    "description": "Parâmetros de configuração do prompt e dados"
+                }],
+                "responses": {
+                    "200": {
+                        "description": "Resposta do assistente"
                     }
-                  },
-                  "required": true,
-                  "description": "Lista completa de peças do processo"
+                }
+            }
+        },
+        "/api/v1/batch/{name}/{number}": {
+            "post": {
+                "description": "Seleciona a combinação de peças e produtos para um processo e gera os resumos e o conteúdo de cada produto",
+                "tags": [
+                    "batch"
+                ],
+                "security": [{
+                    "BearerAuth": []
+                }],
+                "parameters": [{
+                        "in": "path",
+                        "name": "name",
+                        "required": true
+                    },
+                    {
+                        "in": "path",
+                        "name": "number",
+                        "required": true
+                    },
+                    {
+                        "in": "header",
+                        "name": "model-and-api-key",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Modelo e chave de API separados por ':', codificados em base64"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK, processo analisado e resultado armazenado no banco de dados"
+                    }
+                }
+            }
+        },
+        "/api/v1/batch/{name}/html": {
+            "get": {
+                "description": "Obtem um relatório em HTML para um lote de processos",
+                "tags": [
+                    "batch"
+                ],
+                "security": [{
+                    "BearerAuth": []
+                }],
+                "parameters": [{
+                    "in": "path",
+                    "name": "name",
+                    "required": true,
+                    "description": "Nome do lote"
+                }],
+                "responses": {
+                    "200": {
+                        "description": "Relatório em HTML"
+                    }
+                }
+            }
+        },
+        "/api/v1/chat": {
+            "post": {
+                "description": "Executa uma operação de chat com o modelo de linguagem padrão",
+                "tags": [
+                    "ai"
+                ],
+                "security": [{
+                    "BearerAuth": []
+                }],
+                "parameters": [{
+                    "in": "body",
+                    "name": "messages",
+                    "required": true,
+                    "description": "Mensagens do chat"
+                }],
+                "responses": {
+                    "200": {
+                        "description": "Resposta do assistente"
+                    }
+                }
+            }
+        },
+        "/api/v1/identify-pieces/{number}": {
+            "post": {
+                "description": "Utiliza IA para identificar o tipo das peças que estão marcadas como \"OUTROS\"",
+                "tags": [
+                    "batch"
+                ],
+                "security": [{
+                    "BearerAuth": []
+                }],
+                "parameters": [{
+                        "in": "path",
+                        "name": "number",
+                        "required": true
+                    },
+                    {
+                        "in": "header",
+                        "name": "model-and-api-key",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Modelo e chave de API separados por ':', codificados em base64"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK, processo analisado e resultado armazenado no banco de dados"
+                    }
+                }
+            }
+        },
+        "/api/v1/process/{number}/analysis": {
+            "get": {
+                "description": "Analisa um processo judicial, produzindo resumo das principais peças e gerando o conteúdo dos produtos pertinentes",
+                "tags": [
+                    "ai"
+                ],
+                "security": [{
+                    "BearerAuth": []
+                }],
+                "parameters": [{
+                        "in": "path",
+                        "name": "number",
+                        "required": true,
+                        "description": "Número do processo (apenas números)"
+                    },
+                    {
+                        "in": "header",
+                        "name": "model-and-api-key",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Modelo e chave de API separados por ':', codificados em base64"
+                    },
+                    {
+                        "in": "query",
+                        "name": "format",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "json",
+                                "markdown",
+                                "html",
+                                "pdf"
+                            ]
+                        },
+                        "description": "Formato do resultado (json, markdown, html, pdf)"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Análise do processo no formato solicitado",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "description": "OK se a análise foi realizada com sucesso"
+                                        },
+                                        "products": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "descr": {
+                                                        "type": "string",
+                                                        "description": "Descrição do produto"
+                                                    },
+                                                    "prompt": {
+                                                        "type": "string",
+                                                        "description": "Prompt para geração do produto"
+                                                    },
+                                                    "generated": {
+                                                        "type": "string",
+                                                        "description": "Conteúdo gerado"
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/process/{number}/piece/{piece}/binary": {
+            "get": {
+                "description": "Obtem o conteúdo binário de uma peça processual",
+                "tags": [
+                    "process"
+                ],
+                "security": [{
+                    "BearerAuth": []
+                }],
+                "parameters": [{
+                        "in": "path",
+                        "name": "number",
+                        "required": true,
+                        "description": "Número do processo (apenas números)"
+                    },
+                    {
+                        "in": "path",
+                        "name": "piece",
+                        "required": true,
+                        "description": "Identificador da peça processual (apenas números)"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Análise do processo no formato solicitado",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "description": "OK se o conteúdo foi obtido com sucesso"
+                                        },
+                                        "content": {
+                                            "type": "string",
+                                            "description": "Conteúdo da peça processual"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/process/{number}/piece/{piece}/content": {
+            "get": {
+                "description": "Obtem o texto de uma peça processual",
+                "tags": [
+                    "process"
+                ],
+                "security": [{
+                    "BearerAuth": []
+                }],
+                "parameters": [{
+                        "in": "path",
+                        "name": "number",
+                        "required": true,
+                        "description": "Número do processo (apenas números)"
+                    },
+                    {
+                        "in": "path",
+                        "name": "piece",
+                        "required": true,
+                        "description": "Identificador da peça processual (apenas números)"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Análise do processo no formato solicitado",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "description": "OK se o conteúdo foi obtido com sucesso"
+                                        },
+                                        "content": {
+                                            "type": "string",
+                                            "description": "Conteúdo da peça processual"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/process/{number}/piece/{piece}/summary": {
+            "get": {
+                "description": "Resume uma peça processual",
+                "tags": [
+                    "ai"
+                ],
+                "security": [{
+                    "BearerAuth": []
+                }],
+                "parameters": [{
+                        "in": "path",
+                        "name": "number",
+                        "required": true,
+                        "description": "Número do processo (apenas números)"
+                    },
+                    {
+                        "in": "path",
+                        "name": "piece",
+                        "required": true,
+                        "description": "Identificador da peça processual (apenas números)"
+                    },
+                    {
+                        "in": "header",
+                        "name": "model-and-api-key",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Modelo e chave de API separados por ':', codificados em base64"
+                    },
+                    {
+                        "in": "query",
+                        "name": "format",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "json",
+                                "markdown",
+                                "html",
+                                "pdf"
+                            ]
+                        },
+                        "description": "Formato do resultado (json, markdown, html, pdf)"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Análise do processo no formato solicitado",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "description": "OK se a análise foi realizada com sucesso"
+                                        },
+                                        "product": {
+                                            "type": "object",
+                                            "properties": {
+                                                "descr": {
+                                                    "type": "string",
+                                                    "description": "Descrição do produto"
+                                                },
+                                                "prompt": {
+                                                    "type": "string",
+                                                    "description": "Prompt para geração do produto"
+                                                },
+                                                "generated": {
+                                                    "type": "string",
+                                                    "description": "Conteúdo gerado"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/process/{number}": {
+            "get": {
+                "200": {
+                    "description": "Dados do processo",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object"
+                            }
+                        }
+                    }
                 },
-                "kind": {
-                  "type": "string",
-                  "required": true,
-                  "description": "Tipo de síntese a ser realizada"
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK, peças selecionadas"
-          }
-        }
-      }
-    },
-    "/api/v1/signin": {
-      "post": {
-        "description": "Autentica o usuário",
-        "tags": [
-          "auth"
-        ],
-        "accepts": [
-          "application/json"
-        ],
-        "requestBody": {
-          "description": "Optional description in *Markdown*",
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "system": {
-                    "type": "string",
-                    "description": "Sistema a ser acessado, por exemplo, \"TRF2\" ou \"JFRJ\""
-                  },
-                  "email": {
-                    "type": "string",
-                    "description": "Email ou outro identificador do usuário no MNI"
-                  },
-                  "password": {
-                    "type": "string",
-                    "description": "Senha do usuário no MNI"
-                  }
-                }
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "token": {
-                      "type": "string",
-                      "description": "Token de autenticação para ser usado na API"
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/usage/{court}": {
-      "get": {
-        "description": "Obtem o consumo diário de um tribunal específico, filtrando entre datas.",
-        "tags": [
-          "stats"
-        ],
-        "security": [
-          {
-            "BearerAuth": []
-          }
-        ],
-        "parameters": [
-          {
-            "in": "path",
-            "name": "court",
-            "required": true,
-            "description": "Identificador numérico do tribunal conforme o padrão do CNJ"
-          },
-          {
-            "in": "query",
-            "name": "start_date",
-            "required": false,
-            "description": "Data inicial do período a ser consultado, no formato YYYY-MM-DD (intervalo fechado)"
-          },
-          {
-            "in": "query",
-            "name": "end_date",
-            "required": false,
-            "description": "Data final do período a ser consultado, no formato YYYY-MM-DD (intervalo aberto)"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Estatísticas de uso do tribunal no período solicitado",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "status": {
-                      "type": "string",
-                      "description": "OK se as informações foram obtidas com sucesso"
+                "description": "Obtem as informações de um processo",
+                "tags": [
+                    "process"
+                ],
+                "security": [{
+                    "BearerAuth": []
+                }],
+                "parameters": [{
+                        "in": "path",
+                        "name": "number",
+                        "required": true,
+                        "description": "Número do processo (apenas números)"
                     },
-                    "usage": {
-                      "type": "array",
-                      "items": {
-                        "type": "object",
-                        "properties": {
-                          "date": {
-                            "type": "string",
-                            "description": "Data do consumo no formato YYYY-MM-DD"
-                          },
-                          "usage_count": {
-                            "type": "integer",
-                            "description": "Contagem de uso do serviço no dia"
-                          },
-                          "approximate_cost": {
-                            "type": "number",
-                            "description": "Custo aproximado do serviço no dia, em reais (R$)"
-                          }
-                        }
-                      }
+                    {
+                        "in": "query",
+                        "name": "kind",
+                        "required": false,
+                        "type": "string",
+                        "description": "Tipo de síntese para seleção de peças"
                     }
-                  }
-                }
-              }
+                ]
             }
-          }
+        },
+        "/api/v1/select-pieces": {
+            "post": {
+                "description": "Seleciona as peças que serão utilizadas na síntese",
+                "tags": [
+                    "process"
+                ],
+                "parameters": [{
+                    "in": "body",
+                    "name": "body",
+                    "schema": {
+                        "properties": {
+                            "pieces": {
+                                "type": "array",
+                                "items": {
+                                    "type": "object",
+                                    "properties": {
+                                        "id": {
+                                            "type": "string"
+                                        },
+                                        "descr": {
+                                            "type": "string"
+                                        }
+                                    }
+                                },
+                                "required": true,
+                                "description": "Lista completa de peças do processo"
+                            },
+                            "kind": {
+                                "type": "string",
+                                "required": true,
+                                "description": "Tipo de síntese a ser realizada"
+                            }
+                        }
+                    }
+                }],
+                "responses": {
+                    "200": {
+                        "description": "OK, peças selecionadas"
+                    }
+                }
+            }
+        },
+        "/api/v1/signin": {
+            "post": {
+                "description": "Autentica o usuário",
+                "tags": [
+                    "auth"
+                ],
+                "accepts": [
+                    "application/json"
+                ],
+                "requestBody": {
+                    "description": "Optional description in *Markdown*",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "system": {
+                                        "type": "string",
+                                        "description": "Sistema a ser acessado, por exemplo, \"TRF2\" ou \"JFRJ\""
+                                    },
+                                    "email": {
+                                        "type": "string",
+                                        "description": "Email ou outro identificador do usuário no MNI"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "description": "Senha do usuário no MNI"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "token": {
+                                            "type": "string",
+                                            "description": "Token de autenticação para ser usado na API"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/usage/{court}": {
+            "get": {
+                "description": "Obtem o consumo diário de um tribunal específico, filtrando entre datas.",
+                "tags": [
+                    "stats"
+                ],
+                "security": [{
+                    "BearerAuth": []
+                }],
+                "parameters": [{
+                        "in": "path",
+                        "name": "court",
+                        "required": true,
+                        "description": "Identificador numérico do tribunal conforme o padrão do CNJ"
+                    },
+                    {
+                        "in": "query",
+                        "name": "start_date",
+                        "required": false,
+                        "description": "Data inicial do período a ser consultado, no formato YYYY-MM-DD (intervalo fechado)"
+                    },
+                    {
+                        "in": "query",
+                        "name": "end_date",
+                        "required": false,
+                        "description": "Data final do período a ser consultado, no formato YYYY-MM-DD (intervalo aberto)"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Estatísticas de uso do tribunal no período solicitado",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "description": "OK se as informações foram obtidas com sucesso"
+                                        },
+                                        "usage": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "date": {
+                                                        "type": "string",
+                                                        "description": "Data do consumo no formato YYYY-MM-DD"
+                                                    },
+                                                    "usage_count": {
+                                                        "type": "integer",
+                                                        "description": "Contagem de uso do serviço no dia"
+                                                    },
+                                                    "approximate_cost": {
+                                                        "type": "number",
+                                                        "description": "Custo aproximado do serviço no dia, em reais (R$)"
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
-      }
     }
-  }
 }

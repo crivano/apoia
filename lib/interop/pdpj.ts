@@ -54,7 +54,7 @@ export class InteropPDPJ implements Interop {
                     method: 'POST',
                     headers: {
                         'Accept': '*/*',
-                        'User-Agent': 'ApoIA Client',
+                        'User-Agent': 'Apoia Client',
                         'Content-Type': 'application/x-www-form-urlencoded'
                     },
                     body: new URLSearchParams({

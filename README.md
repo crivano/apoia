@@ -1,14 +1,14 @@
 ![alt text](https://github.com/trf2-jus-br/apoia/blob/main/public/apoia-logo-transp.png?raw=true)
 
-# ApoIA
+# Apoia
 
-ApoIA é uma ferramenta de inteligência artificial generativa originalmente desenvolvida para auxiliar na triagem de acervos. Ela analisa documentos de processos e gera resumos das principais peças e gera um relatório sobre acervo.
+Apoia é uma ferramenta de inteligência artificial generativa originalmente desenvolvida para auxiliar na triagem de acervos. Ela analisa documentos de processos e gera resumos das principais peças e gera um relatório sobre acervo.
 
-A ApoIA também pode ser utilizada para realizar uma Síntese do Processo on-line, a partir da informação do número do processo.
+A Apoia também pode ser utilizada para realizar uma Síntese do Processo on-line, a partir da informação do número do processo.
 
 Outros recursos disponíveis são a geração de ementas conforme Resolução 156/2024 do CNJ e a revisão de textos por inteligência artificial.
 
-Clique [aqui](https://docs.google.com/presentation/d/1XTmGNOI3O3yaBOEXa5A3ViVHlCy4kvB4e0G2qEmmgLo/edit?usp=sharing) para ver uma apresentação da ApoIA.
+Clique [aqui](https://docs.google.com/presentation/d/1XTmGNOI3O3yaBOEXa5A3ViVHlCy4kvB4e0G2qEmmgLo/edit?usp=sharing) para ver uma apresentação da Apoia.
 
 ## Funcionalidades
 
@@ -28,9 +28,9 @@ Clique [aqui](https://docs.google.com/presentation/d/1XTmGNOI3O3yaBOEXa5A3ViVHlC
 
 ## Configuração
 
-A ApoIA requer que diversas variáveis de ambiente sejam informadas. No ambiente de desenvolvimento, isso pode ser feito criando um arquivo na raiz do projeto chamado `.env.local`.
+A Apoia requer que diversas variáveis de ambiente sejam informadas. No ambiente de desenvolvimento, isso pode ser feito criando um arquivo na raiz do projeto chamado `.env.local`.
 
-Primeiro, indique quais são os sistemas aos quais deseja conectar a ApoIA, depois, para cada sistema, informe o endereço do WSDL e do Endpoint do MNI:
+Primeiro, indique quais são os sistemas aos quais deseja conectar a Apoia, depois, para cada sistema, informe o endereço do WSDL e do Endpoint do MNI:
 
 **Observação**: caso haja a necessidade de utilizar senhas criptografadas ao enviar as requisições, devemos adicionar a variavél de anbiente `<SYSTEM>_HASH_PASSWORD`
 
@@ -51,7 +51,7 @@ Informe o identificador do modelo de inteligência artificial que deseja utiliza
 MODEL=gpt-4o-2024-08-06
 ```
 
-Forneça a chave da API relativa ao modelo selecionado. Caso nenhuma seja fornecida, a ApoIA vai solicitar as chaves ao usuário.
+Forneça a chave da API relativa ao modelo selecionado. Caso nenhuma seja fornecida, a Apoia vai solicitar as chaves ao usuário.
 
 ```properties
 OPENAI_API_KEY=CHAVE_DE_API_OPENAI (opcional)
@@ -60,7 +60,7 @@ GOOGLE_API_KEY=CHAVE_DE_API_GOOGLE (opcional)
 GROQ_API_KEY=CHAVE_DE_API_GROQ (opcional)
 ```
 
-Sugerimos que a ApoIA não tenha acesso a documentos sigilosos. Isso pode ser obtido aplicando a propriedade abaixo:
+Sugerimos que a Apoia não tenha acesso a documentos sigilosos. Isso pode ser obtido aplicando a propriedade abaixo:
 
 ```properties
 CONFIDENTIALITY_LEVEL_MAX=0
@@ -74,7 +74,7 @@ NEXTAUTH_URL=http://localhost:8081
 NEXTAUTH_SECRET=SUBSTITUIR_POR_UM_UUID_ALEATORIO
 ```
 
-A API da ApoIA funciona com um token JWE, portanto, é necessário configurar as seguintes propriedades:
+A API da Apoia funciona com um token JWE, portanto, é necessário configurar as seguintes propriedades:
 
 ```properties
 JWT_SECRET=SUBSTITUIR_POR_UM_UUID_ALEATORIO
@@ -121,20 +121,20 @@ DB_SSL=
 
 > O nome do host e da porta pode variar caso esteja executando a partir de sua máquina, como desenvolvimento a fim de fazer debug, ou caso esteja rodando a aplicação a partir de containers
 
-Se desejar que a ApoIA, ao clicar sobre o número de um processo, abra o sistema processual, use a configuração abaixo:
+Se desejar que a Apoia, ao clicar sobre o número de um processo, abra o sistema processual, use a configuração abaixo:
 
 ```properties
 NAVIGATE_TO_PROCESS_URL=https://balcaojush.jfrj.jus.br/balcaojus/#/processo/{numero}?avisos=0
 ```
 
 
-## Executando a ApoIA em Modo de Desenvolvimento
+## Executando a Apoia em Modo de Desenvolvimento
 
 1. Faça o [download](https://nodejs.org/en/download/prebuilt-installer) e instale o Node.js ou, se já tiver o Node.js instalado, [atualize o Node.js e o NPM para as últimas versões](https://horadecodar.com.br/como-atualizar-node-e-npm-para-ultima-versao/)
 
 2. Faça o [donwload](https://code.visualstudio.com/download) e instale o VSCode
 
-3. Clone o repositório da ApoIA
+3. Clone o repositório da Apoia
 
 ```shell
 $ cd seu-diretorio-de-repositórios
@@ -175,4 +175,4 @@ $ docker-compose up
 $ docker build -t apoiaserver .
 ```
 
-Caso deseje fazer deploy na nuvem, a ApoIA funciona perfeitamente no Vercel, basta indicar o repositório do GitHub e inserir as configurações.
+Caso deseje fazer deploy na nuvem, a Apoia funciona perfeitamente no Vercel, basta indicar o repositório do GitHub e inserir as configurações.

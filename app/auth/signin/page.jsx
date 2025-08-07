@@ -19,8 +19,8 @@ const Signin = async () => {
         <div className="p-3 bg-white md:flex-1">
             <div className="container content">
                 <div className="px-4 my-3 text-center">
-                    <Image src="/apoia-logo-transp.png" width={200} height={200 * 271 / 250} alt="ApoIA Logo" className="mb-2" />
-                    <Image src="/apoia-logo-texto-transp.png" width={48 * 1102 / 478} height={48} alt="ApoIA Logo" className="mb-2" />
+                    <Image src="/apoia-logo-transp.png" width={200} height={200 * 271 / 250} alt="Apoia Logo" className="mb-2" />
+                    <Image src="/apoia-logo-texto-transp.png" width={48 * 1102 / 478} height={48} alt="Apoia Logo" className="mb-2" />
                 </div>
 
                 {providers &&

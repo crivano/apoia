@@ -102,7 +102,7 @@ export default function PrefsForm(params) {
             <div className="row justify-content-center">
                 <div className="col col-12 col-md-8 col-xxl-6">
                     <h4 className="text-center mt-3 mb-2">Modelo de Inteligência Artificial</h4>
-                    <p className="text-center">Antes de usar a ApoIA é necessário fornecer uma chave de API e selecionar o modelo de IA desejado no formulário abaixo. Leia atentamente a <a href="https://github.com/trf2-jus-br/apoia/wiki/Modelos-de-IA-e-Chaves-de-APIs">documentação</a>, principalmente no que se refere aos limites de uso e a LGPD.</p>
+                    <p className="text-center">Antes de usar a Apoia é necessário fornecer uma chave de API e selecionar o modelo de IA desejado no formulário abaixo. Leia atentamente a <a href="https://github.com/trf2-jus-br/apoia/wiki/Modelos-de-IA-e-Chaves-de-APIs">documentação</a>, principalmente no que se refere aos limites de uso e a LGPD.</p>
                 </div>
             </div>
             <div >
@@ -151,7 +151,7 @@ export default function PrefsForm(params) {
                 </form >
                 <div className="row justify-content-center">
                     <div className="col col-12 col-md-8 col-xxl-6">
-                        <p>As chaves ficarão armazenadas no seu próprio navegador e só serão transferidas para a ApoIA no momento do uso.</p>
+                        <p>As chaves ficarão armazenadas no seu próprio navegador e só serão transferidas para a Apoia no momento do uso.</p>
                     </div>
                 </div>
             </div >

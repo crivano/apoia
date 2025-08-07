@@ -17,7 +17,7 @@ export default function WootricSurvey( {user, token}:  {user: any, token: string
                     created_at: 1608123600,
                     // Other optional settings:
                     // language: 'en',
-                    // product_name: 'ApoIA',
+                    // product_name: 'Apoia',
                     // custom_questions: [{ question: 'What can we improve?', type: 'open-ended' }]
                 }
                 // console.log('wootric',  window.wootricSettings)
