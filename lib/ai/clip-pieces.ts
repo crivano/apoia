@@ -1,4 +1,5 @@
 import { T } from "../proc/combinacoes";
+import { TEXTO_INDICACAO_PARCIAL } from "../proc/process-types";
 import { Model, ModelValeuType } from "./model-types";
 import { TextoType } from "./prompt-types";
 
@@ -6,20 +7,20 @@ const UNCLIPPABLE_PIECES: string[] = [
     T.PETICAO_INICIAL,
     // T.PETICAO,
     T.EMENDA_DA_INICIAL,
-    T.CONTESTACAO,
-    T.DEFESA_PREVIA_DEFESA_PRELIMINAR_RESPOSTA_DO_REU,
-    T.INFORMACAO_EM_MANDADO_DE_SEGURANCA,
-    T.REPLICA,
+    // T.CONTESTACAO,
+    // T.DEFESA_PREVIA_DEFESA_PRELIMINAR_RESPOSTA_DO_REU,
+    // T.INFORMACAO_EM_MANDADO_DE_SEGURANCA,
+    // T.REPLICA,
     T.DESPACHO_DECISAO,
     T.SENTENCA,
-    T.EMBARGOS_DE_DECLARACAO,
-    T.APELACAO,
-    T.CONTRARRAZOES_AO_RECURSO_DE_APELACAO,
-    T.AGRAVO,
-    T.AGRAVO_INTERNO,
-    T.RECURSO,
-    T.RECURSO_INOMINADO,
-    T.CONTRARRAZOES,
+    // T.EMBARGOS_DE_DECLARACAO,
+    // T.APELACAO,
+    // T.CONTRARRAZOES_AO_RECURSO_DE_APELACAO,
+    // T.AGRAVO,
+    // T.AGRAVO_INTERNO,
+    // T.RECURSO,
+    // T.RECURSO_INOMINADO,
+    // T.CONTRARRAZOES,
     T.VOTO,
     T.ACORDAO,
 ]
@@ -144,7 +145,7 @@ function clipNumericAndSymbolicPieces(textos: TextoType[]): TextoType[] {
             console.log(`Clipando peça com pouco texto ${index + 1} de ${textos.length} com tamanho ${text.length} para ${CLIP_LIMIT} caracteres.`);
             return {
                 ...piece,
-                texto: text.slice(0, CLIP_LIMIT) + '...',
+                texto: text.slice(0, CLIP_LIMIT) + TEXTO_INDICACAO_PARCIAL,
             };
         }
 
@@ -217,7 +218,7 @@ export function clipPieces(model: string, textos: TextoType[]): TextoType[] {
             console.log(`Clipando peça ${index + 1} de ${textos.length} de tamanho ${originalSize} para ${newSize} caracteres.`);
             resultTextos[index] = {
                 ...piece,
-                texto: piece.texto.slice(0, newSize) + '...',
+                texto: piece.texto.slice(0, newSize) + TEXTO_INDICACAO_PARCIAL,
             };
         }
     });

@@ -6,21 +6,8 @@ import { assertNivelDeSigilo, nivelDeSigiloPermitido, verificarNivelDeSigilo } f
 import { P, selecionarPecasPorPadrao, T, TipoDeSinteseEnum, TipoDeSinteseMap } from './combinacoes'
 import { infoDeProduto, TiposDeSinteseValido } from './info-de-produto'
 import { getInterop, Interop } from '../interop/interop'
-import { DadosDoProcessoType, PecaType, StatusDeLancamento } from './process-types'
+import { DadosDoProcessoType, PecaType, StatusDeLancamento, TEXTO_PECA_COM_ERRO, TEXTO_PECA_SIGILOSA } from './process-types'
 import { UserType } from '../user'
-
-export const TEXTO_PECA_SIGILOSA = 'Peça sigilosa, conteúdo não acessado.'
-export const TEXTO_PECA_COM_ERRO = 'Não foi possível obter o conteúdo.'
-export const TEXTO_PECA_IMAGEM_JPEG = 'Peça no formato de imagem JPEG, conteúdo não acessado.'
-export const TEXTO_PECA_IMAGEM_PNG = 'Peça no formato de imagem PNG, conteúdo não acessado.'
-export const TEXTO_PECA_VIDEO_XMS_WMV = 'Peça no formato de vídeo X-MS-WMV, conteúdo não acessado.'
-export const TEXTO_PECA_VIDEO_MP4 = 'Peça no formato de vídeo MP4, conteúdo não acessado.'
-export const TEXTO_PECA_PDF_OCR_VAZIO = 'Peça no formato PDF, conteúdo não acessado. O OCR não retornou texto.'
-export const TEXTO_PECA_PDF_OCR_ERRO = 'Peça no formato PDF, conteúdo não acessado. Ocorreu um erro ao processar o OCR.'
-export const REGEX_TIPO_DE_CONTEUDO_NAO_SUPORTADO = /^Peça (.+) \((.+)\) - Tipo de conteúdo não suportado: (.+)$/
-export const formatarMensagemDeConteudoNaoSuportado = (idDaPeca: string, descrDaPeca: string, contentType: string) => {
-    return `Peça ${idDaPeca} (${descrDaPeca}) - Tipo de conteúdo não suportado: ${contentType}`
-}
 
 const selecionarPecas = (pecas: PecaType[], descricoes: string[]) => {
     const pecasRelevantes = pecas.filter(p => descricoes.includes(p.descr))

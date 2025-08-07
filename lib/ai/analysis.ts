@@ -1,6 +1,6 @@
 import { getInternalPrompt, getPiecesWithContent } from '@/lib/ai/prompt'
 import { GeneratedContent, PromptDataType, PromptDefinitionType, TextoType } from '@/lib/ai/prompt-types'
-import { CargaDeConteudoEnum, obterDadosDoProcesso, TEXTO_PECA_COM_ERRO, TEXTO_PECA_IMAGEM_JPEG, TEXTO_PECA_IMAGEM_PNG, TEXTO_PECA_SIGILOSA, TEXTO_PECA_VIDEO_MP4, TEXTO_PECA_VIDEO_XMS_WMV } from '@/lib/proc/process'
+import { CargaDeConteudoEnum, obterDadosDoProcesso } from '@/lib/proc/process'
 import { assertCurrentUser } from '@/lib/user'
 import { T, P, ProdutosValidos, Plugin, ProdutoCompleto, InfoDeProduto } from '@/lib/proc/combinacoes'
 import { slugify } from '@/lib/utils/utils'
@@ -11,6 +11,7 @@ import { generateContent } from '@/lib/ai/generate'
 import { infoDeProduto } from '../proc/info-de-produto'
 import { envString } from '../utils/env'
 import { DadosDoProcessoType } from '../proc/process-types'
+import { buildFooter } from '../utils/footer'
 
 export async function summarize(dossierNumber: string, pieceNumber: string): Promise<{ dossierData: any, generatedContent: GeneratedContent }> {
     const pUser = assertCurrentUser()
@@ -80,26 +81,6 @@ export function buildRequests(dossierNumber: string, produtos: InfoDeProduto[], 
         requests.push({ documentCode: null, documentDescr: null, data, produto: produtoSimples, promptSlug: definition.kind, internalPrompt: definition, title: produtoValido.titulo, plugins: produtoValido.plugins })
     }
     return requests
-}
-
-const buildFooter = (model: string, pecasComConteudo: TextoType[]): string => {
-    let pecasStr = ''
-    if (pecasComConteudo?.length) {
-        const pecasNomes = pecasComConteudo.map(p => {
-            const sigilosa = p.texto === TEXTO_PECA_SIGILOSA
-            const inacessivel = p.texto?.startsWith(TEXTO_PECA_COM_ERRO)
-            const vazia = !p.texto || p.texto === TEXTO_PECA_IMAGEM_JPEG || p.texto === TEXTO_PECA_IMAGEM_PNG || p.texto === TEXTO_PECA_VIDEO_XMS_WMV || p.texto === TEXTO_PECA_VIDEO_MP4
-            return `<span class="${sigilosa ? 'peca-sigilosa' : inacessivel ? 'peca-inacessivel' : vazia ? 'peca-vazia' : ''}">${p.descr?.toLowerCase()} (e.${p.event}${sigilosa ? ', sigilosa' : inacessivel ? ', inacessível' : vazia ? ', vazia' : ''})</span>`
-        })
-        if (pecasNomes.length === 1) {
-            pecasStr = pecasNomes[0]
-        } else if (pecasNomes.length > 1) {
-            const last = pecasNomes.pop()
-            pecasStr = `${pecasNomes.join(', ')} e ${last}`;
-        }
-    }
-    const info = `Utilizou o modelo ${model}${pecasStr ? ` e acessou as peças: ${pecasStr}` : ''}.`
-    return info
 }
 
 export async function analyze(batchName: string | undefined, dossierNumber: string, kind: string | undefined, complete: boolean): Promise<{ dossierData: any, generatedContent: GeneratedContent[] }> {

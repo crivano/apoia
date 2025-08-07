@@ -1,1 +1,3 @@
 - Nunca acesse o conteúdo do arquivo .env.local
+- Quando escrever código TypeScript ou JavaScript, não use ponto e vírgula no final das linhas
+- Sempre use aspas simples para strings, exceto quando a string contiver uma aspa dupla, caso em que use aspas duplas

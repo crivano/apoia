@@ -411,3 +411,19 @@ span.template-error strong {
     background-color: rgb(88, 21, 28);
     padding: 0.1rem 0.2rem;
 }
+
+.peca-sigilosa {
+    color: #ff9800;
+}
+
+.peca-inacessivel {
+    color: #f44336;
+}
+
+.peca-parcial {
+    color: #9c27b0;
+}
+
+.peca-vazia {
+    color: #2196f3;
+}

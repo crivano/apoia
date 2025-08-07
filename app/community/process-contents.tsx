@@ -1,7 +1,7 @@
 'use client'
 
 import { IAPrompt } from "@/lib/db/mysql-types";
-import { DadosDoProcessoType, PecaType } from "@/lib/proc/process-types";
+import { DadosDoProcessoType, PecaType, TEXTO_PECA_COM_ERRO } from "@/lib/proc/process-types";
 import { ReactNode, useEffect, useState } from "react";
 import { InfoDeProduto, P, PieceStrategy, selecionarPecasPorPadrao, T } from "@/lib/proc/combinacoes";
 import { GeneratedContent, PromptDataType, PromptDefinitionType, TextoType } from "@/lib/ai/prompt-types";
@@ -14,6 +14,7 @@ import ChoosePieces from "./choose-pieces";
 import ErrorMsg from "./error-msg";
 import { ListaDeProdutos } from "../../components/slots/lista-produtos-client";
 import { PromptParaCopiar } from "./prompt-to-copy";
+import { buildFooterFromPieces } from "@/lib/utils/footer";
 
 export default function ProcessContents({ prompt, dadosDoProcesso, pieceContent, setPieceContent, apiKeyProvided, model, children }: { prompt: IAPrompt, dadosDoProcesso: DadosDoProcessoType, pieceContent: any, setPieceContent: (pieceContent: any) => void, apiKeyProvided: boolean, model?: string, children?: ReactNode }) {
     const [selectedPieces, setSelectedPieces] = useState<PecaType[]>([])
@@ -59,7 +60,7 @@ export default function ProcessContents({ prompt, dadosDoProcesso, pieceContent,
             setLoadingPiecesProgress(Object.keys(contents).length)
             const resp = await loading[id]
             if (!resp.ok) {
-                contents[id] = `Erro ao carregar conteúdo da peça ${id}`
+                contents[id] = TEXTO_PECA_COM_ERRO
                 continue
             }
             const json = await resp.json()
@@ -147,7 +148,7 @@ export default function ProcessContents({ prompt, dadosDoProcesso, pieceContent,
     }, [choosingPieces, requests, minimumTimeElapsed])
 
     const errorLoadingContent = (id: string): string => {
-        if (pieceContent[id] && pieceContent[id].startsWith('Erro ao carregar'))
+        if (pieceContent[id] && pieceContent[id].startsWith(TEXTO_PECA_COM_ERRO))
             return pieceContent[id]
     }
 
@@ -169,9 +170,6 @@ export default function ProcessContents({ prompt, dadosDoProcesso, pieceContent,
         }
         <hr className="mt-5" />
         <p style={{ textAlign: 'center' }}>Este documento foi gerado pela ApoIA, ferramenta de inteligência artificial desenvolvida exclusivamente para facilitar a triagem de acervo, e não substitui a elaboração de relatório específico em cada processo, a partir da consulta manual aos eventos dos autos. Textos gerados por inteligência artificial podem conter informações imprecisas ou incorretas.</p>
-        <p style={{ textAlign: 'center' }}>
-            O prompt {`${prompt.name} (${prompt.id})`} utilizou o modelo {model}
-            {selectedPieces?.length && <span> e acessou as peças: {joinReactElementsWithAnd(selectedPieces.map(p => <span key={p.id} className={errorLoadingContent(p.id) ? 'text-danger' : ''} title={errorLoadingContent(p.id)}>{`${p.descr?.toLowerCase()} (e.${p.numeroDoEvento})`}</span>))}</span>}
-            .</p>
+        <p style={{ textAlign: 'center' }} dangerouslySetInnerHTML={{ __html: `O prompt ${prompt.name} (${prompt.id}) ${buildFooterFromPieces(model, selectedPieces.map(p => ({...p, conteudo: pieceContent[p.id]})))}`}} />
     </div >
 }    

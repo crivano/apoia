@@ -12,7 +12,7 @@ import { assertNivelDeSigilo, verificarNivelDeSigilo } from './sigilo'
 import { Interop } from '../interop/interop'
 import { envString } from '../utils/env'
 import { PecaConteudoType } from './process-types'
-import { TEXTO_PECA_IMAGEM_JPEG, TEXTO_PECA_IMAGEM_PNG, TEXTO_PECA_PDF_OCR_ERRO, TEXTO_PECA_PDF_OCR_VAZIO, TEXTO_PECA_VIDEO_MP4, TEXTO_PECA_VIDEO_XMS_WMV } from './process'
+import { TEXTO_PECA_IMAGEM_JPEG, TEXTO_PECA_IMAGEM_PNG, TEXTO_PECA_PDF_OCR_ERRO, TEXTO_PECA_PDF_OCR_VAZIO, TEXTO_PECA_VIDEO_MP4, TEXTO_PECA_VIDEO_XMS_WMV } from './process-types'
 
 const limit = pLimit(envString('OCR_LIMIT') ? parseInt(envString('OCR_LIMIT')) : 1)
 

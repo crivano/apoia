@@ -312,6 +312,9 @@ const formated = (html: string) => {
     .peca-inacessivel {
         color: #f44336;
     }
+    .peca-parcial {
+        color: #9c27b0;
+    }
     .peca-vazia {
         color: #2196f3;
     }
