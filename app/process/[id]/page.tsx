@@ -12,6 +12,7 @@ export default async function ShowProcess(props) {
     const params = await props.params;
     const kind = searchParams?.kind
     const pieces = searchParams?.pieces
+    const ready = searchParams?.ready === 'true'
     // await assertCurrentUser()
     const id: string = (params?.id?.toString() || '').replace(/[^0-9]/g, '') as string
 
@@ -28,7 +29,7 @@ export default async function ShowProcess(props) {
             <div id="printDiv">
                 <ProcessTitle id={id} />
                 <Container fluid={false}>
-                    <Suspense fallback={loading()}><ProcessServerContents id={id} kind={kind} pieces={pieces} /></Suspense>
+                    <Suspense fallback={loading()}><ProcessServerContents id={id} kind={kind} pieces={pieces} ready={ready} /></Suspense>
                 </Container>
             </div>)
     } catch (error) {

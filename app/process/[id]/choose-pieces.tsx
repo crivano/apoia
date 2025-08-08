@@ -1,7 +1,7 @@
 'use client'
 
 import { maiusculasEMinusculas } from "@/lib/utils/utils";
-import { faClose, faEdit, faRotateRight, faSave } from "@fortawesome/free-solid-svg-icons";
+import { faClose, faEdit, faRotateRight, faSave, faPlay } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { use, useEffect, useRef, useState } from "react"
@@ -16,7 +16,7 @@ const Frm = new FormHelper()
 
 const canonicalPieces = (pieces: string[]) => pieces.sort((a, b) => a.localeCompare(b)).join(',')
 
-function ChoosePiecesForm({ dadosDoProcesso, onSave, onClose, statusDeSintese }: { dadosDoProcesso: DadosDoProcessoType, onSave: (kind: TipoDeSinteseEnum, pieces: string[]) => void, onClose: () => void, statusDeSintese: StatusDeLancamento }) {
+function ChoosePiecesForm({ dadosDoProcesso, onSave, onClose, statusDeSintese, ready }: { dadosDoProcesso: DadosDoProcessoType, onSave: (kind: TipoDeSinteseEnum, pieces: string[]) => void, onClose: () => void, statusDeSintese: StatusDeLancamento, ready?: boolean }) {
     const originalPieces: string[] = dadosDoProcesso.pecasSelecionadas.map(p => p.id)
     const [tipoDeSintese, setTipoDeSintese] = useState(dadosDoProcesso.tipoDeSintese)
     const [selectedIds, setSelectedIds] = useState(originalPieces)
@@ -61,11 +61,13 @@ function ChoosePiecesForm({ dadosDoProcesso, onSave, onClose, statusDeSintese }:
             </div>
             <div className="row">
                 <div className="col-12">
-                    <TableRecords records={[...dadosDoProcesso.pecas].reverse()} spec="ChoosePieces" options={{dossierNumber: dadosDoProcesso.numeroDoProcesso}} pageSize={10} selectedIds={selectedIds} onSelectdIdsChanged={onSelectedIdsChanged}>
+                    <TableRecords records={[...dadosDoProcesso.pecas].reverse()} spec="ChoosePieces" options={{ dossierNumber: dadosDoProcesso.numeroDoProcesso }} pageSize={10} selectedIds={selectedIds} onSelectdIdsChanged={onSelectedIdsChanged}>
                         <div className="col col-auto mb-0">
-                            {alteredPieces || tipoDeSintese !== dadosDoProcesso.tipoDeSintese
-                                ? <Button onClick={() => onSave(tipoDeSintese, alteredPieces ? selectedIds : [])} variant="primary"><FontAwesomeIcon icon={faRotateRight} className="me-2" />Salvar Alterações e Refazer</Button>
-                                : <Button onClick={() => onClose()} variant="secondary"><FontAwesomeIcon icon={faClose} className="me-1" />Fechar</Button>
+                            {ready
+                                ? (alteredPieces || tipoDeSintese !== dadosDoProcesso.tipoDeSintese
+                                    ? <Button onClick={() => onSave(tipoDeSintese, alteredPieces ? selectedIds : [])} variant="primary"><FontAwesomeIcon icon={faRotateRight} className="me-2" />Salvar Alterações e Refazer</Button>
+                                    : <Button onClick={() => onClose()} variant="secondary"><FontAwesomeIcon icon={faClose} className="me-1" />Fechar</Button>)
+                                : <Button onClick={() => onSave(tipoDeSintese, alteredPieces ? selectedIds : [])} variant="primary"><FontAwesomeIcon icon={faPlay} className="me-2" />Prosseguir</Button>
                             }
                         </div></TableRecords>
                 </div>
@@ -83,7 +85,7 @@ export const ChoosePiecesLoading = () => {
 }
 
 
-export default function ChoosePieces({ dadosDoProcesso, statusDeSintese }: { dadosDoProcesso: DadosDoProcessoType, statusDeSintese: StatusDeLancamento }) {
+export default function ChoosePieces({ dadosDoProcesso, statusDeSintese, ready }: { dadosDoProcesso: DadosDoProcessoType, statusDeSintese: StatusDeLancamento, ready?: boolean }) {
     const pathname = usePathname(); // let's get the pathname to make the component reusable - could be used anywhere in the project
     const router = useRouter();
     const currentSearchParams = useSearchParams()
@@ -103,6 +105,7 @@ export default function ChoosePieces({ dadosDoProcesso, statusDeSintese }: { dad
         else
             updatedSearchParams.delete("pieces")
         updatedSearchParams.set("kind", kind)
+        updatedSearchParams.set("ready", 'true')
         const current = updatedSearchParams.toString()
         if (original === current) return
         setReloading(true)
@@ -117,7 +120,7 @@ export default function ChoosePieces({ dadosDoProcesso, statusDeSintese }: { dad
         return ChoosePiecesLoading()
     }
 
-    if (!editing) {
+    if (!editing && ready) {
         const l = dadosDoProcesso.pecasSelecionadas.map(p => maiusculasEMinusculas(p.descr))
         let s = `Tipo: ${TipoDeSinteseMap[dadosDoProcesso.tipoDeSintese]?.nome} - Peças: `
         if (l.length === 0)
@@ -132,5 +135,5 @@ export default function ChoosePieces({ dadosDoProcesso, statusDeSintese }: { dad
         }
         return <p className="text-body-tertiary text-center h-print">{s} - <span onClick={() => { setEditing(true) }} className="text-primary" style={{ cursor: 'pointer' }}><FontAwesomeIcon icon={faEdit} /> Alterar</span></p>
     }
-    return <ChoosePiecesForm onSave={onSave} onClose={onClose} dadosDoProcesso={dadosDoProcesso} statusDeSintese={statusDeSintese} />
+    return <ChoosePiecesForm onSave={onSave} onClose={onClose} dadosDoProcesso={dadosDoProcesso} statusDeSintese={statusDeSintese} ready={ready} />
 }

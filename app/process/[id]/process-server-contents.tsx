@@ -18,16 +18,16 @@ export const maxDuration = 60 // seconds
 
 const canonicalPieces = (pieces: string[]) => pieces.sort((a, b) => a.localeCompare(b)).join(',')
 
-export async function ChoosePiecesServer({ pDadosDoProcesso, statusDeSintese }: { pDadosDoProcesso: Promise<DadosDoProcessoType>, statusDeSintese: StatusDeLancamento }) {
+export async function ChoosePiecesServer({ pDadosDoProcesso, statusDeSintese, ready }: { pDadosDoProcesso: Promise<DadosDoProcessoType>, statusDeSintese: StatusDeLancamento, ready?: boolean }) {
     const dadosDoProcesso = await pDadosDoProcesso
     // console.log('dadosDoProcesso', dadosDoProcesso)
     if (!dadosDoProcesso || dadosDoProcesso.errorMsg)
         return ''
 
-    return <ChoosePieces dadosDoProcesso={dadosDoProcesso} key={`${dadosDoProcesso.tipoDeSintese}:${canonicalPieces(dadosDoProcesso.pecasSelecionadas.map(p => p.id))}`} statusDeSintese={statusDeSintese} />
+    return <ChoosePieces dadosDoProcesso={dadosDoProcesso} key={`${dadosDoProcesso.tipoDeSintese}:${canonicalPieces(dadosDoProcesso.pecasSelecionadas.map(p => p.id))}`} statusDeSintese={statusDeSintese} ready={ready} />
 }
 
-export default async function ProcessServerContents({ id, kind, pieces }) {
+export default async function ProcessServerContents({ id, kind, pieces, ready }: { id: string, kind?: string, pieces?: string, ready?: boolean }) {
     noStore()
 
     const pUser = assertCurrentUser()
@@ -47,21 +47,23 @@ export default async function ProcessServerContents({ id, kind, pieces }) {
                     <SubtituloAsync pDadosDoProcesso={pDadosDoProcesso} />
                 </Suspense>
                 <Suspense fallback=''>
-                    <ChoosePiecesServer pDadosDoProcesso={pDadosDoProcesso} statusDeSintese={statusDeSintese} />
+                    <ChoosePiecesServer pDadosDoProcesso={pDadosDoProcesso} statusDeSintese={statusDeSintese} ready={ready} />
                 </Suspense>
                 <Suspense fallback=''>
                     <ErrorMsg pDadosDoProcesso={pDadosDoProcesso} />
                 </Suspense>
-                <div className="mb-4"></div>
-                <Suspense fallback={<>{ProdutoLoading()}{ProdutoLoading()}{ProdutoLoading()}</>}>
-                    <ListaDeProdutosServer pDadosDoProcesso={pDadosDoProcesso} kind={kind} pieces={pieces} />
-                </Suspense>
-                <Suspense fallback=''>
-                    <PrintServerContents pDadosDoProcesso={pDadosDoProcesso} numeroDoProcesso={id} />
-                </Suspense>
-                <hr className="mt-5" />
-                <p style={{ textAlign: 'center' }}>Este documento foi gerado pela Apoia, ferramenta de inteligência artificial desenvolvida exclusivamente para facilitar a triagem de acervo, e não substitui a elaboração de relatório específico em cada processo, a partir da consulta manual aos eventos dos autos. Textos gerados por inteligência artificial podem conter informações imprecisas ou incorretas.</p>
-                <ProcessFooter prompt={kind} pDadosDoProcesso={pDadosDoProcesso} />
+                {ready && (<>
+                    <div className="mb-4"></div>
+                    <Suspense fallback={<>{ProdutoLoading()}{ProdutoLoading()}{ProdutoLoading()}</>}>
+                        <ListaDeProdutosServer pDadosDoProcesso={pDadosDoProcesso} kind={kind} pieces={pieces} />
+                    </Suspense>
+                    <Suspense fallback=''>
+                        <PrintServerContents pDadosDoProcesso={pDadosDoProcesso} numeroDoProcesso={id} />
+                    </Suspense>
+                    <hr className="mt-5" />
+                    <p style={{ textAlign: 'center' }}>Este documento foi gerado pela Apoia, ferramenta de inteligência artificial desenvolvida exclusivamente para facilitar a triagem de acervo, e não substitui a elaboração de relatório específico em cada processo, a partir da consulta manual aos eventos dos autos. Textos gerados por inteligência artificial podem conter informações imprecisas ou incorretas.</p>
+                    <ProcessFooter prompt={kind} pDadosDoProcesso={pDadosDoProcesso} />
+                </>)}
             </div>
         </div>
     )
