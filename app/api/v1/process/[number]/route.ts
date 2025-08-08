@@ -1,7 +1,7 @@
-import fetcher from "@/lib/utils/fetcher"
-import { NextResponse } from "next/server"
+import { NextRequest, NextResponse } from "next/server"
 import { getCurrentUser } from "@/lib/user"
 import { CargaDeConteudoEnum, obterDadosDoProcesso2 } from "@/lib/proc/process"
+import { UnauthorizedError, withErrorHandler } from "@/lib/utils/api-error"
 
 export const maxDuration = 60
 // export const runtime = 'edge'
@@ -32,34 +32,53 @@ export const maxDuration = 60
  *         application/json:
  *           schema:
  *             type: object
+ *     401:
+ *       description: Unauthorized
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               error:
+ *                 type: string
+ *                 example: Unauthorized
+ *     500:
+ *       description: Internal Server Error
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               error:
+ *                 type: string
+ *                 example: An internal server error occurred
  */
-export async function GET(
-  req: Request,
+async function GET_HANDLER(
+  req: NextRequest,
   props: { params: Promise<{ number: string, piece: string }> }
 ) {
   const params = await props.params;
   const pUser = getCurrentUser()
   const user = await pUser
-  if (!user) return Response.json({ errormsg: 'Unauthorized' }, { status: 401 })
-
-  try {
-    const url = new URL(req.url)
-    const kind = url.searchParams.get('kind')
-    const obterConteudo = url.searchParams.get('selectedPiecesContent') === 'true'
-    // if (kind) {
-    //   const dadosDoProcesso = await obterDadosDoProcesso({
-    //     numeroDoProcesso: params.number, pUser, kind,
-    //     conteudoDasPecasSelecionadas: obterConteudo ? CargaDeConteudoEnum.SINCRONO : CargaDeConteudoEnum.NAO
-    //   })
-    //   return Response.json(dadosDoProcesso)
-    // }
-    const dadosDoProcesso = await obterDadosDoProcesso2({
-      numeroDoProcesso: params.number, pUser,
-      conteudoDasPecasSelecionadas: obterConteudo ? CargaDeConteudoEnum.SINCRONO : CargaDeConteudoEnum.NAO
-    })
-    return Response.json(dadosDoProcesso)
-  } catch (error) {
-    const message = fetcher.processError(error)
-    return NextResponse.json({ message: `${message}` }, { status: 405 });
+  if (!user) {
+    throw new UnauthorizedError();
   }
+
+  const url = new URL(req.url)
+  const kind = url.searchParams.get('kind')
+  const obterConteudo = url.searchParams.get('selectedPiecesContent') === 'true'
+  // if (kind) {
+  //   const dadosDoProcesso = await obterDadosDoProcesso({
+  //     numeroDoProcesso: params.number, pUser, kind,
+  //     conteudoDasPecasSelecionadas: obterConteudo ? CargaDeConteudoEnum.SINCRONO : CargaDeConteudoEnum.NAO
+  //   })
+  //   return Response.json(dadosDoProcesso)
+  // }
+  const dadosDoProcesso = await obterDadosDoProcesso2({
+    numeroDoProcesso: params.number, pUser,
+    conteudoDasPecasSelecionadas: obterConteudo ? CargaDeConteudoEnum.SINCRONO : CargaDeConteudoEnum.NAO
+  })
+  return NextResponse.json(dadosDoProcesso)
 }
+
+export const GET = withErrorHandler(GET_HANDLER)
