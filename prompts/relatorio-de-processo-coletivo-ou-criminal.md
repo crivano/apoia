@@ -72,9 +72,6 @@ Formate sua resposta conforme exemplo a seguir, demarcado por <modelo>. Preste a
 ## Argumentos e Provas do Réu
 1. [Liste os argumentos e provas do réu COM INFERÊNCIA LÓGICA]
 
-## Aplicação da Norma
-[Analise cada elemento da norma, dos argumentos e dos fatos para verificar se as normas se aplicam ao caso]
-
 # Normas/Jurisprudência Invocadas
 - [Cite as principais normas que foram citadas na sentença ou no recurso inominado, apenas uma norma por linha, use uma maneira compacta e padronizada de se referir a norma, se houver referência ao número do artigo, inclua após uma vírgula, por exemplo: L 1234/2010, Art. 1º. Esta lista não deve ter mais de 50 linhas, cite apenas as normas mais relevantes.]
 

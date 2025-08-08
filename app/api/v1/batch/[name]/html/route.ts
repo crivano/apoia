@@ -185,6 +185,14 @@ export async function GET(req: Request, props: { params: Promise<{ name: string 
         suppressIndex = true
     }
 
+    // Build dynamic title for printing (browser uses document.title as suggested filename)
+    const printTitle = (() => {
+        if (!triageItems.length) return params.name
+        if (suppressIndex) return `${params.name} - ${preprocessAgrupamento(triageItems[0].descr)}`
+        return params.name
+    })()
+    const slugPrintTitle = slugify(printTitle) || slugify(params.name)
+
     if (!suppressIndex) {
         html += `<div class="page"><h2>Índice</h2>`
         html += `<table><thead><tr><th style="text-align: left">Grupo</th><th style="text-align: right">Quantidade</th></thead><tbody>`
@@ -231,6 +239,12 @@ export async function GET(req: Request, props: { params: Promise<{ name: string 
                 if (g.descr === P.RESUMO) {
                     text = fixText(text, enumMap)
                 }
+
+                // Remove '## Aplicação da Norma' section and its contents until next level-1 or level-2 header (or end)
+                if (text && text.includes('## Aplicação da Norma')) {
+                    text = text.replace(/(^|\n)##\s+Aplicação da Norma[\r\n]+[\s\S]*?(?=(\n##\s|\n#\s|$))/g, '$1');
+                }
+
                 html += `<h2>${g.document_id ? maiusculasEMinusculas(g.descr) : g.descr}</h2><div class="ai-content">${preprocess(text, { kind: g.prompt, prompt: '' }, { textos: [] }, true).text}</div>`
             }
             html += `</div>`
@@ -242,7 +256,7 @@ export async function GET(req: Request, props: { params: Promise<{ name: string 
     }
     // console.log('count', count)
 
-    return new Response(formated(html), { headers: { 'Content-Type': 'text/html; charset=utf-8' } })
+    return new Response(formated(html, slugPrintTitle), { headers: { 'Content-Type': 'text/html; charset=utf-8' } })
 }
 
 const buildPDF = async (html: string, filename: string, disposition) => {
@@ -271,9 +285,10 @@ const buildPDF = async (html: string, filename: string, disposition) => {
     return new Response(pdf, { headers })
 }
 
-const formated = (html: string) => {
+const formated = (html: string, title?: string) => {
     return `<html>
 <head>
+<title>${(title || 'Relatório Apoia').replace(/</g, '&lt;').replace(/>/g, '&gt;')}</title>
 <script src="/wordcloud2.js"></script>
 <style>
     body {
