@@ -26,7 +26,7 @@ interface EditorProps {
 const Editor: FC<EditorProps> = ({ markdown, editorRef, onChange }) => {
     return (
         <MDXEditor
-            className="mdx-editor form-control p-0"
+            className="mdx-editor p-0"
             onChange={(e) => onChange(e)}
             ref={editorRef}
             markdown={markdown}
