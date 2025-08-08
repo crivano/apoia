@@ -41,6 +41,13 @@ const preprocessAgrupamento = (text: string) => {
  *         name: name
  *         required: true
  *         description: Nome do lote
+ *       - in: query
+ *         name: filter
+ *         required: false
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *         description: Filtra para exibir somente o grupo (índice) especificado (1 a N). Suprime a página de índice e mostra apenas o grupo e seus processos.
  *     responses:
  *       200:
  *         description: Relatório em HTML
@@ -52,6 +59,10 @@ export async function GET(req: Request, props: { params: Promise<{ name: string 
 
     const { searchParams } = new URL(req.url)
     const ungrouped = searchParams.get('ungrouped') === 'true'
+    // New optional filter parameter (1-based index of the triage item to display)
+    const filterParam = searchParams.get('filter')
+    const filterIndexRaw = filterParam ? parseInt(filterParam, 10) : undefined
+
     const batch_id = await Dao.assertIABatchId(params.name)
     const enum_id = await Dao.assertIAEnumId(Plugin.TRIAGEM)
 
@@ -167,16 +178,24 @@ export async function GET(req: Request, props: { params: Promise<{ name: string 
         triageItems = mappedItems //.filter(ti => ti.items.length > 0)
     }
 
-    html += `<div class="page"><h2>Índice</h2>`
-    html += `<table><thead><tr><th style="text-align: left">Grupo</th><th style="text-align: right">Quantidade</th></thead><tbody>`
-    for (const ti of triageItems) {
-        html += `<tr><td>${preprocessAgrupamento(ti.descr)}</td><td style="text-align: right"><a href="#${slugify(preprocessAgrupamento(ti.descr))}" style="color: #000000; text-decoration: none;">${ti.items.length}</a></td></tr>`
+    // Apply filter (after triageItems computation)
+    let suppressIndex = false
+    if (filterIndexRaw !== undefined && !isNaN(filterIndexRaw) && filterIndexRaw >= 1 && filterIndexRaw <= triageItems.length) {
+        triageItems = [triageItems[filterIndexRaw - 1]]
+        suppressIndex = true
     }
-    html += `</tbody>`
-    html += `<tfoot><tr><th style="text-align: left">Total</th><th style="text-align: right">${triageItems.reduce((acc, t) => acc + t.items.length, 0)}</th></tr></tfoot>`
-    html += `</table>`
-    html += `</div>`
 
+    if (!suppressIndex) {
+        html += `<div class="page"><h2>Índice</h2>`
+        html += `<table><thead><tr><th style="text-align: left">Grupo</th><th style="text-align: right">Quantidade</th></thead><tbody>`
+        for (const ti of triageItems) {
+            html += `<tr><td>${preprocessAgrupamento(ti.descr)}</td><td style="text-align: right"><a href="#${slugify(preprocessAgrupamento(ti.descr))}" style="color: #000000; text-decoration: none;">${ti.items.length}</a></td></tr>`
+        }
+        html += `</tbody>`
+        html += `<tfoot><tr><th style="text-align: left">Total</th><th style="text-align: right">${triageItems.reduce((acc, t) => acc + t.items.length, 0)}</th></tr></tfoot>`
+        html += `</table>`
+        html += `</div>`
+    }
 
     const enumItens = await Dao.retrieveEnumItems()
     const enumMap = enumItens.reduce((acc, ei) => {
