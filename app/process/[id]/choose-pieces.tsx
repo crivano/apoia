@@ -20,8 +20,11 @@ function ChoosePiecesForm({ dadosDoProcesso, onSave, onClose, statusDeSintese, r
     const originalPieces: string[] = dadosDoProcesso.pecasSelecionadas.map(p => p.id)
     const [tipoDeSintese, setTipoDeSintese] = useState(dadosDoProcesso.tipoDeSintese)
     const [selectedIds, setSelectedIds] = useState(originalPieces)
-    const [canonicalOriginalPieces, setCanonicalOriginalPieces] = useState(canonicalPieces(originalPieces))
+    // baseline inicial (não deve ser modificado após abrir a edição)
+    const baselineCanonicalPiecesRef = useRef(canonicalPieces(originalPieces))
     const tipos = TiposDeSinteseValido.filter(t => t.status <= statusDeSintese).map(tipo => ({ id: tipo.id, name: tipo.nome }))
+    // guardar tipo original para evitar requisição desnecessária no primeiro render
+    const originalTipoRef = useRef(dadosDoProcesso.tipoDeSintese)
 
     const onSelectedIdsChanged = (ids: string[]) => {
         if (canonicalPieces(ids) !== canonicalPieces(selectedIds))
@@ -45,14 +48,17 @@ function ChoosePiecesForm({ dadosDoProcesso, onSave, onClose, statusDeSintese, r
         })
         const data = await res.json()
         setSelectedIds(data.selectedIds)
-        setCanonicalOriginalPieces(canonicalPieces(data.selectedIds))
+        // NÃO atualizar baseline aqui; queremos comparar sempre com o estado inicial quando usuário clicou em Alterar
     }
 
     useEffect(() => {
-        updateSelectedPieces()
+        // Só chama a API se o usuário realmente mudou o tipo de síntese
+        if (tipoDeSintese !== originalTipoRef.current) {
+            updateSelectedPieces()
+        }
     }, [tipoDeSintese])
 
-    const alteredPieces = canonicalPieces(selectedIds) !== canonicalOriginalPieces
+    const alteredPieces = canonicalPieces(selectedIds) !== baselineCanonicalPiecesRef.current
 
     return <div className="mt-4 mb-4 h-print">
         <div className="alert alert-warning pt-0">
