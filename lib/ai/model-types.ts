@@ -41,6 +41,9 @@ type ModelArrayType = {
 }
 
 const ModelArray: ModelArrayType[] = [
+    // { id: 16, name: 'gpt-5-mini', provider: ModelProvider.OPENAI, inputTokenPPM: 0.25, outputTokenPPM: 2, status: StatusDeLancamento.PUBLICO },
+    // { id: 17, name: 'gpt-5-nano', provider: ModelProvider.OPENAI, inputTokenPPM: 0.05, outputTokenPPM: 0.4, status: StatusDeLancamento.PUBLICO },
+    // { id: 15, name: 'gpt-5', provider: ModelProvider.OPENAI, inputTokenPPM: 1.25, outputTokenPPM: 10, status: StatusDeLancamento.PUBLICO },
     { id: 16, name: 'gpt-4.1-mini', provider: ModelProvider.OPENAI, inputTokenPPM: 0.4, outputTokenPPM: 1.6, status: StatusDeLancamento.PUBLICO },
     { id: 17, name: 'gpt-4.1-nano', provider: ModelProvider.OPENAI, inputTokenPPM: 0.1, outputTokenPPM: 0.4, status: StatusDeLancamento.PUBLICO },
     { id: 15, name: 'gpt-4.1', provider: ModelProvider.OPENAI, inputTokenPPM: 2, outputTokenPPM: 8, status: StatusDeLancamento.PUBLICO },
