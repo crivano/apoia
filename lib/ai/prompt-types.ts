@@ -41,7 +41,10 @@ export type TextoType = {
     pTexto?: Promise<PecaConteudoType>
     texto?: string
 }
-export type PromptDataType = { textos: TextoType[] }
+export type PromptDataType = { 
+    numeroDoProcesso?: string, 
+    textos: TextoType[] 
+}
 
 // Tipo de dados que podem ser passados para a execução de um prompt
 //

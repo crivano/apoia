@@ -19,6 +19,8 @@ export const applyTextsAndVariables = (text: string, data: PromptDataType, jsonS
 
     text = text.replace('{{textos}}', allTexts)
 
+    text = text.replace('{{numeroDoProcesso}}', data.numeroDoProcesso || 'Número do processo não definido')
+
     text = text.replace('{{template}}', template ? `<template>\n${template}\n</template>` : '')
 
     text = text.replace(/{{textos\.limit\((\d+)\)}}/g, (match, limit) => {

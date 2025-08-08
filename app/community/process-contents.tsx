@@ -95,7 +95,10 @@ export default function ProcessContents({ prompt, dadosDoProcesso, pieceContent,
         if (prompt.content.summary === 'SIM') {
             for (const peca of pecasComConteudo) {
                 const definition = getInternalPrompt(`resumo-${peca.slug}`)
-                const data: PromptDataType = { textos: [peca] }
+                const data: PromptDataType = {
+                    numeroDoProcesso: dadosDoProcesso.numeroDoProcesso,
+                    textos: [peca]
+                }
                 requestArray.push({ documentCode: peca.id || null, documentDescr: peca.descr, documentLocation: peca.event, documentLink: `/api/v1/process/${dadosDoProcesso.numeroDoProcesso}/piece/${peca.id}/binary`, data, title: peca.descr, produto: P.RESUMO_PECA, promptSlug: definition.kind, internalPrompt: definition })
             }
         }
@@ -113,7 +116,10 @@ export default function ProcessContents({ prompt, dadosDoProcesso, pieceContent,
             const req: GeneratedContent = {
                 documentCode: null,
                 documentDescr: null,
-                data: { textos: pecasComConteudo },
+                data: {
+                    numeroDoProcesso: dadosDoProcesso.numeroDoProcesso,
+                    textos: pecasComConteudo
+                },
                 produto: P.RESUMO,
                 promptSlug: slugify(prompt.name),
                 internalPrompt: definition,
@@ -170,6 +176,6 @@ export default function ProcessContents({ prompt, dadosDoProcesso, pieceContent,
         }
         <hr className="mt-5" />
         <p style={{ textAlign: 'center' }}>Este documento foi gerado pela Apoia, ferramenta de inteligência artificial desenvolvida exclusivamente para facilitar a triagem de acervo, e não substitui a elaboração de relatório específico em cada processo, a partir da consulta manual aos eventos dos autos. Textos gerados por inteligência artificial podem conter informações imprecisas ou incorretas.</p>
-        <p style={{ textAlign: 'center' }} dangerouslySetInnerHTML={{ __html: `O prompt ${prompt.name} (${prompt.id}) ${buildFooterFromPieces(model, selectedPieces.map(p => ({...p, conteudo: pieceContent[p.id]})))?.toLowerCase()}`}} />
+        <p style={{ textAlign: 'center' }} dangerouslySetInnerHTML={{ __html: `O prompt ${prompt.name} (${prompt.id}) ${buildFooterFromPieces(model, selectedPieces.map(p => ({ ...p, conteudo: pieceContent[p.id] })))?.toLowerCase()}` }} />
     </div >
 }    

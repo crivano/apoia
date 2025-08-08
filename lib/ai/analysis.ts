@@ -48,7 +48,7 @@ export function buildRequests(dossierNumber: string, produtos: InfoDeProduto[], 
 
     // Add product IARequests
     for (const produto of produtos) {
-        let data: PromptDataType = { textos: pecasComConteudo }
+        let data: PromptDataType = { numeroDoProcesso: dossierNumber, textos: pecasComConteudo }
 
         let produtoSimples: P | undefined = undefined
         // if produto is complex filter data.textos
