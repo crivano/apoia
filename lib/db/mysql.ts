@@ -686,6 +686,12 @@ export class Dao {
             system_id
         }).first()
         if (result) {
+            if ((class_code && result.class_code !== class_code) || (filing_at && result.filing_at !== filing_at)) {
+                await knex('ia_dossier').update({
+                    class_code,
+                    filing_at
+                }).where({ id: result.id })
+            }
             return result.id
         }
         const [dossierResult] = await knex('ia_dossier').insert({

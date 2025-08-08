@@ -6,6 +6,7 @@ import { fixText } from "@/lib/fix"
 import { tua } from "@/lib/proc/tua"
 import { getCurrentUser } from "@/lib/user"
 import mapping from './mapping.json'
+import mappingByUnit from './mapping-by-unit.json'
 
 export const maxDuration = 60
 
@@ -144,6 +145,28 @@ export async function GET(req: Request, props: { params: Promise<{ name: string 
         // console.log('\n\nmappedTriageItems', JSON.stringify(mappedTriageItems.map(ti => ({ descr: ti.descr, count: ti.items.length }))))
     }
 
+    // index by unit
+    if (true) {
+        // console.log('originalIndex', JSON.stringify(originalTriageItems.map(ti => ({ descr: ti.descr, count: ti.items.length }))))
+        const units = [...new Set(Object.values(mappingByUnit))] as string[]
+        const preprocessUnitToSort = (unit: string) => {
+            return unit.replace(/\d+/g, (n) => n.padStart(2, '0'));
+        }
+        const mappedItems = units.map(u => ({ descr: u, items: [] })).sort((a, b) => preprocessUnitToSort(a.descr).localeCompare(preprocessUnitToSort(b.descr)))
+        for (const ti of items) {
+            const mappedBy = mappingByUnit[ti.dossier_code]
+            if (mappedBy) {
+                const found = mappedItems.find(m => m.descr === mappedBy)
+                if (!found)
+                    throw new Error(`Mapping unit not found for ${ti.dossier_code} (${ti.enum_item_descr})`)
+                found.items.push(ti)
+            } else {
+                console.log(`Mapping not found for ${ti.dossier_code} (${ti.enum_item_descr})`)
+            }
+        }
+        triageItems = mappedItems //.filter(ti => ti.items.length > 0)
+    }
+
     html += `<div class="page"><h2>Índice</h2>`
     html += `<table><thead><tr><th style="text-align: left">Grupo</th><th style="text-align: right">Quantidade</th></thead><tbody>`
     for (const ti of triageItems) {
@@ -261,39 +284,33 @@ const formated = (html: string) => {
     
     div.ai-content h1 {
         text-align: left;
-        font-size: 1.2rem;
         font-weight: bold;
         margin-top: 1rem;
     }
 
     div.ai-content h2 {
-        font-size: 1.1rem;
         font-weight: bold;
         margin-top: 1rem;
         text-decoration: none;
     }
 
     div.ai-content h3 {
-        font-size: 1.0rem;
         font-weight: bold;
         text-decoration: underline;
         margin-top: 1rem;
     }
 
     div.ai-content h4 {
-        font-size: 1.0rem;
         font-weight: bold;
         margin-top: 1rem;
     }
 
     div.ai-content h5 {
-        font-size: 1.0rem;
         font-weight: bold;
         margin-top: 1rem;
     }
 
     div.ai-content h6 {
-        font-size: 1.0rem;
         text-decoration: underline;
         margin-top: 1rem;
     }

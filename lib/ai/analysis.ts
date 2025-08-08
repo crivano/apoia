@@ -12,6 +12,7 @@ import { infoDeProduto } from '../proc/info-de-produto'
 import { envString } from '../utils/env'
 import { DadosDoProcessoType } from '../proc/process-types'
 import { buildFooter } from '../utils/footer'
+import { clipPieces } from './clip-pieces'
 
 export async function summarize(dossierNumber: string, pieceNumber: string): Promise<{ dossierData: any, generatedContent: GeneratedContent }> {
     const pUser = assertCurrentUser()
@@ -128,7 +129,9 @@ export async function analyze(batchName: string | undefined, dossierNumber: stri
             const user = await pUser
             const systemCode = user?.image?.system || 'PDPJ'
             const systemId = await Dao.assertSystemId(systemCode)
-            const footer = buildFooter(model || '-', pecasComConteudo)
+            const textosParaClipagem = JSON.parse(JSON.stringify(pecasComConteudo))
+            const textosClipados = clipPieces(model, textosParaClipagem)
+            const footer = buildFooter(model || '-', textosClipados)
             storeBatchItem(systemId, batchName, dossierNumber, requests, dadosDoProcesso, footer)
         }
 

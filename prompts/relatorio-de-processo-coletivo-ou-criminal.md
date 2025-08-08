@@ -55,7 +55,7 @@ Formate sua resposta conforme exemplo a seguir, demarcado por <modelo>. Preste a
 
 [Descrição das defesas e provas apresentadas por cada réu de forma detalhada.]
 
-[Resumo da fundamentação jurídica da réplica, sem omitir argumentos e sem analisar o mérito. Descrição os principais atos processuais relevantes em ordem cronológica, como decisão interlocutória, realização de audiência, sentença, apelação e contrarrazões de apelação, sempre referenciando as peças correspondentes.]
+[Resumo da fundamentação jurídica da réplica, sem omitir argumentos e sem analisar o mérito. Descrição os principais atos processuais relevantes em ordem cronológica, como decisão interlocutória, realização de audiência, sentença, apelação e contrarrazões de apelação, sempre referenciando as peças correspondentes. Esse resumo deve ser quebrado em parágrafos, não tópicos. Cada parágrafo deve informar a data do ato processual, ou o intervalo de datas quando se tratar de múltiplos atos.]
 
 # Problema Jurídico
 
@@ -74,12 +74,6 @@ Formate sua resposta conforme exemplo a seguir, demarcado por <modelo>. Preste a
 
 ## Aplicação da Norma
 [Analise cada elemento da norma, dos argumentos e dos fatos para verificar se as normas se aplicam ao caso]
-
-# Índice
-- [Liste os 30 principais documentos do processo na ordem em que aparecem. Não inclua nessa listagem documentos que representam atos processuais de menor relevância ou documentos nos quais o conteúdo não pode ser acessado. Alguns documentos considerados importantes: petição inicial, contestação, réplica, decisão interlocutória, realização de audiência, sentença, apelação e contrarrazões de apelação. Para cada documento relevante, indique o tipo da peça processual, resuma o contúdo em um parágrafo, indique o número do evento (event) e o rótulo do documento (label). Por exemplo:
-- **Petição Inicial** - [Conteúdo resumido da petição] (evento 1, OUT1).
-- **Contestação** - [Conteúdo resumido da contestação] (evento 2, CONT1).
-Esta lista não deve ter mais de 30 linhas, cite apenas os documentos mais relevantes.]
 
 # Normas/Jurisprudência Invocadas
 - [Cite as principais normas que foram citadas na sentença ou no recurso inominado, apenas uma norma por linha, use uma maneira compacta e padronizada de se referir a norma, se houver referência ao número do artigo, inclua após uma vírgula, por exemplo: L 1234/2010, Art. 1º. Esta lista não deve ter mais de 50 linhas, cite apenas as normas mais relevantes.]

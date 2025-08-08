@@ -51,7 +51,8 @@ const ocrPdfSemLimite = async (buffer: ArrayBuffer, documentId: number) => {
     formData.append('file', file)
     const res = await fetch(url, {
         method: 'POST',
-        body: formData
+        body: formData,
+        signal: AbortSignal.timeout(1800000), // 30 minutes timeout
     })
     if (res.status !== 200) {
         if (res.headers.get('content-type') === 'application/json') {
