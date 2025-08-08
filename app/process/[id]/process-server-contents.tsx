@@ -38,7 +38,7 @@ export default async function ProcessServerContents({ id, kind, pieces, ready }:
 
     const statusDeSintese = statusCookie ? JSON.parse(statusCookie) : StatusDeLancamento.PUBLICO
 
-    const pDadosDoProcesso = obterDadosDoProcesso({ numeroDoProcesso: id, pUser, kind, pieces, statusDeSintese })
+    const pDadosDoProcesso = obterDadosDoProcesso({ numeroDoProcesso: id, pUser, kind, pieces: pieces ? pieces.split(',') : undefined, statusDeSintese })
 
     return (
         <div className="mb-3">
