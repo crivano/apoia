@@ -225,13 +225,30 @@ export async function GET(req: Request, props: { params: Promise<{ name: string 
 
         for (const item of ti.items) {
             const nomeDaClasse = tua[item.dossier_class_code]
-            // console.log('item', item)
             // console.log('nomeDaClasse', nomeDaClasse)
             html += `<div class="page"><h1 class="titulo">Processo ${item.dossier_code}</h1>`
             html += `<div class="subtitulo">`
             if (nomeDaClasse) html += nomeDaClasse
             if (nomeDaClasse && item.dossier_filing_at) html += `<br/>`
-            html += `Ajuizado em ${formatBrazilianDate(item.dossier_filing_at)}`
+            html += `Ajuizado em ${formatBrazilianDate(item.dossier_filing_at)}`;
+
+            const footer = item.batch_dossier_footer || ''
+            const specialPieces: string[] = []
+            const addCategory = (regex: RegExp, singular: string, pluralLabel: string) => {
+                const n = (footer.match(regex) || []).length
+                if (n === 1) specialPieces.push(singular)
+                else if (n > 1) specialPieces.push(`${n} ${pluralLabel}`)
+            }
+            addCategory(/, sigilosa\)/g, '1 peça sigilosa', 'peças sigilosas')
+            addCategory(/, vazia\)/g, '1 peça vazia', 'peças vazias')
+            addCategory(/, parcial\)/g, '1 peça parcialmente lida', 'peças parcialmente lidas')
+            addCategory(/, inacessível\)/g, '1 peça inacessível', 'peças inacessíveis')
+            if (specialPieces.length) {
+                const listFmt = specialPieces.length === 1
+                    ? specialPieces[0]
+                    : `${specialPieces.slice(0, -1).join(', ')} e ${specialPieces[specialPieces.length - 1]}`
+                html += `<br/>Atenção: ${listFmt}`
+            }
             html += `</div>`
             const generations = await Dao.retrieveGenerationByBatchDossierId(item.batch_dossier_id)
             for (const g of generations) {
