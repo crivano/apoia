@@ -212,6 +212,8 @@ export async function GET(req: Request, props: { params: Promise<{ name: string 
         return acc
     }, {})
 
+    const globalCount = {}
+
     let count = 0
     for (const ti of triageItems) {
         html += `<div class="page"><h1><a id="${slugify(preprocessAgrupamento(ti.descr))}">${preprocessAgrupamento(ti.descr)}</a></h1><div>${ti.items.length} processos: `
@@ -236,6 +238,7 @@ export async function GET(req: Request, props: { params: Promise<{ name: string 
             const specialPieces: string[] = []
             const addCategory = (regex: RegExp, singular: string, pluralLabel: string) => {
                 const n = (footer.match(regex) || []).length
+                globalCount[pluralLabel] = (globalCount[pluralLabel] || 0) + n
                 if (n === 1) specialPieces.push(singular)
                 else if (n > 1) specialPieces.push(`${n} ${pluralLabel}`)
             }
@@ -272,6 +275,7 @@ export async function GET(req: Request, props: { params: Promise<{ name: string 
         }
     }
     // console.log('count', count)
+    console.log('globalCount', globalCount)
 
     return new Response(formated(html, slugPrintTitle), { headers: { 'Content-Type': 'text/html; charset=utf-8' } })
 }
