@@ -6,21 +6,19 @@ const nextConfig = {
     // trailingSlash: true,
     output: "standalone",
     serverExternalPackages: ['knex', 'pdf-parse'],
-    experimental: {
-        turbo: {
-            rules: {
-                '*.md': {
-                    loaders: ['raw-loader'],
-                    as: '*.js',
-                },
-                '*.txt': {
-                    loaders: ['raw-loader'],
-                    as: '*.js',
-                },
-                '*.html': {
-                    loaders: ['raw-loader'],
-                    as: '*.js',
-                },
+    turbopack: {
+        rules: {
+            '*.md': {
+                loaders: ['raw-loader'],
+                as: '*.js',
+            },
+            '*.txt': {
+                loaders: ['raw-loader'],
+                as: '*.js',
+            },
+            '*.html': {
+                loaders: ['raw-loader'],
+                as: '*.js',
             },
         },
     },

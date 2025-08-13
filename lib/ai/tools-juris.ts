@@ -22,7 +22,7 @@ interface PrecedentSearchResponse {
 
 export const getPrecedentTool = (pUser: Promise<UserType>) => tool({
     description: 'Busca precedentes jurisprudenciais usando uma consulta textual complexa com operadores lógicos.',
-    parameters: z.object({
+    inputSchema: z.object({
         searchQuery: z.string().describe('A consulta de busca com operadores lógicos como "e", "ou", "não", "?", "$", aspas duplas. Use sinônimos e operadores para fazer a busca da melhor maneira possível. Se não encontrar precedentes de boa qualidade, quantas vezes achar necessário, repita a pesquisa com outras palavras ou veja nas próximas páginas.'),
         page: z.number().min(1).default(1).describe('O número da página començando em 1 (cada página retorna até 20 resultados).'),
     }),

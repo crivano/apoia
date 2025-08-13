@@ -106,6 +106,16 @@
             "name": "name",
             "required": true,
             "description": "Nome do lote"
+          },
+          {
+            "in": "query",
+            "name": "filter",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "description": "Filtra para exibir somente o grupo (índice) especificado (1 a N). Suprime a página de índice e mostra apenas o grupo e seus processos."
           }
         ],
         "responses": {

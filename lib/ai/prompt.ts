@@ -1,4 +1,4 @@
-import { CoreMessage, jsonSchema } from "ai"
+import { ModelMessage, jsonSchema } from "ai"
 import { slugify } from "@/lib/utils/utils"
 import { PromptDataType, PromptExecuteType, PromptExecuteParamsType, PromptDefinitionType, PromptOptionsType, TextoType } from "@/lib/ai/prompt-types"
 import { buildFormatter } from "@/lib/ai/format"
@@ -65,7 +65,7 @@ export async function getPiecesWithContent(dadosDoProcesso: DadosDoProcessoType,
 }
 
 export const promptExecuteBuilder = (definition: PromptDefinitionType, data: PromptDataType): PromptExecuteType => {
-    const message: CoreMessage[] = []
+    const message: ModelMessage[] = []
     if (definition.systemPrompt)
         message.push({ role: 'system', content: applyTextsAndVariables(definition.systemPrompt, data, definition.jsonSchema, definition.template) })
 

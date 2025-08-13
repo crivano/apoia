@@ -1,6 +1,6 @@
 'use server'
 
-import { CoreTool, streamText, StreamTextResult, LanguageModel, streamObject, StreamObjectResult, DeepPartial, CoreMessage, generateText } from 'ai'
+import { streamText, StreamTextResult, LanguageModel, streamObject, StreamObjectResult, DeepPartial, ModelMessage, generateText, ToolSet } from 'ai'
 import { IAGenerated } from '../db/mysql-types'
 import { Dao } from '../db/mysql'
 import { assertCourtId, assertCurrentUser } from '../user'
@@ -27,7 +27,7 @@ export async function saveToCache(sha256: string, model: string, prompt: string,
 }
 
 // write response to a file for debugging
-function writeResponseToFile(kind: string, messages: CoreMessage[], text: string) {
+function writeResponseToFile(kind: string, messages: ModelMessage[], text: string) {
     const path: string = envString('SAVE_PROMPT_RESULTS_PATH') || ''
     if (envString('NODE_ENV') === 'development' && path) {
         const fs = require('fs')
@@ -68,14 +68,14 @@ export async function generateContent(definition: PromptDefinitionType, data: Pr
 }
 
 export async function writeUsage(usage, model: string, user_id: number | undefined, court_id: number | undefined) {
-    const { promptTokens, completionTokens } = usage
-    const calculedUsage = modelCalcUsage(model, promptTokens, completionTokens)
+    const { inputTokens, outputTokens } = usage
+    const calculedUsage = modelCalcUsage(model, inputTokens, outputTokens)
     if (user_id && court_id)
         await Dao.addToIAUserDailyUsage(user_id, court_id, calculedUsage.input_tokens, calculedUsage.output_tokens, calculedUsage.approximate_cost)
 }
 
 export async function streamContent(definition: PromptDefinitionType, data: PromptDataType, results?: PromptExecutionResultsType):
-    Promise<StreamTextResult<Record<string, CoreTool<any, any>>, any> | StreamObjectResult<DeepPartial<any>, any, never> | string> {
+    Promise<StreamTextResult<ToolSet, Partial<any>> | StreamObjectResult<DeepPartial<any>, any, never> | string> {
     // const user = await getCurrentUser()
     // if (!user) return Response.json({ errormsg: 'Unauthorized' }, { status: 401 })
     console.log('will build prompt', definition.kind)
@@ -119,8 +119,8 @@ export async function streamContent(definition: PromptDefinitionType, data: Prom
     return generateAndStreamContent(model, structuredOutputs, definition?.cacheControl, definition?.kind, modelRef, messages, sha256, results, attempt, apiKeyFromEnv)
 }
 
-export async function generateAndStreamContent(model: string, structuredOutputs: any, cacheControl: number | boolean, kind: string, modelRef: LanguageModel, messages: CoreMessage[], sha256: string, results?: PromptExecutionResultsType, attempt?: number | null, apiKeyFromEnv?: boolean, tools?: Record<string, CoreTool<any, any>>):
-    Promise<StreamTextResult<Record<string, CoreTool<any, any>>, any> | StreamObjectResult<DeepPartial<any>, any, never> | string> {
+export async function generateAndStreamContent(model: string, structuredOutputs: any, cacheControl: number | boolean, kind: string, modelRef: LanguageModel, messages: ModelMessage[], sha256: string, results?: PromptExecutionResultsType, attempt?: number | null, apiKeyFromEnv?: boolean, tools?: Record<string, any>):
+    Promise<StreamTextResult<ToolSet, Partial<any>> | StreamObjectResult<DeepPartial<any>, any, never> | string> {
     const pUser = assertCurrentUser()
     const user = await pUser
     const user_id = await Dao.assertIAUserId(user.preferredUsername || user.name)
@@ -167,7 +167,7 @@ export async function generateAndStreamContent(model: string, structuredOutputs:
                 writeResponseToFile(kind, messages, text)
             },
             tools,
-            maxSteps: tools ? 10 : undefined, // Limit the number of steps to avoid infinite loops
+            // maxSteps: tools ? 10 : undefined, // Limit the number of steps to avoid infinite loops
         })
         return pResult as any
         // }

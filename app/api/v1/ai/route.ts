@@ -124,7 +124,7 @@ export async function POST(request: Request) {
             }
             const feederStream = new ReadableStream({
                 start(controller) {
-                    if (value?.type === 'text-delta')
+                    if (value?.type === 'text')
                         controller.enqueue(value)
                     function pump() {
                         reader.read().then(({ done, value }) => {
@@ -133,7 +133,7 @@ export async function POST(request: Request) {
                                 return
                             }
                             switch (value.type) {
-                                case 'text-delta': {
+                                case 'text': {
                                     controller.enqueue(value.textDelta)
                                     break;
                                 }

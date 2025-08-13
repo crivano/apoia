@@ -71,5 +71,5 @@ export async function POST(req: Request) {
         return new Response(result, { status: 200 })
     }
 
-    return ((await result) as StreamTextResult<Record<string, CoreTool<any, any>>, any>).toDataStreamResponse()
+    return ((await result) as StreamTextResult<Record<string, CoreTool<any, any>>, any>).toUIMessageStreamResponse();
 }

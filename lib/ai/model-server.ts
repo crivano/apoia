@@ -45,7 +45,7 @@ function getApiKeyByModel(model: string, prefs: PrefsCookieType, seqTribunalPai?
 }
 
 export const assertModel = async () => {
-    if (!await getSelectedModelName()) {
+    if (!(await getSelectedModelName())) {
         redirect('/prefs')
     }
 }
@@ -54,7 +54,7 @@ export type ModelParams = { model: string, apiKey: string, availableApiKeys: str
 export async function getSelectedModelParams(): Promise<ModelParams> {
     const prefs = await getPrefs()
     const user = await getCurrentUser()
-    const seqTribunalPai = user ? '' + await assertCourtId(user) : undefined
+    const seqTribunalPai = user ? '' + (await assertCourtId(user)) : undefined
 
     let model: string
     let azureResourceName: string
@@ -144,7 +144,9 @@ export async function getModel(params?: { structuredOutputs: boolean, overrideMo
         return { model, modelRef: anthropic(model), apiKeyFromEnv }
     }
     if (getEnvKeyByModel(model) === ModelProvider.OPENAI.apiKey) {
-        const openai = createOpenAI({ apiKey, compatibility: 'strict' })
+        const openai = createOpenAI({
+            apiKey
+        })
         return { model, modelRef: openai(model, { structuredOutputs: params?.structuredOutputs }) as unknown as LanguageModelV1, apiKeyFromEnv }
     }
     if (getEnvKeyByModel(model) === ModelProvider.GOOGLE.apiKey) {

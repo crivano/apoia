@@ -1,4 +1,4 @@
-import { CoreMessage } from "ai";
+import { ModelMessage } from "ai";
 import { IAGenerated } from "../db/mysql-types";
 import { P, Plugin, T } from "../proc/combinacoes";
 import { PecaConteudoType } from "../proc/process-types";
@@ -54,7 +54,7 @@ export type PromptExecuteParamsType = {
     cacheControl?: boolean | number
 }
 export type PromptExecuteType = {
-    message: CoreMessage[], 
+    message: ModelMessage[], 
     params?: PromptExecuteParamsType,
     fixedPrompt: string
 }

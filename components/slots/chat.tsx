@@ -5,8 +5,8 @@ import { PromptDataType, PromptDefinitionType } from '@/lib/ai/prompt-types';
 import { faEdit, faQuestionCircle } from '@fortawesome/free-regular-svg-icons';
 import { faFileLines, faSackDollar, faUsers } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { ToolInvocation } from 'ai';
-import { Message, useChat } from 'ai/react'
+import { DefaultChatTransport, UIMessage, UITool, UITools } from 'ai';
+import { useChat } from '@ai-sdk/react'
 import showdown from 'showdown'
 import { ReactElement, useState } from 'react';
 import { Modal, Button, Form } from 'react-bootstrap';
@@ -19,17 +19,18 @@ export type SuggestionType = {
     label: string;
 }
 
-function preprocessar(texto: string, role: string) {
+function preprocessar(mensagem: UIMessage, role: string) {
+    const texto = (mensagem.parts[0] as any).text
     if (!texto) return ''
     return converter.makeHtml(`<span class="d-none"><b>${role === 'user' ? 'Usuário' : 'Assistente'}</b>: </span>${texto}`)
 }
 
-function toolMessage(i: ToolInvocation) {
+function toolMessage(toolName: string, i: UITool) {
     const regexPiece = /^(.+):$\n<[a-z\-]+ event="([^"]+)"/gm
     if (!i) return ''
-    if (i.toolName === 'getProcessMetadata') {
+    if (toolName === 'getProcessMetadata') {
         return `<span class="text-secondary">Obtendo dados do processo: ${i.args.processNumber}</span>`
-    } else if (i.toolName === 'getPiecesText') {
+    } else if (toolName === 'getPiecesText') {
         const result = (i as any).result
         if (result) {
             const matches = []
@@ -66,14 +67,15 @@ export default function Chat(params: { definition: PromptDefinitionType, data: P
     const [showModal, setShowModal] = useState(false);
     const [processNumber, setProcessNumber] = useState('');
     const [currentSuggestion, setCurrentSuggestion] = useState('');
-
-    const initialMessages: Message[] = [{ id: "system", role: 'system', content: applyTextsAndVariables(params.definition.systemPrompt, params.data) }]
-    const { messages, setMessages, input, setInput, handleInputChange, handleSubmit } = useChat({ api: `/api/v1/chat${params.withTools ? '?withTools=true' : ''}`, initialMessages })
+    const [input, setInput] = useState('')
+    const initialMessages: UIMessage[] = [{ id: "system", role: 'system', parts: [{ type: 'text', text: applyTextsAndVariables(params.definition.systemPrompt, params.data) }] }]
+    const { messages, setMessages, sendMessage } =
+        useChat({ transport: new DefaultChatTransport({ api: `/api/v1/chat${params.withTools ? '?withTools=true' : ''}` }), messages: initialMessages })
 
     const handleEditMessage = (idx: number) => {
         const message = messages[idx]
         if (message.role === 'user') {
-            setInput(message.content as any)
+            setInput((message.parts[0] as any).text)
             setMessages(messages.slice(0, idx))
         }
         setFocusToChatInput()
@@ -93,11 +95,12 @@ export default function Chat(params: { definition: PromptDefinitionType, data: P
     const handleSubmitAndSetFocus = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         if (input.trim() === '') return;
-        handleSubmit(e);
+        const msg: UIMessage = { id: undefined, role: 'user', parts: [{ type: 'text', text: input }] }
+        sendMessage(msg)
         setFocusToChatInput()
     }
 
-    const alreadyLoadedProcessMetadata = messages.some(m => m.role === 'assistant' && m.parts?.some(part => part.type === 'tool-invocation' && part.toolInvocation.toolName === 'getProcessMetadata'))
+    const alreadyLoadedProcessMetadata = messages.some(m => m.role === 'assistant' && m.parts?.some(part => part.type === 'tool-getProcessMetadata'))
 
     const handleModalSubmit = () => {
         if (processNumber) {
@@ -118,7 +121,8 @@ export default function Chat(params: { definition: PromptDefinitionType, data: P
             setInput(suggestion);
             const syntheticEvent = new Event('submit') as any;
             syntheticEvent.preventDefault = () => { };
-            handleSubmit(syntheticEvent);
+            const msg: UIMessage = { id: undefined, role: 'user', parts: [{ type: 'text', text: syntheticEvent }] }
+            sendMessage(msg)
             setFocusToChatInput()
         }
     }
@@ -165,7 +169,7 @@ export default function Chat(params: { definition: PromptDefinitionType, data: P
                                     <FontAwesomeIcon onClick={() => handleEditMessage(idx)} icon={faEdit} className="text-white align-bottom" />
                                 </div>
                                 <div className={`col col-auto mb-0`}>
-                                    <div className={`text-wrap mb-3 rounded chat-content chat-user`} dangerouslySetInnerHTML={{ __html: preprocessar(m.content, m.role) }} />
+                                    <div className={`text-wrap mb-3 rounded chat-content chat-user`} dangerouslySetInnerHTML={{ __html: preprocessar(m, m.role) }} />
                                 </div>
                             </div>
                             : m.role === 'assistant' &&
@@ -178,7 +182,7 @@ export default function Chat(params: { definition: PromptDefinitionType, data: P
                                     ))}
                                 </div>}
                                 <div className={`col col-auto mb-0`}>
-                                    <div className={`text-wrap mb-3 rounded chat-content chat-ai`} dangerouslySetInnerHTML={{ __html: preprocessar(m.content, m.role) }} />
+                                    <div className={`text-wrap mb-3 rounded chat-content chat-ai`} dangerouslySetInnerHTML={{ __html: preprocessar(m, m.role) }} />
                                 </div>
                             </div>
                     ))}
@@ -192,7 +196,7 @@ export default function Chat(params: { definition: PromptDefinitionType, data: P
                                         className="form-control bg-secondary text-white"
                                         value={input}
                                         placeholder=""
-                                        onChange={handleInputChange}
+                                        onChange={setInput as any}
                                     />
                                     <button className="btn btn-secondary btn-outline-light" type="submit">Enviar</button>
                                 </div>

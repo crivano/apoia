@@ -25,7 +25,7 @@ export const getProcessMetadata = async (processNumber: string, interop: Interop
 
 export const getProcessMetadataTool = (pUser: Promise<UserType>) => tool({
     description: 'Obtém os metadados de um processo judicial a partir do número do processo.',
-    parameters: z.object({
+    inputSchema: z.object({
         processNumber: z.string().describe('O número do processo.'),
     }),
     execute: async ({ processNumber }) => {
@@ -89,7 +89,7 @@ export const getProcessMetadataTool = (pUser: Promise<UserType>) => tool({
 
 export const getPieceContentTool = (pUser: Promise<UserType>) => tool({
     description: 'Obtém o conteúdo de uma ou mais peças processuais a partir do número do processo e dos identificadores das peças.',
-    parameters: z.object({
+    inputSchema: z.object({
         processNumber: z.string().describe('O número do processo.'),
         pieceIdArray: z.array(z.string()).describe('Os identificadores das peças processuais a serem obtidas.'),
     }),
