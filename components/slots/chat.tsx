@@ -10,6 +10,7 @@ import { useChat } from '@ai-sdk/react'
 import showdown from 'showdown'
 import { ReactElement, useState } from 'react';
 import { Modal, Button, Form } from 'react-bootstrap';
+import { set } from 'zod/v4';
 
 const converter = new showdown.Converter({ tables: true })
 
@@ -20,45 +21,71 @@ export type SuggestionType = {
 }
 
 function preprocessar(mensagem: UIMessage, role: string) {
-    const texto = (mensagem.parts[0] as any).text
+    const texto = mensagem.parts.reduce((acc, part) => {
+        if (part.type === 'text') {
+            acc += part.text
+        }
+        return acc
+    }, '')
     if (!texto) return ''
     return converter.makeHtml(`<span class="d-none"><b>${role === 'user' ? 'Usuário' : 'Assistente'}</b>: </span>${texto}`)
 }
 
-function toolMessage(toolName: string, i: UITool) {
+function toolMessage(part: any): ReactElement {
     const regexPiece = /^(.+):$\n<[a-z\-]+ event="([^"]+)"/gm
-    if (!i) return ''
-    if (toolName === 'getProcessMetadata') {
-        return `<span class="text-secondary">Obtendo dados do processo: ${i.args.processNumber}</span>`
-    } else if (toolName === 'getPiecesText') {
-        const result = (i as any).result
-        if (result) {
-            const matches = []
-            let match
-            regexPiece.lastIndex = 0 // Reset regex state
-            while ((match = regexPiece.exec((i as any).result)) !== null) {
-                const kind = match[1].trim()
-                const eventNumber = match[2]
-                matches.push(`${kind} (${eventNumber})`)
+    if (!part) return null
+    switch (part.type) {
+        case 'tool-getProcessMetadata':
+            switch (part.state) {
+                case 'input-streaming':
+                    return <span className="text-secondary">Acessando dados de processo...</span>
+                case 'input-available':
+                    return (<span className="text-secondary">Obtendo dados do processo: {part.input?.processNumber}...</span>)
+                case 'output-available':
+                    return (<span className="text-secondary">Consultei dados do processo: {part.input?.processNumber}</span>)
+                case 'output-error':
+                    return <div>Error: {part.errorText}</div>;
             }
-
-            if (matches.length === 1) {
-                return `<span class="text-secondary">Obtendo conteúdo da peça: ${matches[0]}</span>`
+        case 'tool-getPiecesText':
+            switch (part.state) {
+                case 'input-streaming':
+                    return <span className="text-secondary">Acessando peças...</span>
+                case 'input-available':
+                    if (part.input.pieceIdArray?.length === 1)
+                        return <span className="text-secondary">Obtendo conteúdo da peça: {part.input.pieceIdArray[0]}...</span>
+                    else if (part.input.pieceIdArray?.length > 1)
+                        return <span className="text-secondary">Obtendo conteúdo das peças: {part.input.pieceIdArray.join(', ')}...</span>
+                    else
+                        return <span className="text-secondary">Obtendo conteúdo das peças...</span>
+                case 'output-available':
+                    const matches = []
+                    let match
+                    regexPiece.lastIndex = 0 // Reset regex state
+                    while ((match = regexPiece.exec(part.output)) !== null) {
+                        const kind = match[1].trim()
+                        const eventNumber = match[2]
+                        matches.push(`${kind} (${eventNumber})`)
+                    }
+                    if (matches.length === 1)
+                        return <span className="text-secondary">Consultei conteúdo da peça: {matches[0]}</span>
+                    else
+                        return <span className="text-secondary">Consultei conteúdo das peças: {matches.join(', ')}</span>
+                case 'output-error':
+                    return <div>Error: {part.errorText}</div>;
             }
-            if (matches.length > 1) {
-                return `<span class="text-secondary">Obtendo conteúdo das peças: ${matches.join(', ')}</span>`
+        case 'tool-getPrecedent':
+            switch (part.state) {
+                case 'input-streaming':
+                    return <span className="text-secondary">Acessando dados de precedentes...</span>
+                case 'input-available':
+                    return <span className="text-secondary">Obtendo dados de precedentes: {part.input?.searchQuery}...</span>
+                case 'output-available':
+                    return <span className="text-secondary">Consultei dados de precedentes: {part.input?.searchQuery}</span>
+                case 'output-error':
+                    return <div>Error: {part.errorText}</div>;
             }
-        }
-        if (i.args.pieceIdArray?.length === 1) {
-            return `<span class="text-secondary">Obtendo conteúdo da peça: ${i.args.pieceIdArray[0]}</span>`
-        }
-        if (i.args.pieceIdArray?.length > 1) {
-            return `<span class="text-secondary">Obtendo conteúdo das peças: ${i.args.pieceIdArray.join(', ')}</span>`
-        }
-    } else if (i.toolName === 'getPrecedent') {
-        return `<span class="text-secondary">Obtendo dados do precedente: ${i.args.searchQuery}</span>`
-    } else {
-        return `<span class="text-secondary">Ferramenta desconhecida: ${i.toolName}</span>`
+        default:
+            return <span className="text-secondary">Ferramenta desconhecida: {part.type}</span>
     }
 }
 
@@ -97,6 +124,7 @@ export default function Chat(params: { definition: PromptDefinitionType, data: P
         if (input.trim() === '') return;
         const msg: UIMessage = { id: undefined, role: 'user', parts: [{ type: 'text', text: input }] }
         sendMessage(msg)
+        setInput('')
         setFocusToChatInput()
     }
 
@@ -174,10 +202,12 @@ export default function Chat(params: { definition: PromptDefinitionType, data: P
                             </div>
                             : m.role === 'assistant' &&
                             <div className="row justify-content-start me-5" key={m.id}>
-                                {m?.parts?.find((part) => part.type === 'tool-invocation') && <div className={`mb-1`}>
-                                    {m?.parts?.filter((part) => part.type === 'tool-invocation')?.map((part, index) => (
+                                {m?.parts?.find((part) => part.type.startsWith('tool-')) && <div className={`mb-1`}>
+                                    {m?.parts?.filter((part) => part.type.startsWith('tool-'))?.map((part, index) => (
                                         <div key={index} className="mb-0">
-                                            <div className={`text-wrap mb-0 chat-tool`} dangerouslySetInnerHTML={{ __html: toolMessage(part.toolInvocation) }} />
+                                            <div className={`text-wrap mb-0 chat-tool`}>
+                                                {toolMessage(part)}
+                                            </div>
                                         </div>
                                     ))}
                                 </div>}
@@ -196,7 +226,7 @@ export default function Chat(params: { definition: PromptDefinitionType, data: P
                                         className="form-control bg-secondary text-white"
                                         value={input}
                                         placeholder=""
-                                        onChange={setInput as any}
+                                        onChange={(e) => setInput(e.target.value)}
                                     />
                                     <button className="btn btn-secondary btn-outline-light" type="submit">Enviar</button>
                                 </div>

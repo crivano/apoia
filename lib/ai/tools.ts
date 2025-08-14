@@ -1,4 +1,4 @@
-import { tool, ToolExecutionOptions } from "ai"
+import { tool } from "ai"
 import { assertCourtId, UserType } from "../user"
 import { getInteropFromUser } from "../proc/process"
 import { TextoType } from "./prompt-types"
@@ -158,7 +158,7 @@ export const getPieceContentTool = (pUser: Promise<UserType>) => tool({
     },
 })
 
-export const getTools = async (pUser: Promise<UserType>, options?: ToolExecutionOptions) => {
+export const getTools = async (pUser: Promise<UserType>) => {
     const toools = {
         getProcessMetadata: getProcessMetadataTool(pUser),
         getPiecesText: getPieceContentTool(pUser),

@@ -5,7 +5,7 @@ import { anonymizeText } from '@/lib/anonym/anonym'
 import { Dao } from '@/lib/db/mysql'
 import { getCurrentUser } from '@/lib/user'
 import { envString } from '@/lib/utils/env'
-import { CoreTool, StreamTextResult } from 'ai'
+import { convertToModelMessages, StreamTextResult, ToolSet } from 'ai'
 
 // Allow streaming responses up to 30 seconds
 export const maxDuration = 60
@@ -59,7 +59,7 @@ export async function POST(req: Request) {
         false, // cacheControl
         'chat', // kind
         modelRef,
-        messages,
+        convertToModelMessages(messages),
         '', // sha256
         {}, // results
         null, // attempt
@@ -71,5 +71,5 @@ export async function POST(req: Request) {
         return new Response(result, { status: 200 })
     }
 
-    return ((await result) as StreamTextResult<Record<string, CoreTool<any, any>>, any>).toUIMessageStreamResponse();
+    return ((await result) as StreamTextResult<ToolSet, any>).toUIMessageStreamResponse();
 }

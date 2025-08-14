@@ -133,8 +133,8 @@ export async function POST(request: Request) {
                                 return
                             }
                             switch (value.type) {
-                                case 'text': {
-                                    controller.enqueue(value.textDelta)
+                                case 'text-delta': {
+                                    controller.enqueue(value.text || value.textDelta)
                                     break;
                                 }
                                 case 'error': {

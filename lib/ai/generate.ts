@@ -1,6 +1,6 @@
 'use server'
 
-import { streamText, StreamTextResult, LanguageModel, streamObject, StreamObjectResult, DeepPartial, ModelMessage, generateText, ToolSet } from 'ai'
+import { streamText, StreamTextResult, LanguageModel, streamObject, StreamObjectResult, DeepPartial, ModelMessage, generateText, ToolSet, stepCountIs } from 'ai'
 import { IAGenerated } from '../db/mysql-types'
 import { Dao } from '../db/mysql'
 import { assertCourtId, assertCurrentUser } from '../user'
@@ -68,8 +68,8 @@ export async function generateContent(definition: PromptDefinitionType, data: Pr
 }
 
 export async function writeUsage(usage, model: string, user_id: number | undefined, court_id: number | undefined) {
-    const { inputTokens, outputTokens } = usage
-    const calculedUsage = modelCalcUsage(model, inputTokens, outputTokens)
+    const { cachedInputTokens, inputTokens, outputTokens, reasoningTokens } = usage
+    const calculedUsage = modelCalcUsage(model, inputTokens || 0 + cachedInputTokens || 0, reasoningTokens || 0 + outputTokens || 0)
     if (user_id && court_id)
         await Dao.addToIAUserDailyUsage(user_id, court_id, calculedUsage.input_tokens, calculedUsage.output_tokens, calculedUsage.approximate_cost)
 }
@@ -167,6 +167,7 @@ export async function generateAndStreamContent(model: string, structuredOutputs:
                 writeResponseToFile(kind, messages, text)
             },
             tools,
+            stopWhen: stepCountIs(10)
             // maxSteps: tools ? 10 : undefined, // Limit the number of steps to avoid infinite loops
         })
         return pResult as any

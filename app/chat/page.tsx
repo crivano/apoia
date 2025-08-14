@@ -33,7 +33,7 @@ export default async function Home() {
             </Container>
         }>
             <Container className="mt-3" fluid={false}>
-                <Chat definition={definition} data={data} suggestions={suggestions} withTools={true}
+                <Chat definition={definition} data={data} suggestions={suggestions} withTools={true} key={1}
                     footer={<div className="text-body-tertiary">O Agente de IA busca informações e peças de qualquer processo. Para contextualizar, inclua o número do processo na sua primeira pergunta.</div>}
                 />
             </Container>

@@ -19,16 +19,16 @@ export function format(formatter: string, s: string): string {
     formatter = formatter.replace(/{=/g, '{{')
     formatter = formatter.replace(/=}/g, '}}')
 
-    var env = nunjucks.configure()
-    env.addFilter('deProcedencia', arr => arr.filter(e => e.tipo == 'PROCEDENTE'))
-    env.addFilter('deImprocedencia', arr => arr.filter(e => e.tipo == 'IMPROCEDENTE'))
+//    var env = nunjucks.configure()
+//    env.addFilter('deProcedencia', arr => arr.filter(e => e.tipo == 'PROCEDENTE'))
+//    env.addFilter('deImprocedencia', arr => arr.filter(e => e.tipo == 'IMPROCEDENTE'))
 
     json.date = parseDateDDMMYYYY
     json.dateAddDays = dateAddDays
     json.dateAddMonths = dateAddMonths
 
     try {
-        const result = env.renderString(formatter, json)
+        const result = nunjucks.renderString(formatter, json)
         return result
     } catch (e) {
         console.error('Error formatting string:', e)

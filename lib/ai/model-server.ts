@@ -11,9 +11,9 @@ import { createAzure } from "@ai-sdk/azure"
 import { createGroq } from "@ai-sdk/groq"
 import { createDeepSeek } from "@ai-sdk/deepseek"
 import { createAmazonBedrock } from '@ai-sdk/amazon-bedrock'
-import { LanguageModelV1 } from "ai"
 import { EMPTY_PREFS_COOKIE, PrefsCookieType } from '@/lib/utils/prefs-types'
 import { assertCourtId, getCurrentUser } from "../user"
+import { LanguageModelV2 } from "@ai-sdk/provider"
 
 function getEnvKeyByModel(model: string): string {
     if (!model) throw new Error('Model is required')
@@ -134,7 +134,7 @@ export async function getSelectedModelName(): Promise<string> {
     return (await getSelectedModelParams()).model
 }
 
-export async function getModel(params?: { structuredOutputs: boolean, overrideModel?: string }): Promise<{ model: string, modelRef: LanguageModelV1, apiKeyFromEnv: boolean }> {
+export async function getModel(params?: { structuredOutputs: boolean, overrideModel?: string }): Promise<{ model: string, modelRef: LanguageModelV2, apiKeyFromEnv: boolean }> {
     let { model, apiKey, azureResourceName, awsRegion, awsAccessKeyId, apiKeyFromEnv } = await getSelectedModelParams()
     if (params?.overrideModel) model = params.overrideModel
 
@@ -147,21 +147,21 @@ export async function getModel(params?: { structuredOutputs: boolean, overrideMo
         const openai = createOpenAI({
             apiKey
         })
-        return { model, modelRef: openai(model, { structuredOutputs: params?.structuredOutputs }) as unknown as LanguageModelV1, apiKeyFromEnv }
+        return { model, modelRef: openai(model) as unknown as LanguageModelV2, apiKeyFromEnv }
     }
     if (getEnvKeyByModel(model) === ModelProvider.GOOGLE.apiKey) {
         const google = createGoogleGenerativeAI({ apiKey })
-        return { model, modelRef: google(model, { structuredOutputs: params?.structuredOutputs }), apiKeyFromEnv }
+        return { model, modelRef: google(model), apiKeyFromEnv }
     }
     if (getEnvKeyByModel(model) === ModelProvider.AZURE.apiKey) {
         const azure = azureResourceName?.startsWith('https')
             ? createAzure({ apiKey, baseURL: azureResourceName })
             : createAzure({ apiKey, resourceName: azureResourceName })
-        return { model, modelRef: azure(model.replace('azure-', ''), { structuredOutputs: params?.structuredOutputs }) as unknown as LanguageModelV1, apiKeyFromEnv }
+        return { model, modelRef: azure(model.replace('azure-', '')) as unknown as LanguageModelV2, apiKeyFromEnv }
     }
     if (getEnvKeyByModel(model) === ModelProvider.AWS.apiKey) {
         const bedrock = createAmazonBedrock({ region: awsRegion, accessKeyId: awsAccessKeyId, secretAccessKey: apiKey })
-        const modelRef = bedrock(model.replace('aws-', ''), {}) as unknown as LanguageModelV1
+        const modelRef = bedrock(model.replace('aws-', '')) as unknown as LanguageModelV2
 
         // const { text } = await generateText({
         //     model: modelRef,
@@ -183,11 +183,11 @@ export async function getModel(params?: { structuredOutputs: boolean, overrideMo
     }
     if (getEnvKeyByModel(model) === ModelProvider.GROQ.apiKey) {
         const groq = createGroq({ apiKey })
-        return { model, modelRef: groq(model, {}), apiKeyFromEnv }
+        return { model, modelRef: groq(model), apiKeyFromEnv }
     }
     if (getEnvKeyByModel(model) === ModelProvider.DEEPSEEK.apiKey) {
         const deepseek = createDeepSeek({ apiKey })
-        return { model, modelRef: deepseek(model, {}), apiKeyFromEnv }
+        return { model, modelRef: deepseek(model), apiKeyFromEnv }
     }
     throw new Error(`Model ${model} not found`)
 }

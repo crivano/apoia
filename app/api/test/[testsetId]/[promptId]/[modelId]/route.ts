@@ -1,6 +1,6 @@
 import { streamContent } from '@/lib/ai/generate'
 import { NextResponse } from 'next/server'
-import { CoreTool, DeepPartial, StreamObjectResult, StreamTextResult } from 'ai'
+import { DeepPartial, StreamObjectResult, StreamTextResult, ToolSet } from 'ai'
 import { removeEmptyKeys } from '@/lib/utils/utils'
 import { PromptDefinitionType, PromptOptionsType } from '@/lib/ai/prompt-types'
 import { ProgressType } from '@/lib/progress'
@@ -126,7 +126,7 @@ function encodeJsonString(s: string): string {
   return JSON.stringify(s).slice(1, -1)
 }
 
-async function streamString(key: string, stream: StreamTextResult<Record<string, CoreTool<any, any>>, any> | StreamObjectResult<DeepPartial<any>, any, never> | string, controller) {
+async function streamString(key: string, stream: StreamTextResult<ToolSet, any> | StreamObjectResult<DeepPartial<any>, any, never> | string, controller) {
   controller.enqueue(`,\n"${key}": "`)
   let text: string
   if (typeof stream === 'string') {
