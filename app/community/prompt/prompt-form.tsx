@@ -85,7 +85,7 @@ export default function PromptForm(props) {
     const pieceStrategyOptions = enumSorted(PieceStrategy).map(e => ({ id: e.value.name, name: e.value.descr }))
     const pieceDescrOptions = enumSorted(PieceDescr).map(e => ({ id: e.value.name, name: e.value.descr }))
     const summaryOptions = [{ id: 'NAO', name: 'Não' }, { id: 'SIM', name: 'Sim' }]
-    const shareOptions = [{ id: 'PADRAO', name: 'Padrão', disabled: true }, { id: 'PUBLICO', name: 'Público', disabled: true }, { id: 'EM_ANALISE', name: 'Público (em análise)' }, { id: 'NAO_LISTADO', name: 'Não Listado' }, { id: 'PRIVADO', name: 'Privado' }]
+    const shareOptions = [{ id: 'PADRAO', name: 'Padrão', disabled: true }, { id: 'PUBLICO', name: 'Público', disabled: false }, { id: 'EM_ANALISE', name: 'Público (em análise)' }, { id: 'NAO_LISTADO', name: 'Não Listado' }, { id: 'PRIVADO', name: 'Privado' }]
     const [field, setField] = useState([]);
 
     const unclosedMarking = isTemplate ? findUnclosedMarking(data.content.template || '') : null
@@ -139,38 +139,49 @@ export default function PromptForm(props) {
                                     : <div className="text-body-tertiary">Utilize &#39;&#123;&#39; para inclusões e &#39;&#123;&#123;&#39; para condicionais. Mais detalhes no <a href="https://trf2.gitbook.io/apoia/criar-prompt-a-partir-de-um-modelo" target="_blank">manual</a>.</div>
                                 }
                             </>)
-                                : (<>
-                                    {showAdvancedOptions && <>
-                                        <div className="row">
-                                            {data.content.json_schema !== undefined && <Frm.TextArea label="JSON Schema (opcional)" name="content.json_schema" maxRows={5} width={""} />}
-                                            {data.content.json_schema !== undefined && <Frm.Button variant="light" onClick={() => { data.content.json_schema = undefined; setData({ ...data }) }}><FontAwesomeIcon icon={faRemove} /> Schema</Frm.Button>}
-                                        </div>
-                                        <div className="row">
-                                            {data.content.format !== undefined && <Frm.TextArea label="Format (opcional)" name="content.format" maxRows={5} width={""} />}
-                                            {data.content.format !== undefined && <Frm.Button variant="light" onClick={() => { data.content.format = undefined; setData({ ...data }) }}><FontAwesomeIcon icon={faRemove} /> Format</Frm.Button>}
-                                        </div>
-                                        <div className="row">
-                                            <Frm.TextArea label="Prompt de Sistema (opcional)" name="content.system_prompt" maxRows={5} width={""} />
-                                            {data.content.json_schema === undefined && <Frm.Button variant="light" onClick={() => { data.content.json_schema = ''; setData({ ...data }) }}><FontAwesomeIcon icon={faAdd} /> Schema</Frm.Button>}
-                                            {data.content.format === undefined && <Frm.Button variant="light" onClick={() => { data.content.format = ''; setData({ ...data }) }}><FontAwesomeIcon icon={faAdd} /> Format</Frm.Button>}
-                                        </div>
-                                    </>}
-                                    <Frm.TextArea label="Prompt" name="content.prompt" maxRows={20} explanation={`Utilize {{textos}} onde devem ser incluídos os textos capturados ${Target.PROCESSO.name === data.content.target ? 'das peças do processo' : 'do editor de textos'}, ou serão automaticamente incluídos no final.`} />
-                                </>)}
-                            </>)
-                            : (<TextareaAutosize className="form-control" value={yaml} onChange={(e) => handleYamlChanged(e.target.value)} />)}
-                    </div>
-                <div className="col col-auto mt-3 mb-3">
-                    <Button variant="light" className="" onClick={handleBack}>Voltar</Button>
+                            : (<>
+                                {showAdvancedOptions && <>
+                                    <div className="row">
+                                        {data.content.json_schema !== undefined && <Frm.TextArea label="JSON Schema (opcional)" name="content.json_schema" maxRows={5} width={""} />}
+                                        {data.content.json_schema !== undefined && <Frm.Button variant="light" onClick={() => { data.content.json_schema = undefined; setData({ ...data }) }}><FontAwesomeIcon icon={faRemove} /> Schema</Frm.Button>}
+                                    </div>
+                                    <div className="row">
+                                        {data.content.format !== undefined && <Frm.TextArea label="Format (opcional)" name="content.format" maxRows={5} width={""} />}
+                                        {data.content.format !== undefined && <Frm.Button variant="light" onClick={() => { data.content.format = undefined; setData({ ...data }) }}><FontAwesomeIcon icon={faRemove} /> Format</Frm.Button>}
+                                    </div>
+                                    <div className="row">
+                                        <Frm.TextArea label="Prompt de Sistema (opcional)" name="content.system_prompt" maxRows={5} width={""} />
+                                        {data.content.json_schema === undefined && <Frm.Button variant="light" onClick={() => { data.content.json_schema = ''; setData({ ...data }) }}><FontAwesomeIcon icon={faAdd} /> Schema</Frm.Button>}
+                                        {data.content.format === undefined && <Frm.Button variant="light" onClick={() => { data.content.format = ''; setData({ ...data }) }}><FontAwesomeIcon icon={faAdd} /> Format</Frm.Button>}
+                                    </div>
+                                </>}
+                                <Frm.TextArea label="Prompt" name="content.prompt" maxRows={20} explanation={`Utilize {{textos}} onde devem ser incluídos os textos capturados ${Target.PROCESSO.name === data.content.target ? 'das peças do processo' : 'do editor de textos'}, ou serão automaticamente incluídos no final.`} />
+                            </>)}
+                    </>)
+                    : (<TextareaAutosize className="form-control" value={yaml} onChange={(e) => handleYamlChanged(e.target.value)} />)}
+            </div>
+            {data?.share === 'PUBLICO' &&
+                <div className="col col-12"><div className="alert alert-danger mb-0 mt-3"><p><strong>Atenção:</strong> Um prompt público fica visível para todos os usuários.</p>
+                    <p>Para que seu prompt não seja cancelado, certifique-se de:</p>
+                    <ol className="mb-0">
+                        <li><strong>Não disponibilizar um prompt que peça para a IA tomar decisão</strong>, ou outro tipo de prompt de viole a Resolução 615/2025 do CNJ;</li>
+                        <li>Escrever o nome do prompt e o nome do autor com letras minúsculas e maiúsculas, <strong>não usar apenas maiúsculas</strong>;</li>
+                        <li>Disponibilizar publicamente <strong>apenas prompts úteis para todos os usuários</strong>. Para compartilhar um prompt que só faz sentido para a sua unidade, utilize o recurso de "<a href="https://trf2.gitbook.io/apoia/criar-novo-prompt" target="_blank">Não Listado</a>".</li>
+                        <li><strong>Testar exaustivamente</strong> o prompt antes de disponibilizá-lo.</li>
+                    </ol>
                 </div>
+                </div>}
+            <div className="col col-auto mt-3 mb-3">
+                <Button variant="light" className="" onClick={handleBack}>Voltar</Button>
+            </div>
 
-                <div className="col col-auto mt-3 mb-3 ms-auto">
-                    {showAdvancedOptions
-                        ? <Button variant="light" className="me-3" disabled={data.content.system_prompt || data.content.json_schema || data.content.format} onClick={() => { setShowAdvancedOptions(false) }}>Ocultar Opções Avançadas</Button>
-                        : <Button variant="light" className="me-3" onClick={() => { setShowAdvancedOptions(true) }}>Exibir Opções Avançadas</Button>}
-                    <Button variant="primary" disabled={pending || pristine} className="" onClick={handleSave}>Salvar</Button>
-                    <FormError formState={formState} />
-                </div>
-            </div >
-            )
+            <div className="col col-auto mt-3 mb-3 ms-auto">
+                {showAdvancedOptions
+                    ? <Button variant="light" className="me-3" disabled={data.content.system_prompt || data.content.json_schema || data.content.format} onClick={() => { setShowAdvancedOptions(false) }}>Ocultar Opções Avançadas</Button>
+                    : <Button variant="light" className="me-3" onClick={() => { setShowAdvancedOptions(true) }}>Exibir Opções Avançadas</Button>}
+                <Button variant="primary" disabled={pending || pristine} className="" onClick={handleSave}>Salvar</Button>
+                <FormError formState={formState} />
+            </div>
+        </div >
+    )
 }

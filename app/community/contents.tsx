@@ -213,9 +213,9 @@ export function Contents({ prompts, user, user_id, apiKeyProvided, model }: { pr
                 <Tabs
                     activeKey={activeTab}
                     onSelect={(k) => setActiveTab(k || 'principal')}
-                    className="mb-3x"
+                    className="mt-3"
                 >
-                    <Tab eventKey="principal" title="Principal">
+                    <Tab eventKey="principal" title="Principais">
                         <PromptsTable prompts={promptsPrincipais} onClick={promptOnClick} onProcessNumberChange={setNumeroDoProcesso}>
                             <div className="col col-auto">
                                 <DropdownButton id="criar-novo-dropdown" title="Criar Novo" variant="primary">
@@ -226,7 +226,7 @@ export function Contents({ prompts, user, user_id, apiKeyProvided, model }: { pr
                         </PromptsTable>
                     </Tab>
                     
-                    <Tab eventKey="comunidade" title="Comunidade">
+                    <Tab eventKey="comunidade" title="Prompts Não Avaliados">
                         <PromptsTable prompts={promptsComunidade} onClick={promptOnClick} onProcessNumberChange={setNumeroDoProcesso}>
                             <div className="col col-auto">
                                 <DropdownButton id="criar-novo-dropdown" title="Criar Novo" variant="primary">
@@ -236,9 +236,9 @@ export function Contents({ prompts, user, user_id, apiKeyProvided, model }: { pr
                             </div>
                         </PromptsTable>
                         
-                        <div className="mt-3 p-3 bg-light rounded">
-                            <p className="text-body-tertiary mb-2">
-                                <strong>⚠️ Atenção:</strong> Os prompts da comunidade são compartilhados publicamente por outros usuários.
+                        <div className="alert alert-warning mt-3">
+                            <p className="mb-0">
+                                <strong>Atenção:</strong> Os prompts da comunidade são compartilhados publicamente por outros usuários.
                                 Esses prompts não passam por nenhum tipo de validação e podem gerar respostas imprecisas,
                                 inconsistentes ou inadequadas para seu contexto.
                             </p>
