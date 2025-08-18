@@ -11,7 +11,7 @@ import { VisualizationEnum } from '@/lib/ui/preprocess'
 
 const EditorComp = dynamic(() => import('../../components/EditorComponent'), { ssr: false })
 
-export default function Revison() {
+export default function Simplification() {
     const [markdown, setMarkdown] = useState('')
     const [hidden, setHidden] = useState(true)
     const [promptConfig, setPromptConfig] = useState({} as PromptConfigType)
@@ -36,7 +36,7 @@ export default function Revison() {
                 </Suspense>
             </div>
             {hidden && <>
-                <div className="text-body-tertiary">Cole o texto a ser convertido para Linguagem Simples (<a href="https://chatgpt.com/g/g-67ab8c842b148191b497b2e150fa993b-gralha" style={{ color: 'inherit' }}>Gralha</a>) na caixa acima e clique em &quot;Simplificar&quot;.</div>
+                <div className="text-body-tertiary">Cole o texto a ser convertido para Linguagem Simples (Gralha) na caixa acima e clique em &quot;Simplificar&quot;.</div>
                 <Button disabled={!markdown} className="mt-3" onClick={() => setHidden(false)}>Simplificar</Button>
             </>}
             {!hidden && markdown && <>
