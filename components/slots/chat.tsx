@@ -31,6 +31,10 @@ function preprocessar(mensagem: UIMessage, role: string) {
     return converter.makeHtml(`<span class="d-none"><b>${role === 'user' ? 'Usuário' : 'Assistente'}</b>: </span>${texto}`)
 }
 
+function hasText(mensagem: UIMessage) {
+    return mensagem.parts.some(part => part.type === 'text' && part.text && part.text.trim() !== '')
+}
+
 function toolMessage(part: any): ReactElement {
     const regexPiece = /^(.+):$\n<[a-z\-]+ event="([^"]+)"/gm
     if (!part) return null
@@ -96,7 +100,7 @@ export default function Chat(params: { definition: PromptDefinitionType, data: P
     const [currentSuggestion, setCurrentSuggestion] = useState('');
     const [input, setInput] = useState('')
     const initialMessages: UIMessage[] = [{ id: "system", role: 'system', parts: [{ type: 'text', text: applyTextsAndVariables(params.definition.systemPrompt, params.data) }] }]
-    const { messages, setMessages, sendMessage } =
+    const { messages, setMessages, sendMessage, error, clearError } =
         useChat({ transport: new DefaultChatTransport({ api: `/api/v1/chat${params.withTools ? '?withTools=true' : ''}` }), messages: initialMessages })
 
     const handleEditMessage = (idx: number) => {
@@ -155,8 +159,7 @@ export default function Chat(params: { definition: PromptDefinitionType, data: P
         }
     }
 
-
-    // console.log('Chat messages:', messages)
+    console.log('Chat messages:', messages)
 
     return (
         <div className={messages.find(m => m.role === 'assistant') ? '' : 'd-print-none h-print'}>
@@ -202,7 +205,7 @@ export default function Chat(params: { definition: PromptDefinitionType, data: P
                             </div>
                             : m.role === 'assistant' &&
                             <div className="row justify-content-start me-5" key={m.id}>
-                                {m?.parts?.find((part) => part.type.startsWith('tool-')) && <div className={`mb-1`}>
+                                {m?.parts?.find((part) => part.type.startsWith('tool-')) && <div className="mb-1">
                                     {m?.parts?.filter((part) => part.type.startsWith('tool-'))?.map((part, index) => (
                                         <div key={index} className="mb-0">
                                             <div className={`text-wrap mb-0 chat-tool`}>
@@ -211,11 +214,21 @@ export default function Chat(params: { definition: PromptDefinitionType, data: P
                                         </div>
                                     ))}
                                 </div>}
-                                <div className={`col col-auto mb-0`}>
-                                    <div className={`text-wrap mb-3 rounded chat-content chat-ai`} dangerouslySetInnerHTML={{ __html: preprocessar(m, m.role) }} />
-                                </div>
+                                {hasText(m) &&
+                                    <div className={`col col-auto mb-0`}>
+                                        <div className={`text-wrap mb-3 rounded chat-content chat-ai`} dangerouslySetInnerHTML={{ __html: preprocessar(m, m.role) }} />
+                                    </div>}
                             </div>
                     ))}
+
+                    {error && <div className="row justify-content-start">
+                        <div className={`col col-auto mb-0`}>
+                            <div className={true ? 'alert alert-danger' : `text-wrap mb-3 rounded text-danger`}>
+                                <button type="button" className="btn-close float-end" data-bs-dismiss="alert" aria-label="Close" onClick={(e) => { e.preventDefault(); clearError() }}></button>
+                                <b>Erro:</b> {error.message}
+                            </div>
+                        </div>
+                    </div>}
 
                     <div className="rowx">
                         <div className="xcol xcol-12">
