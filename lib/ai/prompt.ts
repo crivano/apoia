@@ -198,6 +198,7 @@ import template from '@/prompts/template.md'
 import prev_bi_analise_de_laudo from '@/prompts/prev-bi-analise-de-laudo.md'
 import prev_bi_sentenca_laudo_favoravel from '@/prompts/prev-bi-sentenca-laudo-favoravel.md'
 import prev_bi_sentenca_laudo_desfavoravel from '@/prompts/prev-bi-sentenca-laudo-desfavoravel.md'
+import linguagem_simples from '@/prompts/linguagem-simples.md'
 
 // Enum for the different types of prompts
 export const internalPrompts = {
@@ -231,4 +232,5 @@ export const internalPrompts = {
     prev_bi_analise_de_laudo: promptDefinitionFromMarkdown('prev_bi_analise_de_laudo', prev_bi_analise_de_laudo),
     prev_bi_sentenca_laudo_favoravel: promptDefinitionFromMarkdown('prev_bi_sentenca_laudo_favoravel', prev_bi_sentenca_laudo_favoravel),
     prev_bi_sentenca_laudo_desfavoravel: promptDefinitionFromMarkdown('prev_bi_sentenca_laudo_desfavoravel', prev_bi_sentenca_laudo_desfavoravel),
+    linguagem_simples: promptDefinitionFromMarkdown('linguagem_simples', linguagem_simples),
 }

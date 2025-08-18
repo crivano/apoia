@@ -1,6 +1,7 @@
 import { Container, Row, Col, Card, CardBody, CardTitle, CardText } from 'react-bootstrap'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faList, faFileText, faDatabase, faAlignJustify, faComment, faComments } from '@fortawesome/free-solid-svg-icons'
+import { faList, faFileText, faDatabase, faAlignJustify, faComments } from '@fortawesome/free-solid-svg-icons'
+import { faFileLines } from '@fortawesome/free-regular-svg-icons'
 import Link from 'next/link'
 import ApiKeyMissing from '@/components/api-key-missing'
 import { assertCurrentUser } from '@/lib/user'
@@ -38,12 +39,19 @@ export default async function HomePage() {
             color: "text-warning"
         },
         {
+            icon: faFileLines,
+            title: "Linguagem Simples",
+            description: "Converta textos jurídicos para Linguagem Simples",
+            href: "/simplify",
+            color: "text-warning"
+        },
+        {
             icon: faAlignJustify,
             title: "Ementa",
             description: "Crie ementas jurídicas com base em decisões",
             href: "/headnote",
             color: "text-secondary"
-        }
+        },
     ]
 
     return (
