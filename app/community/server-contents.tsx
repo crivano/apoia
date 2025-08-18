@@ -5,7 +5,6 @@ import { Dao } from '@/lib/db/mysql'
 import { assertCurrentUser, isUserCorporativo, isUserModerator, UserType } from '@/lib/user'
 import { Contents } from './contents'
 import { Container } from 'react-bootstrap'
-import { cookies } from 'next/headers'
 
 export default async function ServerContents() {
     const user = await assertCurrentUser()
@@ -28,8 +27,6 @@ export default async function ServerContents() {
         return 0
     })
 
-    const listPublicPromptsCookie = !!(await cookies()).get('list-public-prompts')?.value
-
-    return <Contents prompts={prompts} user={user} user_id={user_id} apiKeyProvided={!!apiKey} model={model} listPublicPromptsCookie={listPublicPromptsCookie} />
+    return <Contents prompts={prompts} user={user} user_id={user_id} apiKeyProvided={!!apiKey} model={model} />
 }
 

@@ -81,7 +81,7 @@ const tableSpecs = (pathname: string, onClick: (kind: string, row: any) => void,
                 { header: 'Compart.', accessorKey: 'share', enableSorting: true, cell: data => Share[data.row.original.share]?.descr || 'Não Encontrado', style: { textAlign: "center" } },
                 { header: 'Estrelas', accessorKey: 'favorite_count', enableSorting: true, style: { textAlign: "right" } },
             ],
-            tableClassName: 'table table-striped'
+            tableClassName: 'table table-striped table-border-sides'
         },
         PromptsByKind: {
             columns: [

@@ -39,7 +39,7 @@ export default function Table({ records, spec, linkToAdd, linkToBack, pageSize, 
     const [sorting, setSorting] = useState([])
     const [globalFilter, setGlobalFilter] = useState('')
     const pathname = usePathname()
-    const { columns, thead, tr, tableClassName, pageSizes } = typeof (spec) === 'string' ? tableSpecs(pathname, onClick, options)[spec] : spec
+    const { columns, thead, tr, tableClassName, theadClassName, pageSizes } = typeof (spec) === 'string' ? tableSpecs(pathname, onClick, options)[spec] : spec
     const [rowSelection, setRowSelection] = useState<RowSelectionState>(selectedIds ? selectedIds.reduce((acc, value) => ({ ...acc, [value]: true }), {}) : {})
 
     const table = useReactTable({
@@ -80,7 +80,7 @@ export default function Table({ records, spec, linkToAdd, linkToBack, pageSize, 
     return (
         <div>
             <table className={tableClassName || 'table table-sm table-striped'}>
-                <thead>
+                <thead className={theadClassName || ''}>
                     {thead ? thead() : table.getHeaderGroups().map(headerGroup => (
                         <tr key={headerGroup.id}>
                             {headerGroup.headers.map(header => (

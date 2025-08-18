@@ -4,7 +4,7 @@ import { IAPromptList } from "@/lib/db/mysql-types"
 import { UserType } from "@/lib/user"
 import PromptsTable from "./prompts-table"
 import { useSearchParams } from "next/navigation"
-import { useEffect, useState } from "react"
+import React, { useEffect, useState } from "react"
 import ProcessNumberForm from "./process-number-form"
 import TargetText from "./target-text"
 import { DadosDoProcessoType, Instance, Matter, Scope } from "@/lib/proc/process-types"
@@ -13,14 +13,13 @@ import ProcessTitle from "../../components/slots/process-title"
 import { SubtituloLoading } from "../../components/slots/subtitulo"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faEdit } from "@fortawesome/free-solid-svg-icons"
-import { Button, Dropdown, DropdownButton, Form, FormGroup, FormLabel, FormSelect, Row, Toast, ToastContainer } from "react-bootstrap"
+import { Button, Dropdown, DropdownButton, Form, FormGroup, FormLabel, FormSelect, Row, Toast, ToastContainer, Tab, Tabs } from "react-bootstrap"
 import { enumSorted } from "@/lib/ai/model-types"
 import { Container, Spinner } from 'react-bootstrap'
 import { tua } from "@/lib/proc/tua"
 import Link from "next/link"
 import { VisualizationEnum } from "@/lib/ui/preprocess"
 import { array } from "zod"
-import { addListPublicPromptsCookie, removeListPublicPromptsCookie } from "./add-cookie"
 
 export const copyPromptToClipboard = (prompt: IAPromptList) => {
     let s: string = prompt.content.system_prompt
@@ -29,7 +28,7 @@ export const copyPromptToClipboard = (prompt: IAPromptList) => {
     navigator.clipboard.writeText(s)
 }
 
-export function Contents({ prompts, user, user_id, apiKeyProvided, model, listPublicPromptsCookie }: { prompts: IAPromptList[], user: UserType, user_id: number, apiKeyProvided: boolean, model?: string, listPublicPromptsCookie: boolean }) {
+export function Contents({ prompts, user, user_id, apiKeyProvided, model }: { prompts: IAPromptList[], user: UserType, user_id: number, apiKeyProvided: boolean, model?: string }) {
     const currentSearchParams = useSearchParams()
     const [prompt, setPrompt] = useState<IAPromptList>(null)
     const [numeroDoProcesso, setNumeroDoProcesso] = useState<string>(null)
@@ -45,17 +44,11 @@ export function Contents({ prompts, user, user_id, apiKeyProvided, model, listPu
     const [pieceContent, setPieceContent] = useState({})
     const [toast, setToast] = useState<string>()
     const [toastVariant, setToastVariant] = useState<string>()
-    const [listarPromptsPublicos, setListarPromptsPublicos] = useState(listPublicPromptsCookie)
+    const [activeTab, setActiveTab] = useState<string>('principal')
 
     const toastMessage = (message: string, variant: string) => {
         setToast(message)
         setToastVariant(variant)
-    }
-
-    const changeListarPromptsPublicos = (value: boolean) => {
-        setListarPromptsPublicos(value)
-        if (value) addListPublicPromptsCookie()
-        else removeListPublicPromptsCookie()
     }
 
 
@@ -145,12 +138,19 @@ export function Contents({ prompts, user, user_id, apiKeyProvided, model, listPu
 
     const PromptTitle = ({ prompt }: { prompt: IAPromptList }) => <div className="text-body-tertiary text-center h-print">Prompt: {prompt.name} - <span onClick={() => { setPromptParam(undefined); setPrompt(null) }} className="text-primary" style={{ cursor: 'pointer' }}><FontAwesomeIcon icon={faEdit} /> Alterar</span></div>
 
-    const filteredPrompts = prompts.filter((p) => {
-        if (!listarPromptsPublicos && p.share === 'PUBLICO' && !p.is_mine) return false
+    const filteredPromptsBase = prompts.filter((p) => {
         if (scope && !p.content.scope?.includes(scope)) return false
         if (instance && !p.content.instance?.includes(instance)) return false
         if (matter && !p.content.matter?.includes(matter)) return false
         return true
+    })
+
+    const promptsPrincipais = filteredPromptsBase.filter((p) => {
+        return p.share === 'PADRAO' || p.is_mine
+    })
+
+    const promptsComunidade = filteredPromptsBase.filter((p) => {
+        return p.share !== 'PADRAO' && !p.is_mine
     })
 
     return !prompt
@@ -161,7 +161,7 @@ export function Contents({ prompts, user, user_id, apiKeyProvided, model, listPu
                     <FormGroup as={Row} className="">
                         <div className="col col-auto">
                             <FormLabel className="mb-0">Número do Processo</FormLabel>
-                            <Form.Control name="numeroDoProcesso" placeholder="(opcional)" autoFocus={true} className="form-control" onChange={(e: React.ChangeEvent<HTMLInputElement>) => setNumber(e.target.value.replace(/\D/g, ""))} value={number} />
+                            <Form.Control name="numeroDoProcesso" placeholder="(opcional)" autoFocus={true} className="form-control" onChange={(e) => setNumber(e.target.value.replace(/\D/g, ""))} value={number} />
                         </div>
                         {numeroDoProcesso && !dadosDoProcesso &&
                             <div className="col col-auto">
@@ -209,54 +209,42 @@ export function Contents({ prompts, user, user_id, apiKeyProvided, model, listPu
             </div >
             <Container className="mt-2 mb-3" fluid={false}>
                 {!apiKeyProvided && <p className="text-center mt-3 mb-3">Execute os prompts diretamente na Apoia, cadastrando sua <Link href="/prefs">Chave de API</Link>.</p>}
-                <PromptsTable prompts={filteredPrompts} onClick={promptOnClick} onProcessNumberChange={setNumeroDoProcesso}>
-                    <div className="col col-auto">
-                        <DropdownButton id="criar-novo-dropdown" title="Criar Novo" variant="primary">
-                            <Dropdown.Item href="/community/prompt/new">Prompt</Dropdown.Item>
-                            <Dropdown.Item href="/community/prompt/new?template=true">Prompt a partir de um modelo</Dropdown.Item>
-                        </DropdownButton>
-                    </div>
-                    {listarPromptsPublicos &&
-                        <div className="col col-auto">
-                            <div className="form-check mt-2">
-                                <input
-                                    className="form-check-input"
-                                    type="checkbox"
-                                    id="acceptPublicPrompts"
-                                    checked={listarPromptsPublicos}
-                                    onChange={(e) => changeListarPromptsPublicos(e.target.checked)}
-                                />
-                                <label className="form-check-label" htmlFor="acceptPublicPrompts">
-                                    Listar prompts públicos
-                                </label>
+                
+                <Tabs
+                    activeKey={activeTab}
+                    onSelect={(k) => setActiveTab(k || 'principal')}
+                    className="mb-3x"
+                >
+                    <Tab eventKey="principal" title="Principal">
+                        <PromptsTable prompts={promptsPrincipais} onClick={promptOnClick} onProcessNumberChange={setNumeroDoProcesso}>
+                            <div className="col col-auto">
+                                <DropdownButton id="criar-novo-dropdown" title="Criar Novo" variant="primary">
+                                    <Dropdown.Item href="/community/prompt/new">Prompt</Dropdown.Item>
+                                    <Dropdown.Item href="/community/prompt/new?template=true">Prompt a partir de um modelo</Dropdown.Item>
+                                </DropdownButton>
                             </div>
-                        </div>
-                    }
-                </PromptsTable>
-
-                {!listarPromptsPublicos && <>
-                    <div className="mb-3">
-                        <div className="mt-5 pt-2 border-top">
-                            <p className="text-body-tertiary">
-                                Deseja visualizar prompts compartilhados publicamente por outros usuários?
+                        </PromptsTable>
+                    </Tab>
+                    
+                    <Tab eventKey="comunidade" title="Comunidade">
+                        <PromptsTable prompts={promptsComunidade} onClick={promptOnClick} onProcessNumberChange={setNumeroDoProcesso}>
+                            <div className="col col-auto">
+                                <DropdownButton id="criar-novo-dropdown" title="Criar Novo" variant="primary">
+                                    <Dropdown.Item href="/community/prompt/new">Prompt</Dropdown.Item>
+                                    <Dropdown.Item href="/community/prompt/new?template=true">Prompt a partir de um modelo</Dropdown.Item>
+                                </DropdownButton>
+                            </div>
+                        </PromptsTable>
+                        
+                        <div className="mt-3 p-3 bg-light rounded">
+                            <p className="text-body-tertiary mb-2">
+                                <strong>⚠️ Atenção:</strong> Os prompts da comunidade são compartilhados publicamente por outros usuários.
                                 Esses prompts não passam por nenhum tipo de validação e podem gerar respostas imprecisas,
                                 inconsistentes ou inadequadas para seu contexto.
                             </p>
                         </div>
-                    </div>
-                    <div className="form-check mt-3">
-                        <input
-                            className="form-check-input"
-                            type="checkbox"
-                            id="acceptPublicPrompts"
-                            checked={listarPromptsPublicos}
-                            onChange={(e) => changeListarPromptsPublicos(e.target.checked)}
-                        />
-                        <label className="form-check-label" htmlFor="acceptPublicPrompts">
-                            Listar prompts públicos
-                        </label>
-                    </div>
-                </>}
+                    </Tab>
+                </Tabs>
 
             </Container>
             <ToastContainer className="p-3" position="bottom-end" style={{ zIndex: 1 }}>
