@@ -6,8 +6,10 @@ if (fs.existsSync('.env.local')) {
   dotenv.config({ path: '.env' })
 }
 
+const client = process.env.DB_CLIENT
+
 const knexConfig = {
-  client: process.env.DB_CLIENT,
+  client,
   connection: {
     host: process.env.DB_HOST,
     port: process.env.DB_PORT ? parseInt(process.env.DB_PORT) : 3305,
@@ -17,6 +19,14 @@ const knexConfig = {
     ssl: process.env.DB_SSL ? { rejectUnauthorized: false } : false,
   },
   pool: { min: 0, max: process.env.DB_POOL ? parseInt(process.env.DB_POOL) : 2 },
+  migrations: {
+    directory:
+      client === 'pg'
+        ? './migrations/knex/postgres'
+        : client === 'mysql'
+        ? './migrations/knex/mysql'
+        : './migrations',
+  },
 }
 
 export default knexConfig
