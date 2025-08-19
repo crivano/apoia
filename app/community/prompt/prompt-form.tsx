@@ -166,8 +166,8 @@ export default function PromptForm(props) {
                     <ol className="mb-0">
                         <li><strong>Não disponibilizar um prompt que peça para a IA tomar decisão</strong>, ou outro tipo de prompt de viole a Resolução 615/2025 do CNJ;</li>
                         <li>Escrever o nome do prompt e o nome do autor com letras minúsculas e maiúsculas, <strong>não usar apenas maiúsculas</strong>;</li>
-                        <li>Disponibilizar publicamente <strong>apenas prompts úteis para todos os usuários</strong>. Para compartilhar um prompt que só faz sentido para a sua unidade, utilize o recurso de "<a href="https://trf2.gitbook.io/apoia/criar-novo-prompt" target="_blank">Não Listado</a>".</li>
-                        <li><strong>Testar exaustivamente</strong> o prompt antes de disponibilizá-lo.</li>
+                        <li>Disponibilizar publicamente <strong>apenas prompts úteis para todos os usuários</strong>. Para compartilhar um prompt que só faz sentido para a sua unidade, utilize o recurso de <a href="https://trf2.gitbook.io/apoia/criar-novo-prompt" target="_blank">Não Listado</a>.</li>
+                        <li><strong>Testar</strong> exaustivamente o prompt antes de disponibilizá-lo.</li>
                     </ol>
                 </div>
                 </div>}
