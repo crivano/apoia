@@ -162,12 +162,11 @@ export default function PromptForm(props) {
             </div>
             {data?.share === 'PUBLICO' &&
                 <div className="col col-12"><div className="alert alert-danger mb-0 mt-3"><p><strong>Atenção:</strong> Um prompt público fica visível para todos os usuários.</p>
-                    <p>Para que seu prompt não seja cancelado, certifique-se de:</p>
+                    <p>Para que seu prompt permaneça público, certifique-se de:</p>
                     <ol className="mb-0">
-                        <li><strong>Não disponibilizar um prompt que peça para a IA tomar decisão</strong>, ou outro tipo de prompt de viole a Resolução 615/2025 do CNJ;</li>
+                        <li><strong>Descrever a função do seu prompt ao nomeá-lo</strong>, para facilitar a utilização pelos demais.</li>
                         <li>Escrever o nome do prompt e o nome do autor com letras minúsculas e maiúsculas, <strong>não usar apenas maiúsculas</strong>;</li>
-                        <li>Disponibilizar publicamente <strong>apenas prompts úteis para todos os usuários</strong>. Para compartilhar um prompt que só faz sentido para a sua unidade, utilize o recurso de <a href="https://trf2.gitbook.io/apoia/criar-novo-prompt" target="_blank">Não Listado</a>.</li>
-                        <li><strong>Testar</strong> exaustivamente o prompt antes de disponibilizá-lo.</li>
+                        <li><strong>Testar</strong> exaustivamente o prompt antes de disponibilizá-lo, a fim de verificar que apresenta os resultados esperados.</li>
                     </ol>
                 </div>
                 </div>}
