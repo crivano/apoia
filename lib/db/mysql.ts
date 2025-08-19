@@ -836,12 +836,51 @@ export class Dao {
         return result
     }
 
-    static async assertIAUserId(username: string): Promise<number> {
+
+    static async assertIAUserId(username: string, userFields?: mysqlTypes.IAUserUpdateFields): Promise<number> {
         if (!knex) return
-        const user = await knex('ia_user').select('id').where({ username }).first()
-        if (user) return user.id
+        const user = await knex('ia_user').select('*').where({ username }).first()
+        if (user) {
+            // Update user fields if provided and different from existing values
+            if (userFields) {
+                const updates: Partial<mysqlTypes.IAUserUpdateFields> = {}
+                
+                // Check each field and add to updates if provided and different
+                if (userFields.name !== undefined && userFields.name !== user.name) {
+                    updates.name = userFields.name
+                }
+                if (userFields.cpf !== undefined && userFields.cpf !== user.cpf) {
+                    updates.cpf = userFields.cpf
+                }
+                if (userFields.email !== undefined && userFields.email !== user.email) {
+                    updates.email = userFields.email
+                }
+                if (userFields.unit_id !== undefined && userFields.unit_id !== user.unit_id) {
+                    updates.unit_id = userFields.unit_id
+                }
+                if (userFields.unit_name !== undefined && userFields.unit_name !== user.unit_name) {
+                    updates.unit_name = userFields.unit_name
+                }
+                if (userFields.court_id !== undefined && userFields.court_id !== user.court_id) {
+                    updates.court_id = userFields.court_id
+                }
+                if (userFields.court_name !== undefined && userFields.court_name !== user.court_name) {
+                    updates.court_name = userFields.court_name
+                }
+                if (userFields.state_abbreviation !== undefined && userFields.state_abbreviation !== user.state_abbreviation) {
+                    updates.state_abbreviation = userFields.state_abbreviation
+                }
+                
+                // Perform update if there are changes
+                if (Object.keys(updates).length > 0) {
+                    await knex('ia_user').update(updates).where({ id: user.id })
+                }
+            }
+            return user.id
+        }
         const [result] = await knex('ia_user').insert({
-            username
+            username,
+            ...userFields
         }).returning('id')
         return getId(result)
     }

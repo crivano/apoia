@@ -71,7 +71,17 @@ export async function POST(request: Request) {
         const user = await getCurrentUser()
         if (!user) return Response.json({ errormsg: 'Unauthorized' }, { status: 401 })
 
-        const user_id = await Dao.assertIAUserId(user.preferredUsername || user.name)
+        const userFields = user.corporativo?.length ? {
+            name: user.corporativo?.[0]?.nom_usuario || null,
+            cpf: user.corporativo?.[0]?.num_cpf || null,
+            email: user.corporativo?.[0]?.dsc_email || null,
+            unit_id: user.corporativo?.[0]?.seq_orgao || null,
+            unit_name: user.corporativo?.[0]?.dsc_orgao || null,
+            court_id: user.corporativo?.[0]?.seq_tribunal_pai || null,
+            court_name: user.corporativo?.[0]?.dsc_tribunal_pai || null,
+            state_abbreviation: user.corporativo?.[0]?.sig_uf || null,
+        } : undefined
+        const user_id = await Dao.assertIAUserId(user.preferredUsername || user.name, userFields)
 
         // const body = JSON.parse(JSON.stringify(request.body))
         const body = await request.json()
