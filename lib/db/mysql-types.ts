@@ -316,3 +316,14 @@ export type UserUsageData = {
     usage_count: number
     approximate_cost: number
 }
+
+export type IAUserUpdateFields = {
+    name?: string | null
+    cpf?: string | null
+    email?: string | null
+    unit_id?: number | null
+    unit_name?: string | null
+    court_id?: number | null
+    court_name?: string | null
+    state_abbreviation?: string | null
+}
